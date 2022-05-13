@@ -43,7 +43,7 @@ namespace cmm
 
     enum class TokenType
     {
-        BOOL = 0, CHAR, DOUBLE, INT32, NULL_T, STRING
+        BOOL = 0, CHAR, FLOAT, DOUBLE, INT16, INT32, INT64, NULL_T, STRING
     };
 
     CMM_CONSTEXPR_FUNC const char* toString(const TokenType tokenType) noexcept
@@ -54,10 +54,16 @@ namespace cmm
             return "bool";
         case TokenType::CHAR:
             return "char";
+        case TokenType::FLOAT:
+            return "float";
         case TokenType::DOUBLE:
             return "double";
+        case TokenType::INT16:
+            return "int16";
         case TokenType::INT32:
             return "int32";
+        case TokenType::INT64:
+            return "int64";
         case TokenType::NULL_T:
             return "NULL";
         case TokenType::STRING:
@@ -208,16 +214,39 @@ namespace cmm
         void setDouble(const f64 doubleValue) noexcept;
 
         /**
-         * Gets the value as a int.
+         * Gets the value as a int16.
          * Note: the caller should check against the TokenType before calling
-         * this as the result is the raw value as a int (valid or not).
+         * this as the result is the raw value as a int16 (valid or not).
+         *
+         * @return f64.
+         */
+        s16 asInt16() const noexcept;
+
+        /**
+         * Gets whether the token is a int16.
+         *
+         * @return bool.
+         */
+        bool isInt16() const noexcept;
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param doubleValue the int16 to set.
+         */
+        void setInt16(const s16 intValue) noexcept;
+
+        /**
+         * Gets the value as a int32.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a int32 (valid or not).
          *
          * @return f64.
          */
         s32 asInt32() const noexcept;
 
         /**
-         * Gets whether the token is a int.
+         * Gets whether the token is a int32.
          *
          * @return bool.
          */
@@ -229,6 +258,29 @@ namespace cmm
          * @param doubleValue the int32 to set.
          */
         void setInt32(const s32 intValue) noexcept;
+
+        /**
+         * Gets the value as a int64.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a int64 (valid or not).
+         *
+         * @return f64.
+         */
+        s64 asInt64() const noexcept;
+
+        /**
+         * Gets whether the token is a int64.
+         *
+         * @return bool.
+         */
+        bool isInt64() const noexcept;
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param doubleValue the int64 to set.
+         */
+        void setInt64(const s64 intValue) noexcept;
 
         /**
          * Gets whether the token is a null value.
@@ -271,7 +323,9 @@ namespace cmm
             bool b;
             char ch;
             f64 doubleValue;
+            s16 int16Value;
             s32 int32Value;
+            s64 int64Value;
             StringView* str;
             char strBuffer[sizeof(StringView)];
         };
