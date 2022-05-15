@@ -1,3 +1,8 @@
+/**
+ * @author hockeyhurd
+ * @version 2022-05-13
+ */
+
 #include <cmm/Token.h>
 
 namespace cmm

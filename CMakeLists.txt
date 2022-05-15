@@ -17,7 +17,7 @@ endif()
 include_directories(include)
 
 # All cmm source files
-set(SOURCE_FILES src/Main.cpp src/StringView.cpp src/Token.cpp)
+set(SOURCE_FILES src/Lexer.cpp src/Location.cpp src/Main.cpp src/Snapshot.cpp src/StringView.cpp src/Token.cpp)
 
 # Require threading library (Linux/Unix this is pthreads).
 set(THREADS_PREFER_PTHREAD_FLAG ON)

@@ -1,5 +1,5 @@
 /**
- * Represents a single token fed to the lexer.
+ * Represents snapshot between two pointers in a lexer token stream.
  *
  * @author hockeyhurd
  * @version 2022-05-13

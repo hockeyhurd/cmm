@@ -1,4 +1,6 @@
 /**
+ * Represents a single token fed to the lexer.
+ *
  * @author hockeyhurd
  * @version 2022-05-13
  */
