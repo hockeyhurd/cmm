@@ -28,16 +28,16 @@ namespace cmm
     CMM_CONSTEXPR char CHAR_EOF = EOF;
     CMM_CONSTEXPR char CHAR_EQUALS = '=';
     CMM_CONSTEXPR char CHAR_LCURLY_BRACKET = '{';
+    CMM_CONSTEXPR char CHAR_LPAREN = '(';
     CMM_CONSTEXPR char CHAR_LSQUARE_BRACKET = '[';
-    CMM_CONSTEXPR char CHAR_LBRACKET = '[';
     CMM_CONSTEXPR char CHAR_MINUS = '-';
     CMM_CONSTEXPR char CHAR_NEWLINE = '\n';
     CMM_CONSTEXPR char CHAR_NULL = '\0';
     CMM_CONSTEXPR char CHAR_PERIOD = '.';
     CMM_CONSTEXPR char CHAR_PLUS = '+';
     CMM_CONSTEXPR char CHAR_RCURLY_BRACKET = '}';
+    CMM_CONSTEXPR char CHAR_RPAREN = ')';
     CMM_CONSTEXPR char CHAR_RSQUARE_BRACKET = ']';
-    CMM_CONSTEXPR char CHAR_RBRACKET = ']';
     CMM_CONSTEXPR char CHAR_SEMI_COLON = ';';
     CMM_CONSTEXPR char CHAR_SINGLE_QOUTE = '\'';
     CMM_CONSTEXPR char CHAR_SPACE = ' ';
@@ -45,7 +45,7 @@ namespace cmm
 
     enum class TokenType
     {
-        BOOL = 0, CHAR, FLOAT, DOUBLE, INT16, INT32, INT64, NULL_T, STRING
+        BOOL = 0, CHAR, FLOAT, DOUBLE, INT16, INT32, INT64, NULL_T, STRING, SYMBOL
     };
 
     CMM_CONSTEXPR_FUNC const char* toString(const TokenType tokenType) noexcept
@@ -61,15 +61,17 @@ namespace cmm
         case TokenType::DOUBLE:
             return "double";
         case TokenType::INT16:
-            return "int16";
+            return "i16";
         case TokenType::INT32:
-            return "int32";
+            return "i32";
         case TokenType::INT64:
-            return "int64";
+            return "i64";
         case TokenType::NULL_T:
             return "NULL";
         case TokenType::STRING:
             return "string";
+        case TokenType::SYMBOL:
+            return "symbol";
         default:
             return "<Invalid TokenType>";
         }
@@ -90,8 +92,9 @@ namespace cmm
          * Constructor initialized with the text to be tokenized.
          *
          * @param ch the character represented by the char.
+         * @param isSymbol bool whether this is a char type "'a'" vs char symbol "a".
          */
-        explicit Token(const char ch) noexcept;
+        explicit Token(const char ch, const bool isSymbol) noexcept;
 
         /**
          * Constructor initialized with the text to be tokenized.
@@ -319,6 +322,29 @@ namespace cmm
          */
         void setCString(StringView str) noexcept;
 
+        /**
+         * Gets the value as a symbol.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a symbol, that also happens to be a char (valid or not).
+         *
+         * @return char.
+         */
+        char asSymbol() const noexcept;
+
+        /**
+         * Gets whether the token is a symbol.
+         *
+         * @return bool.
+         */
+        bool isSymbol() const noexcept;
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param symbol the char to set.
+         */
+        void setSymbol(const char symbol) noexcept;
+
     private:
         union Values
         {
@@ -330,6 +356,7 @@ namespace cmm
             s64 int64Value;
             StringView* str;
             char strBuffer[sizeof(StringView)];
+            char symbol;
         };
 
         // The type of the token

@@ -10,14 +10,27 @@
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 
+// std includes
+#include <optional>
+#include <sstream>
+
 namespace cmm
 {
-    Lexer::Lexer(const std::string& text) : text(text), index(0)
+    static std::optional<f64> validateNumber(const std::string& str)
     {
+        std::size_t parsedCount = 0;
+        const f64 value = std::stod(str, &parsedCount);
+        return parsedCount > 0 ? std::make_optional(value) : std::optional<f64>();
     }
 
-    Lexer::Lexer(std::string&& text) : text(std::move(text)), index(0)
+    Lexer::Lexer(const std::string& text) : text(text), index(0)
     {
+        builder.reserve(0x40);
+    }
+
+    Lexer::Lexer(std::string&& text) noexcept : text(std::move(text)), index(0)
+    {
+        builder.reserve(0x40);
     }
 
     bool Lexer::nextToken(Token& token)
@@ -62,6 +75,30 @@ namespace cmm
         }
     }
 
+    char Lexer::nextChar() noexcept
+    {
+        if (index < text.size())
+        {
+            const auto ch = text[index++];
+
+            switch (ch)
+            {
+            case CHAR_NEWLINE:
+            case CHAR_CARRIAGE_RETURN:
+                ++location.line;
+                location.pos = 1;
+                break;
+            default:
+                ++location.pos;
+                break;
+            }
+
+            return ch;
+        }
+
+        return CHAR_EOF;
+    }
+
     char Lexer::peekNextChar() const noexcept
     {
         if (index < text.size())
@@ -71,6 +108,247 @@ namespace cmm
 
     bool Lexer::nextTokenInternal(Token& token)
     {
+        // Always clear the buffer when lexing the next token.
+        builder.clear();
+
+        // Always start by consuming any 'dead' whitespace.
+        consumeWhitespace();
+
+        while (index < text.size())
+        {
+            auto currentChar = nextChar();
+
+            switch (currentChar)
+            {
+            case CHAR_BACK_SLASH:
+                continue;
+            case CHAR_DOUBLE_QOUTE:
+            {
+                // TODO: Support unicode
+                const char* start = &text[index];
+
+                do
+                {
+                    // TODO: Might be able to remove this, at least for this loop.
+                    // Note: Leaving for now...
+                    builder += currentChar;
+                    currentChar = nextChar();
+                }
+                while (index < text.size() && (currentChar != CHAR_DOUBLE_QOUTE));
+
+                if (currentChar == CHAR_DOUBLE_QOUTE)
+                {
+                    const char* end = &text[index - 1];
+                    token.setCString(StringView(start, end));
+                    return true;
+                }
+            }
+                break;
+            case CHAR_SINGLE_QOUTE:
+            {
+                // TODO: Support unicode
+                builder += currentChar;
+                currentChar = nextChar();
+                char expectedResult = currentChar;
+                builder += currentChar;
+
+                if (currentChar == CHAR_SINGLE_QOUTE)
+                {
+                    // TODO: Do nothing or return false??
+                    // return false;
+                }
+
+                else
+                {
+                    if (currentChar == CHAR_BACK_SLASH)
+                    {
+                        // Char to decode
+                        // TODO: Implement
+                        // expectedResult = <decoded value>
+                    }
+
+                    else
+                    {
+                        expectedResult = currentChar;
+                    }
+
+                    currentChar = nextChar();
+                    builder += currentChar;
+
+                    // Now expect close CHAR_SINGLE_QOUTE
+                    if (currentChar == CHAR_SINGLE_QOUTE)
+                    {
+                        token.setChar(expectedResult);
+                        return true;
+                    }
+                }
+            }
+                break;
+            case 'f':
+            {
+                currentChar = nextChar();
+                if (currentChar != 'a')
+                    return false;
+
+                currentChar = nextChar();
+                if (currentChar != 'l')
+                    return false;
+
+                currentChar = nextChar();
+                if (currentChar != 's')
+                    return false;
+
+                currentChar = nextChar();
+                if (currentChar != 'e')
+                    return false;
+
+                token.setBool(false);
+            }
+                break;
+            case 't':
+            {
+                currentChar = nextChar();
+                if (currentChar != 'r')
+                    return false;
+
+                currentChar = nextChar();
+
+                if (currentChar != 'u')
+                    return false;
+
+                currentChar = nextChar();
+                if (currentChar != 'e')
+                    return false;
+
+                token.setBool(true);
+            }
+                break;
+            case 'n':
+            {
+                currentChar = nextChar();
+
+                if (currentChar != 'u')
+                    return false;
+
+                currentChar = nextChar();
+                if (currentChar != 'l')
+                    return false;
+
+                currentChar = nextChar();
+                if (currentChar != 'l')
+                    return false;
+
+                token.setNull();
+            }
+                break;
+
+            case CHAR_MINUS:
+            case CHAR_PLUS:
+            {
+                builder += currentChar;
+                currentChar = nextChar();
+            }
+                // fallthrough
+            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            {
+                bool seenDot = false;
+                bool seenE = false;
+
+                do
+                {
+                    builder += currentChar;
+                    const auto nextCh = peekNextChar();
+
+                    if (std::isdigit(nextCh))
+                    {
+                        currentChar = nextChar();
+                    }
+
+                    else if (nextCh == CHAR_PERIOD)
+                    {
+                        if (!seenDot && !seenE)
+                        {
+                            seenDot = true;
+                            currentChar = nextChar();
+                        }
+
+                        else if (!seenDot && seenE)
+                        {
+                            std::ostringstream err;
+                            err << "[LEXER]: Lexing a decimal number that contained '.' after using 'E' or 'e' at "
+                                    << location.toString();
+                            throw std::runtime_error(err.str());
+                        }
+
+                        else
+                        {
+                            std::ostringstream err;
+                            err << "[LEXER]: Lexing a decimal number that contained multiple '.' in a double value at "
+                                    << location.toString();
+                            throw std::runtime_error(err.str());
+                        }
+                    }
+
+                    else if (nextCh == 'e' || nextCh == 'E')
+                    {
+                        if (!seenE)
+                        {
+                            seenE = true;
+                            currentChar = nextChar();
+                        }
+
+                        else
+                        {
+                            std::ostringstream err;
+                            err << "[LEXER]: Lexing a decimal number that contained multiple 'e' or 'E' in a double value at "
+                                    << location.toString();
+                            throw std::runtime_error(err.str());
+                        }
+                    }
+
+                    else
+                    {
+                        break;
+                    }
+                }
+                while (true);
+
+                const auto optionalF64 = validateNumber(builder);
+
+                if (optionalF64.has_value())
+                {
+                    token.setDouble(*optionalF64);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+            }
+                break;
+            case CHAR_LCURLY_BRACKET:
+            case CHAR_RCURLY_BRACKET:
+            case CHAR_LPAREN:
+            case CHAR_RPAREN:
+            case CHAR_LSQUARE_BRACKET:
+            case CHAR_RSQUARE_BRACKET:
+            case CHAR_COLON:
+            case CHAR_COMMA:
+                token.setSymbol(currentChar);
+                return true;
+            case CHAR_EOF:
+                return false;
+            default:
+            {
+                std::ostringstream err;
+                err << "[LEXER]: Unexpected token exception '" << builder
+                    << "\" at " << location.toString();
+                throw std::runtime_error(err.str());
+            }
+            }
+        }
+
         return false;
     }
 

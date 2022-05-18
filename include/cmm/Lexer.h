@@ -26,7 +26,7 @@ namespace cmm
     {
     public:
         Lexer(const std::string& text);
-        Lexer(std::string&& text);
+        Lexer(std::string&& text) noexcept;
         Lexer(const Lexer&) = default;
         Lexer(Lexer&&) noexcept = default;
         ~Lexer() = default;
@@ -39,6 +39,7 @@ namespace cmm
 
     private:
         void consumeWhitespace();
+        char nextChar() noexcept;
         char peekNextChar() const noexcept;
         bool nextTokenInternal(Token& token);
         void restore(const Snapshot& snap) noexcept;
@@ -47,6 +48,7 @@ namespace cmm
         std::string text;
         std::size_t index;
         Location location;
+        std::string builder;
     };
 }
 

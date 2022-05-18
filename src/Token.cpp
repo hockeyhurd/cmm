@@ -12,8 +12,18 @@ namespace cmm
         value.b = b;
     }
 
-    Token::Token(const char ch) noexcept : type(TokenType::CHAR)
+    Token::Token(const char ch, const bool isSymbol) noexcept
     {
+        if (isSymbol)
+        {
+            type = TokenType::SYMBOL;
+        }
+
+        else
+        {
+            type = TokenType::CHAR;
+        }
+
         value.ch = ch;
     }
 
@@ -155,6 +165,22 @@ namespace cmm
         type = TokenType::STRING;
         auto* stringView = reinterpret_cast<StringView*>(value.strBuffer);
         *stringView = str;
+    }
+
+    char Token::asSymbol() const noexcept
+    {
+        return value.symbol;
+    }
+
+    bool Token::isSymbol() const noexcept
+    {
+        return type == TokenType::SYMBOL;
+    }
+
+    void Token::setSymbol(const char symbol) noexcept
+    {
+        type = TokenType::SYMBOL;
+        value.symbol = symbol;
     }
 }
 
