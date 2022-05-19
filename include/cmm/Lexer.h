@@ -34,6 +34,28 @@ namespace cmm
         Lexer& operator= (const Lexer&) = default;
         Lexer& operator= (Lexer&&) noexcept = default;
 
+        /**
+         * Gets the current location.
+         *
+         * @return Location
+         */
+        Location getLocation() const noexcept;
+
+        /**
+         * Gets whether we have reached end of input or EOF.
+         *
+         * @return bool true if completed, else false.
+         */
+        bool completed() const noexcept;
+
+        /**
+         * Gets whether we have reached end of input or EOF,
+         * or the remaining characters are just whitespace.
+         *
+         * @return bool true if completed, else false.
+         */
+        bool completedOrWhitespaceOnly() noexcept;
+
         bool nextToken(Token& token);
         bool peekNextToken(Token& token);
 

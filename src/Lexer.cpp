@@ -33,6 +33,33 @@ namespace cmm
         builder.reserve(0x40);
     }
 
+    Location Lexer::getLocation() const noexcept
+    {
+        return location;
+    }
+
+    bool Lexer::completed() const noexcept
+    {
+        return index == text.size();
+    }
+
+    bool Lexer::completedOrWhitespaceOnly() noexcept
+    {
+        // If already completed, early exit.
+        if (completed())
+            return true;
+
+        Snapshot snap(index);
+        consumeWhitespace();
+
+        const bool result = completed();
+
+        // Restore incase we might try to do more in the future.
+        restore(snap);
+
+        return result;
+    }
+
     bool Lexer::nextToken(Token& token)
     {
         const bool result = nextTokenInternal(token);
@@ -125,6 +152,7 @@ namespace cmm
             case CHAR_DOUBLE_QOUTE:
             {
                 // TODO: Support unicode
+                bool lastWasEscaped = false;
                 const char* start = &text[index];
 
                 do
@@ -132,9 +160,10 @@ namespace cmm
                     // TODO: Might be able to remove this, at least for this loop.
                     // Note: Leaving for now...
                     builder += currentChar;
+                    lastWasEscaped = !lastWasEscaped && currentChar == CHAR_BACK_SLASH;
                     currentChar = nextChar();
                 }
-                while (index < text.size() && (currentChar != CHAR_DOUBLE_QOUTE));
+                while (index < text.size() && (lastWasEscaped || currentChar != CHAR_DOUBLE_QOUTE));
 
                 if (currentChar == CHAR_DOUBLE_QOUTE)
                 {
@@ -203,6 +232,7 @@ namespace cmm
                     return false;
 
                 token.setBool(false);
+                return true;
             }
                 break;
             case 't':
@@ -221,6 +251,7 @@ namespace cmm
                     return false;
 
                 token.setBool(true);
+                return true;
             }
                 break;
             case 'n':
