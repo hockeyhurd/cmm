@@ -56,15 +56,34 @@ namespace cmm
          */
         bool completedOrWhitespaceOnly() noexcept;
 
-        bool nextToken(Token& token);
+        bool nextToken(Token& token, std::string* errorMessage = nullptr);
         bool peekNextToken(Token& token);
 
     private:
         void consumeWhitespace();
         char nextChar() noexcept;
         char peekNextChar() const noexcept;
-        bool nextTokenInternal(Token& token);
+        bool nextTokenInternal(Token& token, std::string* errorMessage = nullptr);
         void restore(const Snapshot& snap) noexcept;
+
+        static bool isEscape(char first, char second) noexcept;
+
+        /**
+         * Checks whether this char should be escaped.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool requiresEscape(char ch) noexcept;
+
+        /**
+         * Transforms the string sequence to its character representation.
+         *
+         * @param first char in sequence.
+         * @param second char in sequence.
+         * @return char.
+         */
+        static char transformEscapeSequence(char first, char second) noexcept;
 
     private:
         std::string text;

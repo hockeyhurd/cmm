@@ -60,16 +60,16 @@ namespace cmm
         return result;
     }
 
-    bool Lexer::nextToken(Token& token)
+    bool Lexer::nextToken(Token& token, std::string* errorMessage)
     {
-        const bool result = nextTokenInternal(token);
+        const bool result = nextTokenInternal(token, errorMessage);
         return result;
     }
 
     bool Lexer::peekNextToken(Token& token)
     {
         Snapshot snap(index);
-        const bool result = nextToken(token);
+        const bool result = nextToken(token, nullptr);
         restore(snap);
 
         return result;
@@ -133,7 +133,7 @@ namespace cmm
         return CHAR_EOF;
     }
 
-    bool Lexer::nextTokenInternal(Token& token)
+    bool Lexer::nextTokenInternal(Token& token, std::string* errorMessage)
     {
         // Always clear the buffer when lexing the next token.
         builder.clear();
@@ -151,24 +151,66 @@ namespace cmm
                 continue;
             case CHAR_DOUBLE_QOUTE:
             {
-                // TODO: Support unicode
-                bool lastWasEscaped = false;
-                const char* start = &text[index];
+                bool lastWasEscape = false;
+                char lastChar = currentChar;
+
+                // Get rid of the leading '"'
+                currentChar = nextChar();
+
+                // For our actual sequence of characters after handling escape codes.
+                std::string sequence;
 
                 do
                 {
                     // TODO: Might be able to remove this, at least for this loop.
                     // Note: Leaving for now...
                     builder += currentChar;
-                    lastWasEscaped = !lastWasEscaped && currentChar == CHAR_BACK_SLASH;
+
+                    if (lastWasEscape)
+                    {
+                        if (requiresEscape(currentChar))
+                        {
+                            const char escapedChar = transformEscapeSequence(lastChar, currentChar);
+                            sequence += escapedChar;
+                        }
+
+                        else
+                        {
+                            if (errorMessage != nullptr)
+                            {
+                                std::ostringstream err;
+                                err << "[LEXER]: Last character was escaped, but this character does not need to be at "
+                                    << location.toString();
+                                *errorMessage = err.str();
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        sequence += currentChar;
+                    }
+
+                    lastWasEscape = !lastWasEscape && (currentChar == CHAR_BACK_SLASH || currentChar == CHAR_DOUBLE_QOUTE);
+                    lastChar = currentChar;
                     currentChar = nextChar();
                 }
-                while (index < text.size() && (lastWasEscaped || currentChar != CHAR_DOUBLE_QOUTE));
+                while (index < text.size() && ((lastWasEscape) ^ (currentChar != CHAR_DOUBLE_QOUTE)));
 
-                if (currentChar == CHAR_DOUBLE_QOUTE)
+                if (lastWasEscape)
                 {
-                    const char* end = &text[index - 1];
-                    token.setCString(StringView(start, end));
+                    if (errorMessage != nullptr)
+                    {
+                        std::ostringstream err;
+                        err << "[LEXER]: Unfinished escape sequences at "
+                            << location.toString();
+                        *errorMessage = err.str();
+                    }
+                }
+
+                else if (currentChar == CHAR_DOUBLE_QOUTE)
+                {
+                    token.setCString(std::move(sequence));
                     return true;
                 }
             }
@@ -305,18 +347,24 @@ namespace cmm
 
                         else if (!seenDot && seenE)
                         {
-                            std::ostringstream err;
-                            err << "[LEXER]: Lexing a decimal number that contained '.' after using 'E' or 'e' at "
+                            if (errorMessage != nullptr)
+                            {
+                                std::ostringstream err;
+                                err << "[LEXER]: Lexing a decimal number that contained '.' after using 'E' or 'e' at "
                                     << location.toString();
-                            throw std::runtime_error(err.str());
+                                *errorMessage = err.str();
+                            }
                         }
 
                         else
                         {
-                            std::ostringstream err;
-                            err << "[LEXER]: Lexing a decimal number that contained multiple '.' in a double value at "
+                            if (errorMessage != nullptr)
+                            {
+                                std::ostringstream err;
+                                err << "[LEXER]: Lexing a decimal number that contained multiple '.' in a double value at "
                                     << location.toString();
-                            throw std::runtime_error(err.str());
+                                *errorMessage = err.str();
+                            }
                         }
                     }
 
@@ -330,10 +378,13 @@ namespace cmm
 
                         else
                         {
-                            std::ostringstream err;
-                            err << "[LEXER]: Lexing a decimal number that contained multiple 'e' or 'E' in a double value at "
+                            if (errorMessage != nullptr)
+                            {
+                                std::ostringstream err;
+                                err << "[LEXER]: Lexing a decimal number that contained multiple 'e' or 'E' in a double value at "
                                     << location.toString();
-                            throw std::runtime_error(err.str());
+                                *errorMessage = err.str();
+                            }
                         }
                     }
 
@@ -372,10 +423,13 @@ namespace cmm
                 return false;
             default:
             {
-                std::ostringstream err;
-                err << "[LEXER]: Unexpected token exception '" << builder
-                    << "\" at " << location.toString();
-                throw std::runtime_error(err.str());
+                if (errorMessage != nullptr)
+                {
+                    std::ostringstream err;
+                    err << "[LEXER]: Unexpected token exception '" << builder
+                        << "\" at " << location.toString();
+                    *errorMessage = err.str();
+                }
             }
             }
         }
@@ -386,6 +440,70 @@ namespace cmm
     void Lexer::restore(const Snapshot& snap) noexcept
     {
         index = snap.getPosition();
+    }
+
+    /* static */
+    bool Lexer::isEscape(char first, char second) noexcept
+    {
+        if (first != '\\')
+        {
+            return false;
+        }
+
+        switch (second)
+        {
+        case 'b':
+        case 'f':
+        case 'n':
+        case 'r':
+        case 't':
+        case CHAR_DOUBLE_QOUTE:
+        case CHAR_BACK_SLASH:
+            return true;
+        default:
+            return false;
+        }
+
+        // Should never be reached, but included to prevent some warnings in some compilers.
+        return false;
+    }
+
+    /* static */
+    bool Lexer::requiresEscape(char ch) noexcept
+    {
+        return isEscape(CHAR_BACK_SLASH, ch);
+    }
+
+    /* static */
+    char Lexer::transformEscapeSequence(char first, char second) noexcept
+    {
+        if (first != CHAR_BACK_SLASH)
+        {
+            return EOF;
+        }
+
+        switch (second)
+        {
+        case 'b':
+            return CHAR_BACK_SPACE;
+        case 'f':
+            return CHAR_FORM_FEED;
+        case 'n':
+            return CHAR_NEWLINE;
+        case 'r':
+            return CHAR_CARRIAGE_RETURN;
+        case 't':
+            return CHAR_TAB;
+        case CHAR_DOUBLE_QOUTE:
+            return CHAR_DOUBLE_QOUTE;
+        case CHAR_BACK_SLASH:
+            return CHAR_BACK_SLASH;
+        default:
+            return CHAR_EOF;
+        }
+
+        // Should never be reached, but included to prevent some warnings in some compilers.
+        return CHAR_EOF;
     }
 }
 

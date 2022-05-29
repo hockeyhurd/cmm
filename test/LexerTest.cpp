@@ -101,6 +101,40 @@ TEST(LexerTest, LexString)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexStringUnescapedBackslashError)
+{
+    const std::string text = " \\ ";
+    Lexer lexer(text);
+    Token token('\0', false);
+
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_NE(token.getType(), TokenType::STRING);
+}
+
+TEST(LexerTest, LexStringUnescapedBackslashAndDoubleQuoteError)
+{
+    const std::string text = " \\\" ";
+    Lexer lexer(text);
+    Token token('\0', false);
+
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_NE(token.getType(), TokenType::STRING);
+}
+
+TEST(LexerTest, ParseStringWithEscapedQuotes)
+{
+    const std::string value = "\\\"hello\\\"";
+    const std::string text = "\"\\\"hello\\\"\"";
+    Lexer lexer(text);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+
+    const auto& outValue = token.asCString();
+    ASSERT_EQ(value.size(), outValue.size());
+    ASSERT_EQ(value, outValue);
+}
+
 TEST(LexerTest, LexSymbol)
 {
     const std::string input = " { ";

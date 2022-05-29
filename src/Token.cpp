@@ -32,10 +32,113 @@ namespace cmm
         value.doubleValue = doubleValue;
     }
 
-    Token::Token(StringView str) noexcept : type(TokenType::STRING)
+    Token::Token(const std::string& str) : type(TokenType::STRING)
     {
-        auto* stringView = reinterpret_cast<StringView*>(value.strBuffer);
-        *stringView = str;
+        value.str = new std::string(str);
+    }
+
+    Token::Token(std::string&& str) : type(TokenType::STRING)
+    {
+        value.str = new std::string(std::move(str));
+    }
+
+    Token::Token(const Token& other) : type(other.type)
+    {
+        if (other.type == TokenType::STRING)
+        {
+            value.str = new std::string(*other.value.str);
+        }
+
+        else
+        {
+            value = other.value;
+        }
+    }
+
+    Token::Token(Token&& other) noexcept : type(other.type)
+    {
+        if (other.type == TokenType::STRING)
+        {
+            value.str = other.value.str;
+            other.value.str = nullptr;
+        }
+
+        else
+        {
+            value = other.value;
+            other.value.str = nullptr; // zero out other value
+        }
+    }
+
+    Token::~Token()
+    {
+        if (type == TokenType::STRING && value.str != nullptr)
+        {
+            delete value.str;
+            value.str = nullptr;
+        }
+    }
+
+    Token& Token::operator= (const Token& other)
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        // See if we are already a string
+        else if (type == TokenType::STRING)
+        {
+            // Other is also a string
+            if (other.type == TokenType::STRING)
+            {
+                // uninitialized string, create a new one.
+                if (value.str == nullptr)
+                {
+                    value.str = new std::string(*other.value.str);
+                }
+
+                // Set our string's value to the other.
+                else
+                {
+                    *value.str = *other.value.str;
+                }
+            }
+
+            // Other is NOT a string, but we are.  Cleanup the allocated memory.
+            else if (value.str != nullptr)
+            {
+                delete value.str;
+                value.str = nullptr;
+            }
+        }
+
+        // We are not a string, but the other value is.  Create a new string copy.
+        else if (other.type == TokenType::STRING)
+        {
+            value.str = new std::string(*other.value.str);
+        }
+
+        type = other.type;
+
+        return *this;
+    }
+
+    Token& Token::operator= (Token&& other) noexcept
+    {
+        // If we have an allocated std::string, need to clean this up before
+        // aquiring a new value.
+        if (type == TokenType::STRING && value.str != nullptr)
+        {
+            delete value.str;
+            value.str = nullptr;
+        }
+
+        type = other.type;
+        value = other.value;
+        other.value.str = nullptr; // zero out the value
+
+        return *this;
     }
 
     TokenType Token::getType() const noexcept
@@ -149,10 +252,14 @@ namespace cmm
         type = TokenType::NULL_T;
     }
 
-    StringView Token::asCString() const noexcept
+    std::string& Token::asCString() noexcept
     {
-        const auto* stringView = reinterpret_cast<const StringView*>(value.strBuffer);
-        return *stringView;
+        return *value.str;
+    }
+
+    const std::string& Token::asCString() const noexcept
+    {
+        return *value.str;
     }
 
     bool Token::isCString() const noexcept
@@ -160,11 +267,50 @@ namespace cmm
         return type == TokenType::STRING;
     }
 
-    void Token::setCString(StringView str) noexcept
+    void Token::setCString(const std::string& str)
     {
-        type = TokenType::STRING;
-        auto* stringView = reinterpret_cast<StringView*>(value.strBuffer);
-        *stringView = str;
+        // Check if already a std::string
+        if (type == TokenType::STRING)
+        {
+            if (value.str == nullptr)
+            {
+                value.str = new std::string(str);
+            }
+
+            else
+            {
+                *value.str = str;
+            }
+        }
+
+        else
+        {
+            type = TokenType::STRING;
+            value.str = new std::string(str);
+        }
+    }
+
+    void Token::setCString(std::string&& str)
+    {
+        // Check if already a std::string
+        if (type == TokenType::STRING)
+        {
+            if (value.str == nullptr)
+            {
+                value.str = new std::string(std::move(str));
+            }
+
+            else
+            {
+                *value.str = str;
+            }
+        }
+
+        else
+        {
+            type = TokenType::STRING;
+            value.str = new std::string(std::move(str));
+        }
     }
 
     char Token::asSymbol() const noexcept

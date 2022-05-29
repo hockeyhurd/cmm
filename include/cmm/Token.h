@@ -12,21 +12,23 @@
 
 // cmm includes
 #include <cmm/Types.h>
-#include <cmm/StringView.h>
 
 // std includes
+#include <string>
 #include <cstdio>
 
 namespace cmm
 {
     CMM_CONSTEXPR char CHAR_ASTERISK = '*';
     CMM_CONSTEXPR char CHAR_BACK_SLASH = '\\';
+    CMM_CONSTEXPR char CHAR_BACK_SPACE = (char) 12;
     CMM_CONSTEXPR char CHAR_CARRIAGE_RETURN = '\r';
     CMM_CONSTEXPR char CHAR_COLON = ':';
     CMM_CONSTEXPR char CHAR_COMMA = ',';
     CMM_CONSTEXPR char CHAR_DOUBLE_QOUTE = '"';
     CMM_CONSTEXPR char CHAR_EOF = EOF;
     CMM_CONSTEXPR char CHAR_EQUALS = '=';
+    CMM_CONSTEXPR char CHAR_FORM_FEED = (char) 12;
     CMM_CONSTEXPR char CHAR_LCURLY_BRACKET = '{';
     CMM_CONSTEXPR char CHAR_LPAREN = '(';
     CMM_CONSTEXPR char CHAR_LSQUARE_BRACKET = '[';
@@ -113,34 +115,41 @@ namespace cmm
         /**
          * Constructor initialized with the text to be tokenized.
          *
-         * @param str the character string represented by the StringView.
+         * @param str the character string.
          */
-        explicit Token(StringView str) noexcept;
+        explicit Token(const std::string& str);
+
+        /**
+         * Constructor initialized with the text to be tokenized.
+         *
+         * @param str the character string.
+         */
+        explicit Token(std::string&& str);
 
         /**
          * Default copy constructor.
          */
-        Token(const Token&) noexcept = default;
+        Token(const Token&);
 
         /**
          * Default move constructor.
          */
-        Token(Token&&) noexcept = default;
+        Token(Token&&) noexcept;
 
         /**
          * Default destructor.
          */
-        ~Token() noexcept = default;
+        ~Token();
 
         /**
          * Default copy assignment operator.
          */
-        Token& operator= (const Token&) = default;
+        Token& operator= (const Token&);
 
         /**
          * Default move assignment operator.
          */
-        Token& operator= (Token&&) = default;
+        Token& operator= (Token&&) noexcept;
 
         /**
          * Gets the TokenType.
@@ -304,12 +313,21 @@ namespace cmm
          * Note: the caller should check against the TokenType before calling
          * this as the result is the raw value as a char (valid or not).
          *
-         * @return StringView.
+         * @return std::string reference.
          */
-        StringView asCString() const noexcept;
+        std::string& asCString() noexcept;
 
         /**
-         * Gets whether the token is a StringView.
+         * Gets the value as a char.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a char (valid or not).
+         *
+         * @return const std::string reference.
+         */
+        const std::string& asCString() const noexcept;
+
+        /**
+         * Gets whether the token is a std::string.
          *
          * @return bool.
          */
@@ -318,9 +336,16 @@ namespace cmm
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
-         * @param str the StringView to set.
+         * @param str the std::string to set.
          */
-        void setCString(StringView str) noexcept;
+        void setCString(const std::string& str);
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param str the std::string to set.
+         */
+        void setCString(std::string&& str);
 
         /**
          * Gets the value as a symbol.
@@ -354,8 +379,7 @@ namespace cmm
             s16 int16Value;
             s32 int32Value;
             s64 int64Value;
-            StringView* str;
-            char strBuffer[sizeof(StringView)];
+            std::string* str;
             char symbol;
         };
 
