@@ -15,11 +15,10 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
-        strategy:
-            matrix:
-                os: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04]
-                node-version: [12.x]
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04]
+        node-version: [12.x]
 
     steps:
     - uses: actions/checkout@v3
