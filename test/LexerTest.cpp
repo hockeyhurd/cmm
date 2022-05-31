@@ -85,6 +85,62 @@ TEST(LexerTest, LexNegDouble)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexPosDoubleE3)
+{
+    const f64 value = 1.234E3;
+    const std::string input = " 1.234E3 ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::DOUBLE);
+    ASSERT_EQ(token.asDouble(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexNegDoubleE4)
+{
+    const f64 value = -1.234E4;
+    const std::string input = " -1.234E4 ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::DOUBLE);
+    ASSERT_EQ(token.asDouble(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexPosInt32)
+{
+    const f64 value = 1234;
+    const std::string input = " 1234 ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::INT32);
+    ASSERT_EQ(token.asInt32(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexNegInt32)
+{
+    const f64 value = -1234;
+    const std::string input = " -1234 ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::INT32);
+    ASSERT_EQ(token.asInt32(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexString)
 {
     const std::string input = "\"\\\"Hello, world!\\\"\"";

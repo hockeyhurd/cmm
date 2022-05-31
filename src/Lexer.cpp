@@ -16,7 +16,14 @@
 
 namespace cmm
 {
-    static std::optional<f64> validateNumber(const std::string& str)
+    static std::optional<s32> validateInt32(const std::string& str)
+    {
+        std::size_t parsedCount = 0;
+        const s32 value = std::stoi(str, &parsedCount);
+        return parsedCount > 0 ? std::make_optional(value) : std::optional<s32>();
+    }
+
+    static std::optional<f64> validateDouble(const std::string& str)
     {
         std::size_t parsedCount = 0;
         const f64 value = std::stod(str, &parsedCount);
@@ -395,16 +402,29 @@ namespace cmm
                 }
                 while (true);
 
-                const auto optionalF64 = validateNumber(builder);
-
-                if (optionalF64.has_value())
+                if (!seenDot && !seenE)
                 {
-                    token.setDouble(*optionalF64);
-                    return true;
+                    const auto optionalS32 = validateInt32(builder);
+
+                    if (optionalS32.has_value())
+                    {
+                        token.setInt32(*optionalS32);
+                        return true;
+                    }
+
+                    return false;
                 }
 
                 else
                 {
+                    const auto optionalF64 = validateDouble(builder);
+
+                    if (optionalF64.has_value())
+                    {
+                        token.setDouble(*optionalF64);
+                        return true;
+                    }
+
                     return false;
                 }
             }
