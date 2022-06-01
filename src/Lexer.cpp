@@ -345,7 +345,7 @@ namespace cmm
                 do
                 {
                     builder += currentChar;
-                    const auto nextCh = peekNextChar();
+                    auto nextCh = peekNextChar();
 
                     if (std::isdigit(nextCh))
                     {
@@ -369,6 +369,8 @@ namespace cmm
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
+
+                            return false;
                         }
 
                         else
@@ -380,6 +382,8 @@ namespace cmm
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
+
+                            return false;
                         }
                     }
 
@@ -389,6 +393,36 @@ namespace cmm
                         {
                             seenE = true;
                             currentChar = nextChar();
+                            nextCh = peekNextChar();
+
+                            if (isWhitespace(nextCh))
+                            {
+                                if (errorMessage != nullptr)
+                                {
+                                    std::ostringstream err;
+                                    err << "[LEXER]: Lexing a decimal number that contained whitespace after 'e' or 'E' at "
+                                        << location.toString();
+                                    *errorMessage = err.str();
+                                }
+
+                                return false;
+                            }
+
+                            else if (nextCh != CHAR_PLUS && nextCh != CHAR_MINUS &&
+                                     nextCh != CHAR_PERIOD &&
+                                     !isDigit(nextCh))
+                            {
+                                if (errorMessage != nullptr)
+                                {
+                                    std::ostringstream err;
+                                    err << "[LEXER]: Invalid character after using 'e' or 'E' "
+                                        << nextCh << " at "
+                                        << location.toString();
+                                    *errorMessage = err.str();
+                                }
+
+                                return false;
+                            }
                         }
 
                         else
@@ -400,12 +434,30 @@ namespace cmm
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
+
+                            return false;
                         }
                     }
 
                     else if (nextCh == 'f' || nextCh == 'F')
                     {
                         seenF = true;
+                        currentChar = nextChar();
+                        nextCh = peekNextChar();
+
+                        if (!isWhitespace(nextCh))
+                        {
+                            if (errorMessage != nullptr)
+                            {
+                                std::ostringstream err;
+                                err << "[LEXER]: Un-expected additional chars after float litteral at "
+                                    << location.toString();
+                                *errorMessage = err.str();
+                            }
+
+                            return false;
+                        }
+
                         break;
                     }
 
@@ -490,6 +542,12 @@ namespace cmm
     }
 
     /* static */
+    bool Lexer::isDigit(char ch) noexcept
+    {
+        return ch >= '0' && ch <= '9';
+    }
+
+    /* static */
     bool Lexer::isEscape(char first, char second) noexcept
     {
         if (first != '\\')
@@ -551,6 +609,14 @@ namespace cmm
 
         // Should never be reached, but included to prevent some warnings in some compilers.
         return CHAR_EOF;
+    }
+
+    /* static */
+    bool Lexer::isWhitespace(char ch) noexcept
+    {
+        return ch == CHAR_SPACE || ch == CHAR_TAB ||
+               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN ||
+               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 }
 

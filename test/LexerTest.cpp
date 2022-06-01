@@ -113,6 +113,32 @@ TEST(LexerTest, LexNegDoubleE4)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexPosDoubleEError)
+{
+    const std::string input = " 1.234E ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    std::string errorMessage;
+    ASSERT_FALSE(lexer.nextToken(token, &errorMessage));
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexPosDoubleDoubleEError)
+{
+    const std::string input = " 1.234EE ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    std::string errorMessage;
+    ASSERT_FALSE(lexer.nextToken(token, &errorMessage));
+    ASSERT_FALSE(errorMessage.empty());
+
+    // Trailing second 'E'??  TODO: Does this make sense.
+    ASSERT_FALSE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexPosFloat)
 {
     const f32 value = 1.234F;
