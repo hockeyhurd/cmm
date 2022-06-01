@@ -113,6 +113,62 @@ TEST(LexerTest, LexNegDoubleE4)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexPosFloat)
+{
+    const f32 value = 1.234F;
+    const std::string input = " 1.234F ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::FLOAT);
+    ASSERT_EQ(token.asFloat(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexNegFloat)
+{
+    const f64 value = -1.234f;
+    const std::string input = " -1.234f ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::FLOAT);
+    ASSERT_EQ(token.asFloat(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexPosFloatE3)
+{
+    const f32 value = 1.234E3F;
+    const std::string input = " 1.234E3F ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::FLOAT);
+    ASSERT_EQ(token.asFloat(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexNegFloatE4)
+{
+    const f32 value = -1.234E4f;
+    const std::string input = " -1.234E4f ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::FLOAT);
+    ASSERT_EQ(token.asFloat(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexPosInt32)
 {
     const f64 value = 1234;

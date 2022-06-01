@@ -194,6 +194,22 @@ namespace cmm
         value.doubleValue = doubleValue;
     }
 
+    f32 Token::asFloat() const noexcept
+    {
+        return value.floatValue;
+    }
+
+    bool Token::isFloat() const noexcept
+    {
+        return type == TokenType::FLOAT;
+    }
+
+    void Token::setFloat(const f32 floatValue) noexcept
+    {
+        type = TokenType::FLOAT;
+        value.floatValue = floatValue;
+    }
+
     s16 Token::asInt16() const noexcept
     {
         return value.int16Value;

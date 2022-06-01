@@ -23,6 +23,13 @@ namespace cmm
         return parsedCount > 0 ? std::make_optional(value) : std::optional<s32>();
     }
 
+    static std::optional<f32> validateFloat(const std::string& str)
+    {
+        std::size_t parsedCount = 0;
+        const f32 value = std::stof(str, &parsedCount);
+        return parsedCount > 0 ? std::make_optional(value) : std::optional<f32>();
+    }
+
     static std::optional<f64> validateDouble(const std::string& str)
     {
         std::size_t parsedCount = 0;
@@ -333,6 +340,7 @@ namespace cmm
             {
                 bool seenDot = false;
                 bool seenE = false;
+                bool seenF = false;
 
                 do
                 {
@@ -395,6 +403,12 @@ namespace cmm
                         }
                     }
 
+                    else if (nextCh == 'f' || nextCh == 'F')
+                    {
+                        seenF = true;
+                        break;
+                    }
+
                     else
                     {
                         break;
@@ -402,13 +416,26 @@ namespace cmm
                 }
                 while (true);
 
-                if (!seenDot && !seenE)
+                if (!seenDot && !seenE && !seenF)
                 {
                     const auto optionalS32 = validateInt32(builder);
 
                     if (optionalS32.has_value())
                     {
                         token.setInt32(*optionalS32);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                else if (seenF)
+                {
+                    const auto optionalF32 = validateFloat(builder);
+
+                    if (optionalF32.has_value())
+                    {
+                        token.setFloat(*optionalF32);
                         return true;
                     }
 

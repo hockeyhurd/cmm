@@ -228,6 +228,29 @@ namespace cmm
         void setDouble(const f64 doubleValue) noexcept;
 
         /**
+         * Gets the value as a float.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a double (valid or not).
+         *
+         * @return f32.
+         */
+        f32 asFloat() const noexcept;
+
+        /**
+         * Gets whether the token is a float.
+         *
+         * @return bool.
+         */
+        bool isFloat() const noexcept;
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param floatValue the double to set.
+         */
+        void setFloat(const f32 floatValue) noexcept;
+
+        /**
          * Gets the value as a int16.
          * Note: the caller should check against the TokenType before calling
          * this as the result is the raw value as a int16 (valid or not).
@@ -376,6 +399,7 @@ namespace cmm
             bool b;
             char ch;
             f64 doubleValue;
+            f32 floatValue;
             s16 int16Value;
             s32 int32Value;
             s64 int64Value;
