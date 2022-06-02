@@ -482,16 +482,24 @@ namespace cmm
                 }
                 while (true);
 
-                if (seenDot && builder.back() == CHAR_PERIOD)
+                // Handle trivial case where the case statement was simply a '.'.
+                if (builder == ".")
                 {
-                    // Try to see if the last snapshot would have been a valid '+' or '-' sign
-                    // This would indicate the situation where we lexed too far such as
-                    // input of "+." or "-.".
-                    const auto chAtLastSnap = text[snapshot.getPosition()];
+                    token.setSymbol(CHAR_PERIOD);
+                    return true;
+                }
+
+                else if (seenDot && builder.back() == CHAR_PERIOD)
+                {
+                    // Try to see what was before the "." to see if we have the case "+." or "-."
+                    // instead of say "1."
+                    // const auto chAtLastSnap = text[snapshot.getPosition()];
+                    const auto chAtLastSnap = text.at(index - 2);
 
                     if (chAtLastSnap == CHAR_PLUS || chAtLastSnap == CHAR_MINUS)
                     {
-                        // Accept the snapshot and recover
+                        // Accept the snapshot and recover, which is essentially
+                        // the same as the (index - 2) lookup.
                         restore(snapshot);
 
                         // Move one past this symbol
@@ -503,10 +511,16 @@ namespace cmm
                         return true;
                     }
 
-                    return false;
+                    // Unexpected character
+                    else if (!isDigit(chAtLastSnap))
+                    {
+                        return false;
+                    }
+
+                    // Could still be something like "1.", so don't return false quite yet...
                 }
 
-                else if (!seenDot && !seenE && !seenF)
+                if (!seenDot && !seenE && !seenF)
                 {
                     const auto optionalS32 = validateInt32(builder);
 

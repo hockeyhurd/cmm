@@ -99,10 +99,38 @@ TEST(LexerTest, LexPosDoubleE3)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexPosDouble1Period)
+{
+    const f64 value = 1.;
+    const std::string input = " 1. ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::DOUBLE);
+    ASSERT_EQ(token.asDouble(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexNegDoubleE4)
 {
     const f64 value = -1.234E4;
     const std::string input = " -1.234E4 ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::DOUBLE);
+    ASSERT_EQ(token.asDouble(), value);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexNegDouble1Period)
+{
+    const f64 value = -1.;
+    const std::string input = " -1. ";
     Lexer lexer(input);
     Token token('\0', false);
 
@@ -334,7 +362,10 @@ TEST(LexerTest, LexSymbolPlusWithInvalidPeriodButRecoverAndSeperateTokens)
     ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_EQ(token.getType(), TokenType::SYMBOL);
     ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
-    ASSERT_FALSE(lexer.nextToken(token));
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_PERIOD);
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -374,6 +405,22 @@ TEST(LexerTest, LexSymbolMinusWithInvalidFError)
     ASSERT_EQ(token.getType(), TokenType::SYMBOL);
     ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
     ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolMinusWithInvalidPeriodButRecoverAndSeperateTokens)
+{
+    const std::string input = " -. ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_PERIOD);
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
