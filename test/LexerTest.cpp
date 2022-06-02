@@ -286,6 +286,97 @@ TEST(LexerTest, LexSymbol)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexSymbolPlus)
+{
+    const std::string input = " + ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolPlusWithInvalidEError)
+{
+    const std::string input = " +e";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolPlusWithInvalidFError)
+{
+    const std::string input = " +F";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolPlusWithInvalidPeriodButRecoverAndSeperateTokens)
+{
+    const std::string input = " +. ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolMinus)
+{
+    const std::string input = " - ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolMinusWithInvalidEError)
+{
+    const std::string input = " -E";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolMinusWithInvalidFError)
+{
+    const std::string input = " -f";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 s32 main(s32 argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

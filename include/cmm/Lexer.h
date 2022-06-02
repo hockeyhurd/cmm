@@ -65,6 +65,7 @@ namespace cmm
         char peekNextChar() const noexcept;
         bool nextTokenInternal(Token& token, std::string* errorMessage = nullptr);
         void restore(const Snapshot& snap) noexcept;
+        Snapshot snap() noexcept;
 
         /**
          * Checks whether the passed character is a digit or not.

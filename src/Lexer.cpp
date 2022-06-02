@@ -157,6 +157,7 @@ namespace cmm
 
         while (index < text.size())
         {
+            auto snapshot = snap();
             auto currentChar = nextChar();
 
             switch (currentChar)
@@ -332,11 +333,24 @@ namespace cmm
             case CHAR_MINUS:
             case CHAR_PLUS:
             {
-                builder += currentChar;
-                currentChar = nextChar();
+                // snapshot = snap();
+                // builder += currentChar;
+                const char lookaheadChar = peekNextChar();
+
+                if (isWhitespace(lookaheadChar) ||
+                    (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
+                {
+                    token.setSymbol(currentChar);
+                    return true;
+                }
+
+                /*else
+                {
+                    currentChar = nextChar();
+                }*/
             }
                 // fallthrough
-            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            case CHAR_PERIOD: case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
             {
                 bool seenDot = false;
                 bool seenE = false;
@@ -468,7 +482,31 @@ namespace cmm
                 }
                 while (true);
 
-                if (!seenDot && !seenE && !seenF)
+                if (seenDot && builder.back() == CHAR_PERIOD)
+                {
+                    // Try to see if the last snapshot would have been a valid '+' or '-' sign
+                    // This would indicate the situation where we lexed too far such as
+                    // input of "+." or "-.".
+                    const auto chAtLastSnap = text[snapshot.getPosition()];
+
+                    if (chAtLastSnap == CHAR_PLUS || chAtLastSnap == CHAR_MINUS)
+                    {
+                        // Accept the snapshot and recover
+                        restore(snapshot);
+
+                        // Move one past this symbol
+                        currentChar = nextChar();
+
+                        // Set the token result.
+                        token.setSymbol(chAtLastSnap);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                else if (!seenDot && !seenE && !seenF)
                 {
                     const auto optionalS32 = validateInt32(builder);
 
@@ -539,6 +577,11 @@ namespace cmm
     void Lexer::restore(const Snapshot& snap) noexcept
     {
         index = snap.getPosition();
+    }
+
+    Snapshot Lexer::snap() noexcept
+    {
+        return Snapshot(index);
     }
 
     /* static */
