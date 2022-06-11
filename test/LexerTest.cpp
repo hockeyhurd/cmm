@@ -424,6 +424,19 @@ TEST(LexerTest, LexSymbolMinusWithInvalidPeriodButRecoverAndSeperateTokens)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexSymbolForwardSlash)
+{
+    const std::string input = " / ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asSymbol(), CHAR_FORWARD_SLASH);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexComment)
 {
     const f64 value = 3.14195;
