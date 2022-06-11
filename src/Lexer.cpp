@@ -164,6 +164,28 @@ namespace cmm
             {
             case CHAR_BACK_SLASH:
                 continue;
+            case CHAR_FORWARD_SLASH:
+            {
+                const auto nextCh = peekNextChar();
+
+                // Seek to end of comment.
+                if (nextCh == CHAR_FORWARD_SLASH)
+                {
+                    currentChar = nextChar();
+                    while (index < text.size() && !isNewLine(currentChar))
+                    {
+                        currentChar = nextChar();
+                    }
+
+                    currentChar = nextChar();
+                    continue;
+                }
+
+                // Not a comment
+                token.setSymbol(currentChar);
+                return true;
+            }
+                break;
             case CHAR_DOUBLE_QOUTE:
             {
                 bool lastWasEscape = false;
@@ -666,6 +688,12 @@ namespace cmm
 
         // Should never be reached, but included to prevent some warnings in some compilers.
         return CHAR_EOF;
+    }
+
+    /* static */
+    bool Lexer::isNewLine(char ch) noexcept
+    {
+        return ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 
     /* static */

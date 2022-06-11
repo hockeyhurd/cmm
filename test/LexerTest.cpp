@@ -424,6 +424,19 @@ TEST(LexerTest, LexSymbolMinusWithInvalidPeriodButRecoverAndSeperateTokens)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexComment)
+{
+    const f64 value = 3.14195;
+    const std::string input = " // Hello, world!\n 3.14195 ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::DOUBLE);
+    ASSERT_EQ(token.asDouble(), value);
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 s32 main(s32 argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

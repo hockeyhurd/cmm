@@ -102,6 +102,14 @@ namespace cmm
         static char transformEscapeSequence(char first, char second) noexcept;
 
         /**
+         * Checks whether the passed character is a newline charactger or not.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool isNewLine(char ch) noexcept;
+
+        /**
          * Checks whether the passed character is whitespace or not.
          *
          * @param ch char to check.
