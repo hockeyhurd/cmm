@@ -48,7 +48,7 @@ namespace cmm
 
     enum class TokenType
     {
-        BOOL = 0, CHAR, FLOAT, DOUBLE, INT16, INT32, INT64, NULL_T, STRING, SYMBOL
+        BOOL = 0, CHAR, CHAR_SYMBOL, FLOAT, DOUBLE, INT16, INT32, INT64, NAME, NULL_T, STRING, SYMBOL
     };
 
     CMM_CONSTEXPR_FUNC const char* toString(const TokenType tokenType) noexcept
@@ -59,6 +59,8 @@ namespace cmm
             return "bool";
         case TokenType::CHAR:
             return "char";
+        case TokenType::CHAR_SYMBOL:
+            return "char_symbol";
         case TokenType::FLOAT:
             return "float";
         case TokenType::DOUBLE:
@@ -117,15 +119,17 @@ namespace cmm
          * Constructor initialized with the text to be tokenized.
          *
          * @param str the character string.
+         * @param isSymbol whether this is a c-style(false) string or symbol (true).
          */
-        explicit Token(const std::string& str);
+        explicit Token(const std::string& str, const bool isSymbol);
 
         /**
          * Constructor initialized with the text to be tokenized.
          *
          * @param str the character string.
+         * @param isSymbol whether this is a c-style(false) string or symbol (true).
          */
-        explicit Token(std::string&& str);
+        explicit Token(std::string&& str, const bool isSymbol);
 
         /**
          * Default copy constructor.
@@ -372,27 +376,66 @@ namespace cmm
         void setCString(std::string&& str);
 
         /**
-         * Gets the value as a symbol.
+         * Gets the value as a char symbol.
          * Note: the caller should check against the TokenType before calling
-         * this as the result is the raw value as a symbol, that also happens to be a char (valid or not).
+         * this as the result is the raw value as a char symbol, that also happens to be a char (valid or not).
          *
          * @return char.
          */
-        char asSymbol() const noexcept;
+        char asCharSymbol() const noexcept;
 
         /**
-         * Gets whether the token is a symbol.
+         * Gets whether the token is a char symbol.
          *
          * @return bool.
          */
-        bool isSymbol() const noexcept;
+        bool isCharSymbol() const noexcept;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
-         * @param symbol the char to set.
+         * @param char symbol the char to set.
          */
-        void setSymbol(const char symbol) noexcept;
+        void setCharSymbol(const char charSymbol) noexcept;
+
+        /**
+         * Gets the value as a std::string symbol.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a char symbol, that also happens to be a char (valid or not).
+         *
+         * @return std::string.
+         */
+        std::string& asStringSymbol() noexcept;
+
+        /**
+         * Gets the value as a std::string symbol.
+         * Note: the caller should check against the TokenType before calling
+         * this as the result is the raw value as a char symbol, that also happens to be a char (valid or not).
+         *
+         * @return std::string.
+         */
+        const std::string& asStringSymbol() const noexcept;
+
+        /**
+         * Gets whether the token is a string symbol.
+         *
+         * @return bool.
+         */
+        bool isStringSymbol() const noexcept;
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param string symbol the char to set.
+         */
+        void setStringSymbol(const std::string& stringSymbol) noexcept;
+
+        /**
+         * Sets the underlying value to the passed value and updates the TokenType.
+         *
+         * @param string symbol the char to set.
+         */
+        void setStringSymbol(std::string&& stringSymbol) noexcept;
 
     private:
         union Values

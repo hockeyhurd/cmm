@@ -182,7 +182,7 @@ namespace cmm
                 }
 
                 // Not a comment
-                token.setSymbol(currentChar);
+                token.setCharSymbol(currentChar);
                 return true;
             }
                 break;
@@ -292,84 +292,17 @@ namespace cmm
                 }
             }
                 break;
-            case 'f':
-            {
-                currentChar = nextChar();
-                if (currentChar != 'a')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'l')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 's')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'e')
-                    return false;
-
-                token.setBool(false);
-                return true;
-            }
-                break;
-            case 't':
-            {
-                currentChar = nextChar();
-                if (currentChar != 'r')
-                    return false;
-
-                currentChar = nextChar();
-
-                if (currentChar != 'u')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'e')
-                    return false;
-
-                token.setBool(true);
-                return true;
-            }
-                break;
-            case 'n':
-            {
-                currentChar = nextChar();
-
-                if (currentChar != 'u')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'l')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'l')
-                    return false;
-
-                token.setNull();
-            }
-                break;
-
             case CHAR_MINUS:
             case CHAR_PLUS:
             {
-                // snapshot = snap();
-                // builder += currentChar;
                 const char lookaheadChar = peekNextChar();
 
                 if (isWhitespace(lookaheadChar) ||
                     (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
                 {
-                    token.setSymbol(currentChar);
+                    token.setCharSymbol(currentChar);
                     return true;
                 }
-
-                /*else
-                {
-                    currentChar = nextChar();
-                }*/
             }
                 // fallthrough
             case CHAR_PERIOD: case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
@@ -507,7 +440,7 @@ namespace cmm
                 // Handle trivial case where the case statement was simply a '.'.
                 if (builder == ".")
                 {
-                    token.setSymbol(CHAR_PERIOD);
+                    token.setCharSymbol(CHAR_PERIOD);
                     return true;
                 }
 
@@ -528,7 +461,7 @@ namespace cmm
                         currentChar = nextChar();
 
                         // Set the token result.
-                        token.setSymbol(chAtLastSnap);
+                        token.setCharSymbol(chAtLastSnap);
 
                         return true;
                     }
@@ -582,6 +515,48 @@ namespace cmm
                 }
             }
                 break;
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+            case 'H': case 'I': case 'J': case 'K': case 'L': case 'M':
+            case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T':
+            case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+            case 'h': case 'i': case 'j': case 'k': case 'l': case 'm':
+            case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't':
+            case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
+            {
+                builder += currentChar;
+                currentChar = nextChar();
+
+                // TODO: Support additional characters??
+                while (index < text.size() && (isAlpha(currentChar) || isDigit(currentChar)))
+                {
+                    builder += currentChar;
+                    currentChar = nextChar();
+                }
+
+                if (builder == "true")
+                {
+                    token.setBool(true);
+                }
+
+                else if (builder == "false")
+                {
+                    token.setBool(false);
+                }
+
+                else if (builder == "null")
+                {
+                    token.setNull();
+                }
+
+                else
+                {
+                    token.setStringSymbol(builder);
+                }
+
+                return true;
+            }
+                break;
             case CHAR_LCURLY_BRACKET:
             case CHAR_RCURLY_BRACKET:
             case CHAR_LPAREN:
@@ -590,7 +565,7 @@ namespace cmm
             case CHAR_RSQUARE_BRACKET:
             case CHAR_COLON:
             case CHAR_COMMA:
-                token.setSymbol(currentChar);
+                token.setCharSymbol(currentChar);
                 return true;
             case CHAR_EOF:
                 return false;
@@ -618,6 +593,12 @@ namespace cmm
     Snapshot Lexer::snap() noexcept
     {
         return Snapshot(index);
+    }
+
+    /* static */
+    bool Lexer::isAlpha(char ch) noexcept
+    {
+        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
     }
 
     /* static */

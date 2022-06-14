@@ -68,6 +68,14 @@ namespace cmm
         Snapshot snap() noexcept;
 
         /**
+         * Checks whether the passed character is a alhpabetic or not.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool isAlpha(char ch) noexcept;
+
+        /**
          * Checks whether the passed character is a digit or not.
          *
          * @param ch char to check.

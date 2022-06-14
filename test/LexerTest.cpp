@@ -308,8 +308,8 @@ TEST(LexerTest, LexSymbol)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_LCURLY_BRACKET);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_LCURLY_BRACKET);
     ASSERT_FALSE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
@@ -321,8 +321,8 @@ TEST(LexerTest, LexSymbolPlus)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_PLUS);
     ASSERT_FALSE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
@@ -334,9 +334,9 @@ TEST(LexerTest, LexSymbolPlusWithInvalidEError)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
-    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_PLUS);
+    ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -347,9 +347,9 @@ TEST(LexerTest, LexSymbolPlusWithInvalidFError)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
-    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_PLUS);
+    ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -360,12 +360,12 @@ TEST(LexerTest, LexSymbolPlusWithInvalidPeriodButRecoverAndSeperateTokens)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_PLUS);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_PLUS);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_PERIOD);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_PERIOD);
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -376,8 +376,8 @@ TEST(LexerTest, LexSymbolMinus)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_MINUS);
     ASSERT_FALSE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
@@ -389,9 +389,9 @@ TEST(LexerTest, LexSymbolMinusWithInvalidEError)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
-    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_MINUS);
+    ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -402,9 +402,9 @@ TEST(LexerTest, LexSymbolMinusWithInvalidFError)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
-    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_MINUS);
+    ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -415,12 +415,12 @@ TEST(LexerTest, LexSymbolMinusWithInvalidPeriodButRecoverAndSeperateTokens)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_MINUS);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_MINUS);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_PERIOD);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_PERIOD);
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
@@ -431,8 +431,8 @@ TEST(LexerTest, LexSymbolForwardSlash)
     Token token('\0', false);
 
     ASSERT_TRUE(lexer.nextToken(token));
-    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
-    ASSERT_EQ(token.asSymbol(), CHAR_FORWARD_SLASH);
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_FORWARD_SLASH);
     ASSERT_FALSE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
