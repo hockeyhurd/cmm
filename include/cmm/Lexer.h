@@ -65,7 +65,31 @@ namespace cmm
         char peekNextChar() const noexcept;
         bool nextTokenInternal(Token& token, std::string* errorMessage = nullptr);
         void restore(const Snapshot& snap) noexcept;
+        Snapshot snap() noexcept;
 
+        /**
+         * Checks whether the passed character is a alhpabetic or not.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool isAlpha(char ch) noexcept;
+
+        /**
+         * Checks whether the passed character is a digit or not.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool isDigit(char ch) noexcept;
+
+        /**
+         * Checks whether the passed character is an escape character or not.
+         *
+         * @param first char to check.
+         * @param second char to check.
+         * @return bool.
+         */
         static bool isEscape(char first, char second) noexcept;
 
         /**
@@ -84,6 +108,22 @@ namespace cmm
          * @return char.
          */
         static char transformEscapeSequence(char first, char second) noexcept;
+
+        /**
+         * Checks whether the passed character is a newline charactger or not.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool isNewLine(char ch) noexcept;
+
+        /**
+         * Checks whether the passed character is whitespace or not.
+         *
+         * @param ch char to check.
+         * @return bool.
+         */
+        static bool isWhitespace(char ch) noexcept;
 
     private:
         std::string text;

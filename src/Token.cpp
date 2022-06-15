@@ -32,19 +32,19 @@ namespace cmm
         value.doubleValue = doubleValue;
     }
 
-    Token::Token(const std::string& str) : type(TokenType::STRING)
+    Token::Token(const std::string& str, const bool isSymbol) : type(TokenType::STRING)
     {
         value.str = new std::string(str);
     }
 
-    Token::Token(std::string&& str) : type(TokenType::STRING)
+    Token::Token(std::string&& str, const bool isSymbol) : type(TokenType::STRING)
     {
         value.str = new std::string(std::move(str));
     }
 
     Token::Token(const Token& other) : type(other.type)
     {
-        if (other.type == TokenType::STRING)
+        if (other.type == TokenType::STRING || other.type == TokenType::SYMBOL)
         {
             value.str = new std::string(*other.value.str);
         }
@@ -57,7 +57,7 @@ namespace cmm
 
     Token::Token(Token&& other) noexcept : type(other.type)
     {
-        if (other.type == TokenType::STRING)
+        if (other.type == TokenType::STRING || other.type == TokenType::SYMBOL)
         {
             value.str = other.value.str;
             other.value.str = nullptr;
@@ -72,7 +72,7 @@ namespace cmm
 
     Token::~Token()
     {
-        if (type == TokenType::STRING && value.str != nullptr)
+        if ((type == TokenType::STRING || type == TokenType::SYMBOL) && value.str != nullptr)
         {
             delete value.str;
             value.str = nullptr;
@@ -87,10 +87,10 @@ namespace cmm
         }
 
         // See if we are already a string
-        else if (type == TokenType::STRING)
+        else if (type == TokenType::STRING || type == TokenType::SYMBOL)
         {
             // Other is also a string
-            if (other.type == TokenType::STRING)
+            if (other.type == TokenType::STRING || type == TokenType::SYMBOL)
             {
                 // uninitialized string, create a new one.
                 if (value.str == nullptr)
@@ -114,7 +114,7 @@ namespace cmm
         }
 
         // We are not a string, but the other value is.  Create a new string copy.
-        else if (other.type == TokenType::STRING)
+        else if (other.type == TokenType::STRING || other.type == TokenType::SYMBOL)
         {
             value.str = new std::string(*other.value.str);
         }
@@ -128,7 +128,7 @@ namespace cmm
     {
         // If we have an allocated std::string, need to clean this up before
         // aquiring a new value.
-        if (type == TokenType::STRING && value.str != nullptr)
+        if ((type == TokenType::STRING || type == TokenType::SYMBOL) && value.str != nullptr)
         {
             delete value.str;
             value.str = nullptr;
@@ -192,6 +192,22 @@ namespace cmm
     {
         type = TokenType::DOUBLE;
         value.doubleValue = doubleValue;
+    }
+
+    f32 Token::asFloat() const noexcept
+    {
+        return value.floatValue;
+    }
+
+    bool Token::isFloat() const noexcept
+    {
+        return type == TokenType::FLOAT;
+    }
+
+    void Token::setFloat(const f32 floatValue) noexcept
+    {
+        type = TokenType::FLOAT;
+        value.floatValue = floatValue;
     }
 
     s16 Token::asInt16() const noexcept
@@ -313,20 +329,81 @@ namespace cmm
         }
     }
 
-    char Token::asSymbol() const noexcept
+    char Token::asCharSymbol() const noexcept
     {
         return value.symbol;
     }
 
-    bool Token::isSymbol() const noexcept
+    bool Token::isCharSymbol() const noexcept
+    {
+        return type == TokenType::CHAR_SYMBOL;
+    }
+
+    void Token::setCharSymbol(const char symbol) noexcept
+    {
+        type = TokenType::CHAR_SYMBOL;
+        value.symbol = symbol;
+    }
+
+    std::string& Token::asStringSymbol() noexcept
+    {
+        return *value.str;
+    }
+
+    const std::string& Token::asStringSymbol() const noexcept
+    {
+        return *value.str;
+    }
+
+    bool Token::isStringSymbol() const noexcept
     {
         return type == TokenType::SYMBOL;
     }
 
-    void Token::setSymbol(const char symbol) noexcept
+    void Token::setStringSymbol(const std::string& strSymbol) noexcept
     {
-        type = TokenType::SYMBOL;
-        value.symbol = symbol;
+        // Check if already a std::string
+        if (type == TokenType::STRING || type == TokenType::SYMBOL)
+        {
+            if (value.str == nullptr)
+            {
+                value.str = new std::string(strSymbol);
+            }
+
+            else
+            {
+                *value.str = strSymbol;
+            }
+        }
+
+        else
+        {
+            type = TokenType::SYMBOL;
+            value.str = new std::string(strSymbol);
+        }
+    }
+
+    void Token::setStringSymbol(std::string&& strSymbol) noexcept
+    {
+        // Check if already a std::string
+        if (type == TokenType::STRING || type == TokenType::SYMBOL)
+        {
+            if (value.str == nullptr)
+            {
+                value.str = new std::string(std::move(strSymbol));
+            }
+
+            else
+            {
+                *value.str = strSymbol;
+            }
+        }
+
+        else
+        {
+            type = TokenType::SYMBOL;
+            value.str = new std::string(std::move(strSymbol));
+        }
     }
 }
 

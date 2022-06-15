@@ -16,7 +16,21 @@
 
 namespace cmm
 {
-    static std::optional<f64> validateNumber(const std::string& str)
+    static std::optional<s32> validateInt32(const std::string& str)
+    {
+        std::size_t parsedCount = 0;
+        const s32 value = std::stoi(str, &parsedCount);
+        return parsedCount > 0 ? std::make_optional(value) : std::optional<s32>();
+    }
+
+    static std::optional<f32> validateFloat(const std::string& str)
+    {
+        std::size_t parsedCount = 0;
+        const f32 value = std::stof(str, &parsedCount);
+        return parsedCount > 0 ? std::make_optional(value) : std::optional<f32>();
+    }
+
+    static std::optional<f64> validateDouble(const std::string& str)
     {
         std::size_t parsedCount = 0;
         const f64 value = std::stod(str, &parsedCount);
@@ -143,12 +157,35 @@ namespace cmm
 
         while (index < text.size())
         {
+            auto snapshot = snap();
             auto currentChar = nextChar();
 
             switch (currentChar)
             {
             case CHAR_BACK_SLASH:
                 continue;
+            case CHAR_FORWARD_SLASH:
+            {
+                const auto nextCh = peekNextChar();
+
+                // Seek to end of comment.
+                if (nextCh == CHAR_FORWARD_SLASH)
+                {
+                    currentChar = nextChar();
+                    while (index < text.size() && !isNewLine(currentChar))
+                    {
+                        currentChar = nextChar();
+                    }
+
+                    currentChar = nextChar();
+                    continue;
+                }
+
+                // Not a comment
+                token.setCharSymbol(currentChar);
+                return true;
+            }
+                break;
             case CHAR_DOUBLE_QOUTE:
             {
                 bool lastWasEscape = false;
@@ -255,82 +292,29 @@ namespace cmm
                 }
             }
                 break;
-            case 'f':
-            {
-                currentChar = nextChar();
-                if (currentChar != 'a')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'l')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 's')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'e')
-                    return false;
-
-                token.setBool(false);
-                return true;
-            }
-                break;
-            case 't':
-            {
-                currentChar = nextChar();
-                if (currentChar != 'r')
-                    return false;
-
-                currentChar = nextChar();
-
-                if (currentChar != 'u')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'e')
-                    return false;
-
-                token.setBool(true);
-                return true;
-            }
-                break;
-            case 'n':
-            {
-                currentChar = nextChar();
-
-                if (currentChar != 'u')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'l')
-                    return false;
-
-                currentChar = nextChar();
-                if (currentChar != 'l')
-                    return false;
-
-                token.setNull();
-            }
-                break;
-
             case CHAR_MINUS:
             case CHAR_PLUS:
             {
-                builder += currentChar;
-                currentChar = nextChar();
+                const char lookaheadChar = peekNextChar();
+
+                if (isWhitespace(lookaheadChar) ||
+                    (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
+                {
+                    token.setCharSymbol(currentChar);
+                    return true;
+                }
             }
                 // fallthrough
-            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            case CHAR_PERIOD: case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
             {
                 bool seenDot = false;
                 bool seenE = false;
+                bool seenF = false;
 
                 do
                 {
                     builder += currentChar;
-                    const auto nextCh = peekNextChar();
+                    auto nextCh = peekNextChar();
 
                     if (std::isdigit(nextCh))
                     {
@@ -354,6 +338,8 @@ namespace cmm
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
+
+                            return false;
                         }
 
                         else
@@ -365,6 +351,8 @@ namespace cmm
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
+
+                            return false;
                         }
                     }
 
@@ -374,6 +362,36 @@ namespace cmm
                         {
                             seenE = true;
                             currentChar = nextChar();
+                            nextCh = peekNextChar();
+
+                            if (isWhitespace(nextCh))
+                            {
+                                if (errorMessage != nullptr)
+                                {
+                                    std::ostringstream err;
+                                    err << "[LEXER]: Lexing a decimal number that contained whitespace after 'e' or 'E' at "
+                                        << location.toString();
+                                    *errorMessage = err.str();
+                                }
+
+                                return false;
+                            }
+
+                            else if (nextCh != CHAR_PLUS && nextCh != CHAR_MINUS &&
+                                     nextCh != CHAR_PERIOD &&
+                                     !isDigit(nextCh))
+                            {
+                                if (errorMessage != nullptr)
+                                {
+                                    std::ostringstream err;
+                                    err << "[LEXER]: Invalid character after using 'e' or 'E' "
+                                        << nextCh << " at "
+                                        << location.toString();
+                                    *errorMessage = err.str();
+                                }
+
+                                return false;
+                            }
                         }
 
                         else
@@ -385,7 +403,31 @@ namespace cmm
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
+
+                            return false;
                         }
+                    }
+
+                    else if (nextCh == 'f' || nextCh == 'F')
+                    {
+                        seenF = true;
+                        currentChar = nextChar();
+                        nextCh = peekNextChar();
+
+                        if (!isWhitespace(nextCh))
+                        {
+                            if (errorMessage != nullptr)
+                            {
+                                std::ostringstream err;
+                                err << "[LEXER]: Un-expected additional chars after float litteral at "
+                                    << location.toString();
+                                *errorMessage = err.str();
+                            }
+
+                            return false;
+                        }
+
+                        break;
                     }
 
                     else
@@ -395,18 +437,125 @@ namespace cmm
                 }
                 while (true);
 
-                const auto optionalF64 = validateNumber(builder);
-
-                if (optionalF64.has_value())
+                // Handle trivial case where the case statement was simply a '.'.
+                if (builder == ".")
                 {
-                    token.setDouble(*optionalF64);
+                    token.setCharSymbol(CHAR_PERIOD);
                     return true;
+                }
+
+                else if (seenDot && builder.back() == CHAR_PERIOD)
+                {
+                    // Try to see what was before the "." to see if we have the case "+." or "-."
+                    // instead of say "1."
+                    // const auto chAtLastSnap = text[snapshot.getPosition()];
+                    const auto chAtLastSnap = text.at(index - 2);
+
+                    if (chAtLastSnap == CHAR_PLUS || chAtLastSnap == CHAR_MINUS)
+                    {
+                        // Accept the snapshot and recover, which is essentially
+                        // the same as the (index - 2) lookup.
+                        restore(snapshot);
+
+                        // Move one past this symbol
+                        currentChar = nextChar();
+
+                        // Set the token result.
+                        token.setCharSymbol(chAtLastSnap);
+
+                        return true;
+                    }
+
+                    // Unexpected character
+                    else if (!isDigit(chAtLastSnap))
+                    {
+                        return false;
+                    }
+
+                    // Could still be something like "1.", so don't return false quite yet...
+                }
+
+                if (!seenDot && !seenE && !seenF)
+                {
+                    const auto optionalS32 = validateInt32(builder);
+
+                    if (optionalS32.has_value())
+                    {
+                        token.setInt32(*optionalS32);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                else if (seenF)
+                {
+                    const auto optionalF32 = validateFloat(builder);
+
+                    if (optionalF32.has_value())
+                    {
+                        token.setFloat(*optionalF32);
+                        return true;
+                    }
+
+                    return false;
                 }
 
                 else
                 {
+                    const auto optionalF64 = validateDouble(builder);
+
+                    if (optionalF64.has_value())
+                    {
+                        token.setDouble(*optionalF64);
+                        return true;
+                    }
+
                     return false;
                 }
+            }
+                break;
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
+            case 'H': case 'I': case 'J': case 'K': case 'L': case 'M':
+            case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T':
+            case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
+            case 'h': case 'i': case 'j': case 'k': case 'l': case 'm':
+            case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't':
+            case 'u': case 'v': case 'w': case 'x': case 'y': case 'z': case '_':
+            {
+                builder += currentChar;
+                auto lookaheadChar = peekNextChar();
+
+                while (index < text.size() && (isAlpha(lookaheadChar)
+                       || isDigit(lookaheadChar) || lookaheadChar == CHAR_UNDERSCORE))
+                {
+                    currentChar = nextChar();
+                    builder += currentChar;
+                    lookaheadChar = peekNextChar();
+                }
+
+                if (builder == "true")
+                {
+                    token.setBool(true);
+                }
+
+                else if (builder == "false")
+                {
+                    token.setBool(false);
+                }
+
+                else if (builder == "NULL")
+                {
+                    token.setNull();
+                }
+
+                else
+                {
+                    token.setStringSymbol(builder);
+                }
+
+                return true;
             }
                 break;
             case CHAR_LCURLY_BRACKET:
@@ -417,7 +566,7 @@ namespace cmm
             case CHAR_RSQUARE_BRACKET:
             case CHAR_COLON:
             case CHAR_COMMA:
-                token.setSymbol(currentChar);
+                token.setCharSymbol(currentChar);
                 return true;
             case CHAR_EOF:
                 return false;
@@ -440,6 +589,23 @@ namespace cmm
     void Lexer::restore(const Snapshot& snap) noexcept
     {
         index = snap.getPosition();
+    }
+
+    Snapshot Lexer::snap() noexcept
+    {
+        return Snapshot(index);
+    }
+
+    /* static */
+    bool Lexer::isAlpha(char ch) noexcept
+    {
+        return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+    }
+
+    /* static */
+    bool Lexer::isDigit(char ch) noexcept
+    {
+        return ch >= '0' && ch <= '9';
     }
 
     /* static */
@@ -504,6 +670,20 @@ namespace cmm
 
         // Should never be reached, but included to prevent some warnings in some compilers.
         return CHAR_EOF;
+    }
+
+    /* static */
+    bool Lexer::isNewLine(char ch) noexcept
+    {
+        return ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
+    }
+
+    /* static */
+    bool Lexer::isWhitespace(char ch) noexcept
+    {
+        return ch == CHAR_SPACE || ch == CHAR_TAB ||
+               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN ||
+               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 }
 

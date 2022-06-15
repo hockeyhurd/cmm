@@ -27,6 +27,7 @@ enable_testing()
 find_package(GTest REQUIRED)
 
 add_library(cmmcore STATIC ${SOURCE_FILES})
+target_link_libraries(cmmcore Threads::Threads)
 
 # add_custom_target(cmm DEPENDS cmmcore)
 add_custom_target(tests DEPENDS lexerTest)
@@ -35,6 +36,7 @@ set(SOURCE_FILES_CMM_TEST src/Main.cpp)
 add_executable(cmm ${SOURCE_FILES_CMM_TEST})
 add_dependencies(cmm cmmcore)
 target_link_libraries(cmm cmmcore)
+target_link_libraries(cmm Threads::Threads)
 
 # GoogleTest starts here:
 
@@ -43,6 +45,7 @@ add_executable(lexerTest EXCLUDE_FROM_ALL ${SOURCE_FILES_LEXER_TEST})
 add_dependencies(lexerTest cmmcore)
 target_include_directories(lexerTest PRIVATE ${GTEST_INCLUDE_DIRS})
 target_link_libraries(lexerTest cmmcore)
+target_link_libraries(lexerTest Threads::Threads)
 target_link_libraries(lexerTest ${GTEST_BOTH_LIBRARIES})
 
 # GoogleTest ends here:
