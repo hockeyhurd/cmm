@@ -490,6 +490,32 @@ TEST(LexerTest, LexFunctionEmptyArgs)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexFunctionSnakeCaseEmptyArgs)
+{
+    const char* output = "awesome_snake_case_function";
+    const std::string input = " awesome_snake_case_function() ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    // name
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asStringSymbol(), output);
+
+    // Open paren
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_LPAREN);
+
+    // Close paren
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_RPAREN);
+
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexComment)
 {
     const f64 value = 3.14195;
