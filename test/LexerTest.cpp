@@ -251,6 +251,19 @@ TEST(LexerTest, LexNegInt32)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexNull)
+{
+    const std::string input = " NULL ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::NULL_T);
+    ASSERT_TRUE(token.isNull());
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexString)
 {
     const std::string input = "\"\\\"Hello, world!\\\"\"";
@@ -433,6 +446,46 @@ TEST(LexerTest, LexSymbolForwardSlash)
     ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
     ASSERT_EQ(token.asCharSymbol(), CHAR_FORWARD_SLASH);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexVariable)
+{
+    const char* output = "awesomeVariable123_";
+    const std::string input = " awesomeVariable123_ ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asStringSymbol(), output);
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexFunctionEmptyArgs)
+{
+    const char* output = "awesomeFunction";
+    const std::string input = " awesomeFunction() ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    // name
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asStringSymbol(), output);
+
+    // Open paren
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_LPAREN);
+
+    // Close paren
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_RPAREN);
+
     ASSERT_FALSE(lexer.nextToken(token));
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }

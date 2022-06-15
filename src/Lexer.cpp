@@ -522,16 +522,17 @@ namespace cmm
             case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
             case 'h': case 'i': case 'j': case 'k': case 'l': case 'm':
             case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't':
-            case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
+            case 'u': case 'v': case 'w': case 'x': case 'y': case 'z': case '_':
             {
                 builder += currentChar;
-                currentChar = nextChar();
+                auto lookaheadChar = peekNextChar();
 
-                // TODO: Support additional characters??
-                while (index < text.size() && (isAlpha(currentChar) || isDigit(currentChar)))
+                while (index < text.size() && (isAlpha(lookaheadChar)
+                       || isDigit(lookaheadChar) || lookaheadChar == CHAR_UNDERSCORE))
                 {
-                    builder += currentChar;
                     currentChar = nextChar();
+                    builder += currentChar;
+                    lookaheadChar = peekNextChar();
                 }
 
                 if (builder == "true")
@@ -544,7 +545,7 @@ namespace cmm
                     token.setBool(false);
                 }
 
-                else if (builder == "null")
+                else if (builder == "NULL")
                 {
                     token.setNull();
                 }

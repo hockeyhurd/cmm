@@ -45,6 +45,7 @@ namespace cmm
     CMM_CONSTEXPR char CHAR_SINGLE_QOUTE = '\'';
     CMM_CONSTEXPR char CHAR_SPACE = ' ';
     CMM_CONSTEXPR char CHAR_TAB = '\t';
+    CMM_CONSTEXPR char CHAR_UNDERSCORE = '_';
 
     enum class TokenType
     {
