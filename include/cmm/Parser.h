@@ -12,6 +12,10 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Lexer.h>
+
+// std includes
+#include <string>
 
 namespace cmm
 {
@@ -22,14 +26,23 @@ namespace cmm
     public:
 
         /**
-         * Default constructor.
+         * Constructor
+         *
+         * @param input to copy
          */
-        Parser() noexcept = default;
+        Parser(const std::string& input);
+
+        /**
+         * Constructor
+         *
+         * @param input to move
+         */
+        Parser(std::string&& input);
 
         /**
          * Default copy constructor.
          */
-        Parser(const Parser&) noexcept = default;
+        Parser(const Parser&) = default;
 
         /**
          * Default move constructor.
@@ -46,7 +59,7 @@ namespace cmm
          *
          * @return Parser reference.
          */
-        Parser& operator= (const Parser&) noexcept = default;
+        Parser& operator= (const Parser&) = default;
 
         /**
          * Move assignment operator.
@@ -54,6 +67,11 @@ namespace cmm
          * @return Parser reference.
          */
         Parser& operator= (Parser&&) noexcept = default;
+
+    private:
+
+        // The lexer to the input text to be parsed.
+        Lexer lexer;
     };
 }
 

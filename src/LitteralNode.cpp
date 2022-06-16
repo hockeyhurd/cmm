@@ -26,8 +26,15 @@ namespace cmm
     {
     }
 
-    LitteralNode::LitteralNode(char* value) : value(value), type(EnumCType::STRING)
+    // NOTE: Safe const_cast because this is a litteral and CType doesn't care what kind of char* it actually is.
+    LitteralNode::LitteralNode(const char* value) noexcept : value(const_cast<char*>(value)),
+        type(EnumCType::STRING)
     {
+    }
+
+    EnumCType LitteralNode::getCType() const noexcept
+    {
+        return type;
     }
 }
 

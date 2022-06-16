@@ -65,12 +65,12 @@ namespace cmm
         /**
          * Default constructor for c-strings type.
          */
-        LitteralNode(char* value); // TODO: Consider making this 'noexcept'.
+        LitteralNode(const char* value) noexcept;
 
         /**
          * Copy constructor.
          */
-        LitteralNode(const LitteralNode&) = default;
+        LitteralNode(const LitteralNode&) noexcept = default;
 
         /**
          * Move constructor.
@@ -87,7 +87,7 @@ namespace cmm
          *
          * @return LitteralNode reference.
          */
-        LitteralNode& operator= (const LitteralNode&) = default;
+        LitteralNode& operator= (const LitteralNode&) noexcept = default;
 
         /**
          * Move assignment operator.

@@ -19,6 +19,7 @@
 namespace cmm
 {
     // TODO: Consider moving to a seperate file
+    // TODO: Still needed??
     enum class NodeType
     {
     };

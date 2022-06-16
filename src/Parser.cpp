@@ -9,5 +9,13 @@
 
 namespace cmm
 {
+
+    Parser::Parser(const std::string& input) : lexer(input)
+    {
+    }
+
+    Parser::Parser(std::string&& input) : lexer(std::move(input))
+    {
+    }
 }
 

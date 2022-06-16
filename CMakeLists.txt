@@ -30,7 +30,7 @@ add_library(cmmcore STATIC ${SOURCE_FILES})
 target_link_libraries(cmmcore Threads::Threads)
 
 # add_custom_target(cmm DEPENDS cmmcore)
-add_custom_target(tests DEPENDS lexerTest)
+add_custom_target(tests DEPENDS lexerTest parserTest)
 
 set(SOURCE_FILES_CMM_TEST src/Main.cpp)
 add_executable(cmm ${SOURCE_FILES_CMM_TEST})
@@ -47,6 +47,14 @@ target_include_directories(lexerTest PRIVATE ${GTEST_INCLUDE_DIRS})
 target_link_libraries(lexerTest cmmcore)
 target_link_libraries(lexerTest Threads::Threads)
 target_link_libraries(lexerTest ${GTEST_BOTH_LIBRARIES})
+
+set(SOURCE_FILES_PARSER_TEST test/ParserTest.cpp)
+add_executable(parserTest EXCLUDE_FROM_ALL ${SOURCE_FILES_PARSER_TEST})
+add_dependencies(parserTest cmmcore)
+target_include_directories(parserTest PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(parserTest cmmcore)
+target_link_libraries(parserTest Threads::Threads)
+target_link_libraries(parserTest ${GTEST_BOTH_LIBRARIES})
 
 # GoogleTest ends here:
 
