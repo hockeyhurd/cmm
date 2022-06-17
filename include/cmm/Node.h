@@ -22,6 +22,7 @@ namespace cmm
     // TODO: Still needed??
     enum class NodeType
     {
+        UNKNOWN = 0, COMPILATION_UNIT, LITTERAL
     };
 
     class Node : public std::enable_shared_from_this<Node>

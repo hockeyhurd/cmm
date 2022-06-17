@@ -8,7 +8,7 @@
 
 using namespace cmm;
 
-TEST(ParserTest, ParseEmpty)
+TEST(ParserTest, ParseCompilationNodeEmpty)
 {
     const std::string input = "";
     Parser parser(input);

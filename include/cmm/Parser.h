@@ -15,10 +15,12 @@
 #include <cmm/Lexer.h>
 
 // std includes
+#include <memory>
 #include <string>
 
 namespace cmm
 {
+    class CompilationUnitNode;
     class Lexer;
 
     class Parser
@@ -67,6 +69,14 @@ namespace cmm
          * @return Parser reference.
          */
         Parser& operator= (Parser&&) noexcept = default;
+
+        /**
+         * Attempts to parse the compilation unit.
+         *
+         * @param errorMessage optional error message to set.  Assumes valid pointer if non-nullptr.
+         * @return nullptr on failure, else valid.
+         */
+        std::shared_ptr<CompilationUnitNode> parseCompilationUnit(std::string* errorMessage);
 
     private:
 

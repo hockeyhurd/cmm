@@ -17,5 +17,10 @@ namespace cmm
     Parser::Parser(std::string&& input) : lexer(std::move(input))
     {
     }
+
+    std::shared_ptr<CompilationUnitNode> parseCompilationUnit(std::string* errorMessage)
+    {
+        return nullptr;
+    }
 }
 

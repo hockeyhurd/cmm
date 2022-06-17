@@ -7,18 +7,16 @@
 
 #pragma once
 
-#ifndef CMM_LITTERAL_H
-#define CMM_LITTERAL_H
+#ifndef CMM_LITTERAL_NODE_H
+#define CMM_LITTERAL_NODE_H
 
 // Our includes
 #include <cmm/Types.h>
-
-// std includes
-#include <memory>
+#include <cmm/Node.h>
 
 namespace cmm
 {
-    class LitteralNode : public std::enable_shared_from_this<LitteralNode>
+    class LitteralNode : public Node
     {
     public:
 
@@ -119,5 +117,5 @@ namespace cmm
     };
 }
 
-#endif //!CMM_LITTERAL_H
+#endif //!CMM_LITTERAL_NODE_H
 
