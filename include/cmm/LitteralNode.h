@@ -16,6 +16,8 @@
 
 namespace cmm
 {
+    // TODO: Consider moving this to sub-classes based on the actual type
+    // as we start using this class more often.
     class LitteralNode : public Node
     {
     public:
@@ -24,6 +26,11 @@ namespace cmm
          * Default constructor for void pointer type.
          */
         LitteralNode(void* value) noexcept;
+
+        /**
+         * Default constructor for bool type.
+         */
+        LitteralNode(const bool value) noexcept;
 
         /**
          * Default constructor for char type.
@@ -99,7 +106,14 @@ namespace cmm
          *
          * @return EnumCType.
          */
-        EnumCType getCType() const noexcept;
+        EnumCType getTypeof() const noexcept;
+
+        /**
+         * Get the underly value.
+         *
+         * @return CType.
+         */
+        CType getValue() const noexcept;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -109,6 +123,8 @@ namespace cmm
         {
             return visitor.visit(*std::static_pointer_cast<DerivedT>(shared_from_this()));
         }
+
+        std::string toString() const override;
 
     private:
 

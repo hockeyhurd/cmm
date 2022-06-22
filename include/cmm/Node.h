@@ -15,6 +15,7 @@
 
 // std includes
 #include <memory>
+#include <string>
 
 namespace cmm
 {
@@ -80,6 +81,14 @@ namespace cmm
         {
             return visitor.visit(*std::static_pointer_cast<DerivedT>(shared_from_this()));
         }
+
+        /**
+         * Gets a string representation of this node. Typically, this is just
+         * the name of the class.
+         *
+         * @return std::string
+         */
+        virtual std::string toString() const;
 
     protected:
 

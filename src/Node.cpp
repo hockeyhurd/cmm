@@ -19,5 +19,11 @@ namespace cmm
     {
         return type;
     }
+
+    /* virtual */
+    std::string Node::toString() const
+    {
+        return "Node";
+    }
 }
 

@@ -29,6 +29,18 @@ TEST(LexerTest, LexWhitespace)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexSemiColon)
+{
+    const std::string input = " ; ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), CHAR_SEMI_COLON);
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexBoolTrue)
 {
     const bool value = true;

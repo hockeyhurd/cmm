@@ -14,6 +14,11 @@ namespace cmm
     {
     }
 
+    LitteralNode::LitteralNode(const bool value) noexcept : Node(NodeType::LITTERAL),
+        value(value), type(EnumCType::BOOL)
+    {
+    }
+
     LitteralNode::LitteralNode(const char value) noexcept : Node(NodeType::LITTERAL),
         value(value), type(EnumCType::CHAR)
     {
@@ -46,9 +51,19 @@ namespace cmm
     {
     }
 
-    EnumCType LitteralNode::getCType() const noexcept
+    EnumCType LitteralNode::getTypeof() const noexcept
     {
         return type;
+    }
+
+    CType LitteralNode::getValue() const noexcept
+    {
+        return value;
+    }
+
+    std::string LitteralNode::toString() const /* override */
+    {
+        return "LitteralNode";
     }
 }
 

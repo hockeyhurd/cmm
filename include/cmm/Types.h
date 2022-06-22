@@ -149,7 +149,7 @@ namespace cmm
 
     enum class EnumCType
     {
-        NULL_T = 0, VOID_PTR, CHAR, INT8, INT16, INT32, INT64, FLOAT, DOUBLE, STRING, STRUCT
+        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT, DOUBLE, STRING, STRUCT
     };
 
     struct CType
@@ -160,6 +160,7 @@ namespace cmm
         {
             void* valueVoidPtr;
             char  valueChar;
+            bool  valueBool;
             s8    valueS8;
             s16   valueS16;
             s32   valueS32;
@@ -170,9 +171,10 @@ namespace cmm
             char*  valueString;
             // TODO: revisit structs
             // char  valueStruct[0];
-        } value;
+        };
 
         CType(void* valueVoidPtr) noexcept;
+        CType(const bool valueBool) noexcept;
         CType(const char valueChar) noexcept;
         CType(const s8 valueS8) noexcept;
         CType(const s16 valueS16) noexcept;
