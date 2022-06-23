@@ -98,7 +98,7 @@ TEST(ParserTest, ParseCompilationNodeFloatSubtract)
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
 
     auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
 }
 
 s32 main(s32 argc, char *argv[])

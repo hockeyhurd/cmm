@@ -414,19 +414,6 @@ namespace cmm
                         currentChar = nextChar();
                         nextCh = peekNextChar();
 
-                        if (!isWhitespace(nextCh))
-                        {
-                            if (errorMessage != nullptr)
-                            {
-                                std::ostringstream err;
-                                err << "[LEXER]: Un-expected additional chars after float litteral at "
-                                    << location.toString();
-                                *errorMessage = err.str();
-                            }
-
-                            return false;
-                        }
-
                         break;
                     }
 
