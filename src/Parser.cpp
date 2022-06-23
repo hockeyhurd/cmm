@@ -6,6 +6,7 @@
  */
 
 #include <cmm/Parser.h>
+#include <cmm/BinOpNode.h>
 #include <cmm/CompilationUnitNode.h>
 #include <cmm/LitteralNode.h>
 #include <cmm/Token.h>
@@ -27,7 +28,8 @@ namespace cmm
 
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
-    static std::shared_ptr<LitteralNode> parseLitteralNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseLitteralNode(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
     {
@@ -45,8 +47,10 @@ namespace cmm
             return nullptr;
         }
 
-        const auto node = parseLitteralNode(lexer, errorMessage);
-        return std::make_shared<CompilationUnitNode>(node);
+        const auto node = parseBinOpNode(lexer, errorMessage);
+
+        // For now since we don't have proper statements, expect a semi-colon here.
+        return expectSemicolon(lexer, errorMessage) ? std::make_shared<CompilationUnitNode>(node) : nullptr;
     }
 
     /* static */
@@ -60,7 +64,65 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<LitteralNode> parseLitteralNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<Node> parseBinOpNode(Lexer& lexer, std::string* errorMessage)
+    {
+        /*Token token('\0', false);
+        bool lexResult = lexer.nextToken(token, errorMessage);
+
+        if (!lexResult)
+        {
+            return nullptr;
+        }*/
+
+        auto first = parseLitteralNode(lexer, errorMessage);
+
+        if (first == nullptr)
+        {
+            return nullptr;
+        }
+
+        Token token('\0', false);
+        bool lexResult = lexer.peekNextToken(token);
+
+        if (!lexResult)
+        {
+            return first;
+        }
+
+        auto optBinOpType = isEnumBinOpType(token);
+
+        if (!optBinOpType.has_value())
+        {
+            // return expectSemicolon(lexer, errorMessage) ? first : nullptr;
+            return first;
+        }
+
+        else
+        {
+            // Valid bin type accept the token
+            lexResult = lexer.nextToken(token, errorMessage);
+        }
+
+        auto second = parseBinOpNode(lexer, errorMessage);
+
+        if (first == nullptr)
+        {
+            // Parse error?
+            if (errorMessage != nullptr)
+            {
+                std::ostringstream os;
+                os << "[PARSER] error: expected litteral or expression at "
+                    << lexer.getLocation();
+            }
+
+            return nullptr;
+        }
+
+        return std::make_shared<BinOpNode>(optBinOpType.value(), first, second);
+    }
+
+    /* static */
+    std::shared_ptr<Node> parseLitteralNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -73,7 +135,19 @@ namespace cmm
         switch (token.getType())
         {
         case TokenType::BOOL:
-            return expectSemicolon(lexer, errorMessage) ? std::make_shared<LitteralNode>(token.asBool()) : nullptr;
+            return std::make_shared<LitteralNode>(token.asBool());
+        case TokenType::CHAR:
+            return std::make_shared<LitteralNode>(token.asChar());
+        case TokenType::FLOAT:
+            return std::make_shared<LitteralNode>(token.asFloat());
+        case TokenType::DOUBLE:
+            return std::make_shared<LitteralNode>(token.asDouble());
+        case TokenType::INT16:
+            return std::make_shared<LitteralNode>(token.asInt16());
+        case TokenType::INT32:
+            return std::make_shared<LitteralNode>(token.asInt32());
+        case TokenType::INT64:
+            return std::make_shared<LitteralNode>(token.asInt64());
         // Unimplemented types
         default:
             std::ostringstream os;

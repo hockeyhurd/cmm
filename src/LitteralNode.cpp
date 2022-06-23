@@ -1,5 +1,5 @@
 /**
- * An AST node for litteral types.
+ * An AST node for litteral ast nodes.
  *
  * @author hockeyhurd
  * @version 2022-06-14
@@ -41,6 +41,16 @@ namespace cmm
 
     LitteralNode::LitteralNode(const s64 value) noexcept : Node(NodeType::LITTERAL),
         value(value), type(EnumCType::INT64)
+    {
+    }
+
+    LitteralNode::LitteralNode(const f32 value) noexcept : Node(NodeType::LITTERAL),
+        value(value), type(EnumCType::FLOAT)
+    {
+    }
+
+    LitteralNode::LitteralNode(const f64 value) noexcept : Node(NodeType::LITTERAL),
+        value(value), type(EnumCType::DOUBLE)
     {
     }
 

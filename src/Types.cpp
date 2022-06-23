@@ -45,6 +45,16 @@ namespace cmm
         this->valueS64 = valueS64;
     }
 
+    CType::CType(const f32 valueF32) noexcept : length(sizeof(valueF32))
+    {
+        this->valueF32 = valueF32;
+    }
+
+    CType::CType(const f64 valueF64) noexcept : length(sizeof(valueF64))
+    {
+        this->valueF64 = valueF64;
+    }
+
     CType::CType(char* valueString) noexcept : length(sizeof(valueString))
     {
         this->valueString = valueString;
