@@ -66,17 +66,9 @@ namespace cmm
     /* static */
     std::shared_ptr<Node> parseBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
-        /*Token token('\0', false);
-        bool lexResult = lexer.nextToken(token, errorMessage);
+        auto left = parseLitteralNode(lexer, errorMessage);
 
-        if (!lexResult)
-        {
-            return nullptr;
-        }*/
-
-        auto first = parseLitteralNode(lexer, errorMessage);
-
-        if (first == nullptr)
+        if (left == nullptr)
         {
             return nullptr;
         }
@@ -84,41 +76,29 @@ namespace cmm
         Token token('\0', false);
         bool lexResult = lexer.peekNextToken(token);
 
-        if (!lexResult)
+        while (lexResult)
         {
-            return first;
-        }
+            auto optBinOpType = isEnumBinOpType(token);
 
-        auto optBinOpType = isEnumBinOpType(token);
-
-        if (!optBinOpType.has_value())
-        {
-            // return expectSemicolon(lexer, errorMessage) ? first : nullptr;
-            return first;
-        }
-
-        else
-        {
-            // Valid bin type accept the token
-            lexResult = lexer.nextToken(token, errorMessage);
-        }
-
-        auto second = parseBinOpNode(lexer, errorMessage);
-
-        if (first == nullptr)
-        {
-            // Parse error?
-            if (errorMessage != nullptr)
+            if (!optBinOpType.has_value())
             {
-                std::ostringstream os;
-                os << "[PARSER] error: expected litteral or expression at "
-                    << lexer.getLocation();
+                return left;
             }
 
-            return nullptr;
+            else
+            {
+                // Valid bin type accept the token
+                lexResult = lexer.nextToken(token, errorMessage);
+            }
+
+            auto right = parseLitteralNode(lexer, errorMessage);
+            left = std::make_shared<BinOpNode>(optBinOpType.value(), std::move(left), std::move(right));
+
+            // Lookahead for next iteration.
+            lexResult = lexer.peekNextToken(token);
         }
 
-        return std::make_shared<BinOpNode>(optBinOpType.value(), first, second);
+        return left;
     }
 
     /* static */
