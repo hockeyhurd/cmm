@@ -28,7 +28,9 @@ namespace cmm
 
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
-    static std::shared_ptr<Node> parseBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseLitteralNode(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
@@ -47,7 +49,7 @@ namespace cmm
             return nullptr;
         }
 
-        const auto node = parseBinOpNode(lexer, errorMessage);
+        const auto node = parseAssignmentBinOpNode(lexer, errorMessage);
 
         // For now since we don't have proper statements, expect a semi-colon here.
         return expectSemicolon(lexer, errorMessage) ? std::make_shared<CompilationUnitNode>(node) : nullptr;
@@ -64,7 +66,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseLitteralNode(lexer, errorMessage);
 
@@ -78,21 +80,93 @@ namespace cmm
 
         while (lexResult)
         {
-            auto optBinOpType = isEnumBinOpType(token);
-
-            if (!optBinOpType.has_value())
-            {
-                return left;
-            }
-
-            else
+            if (token.isCharSymbol() && (token.asCharSymbol() == CHAR_ASTERISK || token.asCharSymbol() == CHAR_FORWARD_SLASH))
             {
                 // Valid bin type accept the token
                 lexResult = lexer.nextToken(token, errorMessage);
             }
 
+            else
+            {
+                return left;
+            }
+
+            const auto actualBinOp = token.asCharSymbol() == CHAR_ASTERISK ? EnumBinOpNodeType::MULTIPLY : EnumBinOpNodeType::DIVIDE;
             auto right = parseLitteralNode(lexer, errorMessage);
-            left = std::make_shared<BinOpNode>(optBinOpType.value(), std::move(left), std::move(right));
+            left = std::make_shared<BinOpNode>(actualBinOp, std::move(left), std::move(right));
+
+            // Lookahead for next iteration.
+            lexResult = lexer.peekNextToken(token);
+        }
+
+        return left;
+    }
+
+    /* static */
+    std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage)
+    {
+        auto left = parseMultiplyDivideBinOpNode(lexer, errorMessage);
+
+        if (left == nullptr)
+        {
+            return nullptr;
+        }
+
+        Token token('\0', false);
+        bool lexResult = lexer.peekNextToken(token);
+
+        while (lexResult)
+        {
+            if (token.isCharSymbol() && (token.asCharSymbol() == CHAR_PLUS || token.asCharSymbol() == CHAR_MINUS))
+            {
+                // Valid bin type accept the token
+                lexResult = lexer.nextToken(token, errorMessage);
+            }
+
+            else
+            {
+                return left;
+            }
+
+            const auto actualBinOp = token.asCharSymbol() == CHAR_PLUS ? EnumBinOpNodeType::ADD: EnumBinOpNodeType::SUBTRACT;
+            auto right = parseLitteralNode(lexer, errorMessage);
+            left = std::make_shared<BinOpNode>(actualBinOp, std::move(left), std::move(right));
+
+            // Lookahead for next iteration.
+            lexResult = lexer.peekNextToken(token);
+        }
+
+        return left;
+    }
+
+    /* static */
+    std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage)
+    {
+        auto left = parseAddSubBinOpNode(lexer, errorMessage);
+
+        if (left == nullptr)
+        {
+            return nullptr;
+        }
+
+        Token token('\0', false);
+        bool lexResult = lexer.peekNextToken(token);
+
+        while (lexResult)
+        {
+            if (token.isCharSymbol() && token.asCharSymbol() == CHAR_EQUALS)
+            {
+                // Valid bin type accept the token
+                lexResult = lexer.nextToken(token, errorMessage);
+            }
+
+            else
+            {
+                return left;
+            }
+
+            auto right = parseAddSubBinOpNode(lexer, errorMessage);
+            left = std::make_shared<BinOpNode>(EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
             lexResult = lexer.peekNextToken(token);

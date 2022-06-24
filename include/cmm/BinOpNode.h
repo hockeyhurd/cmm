@@ -23,7 +23,7 @@ namespace cmm
 
     enum class EnumBinOpNodeType
     {
-        ADD = 0, SUBTRACT, MULTIPLY, DIVIDE
+        ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE
     };
 
     std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) noexcept;
