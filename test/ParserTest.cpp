@@ -101,6 +101,36 @@ TEST(ParserTest, ParseCompilationNodeFloatSubtract)
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
 }
 
+TEST(ParserTest, ParseCompilationNodeIntMultiply)
+{
+    const std::string input = "123 * 456789;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+
+    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
+}
+
+TEST(ParserTest, ParseCompilationNodeFloatDivide)
+{
+    const std::string input = "123.0 / 456789.0;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+
+    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::DIVIDE);
+}
+
 s32 main(s32 argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

@@ -554,6 +554,7 @@ namespace cmm
             case CHAR_COLON:
             case CHAR_COMMA:
             case CHAR_SEMI_COLON:
+            case CHAR_ASTERISK:
                 token.setCharSymbol(currentChar);
                 return true;
             case CHAR_EOF:
