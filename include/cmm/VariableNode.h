@@ -22,8 +22,6 @@ namespace cmm
 {
     class Token;
 
-    // TODO: Consider moving this to sub-classes based on the actual type
-    // as we start using this class more often.
     class VariableNode : public Node
     {
     public:
@@ -70,6 +68,20 @@ namespace cmm
          * @return VariableNode reference.
          */
         VariableNode& operator= (VariableNode&&) noexcept = default;
+
+        /**
+         * Gets the name of this variable.
+         *
+         * @return std::string.
+         */
+        std::string& getName();
+
+        /**
+         * Gets the name of this variable.
+         *
+         * @return std::string.
+         */
+        const std::string& getName() const;
 
         /**
          * Generic and templated function needed for visitor pattern.

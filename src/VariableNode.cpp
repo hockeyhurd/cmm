@@ -17,6 +17,16 @@ namespace cmm
     {
     }
 
+    std::string& VariableNode::getName()
+    {
+        return name;
+    }
+
+    const std::string& VariableNode::getName() const
+    {
+        return name;
+    }
+
     std::string VariableNode::toString() const /* override */
     {
         return "VariableNode";
