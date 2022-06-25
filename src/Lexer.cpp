@@ -414,19 +414,6 @@ namespace cmm
                         currentChar = nextChar();
                         nextCh = peekNextChar();
 
-                        if (!isWhitespace(nextCh))
-                        {
-                            if (errorMessage != nullptr)
-                            {
-                                std::ostringstream err;
-                                err << "[LEXER]: Un-expected additional chars after float litteral at "
-                                    << location.toString();
-                                *errorMessage = err.str();
-                            }
-
-                            return false;
-                        }
-
                         break;
                     }
 
@@ -566,6 +553,9 @@ namespace cmm
             case CHAR_RSQUARE_BRACKET:
             case CHAR_COLON:
             case CHAR_COMMA:
+            case CHAR_SEMI_COLON:
+            case CHAR_ASTERISK:
+            case CHAR_EQUALS:
                 token.setCharSymbol(currentChar);
                 return true;
             case CHAR_EOF:

@@ -147,6 +147,46 @@ namespace cmm
     const f32 f32_e = 2.71828182845904523536F;
     const f64 f64_e = 2.71828182845904523536;
 
+    enum class EnumCType
+    {
+        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT, DOUBLE, STRING, STRUCT
+    };
+
+    struct CType
+    {
+        std::size_t length;
+
+        union
+        {
+            void* valueVoidPtr;
+            char  valueChar;
+            bool  valueBool;
+            s8    valueS8;
+            s16   valueS16;
+            s32   valueS32;
+            s64   valueS64;
+            f32   valueF32;
+            f64   valueF64;
+            // TODO: Consider making this const
+            char*  valueString;
+            // TODO: revisit structs
+            // char  valueStruct[0];
+        };
+
+        CType(void* valueVoidPtr) noexcept;
+        CType(const bool valueBool) noexcept;
+        CType(const char valueChar) noexcept;
+        CType(const s8 valueS8) noexcept;
+        CType(const s16 valueS16) noexcept;
+        CType(const s32 valueS32) noexcept;
+        CType(const s64 valueS64) noexcept;
+        CType(const f32 valueF32) noexcept;
+        CType(const f64 valueF64) noexcept;
+        CType(char* valueString) noexcept;
+        // TODO: revisit structs
+        // CType(const std::size_t length);
+    };
+
 }
 
 #endif //!CMM_TYPES_H
