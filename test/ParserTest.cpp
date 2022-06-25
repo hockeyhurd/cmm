@@ -131,6 +131,36 @@ TEST(ParserTest, ParseCompilationNodeFloatDivide)
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::DIVIDE);
 }
 
+TEST(ParserTest, ParseCompilationNodeIntAssignment)
+{
+    const std::string input = "a = 10;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+
+    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleSumAndAssignment)
+{
+    const std::string input = "a = 123.0 + 32.0;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+
+    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+}
+
 s32 main(s32 argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

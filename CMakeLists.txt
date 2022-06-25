@@ -17,7 +17,8 @@ endif()
 include_directories(include)
 
 # All cmmcore source files
-set(SOURCE_FILES src/CompilationUnitNode.cpp src/BinOpNode.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/Parser.cpp src/Snapshot.cpp src/StringView.cpp src/Token.cpp src/Types.cpp)
+set(SOURCE_FILES src/CompilationUnitNode.cpp src/BinOpNode.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/Parser.cpp
+                 src/Snapshot.cpp src/StringView.cpp src/Token.cpp src/Types.cpp src/VariableNode.cpp)
 
 # Require threading library (Linux/Unix this is pthreads).
 set(THREADS_PREFER_PTHREAD_FLAG ON)

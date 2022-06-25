@@ -10,6 +10,7 @@
 #include <cmm/CompilationUnitNode.h>
 #include <cmm/LitteralNode.h>
 #include <cmm/Token.h>
+#include <cmm/VariableNode.h>
 
 #include <iostream>
 #include <sstream>
@@ -31,7 +32,8 @@ namespace cmm
     static std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseLitteralNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    // static std::shared_ptr<Node> parseVariable(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
     {
@@ -68,7 +70,7 @@ namespace cmm
     /* static */
     std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto left = parseLitteralNode(lexer, errorMessage);
+        auto left = parseLitteralOrVariableNode(lexer, errorMessage);
 
         if (left == nullptr)
         {
@@ -92,7 +94,7 @@ namespace cmm
             }
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_ASTERISK ? EnumBinOpNodeType::MULTIPLY : EnumBinOpNodeType::DIVIDE;
-            auto right = parseLitteralNode(lexer, errorMessage);
+            auto right = parseLitteralOrVariableNode(lexer, errorMessage);
             left = std::make_shared<BinOpNode>(actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
@@ -129,7 +131,7 @@ namespace cmm
             }
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_PLUS ? EnumBinOpNodeType::ADD: EnumBinOpNodeType::SUBTRACT;
-            auto right = parseLitteralNode(lexer, errorMessage);
+            auto right = parseMultiplyDivideBinOpNode(lexer, errorMessage);
             left = std::make_shared<BinOpNode>(actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
@@ -176,7 +178,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseLitteralNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -202,6 +204,8 @@ namespace cmm
             return std::make_shared<LitteralNode>(token.asInt32());
         case TokenType::INT64:
             return std::make_shared<LitteralNode>(token.asInt64());
+        case TokenType::SYMBOL:
+            return std::make_shared<VariableNode>(token.asStringSymbol());
         // Unimplemented types
         default:
             std::ostringstream os;
