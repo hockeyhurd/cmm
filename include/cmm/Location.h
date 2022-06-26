@@ -30,7 +30,7 @@ namespace cmm
         /**
          * Default constructor
          */
-        Location() noexcept;
+        Location() CMM_NOEXCEPT;
 
         /**
          * Constructor
@@ -38,17 +38,17 @@ namespace cmm
          * @param line the line in the file
          * @param pos the position offset from the specified line.
          */
-        Location(const std::size_t line, const std::size_t pos) noexcept;
+        Location(const std::size_t line, const std::size_t pos) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.
          */
-        Location(const Location&) noexcept = default;
+        Location(const Location&) CMM_NOEXCEPT = default;
 
         /**
          * Default move constructor.
          */
-        Location(Location&&) noexcept = default;
+        Location(Location&&) CMM_NOEXCEPT = default;
 
         /**
          * Default destructor
@@ -60,21 +60,21 @@ namespace cmm
          *
          * @return this Location's instance.
          */
-        Location& operator= (const Location&) noexcept = default;
+        Location& operator= (const Location&) CMM_NOEXCEPT = default;
 
         /**
          * Default move assignment operator.
          *
          * @return this Location's instance.
          */
-        Location& operator= (Location&&) noexcept = default;
+        Location& operator= (Location&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets the line in the file.
          *
          * @return std::size_t line.
          */
-        inline std::size_t getLine() const noexcept
+        inline std::size_t getLine() const CMM_NOEXCEPT
         {
             return line;
         }
@@ -84,7 +84,7 @@ namespace cmm
          *
          * @return std::size_t position.
          */
-        inline std::size_t getPosition() const noexcept
+        inline std::size_t getPosition() const CMM_NOEXCEPT
         {
             return pos;
         }

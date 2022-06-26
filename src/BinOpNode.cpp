@@ -11,7 +11,7 @@
 namespace cmm
 {
 
-    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) noexcept
+    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT
     {
         if (token.isCharSymbol())
         {
@@ -39,7 +39,7 @@ namespace cmm
     {
     }
 
-    EnumBinOpNodeType BinOpNode::getTypeof() const noexcept
+    EnumBinOpNodeType BinOpNode::getTypeof() const CMM_NOEXCEPT
     {
         return type;
     }

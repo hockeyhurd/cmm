@@ -6,11 +6,11 @@
 
 namespace cmm
 {
-    Location::Location() noexcept : line(0), pos(0)
+    Location::Location() CMM_NOEXCEPT : line(0), pos(0)
     {
     }
 
-    Location::Location(const std::size_t line, const std::size_t pos) noexcept : line(line), pos(pos)
+    Location::Location(const std::size_t line, const std::size_t pos) CMM_NOEXCEPT : line(line), pos(pos)
     {
     }
 

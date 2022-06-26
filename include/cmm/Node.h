@@ -23,7 +23,7 @@ namespace cmm
     // TODO: Still needed??
     enum class NodeType
     {
-        UNKNOWN = 0, COMPILATION_UNIT, BIN_OP, LITTERAL, VARIABLE
+        UNKNOWN = 0, COMPILATION_UNIT, BIN_OP, DECLARATION, LITTERAL, VARIABLE
     };
 
     class Node : public std::enable_shared_from_this<Node>
@@ -33,19 +33,19 @@ namespace cmm
         /**
          * Default constructor that can only be constructed by a derived type.
          */
-        Node(const NodeType type) noexcept;
+        Node(const NodeType type) CMM_NOEXCEPT;
 
     public:
 
         /**
          * Copy constructor.
          */
-        Node(const Node&) noexcept = default;
+        Node(const Node&) CMM_NOEXCEPT = default;
 
         /**
          * Move constructor.
          */
-        Node(Node&&) noexcept = default;
+        Node(Node&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
@@ -57,21 +57,21 @@ namespace cmm
          *
          * @return Node reference.
          */
-        Node& operator= (const Node&) noexcept = default;
+        Node& operator= (const Node&) CMM_NOEXCEPT = default;
 
         /**
          * Move assignment operator.
          *
          * @return Node reference.
          */
-        Node& operator= (Node&&) noexcept = default;
+        Node& operator= (Node&&) CMM_NOEXCEPT = default;
 
         /**
          * Get the type of this node.
          *
          * @return NodeType.
          */
-        virtual NodeType getType() const noexcept;
+        virtual NodeType getType() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.

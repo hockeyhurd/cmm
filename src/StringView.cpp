@@ -22,12 +22,12 @@ namespace cmm
     {
     }
 
-    const char* StringView::get() const noexcept
+    const char* StringView::get() const CMM_NOEXCEPT
     {
         return str;
     }
 
-    std::size_t StringView::size() const noexcept
+    std::size_t StringView::size() const CMM_NOEXCEPT
     {
         return len;
     }

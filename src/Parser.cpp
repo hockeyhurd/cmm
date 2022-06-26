@@ -8,8 +8,11 @@
 #include <cmm/Parser.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/CompilationUnitNode.h>
+#include <cmm/DeclarationStatementNode.h>
 #include <cmm/LitteralNode.h>
+#include <cmm/Snapshot.h>
 #include <cmm/Token.h>
+#include <cmm/TypeNode.h>
 #include <cmm/VariableNode.h>
 
 #include <iostream>
@@ -32,8 +35,10 @@ namespace cmm
     static std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseDeclaration(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
-    // static std::shared_ptr<Node> parseVariable(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseType(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
     {
@@ -51,7 +56,12 @@ namespace cmm
             return nullptr;
         }
 
-        const auto node = parseAssignmentBinOpNode(lexer, errorMessage);
+        auto node = parseDeclaration(lexer, errorMessage);
+
+        if (node == nullptr)
+        {
+            node = parseAssignmentBinOpNode(lexer, errorMessage);
+        }
 
         // For now since we don't have proper statements, expect a semi-colon here.
         return expectSemicolon(lexer, errorMessage) ? std::make_shared<CompilationUnitNode>(node) : nullptr;
@@ -178,6 +188,34 @@ namespace cmm
     }
 
     /* static */
+    std::shared_ptr<Node> parseDeclaration(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto type = parseType(lexer, errorMessage);
+
+        if (type == nullptr)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        snapshot = lexer.snap();
+        auto variableName = parseVariableNode(lexer, errorMessage);
+
+        if (variableName == nullptr)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto declType = std::dynamic_pointer_cast<TypeNode>(type);
+        auto declVar = std::dynamic_pointer_cast<VariableNode>(type);
+        return std::make_shared<DeclarationStatementNode>(std::move(declType), std::move(declVar));
+        // return std::make_shared<DeclarationStatementNode>(std::move(*declType), std::move(*declVar));
+        // return std::make_shared<DeclarationStatementNode>(*declType, *declVar);
+    }
+
+    /* static */
     std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
@@ -213,6 +251,46 @@ namespace cmm
                << toString(token.getType()) << '\'';
             unimplementedAbort(os.str());
             return nullptr;
+        }
+
+        return nullptr;
+    }
+
+    /* static */
+    std::shared_ptr<Node> parseVariableNode(Lexer& lexer, std::string* errorMessage)
+    {
+        Token token('\0', false);
+        const bool lexResult = lexer.nextToken(token, errorMessage);
+
+        if (!lexResult)
+        {
+            return nullptr;
+        }
+
+        return std::make_shared<VariableNode>(token.asStringSymbol());
+    }
+
+    /* static */
+    std::shared_ptr<Node> parseType(Lexer& lexer, std::string* errorMessage)
+    {
+        Token token('\0', false);
+        const bool lexResult = lexer.nextToken(token, errorMessage);
+
+        if (!lexResult || !token.isStringSymbol())
+        {
+            return nullptr;
+        }
+
+        auto type = token.asStringSymbol();
+
+        if (isCType(type))
+        {
+            const auto enumType = getCType(token.asStringSymbol());
+
+            if (enumType.has_value())
+            {
+                return std::make_shared<TypeNode>(enumType.value());
+            }
         }
 
         return nullptr;

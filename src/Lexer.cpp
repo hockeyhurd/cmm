@@ -42,22 +42,22 @@ namespace cmm
         builder.reserve(0x40);
     }
 
-    Lexer::Lexer(std::string&& text) noexcept : text(std::move(text)), index(0)
+    Lexer::Lexer(std::string&& text) CMM_NOEXCEPT : text(std::move(text)), index(0)
     {
         builder.reserve(0x40);
     }
 
-    Location Lexer::getLocation() const noexcept
+    Location Lexer::getLocation() const CMM_NOEXCEPT
     {
         return location;
     }
 
-    bool Lexer::completed() const noexcept
+    bool Lexer::completed() const CMM_NOEXCEPT
     {
         return index == text.size();
     }
 
-    bool Lexer::completedOrWhitespaceOnly() noexcept
+    bool Lexer::completedOrWhitespaceOnly() CMM_NOEXCEPT
     {
         // If already completed, early exit.
         if (completed())
@@ -89,6 +89,16 @@ namespace cmm
         return result;
     }
 
+    void Lexer::restore(const Snapshot& snap) CMM_NOEXCEPT
+    {
+        index = snap.getPosition();
+    }
+
+    Snapshot Lexer::snap() CMM_NOEXCEPT
+    {
+        return Snapshot(index);
+    }
+
     void Lexer::consumeWhitespace()
     {
         while (true)
@@ -116,7 +126,7 @@ namespace cmm
         }
     }
 
-    char Lexer::nextChar() noexcept
+    char Lexer::nextChar() CMM_NOEXCEPT
     {
         if (index < text.size())
         {
@@ -140,7 +150,7 @@ namespace cmm
         return CHAR_EOF;
     }
 
-    char Lexer::peekNextChar() const noexcept
+    char Lexer::peekNextChar() const CMM_NOEXCEPT
     {
         if (index < text.size())
             return text[index];
@@ -576,30 +586,20 @@ namespace cmm
         return false;
     }
 
-    void Lexer::restore(const Snapshot& snap) noexcept
-    {
-        index = snap.getPosition();
-    }
-
-    Snapshot Lexer::snap() noexcept
-    {
-        return Snapshot(index);
-    }
-
     /* static */
-    bool Lexer::isAlpha(char ch) noexcept
+    bool Lexer::isAlpha(char ch) CMM_NOEXCEPT
     {
         return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
     }
 
     /* static */
-    bool Lexer::isDigit(char ch) noexcept
+    bool Lexer::isDigit(char ch) CMM_NOEXCEPT
     {
         return ch >= '0' && ch <= '9';
     }
 
     /* static */
-    bool Lexer::isEscape(char first, char second) noexcept
+    bool Lexer::isEscape(char first, char second) CMM_NOEXCEPT
     {
         if (first != '\\')
         {
@@ -625,13 +625,13 @@ namespace cmm
     }
 
     /* static */
-    bool Lexer::requiresEscape(char ch) noexcept
+    bool Lexer::requiresEscape(char ch) CMM_NOEXCEPT
     {
         return isEscape(CHAR_BACK_SLASH, ch);
     }
 
     /* static */
-    char Lexer::transformEscapeSequence(char first, char second) noexcept
+    char Lexer::transformEscapeSequence(char first, char second) CMM_NOEXCEPT
     {
         if (first != CHAR_BACK_SLASH)
         {
@@ -663,13 +663,13 @@ namespace cmm
     }
 
     /* static */
-    bool Lexer::isNewLine(char ch) noexcept
+    bool Lexer::isNewLine(char ch) CMM_NOEXCEPT
     {
         return ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 
     /* static */
-    bool Lexer::isWhitespace(char ch) noexcept
+    bool Lexer::isWhitespace(char ch) CMM_NOEXCEPT
     {
         return ch == CHAR_SPACE || ch == CHAR_TAB ||
                ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN ||

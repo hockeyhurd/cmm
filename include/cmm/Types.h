@@ -38,6 +38,8 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <optional>
+#include <string>
 // #include <cfloat>
 
 #ifndef _USE_MATH_DEFINES
@@ -149,7 +151,8 @@ namespace cmm
 
     enum class EnumCType
     {
-        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT, DOUBLE, STRING, STRUCT
+        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
+        DOUBLE, STRING, STRUCT
     };
 
     struct CType
@@ -173,19 +176,22 @@ namespace cmm
             // char  valueStruct[0];
         };
 
-        CType(void* valueVoidPtr) noexcept;
-        CType(const bool valueBool) noexcept;
-        CType(const char valueChar) noexcept;
-        CType(const s8 valueS8) noexcept;
-        CType(const s16 valueS16) noexcept;
-        CType(const s32 valueS32) noexcept;
-        CType(const s64 valueS64) noexcept;
-        CType(const f32 valueF32) noexcept;
-        CType(const f64 valueF64) noexcept;
-        CType(char* valueString) noexcept;
+        CType(void* valueVoidPtr) CMM_NOEXCEPT;
+        CType(const bool valueBool) CMM_NOEXCEPT;
+        CType(const char valueChar) CMM_NOEXCEPT;
+        CType(const s8 valueS8) CMM_NOEXCEPT;
+        CType(const s16 valueS16) CMM_NOEXCEPT;
+        CType(const s32 valueS32) CMM_NOEXCEPT;
+        CType(const s64 valueS64) CMM_NOEXCEPT;
+        CType(const f32 valueF32) CMM_NOEXCEPT;
+        CType(const f64 valueF64) CMM_NOEXCEPT;
+        CType(char* valueString) CMM_NOEXCEPT;
         // TODO: revisit structs
         // CType(const std::size_t length);
     };
+
+    bool isCType(const std::string& str) CMM_NOEXCEPT;
+    std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
 }
 

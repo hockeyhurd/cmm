@@ -20,8 +20,6 @@
 
 namespace cmm
 {
-    class Token;
-
     class VariableNode : public Node
     {
     public:
@@ -38,7 +36,7 @@ namespace cmm
          *
          * @param name the std::string name of the variable.
          */
-        explicit VariableNode(std::string&& name) noexcept;
+        explicit VariableNode(std::string&& name) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -48,7 +46,7 @@ namespace cmm
         /**
          * Move constructor.
          */
-        VariableNode(VariableNode&&) noexcept = default;
+        VariableNode(VariableNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
@@ -67,7 +65,7 @@ namespace cmm
          *
          * @return VariableNode reference.
          */
-        VariableNode& operator= (VariableNode&&) noexcept = default;
+        VariableNode& operator= (VariableNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets the name of this variable.

@@ -49,7 +49,7 @@ namespace cmm
         /**
          * Default move constructor.
          */
-        Parser(Parser&&) noexcept = default;
+        Parser(Parser&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
@@ -68,7 +68,7 @@ namespace cmm
          *
          * @return Parser reference.
          */
-        Parser& operator= (Parser&&) noexcept = default;
+        Parser& operator= (Parser&&) CMM_NOEXCEPT = default;
 
         /**
          * Attempts to parse the compilation unit.

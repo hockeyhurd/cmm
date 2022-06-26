@@ -5,6 +5,9 @@
 #include <cmm/Parser.h>
 #include <cmm/Token.h>
 #include <cmm/Types.h>
+#include <cmm/DeclarationStatementNode.h>
+#include <cmm/StatementNode.h>
+#include <cmm/VariableNode.h>
 
 #include <gtest/gtest.h>
 
@@ -159,6 +162,21 @@ TEST(ParserTest, ParseCompilationNodeDoubleSumAndAssignment)
 
     auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
+{
+    const std::string input = "int x;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::DECLARATION);
+
+    // auto rootSumPtr = std::static_pointer_cast<DeclarationStatementNode>(compUnitPtr->getRoot());
+    // ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::DECLARATION);
 }
 
 s32 main(s32 argc, char *argv[])

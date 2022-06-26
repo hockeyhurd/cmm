@@ -25,7 +25,7 @@ namespace cmm
         /**
          * Default constructor.
          */
-        CompilationUnitNode() noexcept;
+        CompilationUnitNode() CMM_NOEXCEPT;
 
         /**
          * Constructor with some 'root' like node.
@@ -37,12 +37,12 @@ namespace cmm
         /**
          * Copy constructor.
          */
-        CompilationUnitNode(const CompilationUnitNode&) noexcept = default;
+        CompilationUnitNode(const CompilationUnitNode&) CMM_NOEXCEPT = default;
 
         /**
          * Move constructor.
          */
-        CompilationUnitNode(CompilationUnitNode&&) noexcept = default;
+        CompilationUnitNode(CompilationUnitNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
@@ -54,14 +54,14 @@ namespace cmm
          *
          * @return CompilationUnitNode reference.
          */
-        CompilationUnitNode& operator= (const CompilationUnitNode&) noexcept = default;
+        CompilationUnitNode& operator= (const CompilationUnitNode&) CMM_NOEXCEPT = default;
 
         /**
          * Move assignment operator.
          *
          * @return CompilationUnitNode reference.
          */
-        CompilationUnitNode& operator= (CompilationUnitNode&&) noexcept = default;
+        CompilationUnitNode& operator= (CompilationUnitNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets the Root node.  This is needed for unit testing (at least for now).
@@ -77,7 +77,7 @@ namespace cmm
          *
          * @return NodeType.
          */
-        NodeType getRootType() const noexcept;
+        NodeType getRootType() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.

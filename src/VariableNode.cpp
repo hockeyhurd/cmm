@@ -13,7 +13,7 @@ namespace cmm
     {
     }
 
-    VariableNode::VariableNode(std::string&& name) noexcept : Node(NodeType::VARIABLE), name(std::move(name))
+    VariableNode::VariableNode(std::string&& name) CMM_NOEXCEPT : Node(NodeType::VARIABLE), name(std::move(name))
     {
     }
 

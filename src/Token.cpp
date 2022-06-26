@@ -7,12 +7,12 @@
 
 namespace cmm
 {
-    Token::Token(const bool b) noexcept : type(TokenType::BOOL)
+    Token::Token(const bool b) CMM_NOEXCEPT : type(TokenType::BOOL)
     {
         value.b = b;
     }
 
-    Token::Token(const char ch, const bool isSymbol) noexcept
+    Token::Token(const char ch, const bool isSymbol) CMM_NOEXCEPT
     {
         if (isSymbol)
         {
@@ -27,7 +27,7 @@ namespace cmm
         value.ch = ch;
     }
 
-    Token::Token(const f64 doubleValue) noexcept : type(TokenType::DOUBLE)
+    Token::Token(const f64 doubleValue) CMM_NOEXCEPT : type(TokenType::DOUBLE)
     {
         value.doubleValue = doubleValue;
     }
@@ -55,7 +55,7 @@ namespace cmm
         }
     }
 
-    Token::Token(Token&& other) noexcept : type(other.type)
+    Token::Token(Token&& other) CMM_NOEXCEPT : type(other.type)
     {
         if (other.type == TokenType::STRING || other.type == TokenType::SYMBOL)
         {
@@ -124,7 +124,7 @@ namespace cmm
         return *this;
     }
 
-    Token& Token::operator= (Token&& other) noexcept
+    Token& Token::operator= (Token&& other) CMM_NOEXCEPT
     {
         // If we have an allocated std::string, need to clean this up before
         // aquiring a new value.
@@ -141,144 +141,144 @@ namespace cmm
         return *this;
     }
 
-    TokenType Token::getType() const noexcept
+    TokenType Token::getType() const CMM_NOEXCEPT
     {
         return type;
     }
 
-    bool Token::asBool() const noexcept
+    bool Token::asBool() const CMM_NOEXCEPT
     {
         return value.b;
     }
 
-    bool Token::isBool() const noexcept
+    bool Token::isBool() const CMM_NOEXCEPT
     {
         return type == TokenType::BOOL;
     }
 
-    void Token::setBool(const bool b) noexcept
+    void Token::setBool(const bool b) CMM_NOEXCEPT
     {
         type = TokenType::BOOL;
         value.b = b;
     }
 
-    char Token::asChar() const noexcept
+    char Token::asChar() const CMM_NOEXCEPT
     {
         return value.ch;
     }
 
-    bool Token::isChar() const noexcept
+    bool Token::isChar() const CMM_NOEXCEPT
     {
         return type == TokenType::CHAR;
     }
 
-    void Token::setChar(const char ch) noexcept
+    void Token::setChar(const char ch) CMM_NOEXCEPT
     {
         type = TokenType::CHAR;
         value.ch = ch;
     }
 
-    f64 Token::asDouble() const noexcept
+    f64 Token::asDouble() const CMM_NOEXCEPT
     {
         return value.doubleValue;
     }
 
-    bool Token::isDouble() const noexcept
+    bool Token::isDouble() const CMM_NOEXCEPT
     {
         return type == TokenType::DOUBLE;
     }
 
-    void Token::setDouble(const f64 doubleValue) noexcept
+    void Token::setDouble(const f64 doubleValue) CMM_NOEXCEPT
     {
         type = TokenType::DOUBLE;
         value.doubleValue = doubleValue;
     }
 
-    f32 Token::asFloat() const noexcept
+    f32 Token::asFloat() const CMM_NOEXCEPT
     {
         return value.floatValue;
     }
 
-    bool Token::isFloat() const noexcept
+    bool Token::isFloat() const CMM_NOEXCEPT
     {
         return type == TokenType::FLOAT;
     }
 
-    void Token::setFloat(const f32 floatValue) noexcept
+    void Token::setFloat(const f32 floatValue) CMM_NOEXCEPT
     {
         type = TokenType::FLOAT;
         value.floatValue = floatValue;
     }
 
-    s16 Token::asInt16() const noexcept
+    s16 Token::asInt16() const CMM_NOEXCEPT
     {
         return value.int16Value;
     }
 
-    bool Token::isInt16() const noexcept
+    bool Token::isInt16() const CMM_NOEXCEPT
     {
         return type == TokenType::INT16;
     }
 
-    void Token::setInt16(const s16 int16Value) noexcept
+    void Token::setInt16(const s16 int16Value) CMM_NOEXCEPT
     {
         type = TokenType::INT16;
         value.int16Value = int16Value;
     }
 
-    s32 Token::asInt32() const noexcept
+    s32 Token::asInt32() const CMM_NOEXCEPT
     {
         return value.int32Value;
     }
 
-    bool Token::isInt32() const noexcept
+    bool Token::isInt32() const CMM_NOEXCEPT
     {
         return type == TokenType::INT32;
     }
 
-    void Token::setInt32(const s32 int32Value) noexcept
+    void Token::setInt32(const s32 int32Value) CMM_NOEXCEPT
     {
         type = TokenType::INT32;
         value.int32Value = int32Value;
     }
 
-    s64 Token::asInt64() const noexcept
+    s64 Token::asInt64() const CMM_NOEXCEPT
     {
         return value.int64Value;
     }
 
-    bool Token::isInt64() const noexcept
+    bool Token::isInt64() const CMM_NOEXCEPT
     {
         return type == TokenType::INT32;
     }
 
-    void Token::setInt64(const s64 int64Value) noexcept
+    void Token::setInt64(const s64 int64Value) CMM_NOEXCEPT
     {
         type = TokenType::INT64;
         value.int64Value = int64Value;
     }
 
-    bool Token::isNull() const noexcept
+    bool Token::isNull() const CMM_NOEXCEPT
     {
         return type == TokenType::NULL_T;
     }
 
-    void Token::setNull() noexcept
+    void Token::setNull() CMM_NOEXCEPT
     {
         type = TokenType::NULL_T;
     }
 
-    std::string& Token::asCString() noexcept
+    std::string& Token::asCString() CMM_NOEXCEPT
     {
         return *value.str;
     }
 
-    const std::string& Token::asCString() const noexcept
+    const std::string& Token::asCString() const CMM_NOEXCEPT
     {
         return *value.str;
     }
 
-    bool Token::isCString() const noexcept
+    bool Token::isCString() const CMM_NOEXCEPT
     {
         return type == TokenType::STRING;
     }
@@ -329,38 +329,38 @@ namespace cmm
         }
     }
 
-    char Token::asCharSymbol() const noexcept
+    char Token::asCharSymbol() const CMM_NOEXCEPT
     {
         return value.symbol;
     }
 
-    bool Token::isCharSymbol() const noexcept
+    bool Token::isCharSymbol() const CMM_NOEXCEPT
     {
         return type == TokenType::CHAR_SYMBOL;
     }
 
-    void Token::setCharSymbol(const char symbol) noexcept
+    void Token::setCharSymbol(const char symbol) CMM_NOEXCEPT
     {
         type = TokenType::CHAR_SYMBOL;
         value.symbol = symbol;
     }
 
-    std::string& Token::asStringSymbol() noexcept
+    std::string& Token::asStringSymbol() CMM_NOEXCEPT
     {
         return *value.str;
     }
 
-    const std::string& Token::asStringSymbol() const noexcept
+    const std::string& Token::asStringSymbol() const CMM_NOEXCEPT
     {
         return *value.str;
     }
 
-    bool Token::isStringSymbol() const noexcept
+    bool Token::isStringSymbol() const CMM_NOEXCEPT
     {
         return type == TokenType::SYMBOL;
     }
 
-    void Token::setStringSymbol(const std::string& strSymbol) noexcept
+    void Token::setStringSymbol(const std::string& strSymbol) CMM_NOEXCEPT
     {
         // Check if already a std::string
         if (type == TokenType::STRING || type == TokenType::SYMBOL)
@@ -383,7 +383,7 @@ namespace cmm
         }
     }
 
-    void Token::setStringSymbol(std::string&& strSymbol) noexcept
+    void Token::setStringSymbol(std::string&& strSymbol) CMM_NOEXCEPT
     {
         // Check if already a std::string
         if (type == TokenType::STRING || type == TokenType::SYMBOL)
