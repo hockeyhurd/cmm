@@ -100,8 +100,8 @@ TEST(ParserTest, ParseCompilationNodeFloatSubtract)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
+    auto rootSubPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootSubPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntMultiply)
@@ -115,8 +115,8 @@ TEST(ParserTest, ParseCompilationNodeIntMultiply)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
+    auto rootMultPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootMultPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
 }
 
 TEST(ParserTest, ParseCompilationNodeFloatDivide)
@@ -130,8 +130,8 @@ TEST(ParserTest, ParseCompilationNodeFloatDivide)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::DIVIDE);
+    auto rootDivPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDivPtr->getTypeof(), EnumBinOpNodeType::DIVIDE);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntAssignment)
@@ -145,11 +145,11 @@ TEST(ParserTest, ParseCompilationNodeIntAssignment)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    auto rootAssignPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
 }
 
-TEST(ParserTest, ParseCompilationNodeDoubleSumAndAssignment)
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
 {
     const std::string input = "a = 123.0 + 32.0;";
     Parser parser(input);
@@ -160,8 +160,8 @@ TEST(ParserTest, ParseCompilationNodeDoubleSumAndAssignment)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    auto rootAssignAndSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
@@ -175,8 +175,8 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::DECLARATION);
 
-    // auto rootSumPtr = std::static_pointer_cast<DeclarationStatementNode>(compUnitPtr->getRoot());
-    // ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::DECLARATION);
+    auto rootDeclarationStatementPtr = std::static_pointer_cast<DeclarationStatementNode>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
 }
 
 s32 main(s32 argc, char *argv[])
