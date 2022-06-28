@@ -35,7 +35,7 @@ namespace cmm
     static std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseDeclaration(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseVariableNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<Node> parseType(Lexer& lexer, std::string* errorMessage);
@@ -56,7 +56,7 @@ namespace cmm
             return nullptr;
         }
 
-        auto node = parseDeclaration(lexer, errorMessage);
+        auto node = parseDeclarationStatement(lexer, errorMessage);
 
         if (node == nullptr)
         {
@@ -188,7 +188,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseDeclaration(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
         auto type = parseType(lexer, errorMessage);
@@ -211,8 +211,6 @@ namespace cmm
         auto declType = std::dynamic_pointer_cast<TypeNode>(type);
         auto declVar = std::dynamic_pointer_cast<VariableNode>(type);
         return std::make_shared<DeclarationStatementNode>(std::move(declType), std::move(declVar));
-        // return std::make_shared<DeclarationStatementNode>(std::move(*declType), std::move(*declVar));
-        // return std::make_shared<DeclarationStatementNode>(*declType, *declVar);
     }
 
     /* static */
