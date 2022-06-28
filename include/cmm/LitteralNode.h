@@ -106,7 +106,7 @@ namespace cmm
          *
          * @return EnumCType.
          */
-        EnumCType getTypeof() const CMM_NOEXCEPT;
+        EnumCType getValueType() const CMM_NOEXCEPT;
 
         /**
          * Get the underly value.

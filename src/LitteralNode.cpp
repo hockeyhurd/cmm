@@ -61,7 +61,7 @@ namespace cmm
     {
     }
 
-    EnumCType LitteralNode::getTypeof() const CMM_NOEXCEPT
+    EnumCType LitteralNode::getValueType() const CMM_NOEXCEPT
     {
         return type;
     }

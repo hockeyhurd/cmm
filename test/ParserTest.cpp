@@ -38,7 +38,7 @@ TEST(ParserTest, ParseCompilationNodeBoolTrue)
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::LITTERAL);
 
     auto rootBoolPtr = std::static_pointer_cast<LitteralNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootBoolPtr->getTypeof(), EnumCType::BOOL);
+    ASSERT_EQ(rootBoolPtr->getValueType(), EnumCType::BOOL);
     ASSERT_TRUE(rootBoolPtr->getValue().valueBool);
 }
 
@@ -54,7 +54,7 @@ TEST(ParserTest, ParseCompilationNodeBoolFalse)
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::LITTERAL);
 
     auto rootBoolPtr = std::static_pointer_cast<LitteralNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootBoolPtr->getTypeof(), EnumCType::BOOL);
+    ASSERT_EQ(rootBoolPtr->getValueType(), EnumCType::BOOL);
     ASSERT_FALSE(rootBoolPtr->getValue().valueBool);
 }
 
@@ -70,7 +70,7 @@ TEST(ParserTest, ParseCompilationNodeInt)
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::LITTERAL);
 
     auto rootIntPtr = std::static_pointer_cast<LitteralNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(rootIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(rootIntPtr->getValue().valueS32, 32);
 }
 
@@ -93,11 +93,11 @@ TEST(ParserTest, ParseCompilationNodeIntSum2)
     ASSERT_EQ(rootSumPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto leftIntPtr = std::static_pointer_cast<LitteralNode>(rootSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 10);
 
     auto rightIntPtr = std::static_pointer_cast<LitteralNode>(rootSumPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 32);
 }
 
@@ -120,7 +120,7 @@ TEST(ParserTest, ParseCompilationNodeIntSum3)
     ASSERT_EQ(rootSumPtr->getRight()->getType(), NodeType::BIN_OP);
 
     auto leftIntPtr = std::static_pointer_cast<LitteralNode>(rootSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 10);
 
     auto rightSumPtr = std::static_pointer_cast<BinOpNode>(rootSumPtr->getRight());
@@ -131,11 +131,11 @@ TEST(ParserTest, ParseCompilationNodeIntSum3)
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::LITTERAL);
 
     leftIntPtr = std::static_pointer_cast<LitteralNode>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 31);
 
     auto rightIntPtr = std::static_pointer_cast<LitteralNode>(rightSumPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 1);
 }
 
@@ -158,11 +158,11 @@ TEST(ParserTest, ParseCompilationNodeFloatSubtract2)
     ASSERT_EQ(rootSubPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto leftFloatPtr = std::static_pointer_cast<LitteralNode>(rootSubPtr->getLeft());
-    ASSERT_EQ(leftFloatPtr->getTypeof(), EnumCType::FLOAT);
+    ASSERT_EQ(leftFloatPtr->getValueType(), EnumCType::FLOAT);
     ASSERT_EQ(leftFloatPtr->getValue().valueF32, 10.0F);
 
     auto rightFloatPtr = std::static_pointer_cast<LitteralNode>(rootSubPtr->getRight());
-    ASSERT_EQ(rightFloatPtr->getTypeof(), EnumCType::FLOAT);
+    ASSERT_EQ(rightFloatPtr->getValueType(), EnumCType::FLOAT);
     ASSERT_EQ(rightFloatPtr->getValue().valueF32, 32.0F);
 }
 
@@ -185,11 +185,11 @@ TEST(ParserTest, ParseCompilationNodeIntMultiply2)
     ASSERT_EQ(rootMultPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto leftIntPtr = std::static_pointer_cast<LitteralNode>(rootMultPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 123);
 
     auto rightIntPtr = std::static_pointer_cast<LitteralNode>(rootMultPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 456789);
 }
 
@@ -212,11 +212,11 @@ TEST(ParserTest, ParseCompilationNodeFloatDivide2)
     ASSERT_EQ(rootDivPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto leftDoublePtr = std::static_pointer_cast<LitteralNode>(rootDivPtr->getLeft());
-    ASSERT_EQ(leftDoublePtr->getTypeof(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftDoublePtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftDoublePtr->getValue().valueF64, 123.0);
 
     auto rightDoublePtr = std::static_pointer_cast<LitteralNode>(rootDivPtr->getRight());
-    ASSERT_EQ(rightDoublePtr->getTypeof(), EnumCType::DOUBLE);
+    ASSERT_EQ(rightDoublePtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(rightDoublePtr->getValue().valueF64, 456789.0);
 }
 
@@ -242,7 +242,7 @@ TEST(ParserTest, ParseCompilationNodeIntAssignment)
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto rightIntPtr = std::static_pointer_cast<LitteralNode>(rootAssignPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getTypeof(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 10);
 }
 
@@ -275,11 +275,11 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto leftIntPtr = std::static_pointer_cast<LitteralNode>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getTypeof(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto rightIntPtr = std::static_pointer_cast<LitteralNode>(rightSumPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getTypeof(), EnumCType::DOUBLE);
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
 }
 
