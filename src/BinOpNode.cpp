@@ -44,6 +44,26 @@ namespace cmm
         return type;
     }
 
+    std::shared_ptr<Node> BinOpNode::getLeft()
+    {
+        return left;
+    }
+
+    const std::shared_ptr<Node> BinOpNode::getLeft() const
+    {
+        return left;
+    }
+
+    std::shared_ptr<Node> BinOpNode::getRight()
+    {
+        return right;
+    }
+
+    const std::shared_ptr<Node> BinOpNode::getRight() const
+    {
+        return right;
+    }
+
     std::string BinOpNode::toString() const /* override */
     {
         return "BinOpNode";

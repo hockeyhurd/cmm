@@ -79,6 +79,34 @@ namespace cmm
         EnumBinOpNodeType getTypeof() const CMM_NOEXCEPT;
 
         /**
+         * Gets the left node.
+         *
+         * @return std::shared_ptr<Node>.
+         */
+        std::shared_ptr<Node> getLeft();
+
+        /**
+         * Gets the left node.
+         *
+         * @return std::shared_ptr<Node>.
+         */
+        const std::shared_ptr<Node> getLeft() const;
+
+        /**
+         * Gets the right node.
+         *
+         * @return std::shared_ptr<Node>.
+         */
+        std::shared_ptr<Node> getRight();
+
+        /**
+         * Gets the right node.
+         *
+         * @return std::shared_ptr<Node>.
+         */
+        const std::shared_ptr<Node> getRight() const;
+
+        /**
          * Generic and templated function needed for visitor pattern.
          */
         template<class ReturnT, class DerivedT, class VisitorT>
