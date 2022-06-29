@@ -39,8 +39,8 @@ namespace cmm
          *
          * @param type the EnumBinOpNodeType.
          */
-        BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<Node> left,
-                  std::shared_ptr<Node> right);
+        BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<ExpressionNode> left,
+                  std::shared_ptr<ExpressionNode> right);
 
         /**
          * Copy constructor.
@@ -81,30 +81,30 @@ namespace cmm
         /**
          * Gets the left node.
          *
-         * @return std::shared_ptr<Node>.
+         * @return std::shared_ptr<ExpressionNode>.
          */
-        std::shared_ptr<Node> getLeft();
+        std::shared_ptr<ExpressionNode> getLeft();
 
         /**
          * Gets the left node.
          *
-         * @return std::shared_ptr<Node>.
+         * @return std::shared_ptr<ExpressionNode>.
          */
-        const std::shared_ptr<Node> getLeft() const;
+        const std::shared_ptr<ExpressionNode> getLeft() const;
 
         /**
          * Gets the right node.
          *
-         * @return std::shared_ptr<Node>.
+         * @return std::shared_ptr<ExpressionNode>.
          */
-        std::shared_ptr<Node> getRight();
+        std::shared_ptr<ExpressionNode> getRight();
 
         /**
          * Gets the right node.
          *
-         * @return std::shared_ptr<Node>.
+         * @return std::shared_ptr<ExpressionNode>.
          */
-        const std::shared_ptr<Node> getRight() const;
+        const std::shared_ptr<ExpressionNode> getRight() const;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -123,8 +123,8 @@ namespace cmm
         EnumBinOpNodeType type;
 
         // The operands
-        std::shared_ptr<Node> left;
-        std::shared_ptr<Node> right;
+        std::shared_ptr<ExpressionNode> left;
+        std::shared_ptr<ExpressionNode> right;
     };
 }
 

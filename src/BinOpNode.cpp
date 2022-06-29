@@ -33,8 +33,8 @@ namespace cmm
         return std::nullopt;
     }
 
-    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<Node> left,
-                         std::shared_ptr<Node> right) :
+    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<ExpressionNode> left,
+                         std::shared_ptr<ExpressionNode> right) :
         ExpressionNode(NodeType::BIN_OP), type(type), left(left), right(right)
     {
     }
@@ -44,22 +44,22 @@ namespace cmm
         return type;
     }
 
-    std::shared_ptr<Node> BinOpNode::getLeft()
+    std::shared_ptr<ExpressionNode> BinOpNode::getLeft()
     {
         return left;
     }
 
-    const std::shared_ptr<Node> BinOpNode::getLeft() const
+    const std::shared_ptr<ExpressionNode> BinOpNode::getLeft() const
     {
         return left;
     }
 
-    std::shared_ptr<Node> BinOpNode::getRight()
+    std::shared_ptr<ExpressionNode> BinOpNode::getRight()
     {
         return right;
     }
 
-    const std::shared_ptr<Node> BinOpNode::getRight() const
+    const std::shared_ptr<ExpressionNode> BinOpNode::getRight() const
     {
         return right;
     }
