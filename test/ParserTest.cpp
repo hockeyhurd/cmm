@@ -48,7 +48,7 @@ TEST(ParserTest, ParseCompilationNodeBoolTrue)
     ASSERT_TRUE(boolPtr->getValue().valueBool);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeBoolFalse)
+TEST(ParserTest, ParseCompilationNodeBoolFalse)
 {
     const std::string input = "false ;";
     Parser parser(input);
@@ -57,14 +57,18 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeBoolFalse)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::LITTERAL);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootBoolPtr = std::static_pointer_cast<LitteralNode>(compUnitPtr->getRoot());
-    ASSERT_EQ(rootBoolPtr->getValueType(), EnumCType::BOOL);
-    ASSERT_FALSE(rootBoolPtr->getValue().valueBool);
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+
+    auto boolPtr = std::static_pointer_cast<LitteralNode>(expressionStatement->getExpression());
+    ASSERT_EQ(boolPtr->getValueType(), EnumCType::BOOL);
+    ASSERT_FALSE(boolPtr->getValue().valueBool);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeInt)
+TEST(ParserTest, ParseCompilationNodeInt)
 {
     const std::string input = "32;";
     Parser parser(input);
@@ -73,14 +77,18 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeInt)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::LITTERAL);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootIntPtr = std::static_pointer_cast<LitteralNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+
+    auto rootIntPtr = std::static_pointer_cast<LitteralNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootIntPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(rootIntPtr->getValue().valueS32, 32);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeIntSum2)
+TEST(ParserTest, ParseCompilationNodeIntSum2)
 {
     const std::string input = "10 + 32;";
     Parser parser(input);
@@ -89,9 +97,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntSum2)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rootSumPtr->getLeft(), nullptr);
     ASSERT_EQ(rootSumPtr->getLeft()->getType(), NodeType::LITTERAL);
@@ -107,7 +119,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntSum2)
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 32);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeIntSum3)
+TEST(ParserTest, ParseCompilationNodeIntSum3)
 {
     const std::string input = "10 + 31 + 1;";
     Parser parser(input);
@@ -116,9 +128,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntSum3)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootSumPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rootSumPtr->getLeft(), nullptr);
     ASSERT_EQ(rootSumPtr->getLeft()->getType(), NodeType::LITTERAL);
@@ -145,7 +161,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntSum3)
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 1);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeFloatSubtract2)
+TEST(ParserTest, ParseCompilationNodeFloatSubtract2)
 {
     const std::string input = "10.0F - 32.0F;";
     Parser parser(input);
@@ -154,9 +170,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeFloatSubtract2)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootSubPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootSubPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootSubPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
     ASSERT_NE(rootSubPtr->getLeft(), nullptr);
     ASSERT_EQ(rootSubPtr->getLeft()->getType(), NodeType::LITTERAL);
@@ -172,7 +192,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeFloatSubtract2)
     ASSERT_EQ(rightFloatPtr->getValue().valueF32, 32.0F);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeIntMultiply2)
+TEST(ParserTest, ParseCompilationNodeIntMultiply2)
 {
     const std::string input = "123 * 456789;";
     Parser parser(input);
@@ -181,9 +201,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntMultiply2)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootMultPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootMultPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootMultPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
     ASSERT_NE(rootMultPtr->getLeft(), nullptr);
     ASSERT_EQ(rootMultPtr->getLeft()->getType(), NodeType::LITTERAL);
@@ -199,7 +223,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntMultiply2)
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 456789);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeFloatDivide2)
+TEST(ParserTest, ParseCompilationNodeFloatDivide2)
 {
     const std::string input = "123.0 / 456789.0;";
     Parser parser(input);
@@ -208,9 +232,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeFloatDivide2)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootDivPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootDivPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootDivPtr->getTypeof(), EnumBinOpNodeType::DIVIDE);
     ASSERT_NE(rootDivPtr->getLeft(), nullptr);
     ASSERT_EQ(rootDivPtr->getLeft()->getType(), NodeType::LITTERAL);
@@ -226,7 +254,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeFloatDivide2)
     ASSERT_EQ(rightDoublePtr->getValue().valueF64, 456789.0);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeIntAssignment)
+TEST(ParserTest, ParseCompilationNodeIntAssignment)
 {
     const std::string input = "a = 10;";
     Parser parser(input);
@@ -235,9 +263,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntAssignment)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootAssignPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootAssignPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
     ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
@@ -252,7 +284,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeIntAssignment)
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 10);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeDoubleAssignAndSumAndAssignment)
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
 {
     const std::string input = "a = 123.0 + 32.0;";
     Parser parser(input);
@@ -261,9 +293,13 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeDoubleAssignAndSumAndAssignment)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::BIN_OP);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
 
-    auto rootAssignAndSumPtr = std::static_pointer_cast<BinOpNode>(compUnitPtr->getRoot());
+    auto expressionStatement = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto rootAssignAndSumPtr = std::static_pointer_cast<BinOpNode>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
     ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
@@ -289,7 +325,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeDoubleAssignAndSumAndAssignment)
     ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeIntDeclarationStatement)
+TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 {
     const std::string input = "int x;";
     Parser parser(input);
