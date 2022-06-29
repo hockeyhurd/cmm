@@ -8,6 +8,7 @@
 #include <cmm/DeclarationStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
+#include <cmm/ParenExpressionNode.h>
 #include <cmm/StatementNode.h>
 #include <cmm/VariableNode.h>
 
@@ -340,7 +341,31 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
 }
 
-s32 main(s32 argc, char *argv[])
+TEST(ParserTest, ParseCompilationNodeParenWrappedIntLitteral)
+{
+    const std::string input = "(42);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto rootExpressionStatementPtr = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+
+    auto parenExpressionPtr = std::static_pointer_cast<ParenExpressionNode>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(parenExpressionPtr->getExpression(), nullptr);
+    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::LITTERAL);
+
+    auto intPtr = std::static_pointer_cast<LitteralNode>(parenExpressionPtr->getExpression());
+    ASSERT_EQ(intPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(intPtr->getValue().valueS32, 42);
+}
+
+s32 main(s32 argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

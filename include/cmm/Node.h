@@ -24,7 +24,7 @@ namespace cmm
     enum class NodeType
     {
         UNKNOWN = 0, COMPILATION_UNIT, BIN_OP, DECLARATION_STATEMENT, EXPRESSION_STATEMENT,
-        EXPRESSION, LITTERAL, VARIABLE
+        EXPRESSION, PAREN_EXPRESSION, LITTERAL, VARIABLE
     };
 
     class Node : public std::enable_shared_from_this<Node>

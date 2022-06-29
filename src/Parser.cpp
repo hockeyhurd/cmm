@@ -12,6 +12,7 @@
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/LitteralNode.h>
+#include <cmm/ParenExpressionNode.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 #include <cmm/TypeNode.h>
@@ -40,8 +41,8 @@ namespace cmm
 
     // Expression types:
     static std::shared_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
-    // static std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    // static std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -147,9 +148,41 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
+    // std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
     {
-        return nullptr;
+        const auto snapshot = lexer.snap();
+
+        Token token('\0', false);
+        bool lexResult = lexer.peekNextToken(token);
+
+        // Expect opening '('
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            // TODO: is restore necessary??
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Accept the '(' token after lookahead.
+        lexResult = lexer.nextToken(token, errorMessage);
+
+        // wrapped expression i.e. (expr)
+        auto expression = parseExpression(lexer, errorMessage);
+        lexResult = lexer.peekNextToken(token);
+
+        // Expect closing ')'
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            // TODO: is restore necessary??
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Accept the ')' token after lookahead.
+        lexResult = lexer.nextToken(token, errorMessage);
+
+        return std::make_shared<ParenExpressionNode>(std::move(expression));
     }
 
     /* static */
@@ -293,11 +326,16 @@ namespace cmm
             return std::make_shared<VariableNode>(token.asStringSymbol());
         // Unimplemented types
         default:
+            // TODO: Do we want to just return 'nullptr' going forward??
+#if 0
             std::ostringstream os;
             os << "unexpected token type received '"
                << toString(token.getType()) << '\'';
             unimplementedAbort(os.str());
             return nullptr;
+#else
+            return nullptr;
+#endif
         }
 
         return nullptr;
