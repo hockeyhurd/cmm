@@ -12,7 +12,7 @@
 namespace cmm
 {
     DeclarationStatementNode::DeclarationStatementNode(std::shared_ptr<TypeNode> type, std::shared_ptr<VariableNode> variable) CMM_NOEXCEPT :
-        StatementNode(NodeType::DECLARATION), type(std::move(type)), variable(std::move(variable))
+        StatementNode(NodeType::DECLARATION_STATEMENT), type(std::move(type)), variable(std::move(variable))
     {
     }
 

@@ -32,7 +32,6 @@ namespace cmm
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        // DeclarationStatementNode(TypeNode&& type, VariableNode&& variable) CMM_NOEXCEPT;
         DeclarationStatementNode(std::shared_ptr<TypeNode> type, std::shared_ptr<VariableNode> variable) CMM_NOEXCEPT;
 
         /**

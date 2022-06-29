@@ -9,11 +9,11 @@
 
 namespace cmm
 {
-    VariableNode::VariableNode(const std::string& name) : Node(NodeType::VARIABLE), name(name)
+    VariableNode::VariableNode(const std::string& name) : ExpressionNode(NodeType::VARIABLE), name(name)
     {
     }
 
-    VariableNode::VariableNode(std::string&& name) CMM_NOEXCEPT : Node(NodeType::VARIABLE), name(std::move(name))
+    VariableNode::VariableNode(std::string&& name) CMM_NOEXCEPT : ExpressionNode(NodeType::VARIABLE), name(std::move(name))
     {
     }
 

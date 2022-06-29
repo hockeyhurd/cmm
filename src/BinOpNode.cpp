@@ -35,7 +35,7 @@ namespace cmm
 
     BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<Node> left,
                          std::shared_ptr<Node> right) :
-        Node(NodeType::BIN_OP), type(type), left(left), right(right)
+        ExpressionNode(NodeType::BIN_OP), type(type), left(left), right(right)
     {
     }
 

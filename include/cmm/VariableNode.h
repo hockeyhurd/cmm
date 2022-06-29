@@ -12,7 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Node.h>
+#include <cmm/ExpressionNode.h>
 
 // std includes
 // #include <optional>
@@ -20,7 +20,7 @@
 
 namespace cmm
 {
-    class VariableNode : public Node
+    class VariableNode : public ExpressionNode
     {
     public:
 

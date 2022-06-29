@@ -12,13 +12,13 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Node.h>
+#include <cmm/ExpressionNode.h>
 
 namespace cmm
 {
     // TODO: Consider moving this to sub-classes based on the actual type
     // as we start using this class more often.
-    class LitteralNode : public Node
+    class LitteralNode : public ExpressionNode
     {
     public:
 

@@ -9,6 +9,8 @@
 #include <cmm/BinOpNode.h>
 #include <cmm/CompilationUnitNode.h>
 #include <cmm/DeclarationStatementNode.h>
+#include <cmm/ExpressionNode.h>
+#include <cmm/ExpressionStatementNode.h>
 #include <cmm/LitteralNode.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
@@ -32,12 +34,22 @@ namespace cmm
 
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
-    static std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
+    // Statements:
     static std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+
+    // Expression types:
+    static std::shared_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
+    // static std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
+
+    // Terminal nodes:
+    static std::shared_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::shared_ptr<ExpressionNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
+
     static std::shared_ptr<Node> parseType(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
@@ -56,15 +68,19 @@ namespace cmm
             return nullptr;
         }
 
+        const auto snapshot = lexer.snap();
         auto node = parseDeclarationStatement(lexer, errorMessage);
 
         if (node == nullptr)
         {
-            node = parseAssignmentBinOpNode(lexer, errorMessage);
+            // TODO: Do we need to restore??
+            lexer.restore(snapshot);
+
+            node = parseExpressionStatement(lexer, errorMessage);
         }
 
         // For now since we don't have proper statements, expect a semi-colon here.
-        return expectSemicolon(lexer, errorMessage) ? std::make_shared<CompilationUnitNode>(node) : nullptr;
+        return std::make_shared<CompilationUnitNode>(node);
     }
 
     /* static */
@@ -78,7 +94,66 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        auto expression = parseExpression(lexer, errorMessage);
+
+        return expectSemicolon(lexer, errorMessage) ?
+               std::make_shared<ExpressionStatementNode>(std::move(expression)) :
+               nullptr;
+    }
+
+    /* static */
+    std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto type = parseType(lexer, errorMessage);
+
+        if (type == nullptr)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        snapshot = lexer.snap();
+        auto variableName = parseVariableNode(lexer, errorMessage);
+
+        if (variableName == nullptr)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto declType = std::dynamic_pointer_cast<TypeNode>(type);
+        auto declVar = std::dynamic_pointer_cast<VariableNode>(type);
+        return expectSemicolon(lexer, errorMessage) ?
+               std::make_shared<DeclarationStatementNode>(std::move(declType), std::move(declVar)) :
+               nullptr;
+    }
+
+    /* static */
+    std::shared_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage)
+    {
+        const auto snapshot = lexer.snap();
+        auto node = parseAssignmentBinOpNode(lexer, errorMessage);
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            node = parseParenExpression(lexer, errorMessage);
+        }
+
+        return node;
+    }
+
+    /* static */
+    std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
+    {
+        return nullptr;
+    }
+
+    /* static */
+    std::shared_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseLitteralOrVariableNode(lexer, errorMessage);
 
@@ -115,7 +190,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseMultiplyDivideBinOpNode(lexer, errorMessage);
 
@@ -152,7 +227,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseAddSubBinOpNode(lexer, errorMessage);
 
@@ -188,33 +263,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
-    {
-        auto snapshot = lexer.snap();
-        auto type = parseType(lexer, errorMessage);
-
-        if (type == nullptr)
-        {
-            lexer.restore(snapshot);
-            return nullptr;
-        }
-
-        snapshot = lexer.snap();
-        auto variableName = parseVariableNode(lexer, errorMessage);
-
-        if (variableName == nullptr)
-        {
-            lexer.restore(snapshot);
-            return nullptr;
-        }
-
-        auto declType = std::dynamic_pointer_cast<TypeNode>(type);
-        auto declVar = std::dynamic_pointer_cast<VariableNode>(type);
-        return std::make_shared<DeclarationStatementNode>(std::move(declType), std::move(declVar));
-    }
-
-    /* static */
-    std::shared_ptr<Node> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -255,7 +304,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::shared_ptr<ExpressionNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);

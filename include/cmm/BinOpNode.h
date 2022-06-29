@@ -12,7 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Node.h>
+#include <cmm/ExpressionNode.h>
 
 // std includes
 #include <optional>
@@ -30,7 +30,7 @@ namespace cmm
 
     // TODO: Consider moving this to sub-classes based on the actual type
     // as we start using this class more often.
-    class BinOpNode : public Node
+    class BinOpNode : public ExpressionNode
     {
     public:
 
