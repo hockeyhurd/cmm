@@ -6,7 +6,7 @@ namespace cmm
     {
     }
 
-    std::size_t Snapshot::getPosition() const noexcept
+    std::size_t Snapshot::getPosition() const CMM_NOEXCEPT
     {
         return pos;
     }

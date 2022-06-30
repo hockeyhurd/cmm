@@ -9,7 +9,7 @@
 
 namespace cmm
 {
-    CompilationUnitNode::CompilationUnitNode() noexcept : Node(NodeType::COMPILATION_UNIT),
+    CompilationUnitNode::CompilationUnitNode() CMM_NOEXCEPT : Node(NodeType::COMPILATION_UNIT),
         root(nullptr)
     {
     }
@@ -24,7 +24,7 @@ namespace cmm
         return root;
     }
 
-    NodeType CompilationUnitNode::getRootType() const noexcept
+    NodeType CompilationUnitNode::getRootType() const CMM_NOEXCEPT
     {
         return root != nullptr ? root->getType() : NodeType::UNKNOWN;
     }

@@ -9,6 +9,10 @@
 #ifndef CMM_STRING_VIEW_H
 #define CMM_STRING_VIEW_H
 
+// Our includes
+#include <cmm/Types.h>
+
+// std includes
 #include <cstdint>
 
 namespace cmm
@@ -20,14 +24,14 @@ namespace cmm
         StringView(const char* str, const std::size_t len);
         StringView(const char* start, const char* end);
         StringView(const StringView&) = default;
-        StringView(StringView&&) noexcept = default;
+        StringView(StringView&&) CMM_NOEXCEPT = default;
         ~StringView() = default;
         
         StringView& operator= (const StringView&) = default;
-        StringView& operator= (StringView&&) noexcept = default;
+        StringView& operator= (StringView&&) CMM_NOEXCEPT = default;
 
-        const char* get() const noexcept;
-        std::size_t size() const noexcept;
+        const char* get() const CMM_NOEXCEPT;
+        std::size_t size() const CMM_NOEXCEPT;
 
     private:
         const char* str;

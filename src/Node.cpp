@@ -10,12 +10,12 @@
 namespace cmm
 {
 
-    Node::Node(const NodeType type) noexcept : type(type)
+    Node::Node(const NodeType type) CMM_NOEXCEPT : type(type)
     {
     }
 
     /* virtual */
-    NodeType Node::getType() const noexcept
+    NodeType Node::getType() const CMM_NOEXCEPT
     {
         return type;
     }

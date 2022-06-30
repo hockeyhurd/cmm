@@ -11,7 +11,7 @@
 namespace cmm
 {
 
-    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) noexcept
+    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT
     {
         if (token.isCharSymbol())
         {
@@ -33,15 +33,35 @@ namespace cmm
         return std::nullopt;
     }
 
-    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<Node> left,
-                         std::shared_ptr<Node> right) :
-        Node(NodeType::BIN_OP), type(type), left(left), right(right)
+    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<ExpressionNode> left,
+                         std::shared_ptr<ExpressionNode> right) :
+        ExpressionNode(NodeType::BIN_OP), type(type), left(left), right(right)
     {
     }
 
-    EnumBinOpNodeType BinOpNode::getTypeof() const noexcept
+    EnumBinOpNodeType BinOpNode::getTypeof() const CMM_NOEXCEPT
     {
         return type;
+    }
+
+    std::shared_ptr<ExpressionNode> BinOpNode::getLeft()
+    {
+        return left;
+    }
+
+    const std::shared_ptr<ExpressionNode> BinOpNode::getLeft() const
+    {
+        return left;
+    }
+
+    std::shared_ptr<ExpressionNode> BinOpNode::getRight()
+    {
+        return right;
+    }
+
+    const std::shared_ptr<ExpressionNode> BinOpNode::getRight() const
+    {
+        return right;
     }
 
     std::string BinOpNode::toString() const /* override */

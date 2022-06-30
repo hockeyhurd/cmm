@@ -26,27 +26,27 @@ namespace cmm
     {
     public:
         Lexer(const std::string& text);
-        Lexer(std::string&& text) noexcept;
+        Lexer(std::string&& text) CMM_NOEXCEPT;
         Lexer(const Lexer&) = default;
-        Lexer(Lexer&&) noexcept = default;
+        Lexer(Lexer&&) CMM_NOEXCEPT = default;
         ~Lexer() = default;
 
         Lexer& operator= (const Lexer&) = default;
-        Lexer& operator= (Lexer&&) noexcept = default;
+        Lexer& operator= (Lexer&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets the current location.
          *
          * @return Location
          */
-        Location getLocation() const noexcept;
+        Location getLocation() const CMM_NOEXCEPT;
 
         /**
          * Gets whether we have reached end of input or EOF.
          *
          * @return bool true if completed, else false.
          */
-        bool completed() const noexcept;
+        bool completed() const CMM_NOEXCEPT;
 
         /**
          * Gets whether we have reached end of input or EOF,
@@ -54,18 +54,19 @@ namespace cmm
          *
          * @return bool true if completed, else false.
          */
-        bool completedOrWhitespaceOnly() noexcept;
+        bool completedOrWhitespaceOnly() CMM_NOEXCEPT;
 
         bool nextToken(Token& token, std::string* errorMessage = nullptr);
         bool peekNextToken(Token& token);
 
+        void restore(const Snapshot& snap) CMM_NOEXCEPT;
+        Snapshot snap() CMM_NOEXCEPT;
+
     private:
         void consumeWhitespace();
-        char nextChar() noexcept;
-        char peekNextChar() const noexcept;
+        char nextChar() CMM_NOEXCEPT;
+        char peekNextChar() const CMM_NOEXCEPT;
         bool nextTokenInternal(Token& token, std::string* errorMessage = nullptr);
-        void restore(const Snapshot& snap) noexcept;
-        Snapshot snap() noexcept;
 
         /**
          * Checks whether the passed character is a alhpabetic or not.
@@ -73,7 +74,7 @@ namespace cmm
          * @param ch char to check.
          * @return bool.
          */
-        static bool isAlpha(char ch) noexcept;
+        static bool isAlpha(char ch) CMM_NOEXCEPT;
 
         /**
          * Checks whether the passed character is a digit or not.
@@ -81,7 +82,7 @@ namespace cmm
          * @param ch char to check.
          * @return bool.
          */
-        static bool isDigit(char ch) noexcept;
+        static bool isDigit(char ch) CMM_NOEXCEPT;
 
         /**
          * Checks whether the passed character is an escape character or not.
@@ -90,7 +91,7 @@ namespace cmm
          * @param second char to check.
          * @return bool.
          */
-        static bool isEscape(char first, char second) noexcept;
+        static bool isEscape(char first, char second) CMM_NOEXCEPT;
 
         /**
          * Checks whether this char should be escaped.
@@ -98,7 +99,7 @@ namespace cmm
          * @param ch char to check.
          * @return bool.
          */
-        static bool requiresEscape(char ch) noexcept;
+        static bool requiresEscape(char ch) CMM_NOEXCEPT;
 
         /**
          * Transforms the string sequence to its character representation.
@@ -107,7 +108,7 @@ namespace cmm
          * @param second char in sequence.
          * @return char.
          */
-        static char transformEscapeSequence(char first, char second) noexcept;
+        static char transformEscapeSequence(char first, char second) CMM_NOEXCEPT;
 
         /**
          * Checks whether the passed character is a newline charactger or not.
@@ -115,7 +116,7 @@ namespace cmm
          * @param ch char to check.
          * @return bool.
          */
-        static bool isNewLine(char ch) noexcept;
+        static bool isNewLine(char ch) CMM_NOEXCEPT;
 
         /**
          * Checks whether the passed character is whitespace or not.
@@ -123,7 +124,7 @@ namespace cmm
          * @param ch char to check.
          * @return bool.
          */
-        static bool isWhitespace(char ch) noexcept;
+        static bool isWhitespace(char ch) CMM_NOEXCEPT;
 
     private:
         std::string text;
