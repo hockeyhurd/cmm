@@ -226,7 +226,7 @@ namespace cmm
                             if (errorMessage != nullptr)
                             {
                                 std::ostringstream err;
-                                err << "[LEXER]: Last character was escaped, but this character does not need to be at "
+                                err << "[LEXER]: Error: Last character was escaped, but this character does not need to be at "
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
@@ -249,7 +249,7 @@ namespace cmm
                     if (errorMessage != nullptr)
                     {
                         std::ostringstream err;
-                        err << "[LEXER]: Unfinished escape sequences at "
+                        err << "[LEXER]: Error: Unfinished escape sequences at "
                             << location.toString();
                         *errorMessage = err.str();
                     }
@@ -344,7 +344,7 @@ namespace cmm
                             if (errorMessage != nullptr)
                             {
                                 std::ostringstream err;
-                                err << "[LEXER]: Lexing a decimal number that contained '.' after using 'E' or 'e' at "
+                                err << "[LEXER]: Error: Lexing a decimal number that contained '.' after using 'E' or 'e' at "
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
@@ -357,7 +357,7 @@ namespace cmm
                             if (errorMessage != nullptr)
                             {
                                 std::ostringstream err;
-                                err << "[LEXER]: Lexing a decimal number that contained multiple '.' in a double value at "
+                                err << "[LEXER]: Error: Lexing a decimal number that contained multiple '.' in a double value at "
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
@@ -379,7 +379,7 @@ namespace cmm
                                 if (errorMessage != nullptr)
                                 {
                                     std::ostringstream err;
-                                    err << "[LEXER]: Lexing a decimal number that contained whitespace after 'e' or 'E' at "
+                                    err << "[LEXER]: Error: Lexing a decimal number that contained whitespace after 'e' or 'E' at "
                                         << location.toString();
                                     *errorMessage = err.str();
                                 }
@@ -394,7 +394,7 @@ namespace cmm
                                 if (errorMessage != nullptr)
                                 {
                                     std::ostringstream err;
-                                    err << "[LEXER]: Invalid character after using 'e' or 'E' "
+                                    err << "[LEXER]: Error: Invalid character after using 'e' or 'E' "
                                         << nextCh << " at "
                                         << location.toString();
                                     *errorMessage = err.str();
@@ -409,7 +409,7 @@ namespace cmm
                             if (errorMessage != nullptr)
                             {
                                 std::ostringstream err;
-                                err << "[LEXER]: Lexing a decimal number that contained multiple 'e' or 'E' in a double value at "
+                                err << "[LEXER]: Error: Lexing a decimal number that contained multiple 'e' or 'E' in a double value at "
                                     << location.toString();
                                 *errorMessage = err.str();
                             }
@@ -575,7 +575,7 @@ namespace cmm
                 if (errorMessage != nullptr)
                 {
                     std::ostringstream err;
-                    err << "[LEXER]: Unexpected token exception '" << builder
+                    err << "[LEXER]: Error: Unexpected token exception '" << builder
                         << "\" at " << location.toString();
                     *errorMessage = err.str();
                 }

@@ -341,7 +341,7 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
 }
 
-TEST(ParserTest, ParseCompilationNodeParenWrappedIntLitteral)
+TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
 {
     const std::string input = "(42);";
     Parser parser(input);
@@ -363,6 +363,66 @@ TEST(ParserTest, ParseCompilationNodeParenWrappedIntLitteral)
     auto intPtr = std::static_pointer_cast<LitteralNode>(parenExpressionPtr->getExpression());
     ASSERT_EQ(intPtr->getValueType(), EnumCType::INT32);
     ASSERT_EQ(intPtr->getValue().valueS32, 42);
+}
+
+TEST(ParserTest, ParseCompilationNodeMultipleParenWrappedVariable)
+{
+    const std::string input = "((x));";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto rootExpressionStatementPtr = std::static_pointer_cast<ExpressionStatementNode>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+
+    auto parenExpressionPtr = std::static_pointer_cast<ParenExpressionNode>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(parenExpressionPtr->getExpression(), nullptr);
+    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+
+    parenExpressionPtr = std::static_pointer_cast<ParenExpressionNode>(parenExpressionPtr->getExpression());
+    ASSERT_NE(parenExpressionPtr->getExpression(), nullptr);
+    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::VARIABLE);
+
+    auto variableNodePtr = std::static_pointer_cast<VariableNode>(parenExpressionPtr->getExpression());
+    ASSERT_EQ(variableNodePtr->getName(), "x");
+}
+
+TEST(ParserTest, ParseCompilationNodeSingleMissingSingleClosingParen)
+{
+    const std::string input = "(x;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeMultipleMissingSingleClosingParen)
+{
+    const std::string input = "((x);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeMultipleMissingMultipleClosingParen)
+{
+    const std::string input = "((x);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
 }
 
 s32 main(s32 argc, char* argv[])

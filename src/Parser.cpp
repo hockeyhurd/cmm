@@ -42,7 +42,6 @@ namespace cmm
     // Expression types:
     static std::shared_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
-    // static std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::shared_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -78,6 +77,20 @@ namespace cmm
             lexer.restore(snapshot);
 
             node = parseExpressionStatement(lexer, errorMessage);
+        }
+
+        // Make sure no other tokens are left in the lexer's token stream.
+        if (!lexer.completedOrWhitespaceOnly())
+        {
+            if (errorMessage != nullptr)
+            {
+                std::ostringstream os;
+                os << "[PARSER]: Error un-parsed tokens at " << lexer.getLocation()
+                   << ". This likely indicates an internal bug.";
+                *errorMessage = os.str();
+            }
+
+            return nullptr;
         }
 
         // For now since we don't have proper statements, expect a semi-colon here.
@@ -149,7 +162,6 @@ namespace cmm
 
     /* static */
     std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
-    // std::shared_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
 
@@ -176,6 +188,15 @@ namespace cmm
         {
             // TODO: is restore necessary??
             lexer.restore(snapshot);
+
+            if (errorMessage != nullptr)
+            {
+                std::ostringstream os;
+                os << "[PARSER]: Error: Expected closing parenthesis at "
+                   << lexer.getLocation();
+                *errorMessage = os.str();
+            }
+
             return nullptr;
         }
 
