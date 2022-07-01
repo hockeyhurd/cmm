@@ -33,9 +33,9 @@ namespace cmm
         return std::nullopt;
     }
 
-    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<ExpressionNode> left,
-                         std::shared_ptr<ExpressionNode> right) :
-        ExpressionNode(NodeType::BIN_OP), type(type), left(left), right(right)
+    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::unique_ptr<ExpressionNode>&& left,
+                         std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT :
+        ExpressionNode(NodeType::BIN_OP), type(type), left(std::move(left)), right(std::move(right))
     {
     }
 
@@ -44,24 +44,24 @@ namespace cmm
         return type;
     }
 
-    std::shared_ptr<ExpressionNode> BinOpNode::getLeft()
+    ExpressionNode* BinOpNode::getLeft() CMM_NOEXCEPT
     {
-        return left;
+        return left.get();
     }
 
-    const std::shared_ptr<ExpressionNode> BinOpNode::getLeft() const
+    const ExpressionNode* BinOpNode::getLeft() const CMM_NOEXCEPT
     {
-        return left;
+        return left.get();
     }
 
-    std::shared_ptr<ExpressionNode> BinOpNode::getRight()
+    ExpressionNode* BinOpNode::getRight() CMM_NOEXCEPT
     {
-        return right;
+        return right.get();
     }
 
-    const std::shared_ptr<ExpressionNode> BinOpNode::getRight() const
+    const ExpressionNode* BinOpNode::getRight() const CMM_NOEXCEPT
     {
-        return right;
+        return right.get();
     }
 
     std::string BinOpNode::toString() const /* override */

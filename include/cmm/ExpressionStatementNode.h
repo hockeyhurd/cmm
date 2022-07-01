@@ -29,12 +29,12 @@ namespace cmm
          *
          * @param expression the ExpressionNode.
          */
-        ExpressionStatementNode(std::shared_ptr<ExpressionNode> expression);
+        ExpressionStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
          */
-        ExpressionStatementNode(const ExpressionStatementNode&) = default;
+        ExpressionStatementNode(const ExpressionStatementNode&) = delete;
 
         /**
          * Move constructor.
@@ -51,7 +51,7 @@ namespace cmm
          *
          * @return ExpressionStatementNode reference.
          */
-        ExpressionStatementNode& operator= (const ExpressionStatementNode&) = default;
+        ExpressionStatementNode& operator= (const ExpressionStatementNode&) = delete;
 
         /**
          * Move assignment operator.
@@ -65,14 +65,14 @@ namespace cmm
          *
          * @return ExpressionNode.
          */
-        std::shared_ptr<ExpressionNode> getExpression();
+        ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
          * Gets the variable.
          *
          * @return ExpressionNode.
          */
-        const std::shared_ptr<ExpressionNode> getExpression() const;
+        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -88,7 +88,7 @@ namespace cmm
     private:
 
         // The wrapped ExpressionNode
-        std::shared_ptr<ExpressionNode> expression;
+        std::unique_ptr<ExpressionNode> expression;
     };
 }
 

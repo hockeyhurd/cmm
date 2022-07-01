@@ -32,12 +32,12 @@ namespace cmm
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        DeclarationStatementNode(std::shared_ptr<TypeNode> type, std::shared_ptr<VariableNode> variable) CMM_NOEXCEPT;
+        DeclarationStatementNode(std::unique_ptr<TypeNode>&& type, std::unique_ptr<VariableNode>&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
          */
-        DeclarationStatementNode(const DeclarationStatementNode&) = default;
+        DeclarationStatementNode(const DeclarationStatementNode&) = delete;
 
         /**
          * Move constructor.
@@ -54,7 +54,7 @@ namespace cmm
          *
          * @return DeclarationStatementNode reference.
          */
-        DeclarationStatementNode& operator= (const DeclarationStatementNode&) = default;
+        DeclarationStatementNode& operator= (const DeclarationStatementNode&) = delete;
 
         /**
          * Move assignment operator.
@@ -97,8 +97,8 @@ namespace cmm
 
     private:
 
-        std::shared_ptr<TypeNode> type;
-        std::shared_ptr<VariableNode> variable;
+        std::unique_ptr<TypeNode> type;
+        std::unique_ptr<VariableNode> variable;
     };
 }
 

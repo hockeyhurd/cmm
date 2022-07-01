@@ -72,14 +72,14 @@ namespace cmm
          *
          * @return std::string.
          */
-        std::string& getName();
+        std::string& getName() CMM_NOEXCEPT;
 
         /**
          * Gets the name of this variable.
          *
          * @return std::string.
          */
-        const std::string& getName() const;
+        const std::string& getName() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.

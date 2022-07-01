@@ -36,21 +36,21 @@ namespace cmm
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
     // Statements:
-    static std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
 
     // Expression types:
-    static std::shared_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
 
     // Terminal nodes:
-    static std::shared_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
-    static std::shared_ptr<ExpressionNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
-    static std::shared_ptr<Node> parseType(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
     {
@@ -60,7 +60,7 @@ namespace cmm
     {
     }
 
-    std::shared_ptr<CompilationUnitNode> Parser::parseCompilationUnit(std::string* errorMessage)
+    std::unique_ptr<CompilationUnitNode> Parser::parseCompilationUnit(std::string* errorMessage)
     {
         if (lexer.completedOrWhitespaceOnly())
         {
@@ -94,7 +94,7 @@ namespace cmm
         }
 
         // For now since we don't have proper statements, expect a semi-colon here.
-        return std::make_shared<CompilationUnitNode>(node);
+        return std::make_unique<CompilationUnitNode>(std::move(node));
     }
 
     /* static */
@@ -108,17 +108,17 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto expression = parseExpression(lexer, errorMessage);
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_shared<ExpressionStatementNode>(std::move(expression)) :
+               std::make_unique<ExpressionStatementNode>(std::move(expression)) :
                nullptr;
     }
 
     /* static */
-    std::shared_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
         auto type = parseType(lexer, errorMessage);
@@ -138,15 +138,13 @@ namespace cmm
             return nullptr;
         }
 
-        auto declType = std::dynamic_pointer_cast<TypeNode>(type);
-        auto declVar = std::dynamic_pointer_cast<VariableNode>(type);
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_shared<DeclarationStatementNode>(std::move(declType), std::move(declVar)) :
+               std::make_unique<DeclarationStatementNode>(std::move(type), std::move(variableName)) :
                nullptr;
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         auto node = parseAssignmentBinOpNode(lexer, errorMessage);
@@ -161,7 +159,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
 
@@ -203,11 +201,11 @@ namespace cmm
         // Accept the ')' token after lookahead.
         lexResult = lexer.nextToken(token, errorMessage);
 
-        return std::make_shared<ParenExpressionNode>(std::move(expression));
+        return std::make_unique<ParenExpressionNode>(std::move(expression));
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseLitteralOrVariableNode(lexer, errorMessage);
 
@@ -234,7 +232,7 @@ namespace cmm
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_ASTERISK ? EnumBinOpNodeType::MULTIPLY : EnumBinOpNodeType::DIVIDE;
             auto right = parseMultiplyDivideBinOpNode(lexer, errorMessage);
-            left = std::make_shared<BinOpNode>(actualBinOp, std::move(left), std::move(right));
+            left = std::make_unique<BinOpNode>(actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
             lexResult = lexer.peekNextToken(token);
@@ -244,7 +242,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseMultiplyDivideBinOpNode(lexer, errorMessage);
 
@@ -271,7 +269,7 @@ namespace cmm
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_PLUS ? EnumBinOpNodeType::ADD: EnumBinOpNodeType::SUBTRACT;
             auto right = parseAddSubBinOpNode(lexer, errorMessage);
-            left = std::make_shared<BinOpNode>(actualBinOp, std::move(left), std::move(right));
+            left = std::make_unique<BinOpNode>(actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
             lexResult = lexer.peekNextToken(token);
@@ -281,7 +279,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
         auto left = parseAddSubBinOpNode(lexer, errorMessage);
 
@@ -307,7 +305,7 @@ namespace cmm
             }
 
             auto right = parseAssignmentBinOpNode(lexer, errorMessage);
-            left = std::make_shared<BinOpNode>(EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
+            left = std::make_unique<BinOpNode>(EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
             lexResult = lexer.peekNextToken(token);
@@ -317,7 +315,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -330,21 +328,21 @@ namespace cmm
         switch (token.getType())
         {
         case TokenType::BOOL:
-            return std::make_shared<LitteralNode>(token.asBool());
+            return std::make_unique<LitteralNode>(token.asBool());
         case TokenType::CHAR:
-            return std::make_shared<LitteralNode>(token.asChar());
+            return std::make_unique<LitteralNode>(token.asChar());
         case TokenType::FLOAT:
-            return std::make_shared<LitteralNode>(token.asFloat());
+            return std::make_unique<LitteralNode>(token.asFloat());
         case TokenType::DOUBLE:
-            return std::make_shared<LitteralNode>(token.asDouble());
+            return std::make_unique<LitteralNode>(token.asDouble());
         case TokenType::INT16:
-            return std::make_shared<LitteralNode>(token.asInt16());
+            return std::make_unique<LitteralNode>(token.asInt16());
         case TokenType::INT32:
-            return std::make_shared<LitteralNode>(token.asInt32());
+            return std::make_unique<LitteralNode>(token.asInt32());
         case TokenType::INT64:
-            return std::make_shared<LitteralNode>(token.asInt64());
+            return std::make_unique<LitteralNode>(token.asInt64());
         case TokenType::SYMBOL:
-            return std::make_shared<VariableNode>(token.asStringSymbol());
+            return std::make_unique<VariableNode>(token.asStringSymbol());
         // Unimplemented types
         default:
             // TODO: Do we want to just return 'nullptr' going forward??
@@ -363,7 +361,7 @@ namespace cmm
     }
 
     /* static */
-    std::shared_ptr<ExpressionNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -373,11 +371,11 @@ namespace cmm
             return nullptr;
         }
 
-        return std::make_shared<VariableNode>(token.asStringSymbol());
+        return std::make_unique<VariableNode>(token.asStringSymbol());
     }
 
     /* static */
-    std::shared_ptr<Node> parseType(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<TypeNode> parseType(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -395,7 +393,7 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                return std::make_shared<TypeNode>(enumType.value());
+                return std::make_unique<TypeNode>(enumType.value());
             }
         }
 

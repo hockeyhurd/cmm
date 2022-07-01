@@ -25,7 +25,7 @@ namespace cmm
          *
          * @param type the EnumBinOpNodeType.
          */
-        ParenExpressionNode(std::shared_ptr<ExpressionNode> expression);
+        ParenExpressionNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -59,16 +59,16 @@ namespace cmm
         /**
          * Gets the ExpressionNode.
          *
-         * @return std::shared_ptr<ExpressionNode>.
+         * @return ExpressionNode pointer.
          */
-        std::shared_ptr<ExpressionNode> getExpression();
+        ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
          * Gets the ExpressionNode.
          *
-         * @return std::shared_ptr<ExpressionNode>.
+         * @return const ExpressionNode pointer.
          */
-        const std::shared_ptr<ExpressionNode> getExpression() const;
+        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -84,7 +84,7 @@ namespace cmm
     private:
 
         // The wrapped ExpressionNode.
-        std::shared_ptr<ExpressionNode> expression;
+        std::unique_ptr<ExpressionNode> expression;
     };
 }
 

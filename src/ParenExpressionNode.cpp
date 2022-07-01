@@ -10,19 +10,19 @@
 namespace cmm
 {
 
-    ParenExpressionNode::ParenExpressionNode(std::shared_ptr<ExpressionNode> expression) :
-        ExpressionNode(NodeType::PAREN_EXPRESSION), expression(expression)
+    ParenExpressionNode::ParenExpressionNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
+        ExpressionNode(NodeType::PAREN_EXPRESSION), expression(std::move(expression))
     {
     }
 
-    std::shared_ptr<ExpressionNode> ParenExpressionNode::getExpression()
+    ExpressionNode* ParenExpressionNode::getExpression() CMM_NOEXCEPT
     {
-        return expression;
+        return expression.get();
     }
 
-    const std::shared_ptr<ExpressionNode> ParenExpressionNode::getExpression() const
+    const ExpressionNode* ParenExpressionNode::getExpression() const CMM_NOEXCEPT
     {
-        return expression;
+        return expression.get();
     }
 
     std::string ParenExpressionNode::toString() const /* override */

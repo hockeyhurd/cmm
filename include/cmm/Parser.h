@@ -76,7 +76,7 @@ namespace cmm
          * @param errorMessage optional error message to set.  Assumes valid pointer if non-nullptr.
          * @return nullptr on failure, else valid.
          */
-        std::shared_ptr<CompilationUnitNode> parseCompilationUnit(std::string* errorMessage);
+        std::unique_ptr<CompilationUnitNode> parseCompilationUnit(std::string* errorMessage);
 
     private:
 

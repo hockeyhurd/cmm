@@ -17,12 +17,12 @@ namespace cmm
     {
     }
 
-    std::string& VariableNode::getName()
+    std::string& VariableNode::getName() CMM_NOEXCEPT
     {
         return name;
     }
 
-    const std::string& VariableNode::getName() const
+    const std::string& VariableNode::getName() const CMM_NOEXCEPT
     {
         return name;
     }
