@@ -19,7 +19,12 @@ namespace cmm
     {
     }
 
-    Node* CompilationUnitNode::getRoot() const CMM_NOEXCEPT
+    Node* CompilationUnitNode::getRoot() CMM_NOEXCEPT
+    {
+        return root.get();
+    }
+
+    const Node* CompilationUnitNode::getRoot() const CMM_NOEXCEPT
     {
         return root.get();
     }

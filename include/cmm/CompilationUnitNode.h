@@ -67,9 +67,17 @@ namespace cmm
          * Gets the Root node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
+         * @return const Node pointer.
+         */
+        Node* getRoot() CMM_NOEXCEPT;
+
+        /**
+         * Gets the Root node.  This is needed for unit testing (at least for now).
+         * TODO: Consider a better approach and/or re-using our visitor pattern etc.
+         *
          * @return Node pointer.
          */
-        Node* getRoot() const CMM_NOEXCEPT;
+        const Node* getRoot() const CMM_NOEXCEPT;
 
         /**
          * Gets the Root node.  This is needed for unit testing (at least for now).
