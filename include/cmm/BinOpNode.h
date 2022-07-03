@@ -39,8 +39,8 @@ namespace cmm
          *
          * @param type the EnumBinOpNodeType.
          */
-        BinOpNode(const EnumBinOpNodeType type, std::shared_ptr<ExpressionNode> left,
-                  std::shared_ptr<ExpressionNode> right);
+        BinOpNode(const EnumBinOpNodeType type, std::unique_ptr<ExpressionNode>&& left,
+                  std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -81,30 +81,30 @@ namespace cmm
         /**
          * Gets the left node.
          *
-         * @return std::shared_ptr<ExpressionNode>.
+         * @return ExpressionNode pointer.
          */
-        std::shared_ptr<ExpressionNode> getLeft();
+        ExpressionNode* getLeft() CMM_NOEXCEPT;
 
         /**
          * Gets the left node.
          *
-         * @return std::shared_ptr<ExpressionNode>.
+         * @return const ExpressionNode pointer.
          */
-        const std::shared_ptr<ExpressionNode> getLeft() const;
+        const ExpressionNode* getLeft() const CMM_NOEXCEPT;
 
         /**
          * Gets the right node.
          *
-         * @return std::shared_ptr<ExpressionNode>.
+         * @return ExpressionNode pointer.
          */
-        std::shared_ptr<ExpressionNode> getRight();
+        ExpressionNode* getRight() CMM_NOEXCEPT;
 
         /**
          * Gets the right node.
          *
-         * @return std::shared_ptr<ExpressionNode>.
+         * @return const ExpressionNode pointer.
          */
-        const std::shared_ptr<ExpressionNode> getRight() const;
+        const ExpressionNode* getRight() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -123,8 +123,8 @@ namespace cmm
         EnumBinOpNodeType type;
 
         // The operands
-        std::shared_ptr<ExpressionNode> left;
-        std::shared_ptr<ExpressionNode> right;
+        std::unique_ptr<ExpressionNode> left;
+        std::unique_ptr<ExpressionNode> right;
     };
 }
 

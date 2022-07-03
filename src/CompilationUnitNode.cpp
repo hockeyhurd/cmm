@@ -14,14 +14,19 @@ namespace cmm
     {
     }
 
-    CompilationUnitNode::CompilationUnitNode(std::shared_ptr<Node> node) :
-        Node(NodeType::COMPILATION_UNIT), root(node)
+    CompilationUnitNode::CompilationUnitNode(std::unique_ptr<Node>&& root) CMM_NOEXCEPT :
+        Node(NodeType::COMPILATION_UNIT), root(std::move(root))
     {
     }
 
-    std::shared_ptr<Node> CompilationUnitNode::getRoot() const
+    Node* CompilationUnitNode::getRoot() CMM_NOEXCEPT
     {
-        return root;
+        return root.get();
+    }
+
+    const Node* CompilationUnitNode::getRoot() const CMM_NOEXCEPT
+    {
+        return root.get();
     }
 
     NodeType CompilationUnitNode::getRootType() const CMM_NOEXCEPT

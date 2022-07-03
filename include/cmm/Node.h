@@ -27,7 +27,7 @@ namespace cmm
         EXPRESSION, PAREN_EXPRESSION, LITTERAL, VARIABLE
     };
 
-    class Node : public std::enable_shared_from_this<Node>
+    class Node
     {
     protected:
 
@@ -80,7 +80,7 @@ namespace cmm
         template<class ReturnT, class DerivedT, class VisitorT>
         ReturnT accept(VisitorT& visitor)
         {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(shared_from_this()));
+            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
         }
 
         /**

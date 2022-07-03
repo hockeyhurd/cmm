@@ -32,12 +32,12 @@ namespace cmm
          * TODO: This should eventually be replaced with something more concrete like
          * one or more translation units ('TranslationUnitNode'??).
          */
-        CompilationUnitNode(std::shared_ptr<Node> node);
+        CompilationUnitNode(std::unique_ptr<Node>&& root) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
          */
-        CompilationUnitNode(const CompilationUnitNode&) CMM_NOEXCEPT = default;
+        CompilationUnitNode(const CompilationUnitNode&) = delete;
 
         /**
          * Move constructor.
@@ -54,7 +54,7 @@ namespace cmm
          *
          * @return CompilationUnitNode reference.
          */
-        CompilationUnitNode& operator= (const CompilationUnitNode&) CMM_NOEXCEPT = default;
+        CompilationUnitNode& operator= (const CompilationUnitNode&) = delete;
 
         /**
          * Move assignment operator.
@@ -67,9 +67,17 @@ namespace cmm
          * Gets the Root node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
-         * @return std::shared_ptr<Node>.
+         * @return const Node pointer.
          */
-        std::shared_ptr<Node> getRoot() const;
+        Node* getRoot() CMM_NOEXCEPT;
+
+        /**
+         * Gets the Root node.  This is needed for unit testing (at least for now).
+         * TODO: Consider a better approach and/or re-using our visitor pattern etc.
+         *
+         * @return Node pointer.
+         */
+        const Node* getRoot() const CMM_NOEXCEPT;
 
         /**
          * Gets the Root node.  This is needed for unit testing (at least for now).
@@ -93,7 +101,7 @@ namespace cmm
     private:
 
         // The underlying 'root' node.
-        std::shared_ptr<Node> root;
+        std::unique_ptr<Node> root;
     };
 }
 

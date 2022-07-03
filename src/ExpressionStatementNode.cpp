@@ -11,19 +11,19 @@
 
 namespace cmm
 {
-    ExpressionStatementNode::ExpressionStatementNode(std::shared_ptr<ExpressionNode> expression) :
-        StatementNode(NodeType::EXPRESSION_STATEMENT), expression(expression)
+    ExpressionStatementNode::ExpressionStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
+        StatementNode(NodeType::EXPRESSION_STATEMENT), expression(std::move(expression))
     {
     }
 
-    std::shared_ptr<ExpressionNode> ExpressionStatementNode::getExpression()
+    ExpressionNode* ExpressionStatementNode::getExpression() CMM_NOEXCEPT
     {
-        return expression;
+        return expression.get();
     }
 
-    const std::shared_ptr<ExpressionNode> ExpressionStatementNode::getExpression() const
+    const ExpressionNode* ExpressionStatementNode::getExpression() const CMM_NOEXCEPT
     {
-        return expression;
+        return expression.get();
     }
 
     std::string ExpressionStatementNode::toString() const /* override */
