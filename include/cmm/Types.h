@@ -57,6 +57,14 @@
 #define DEPRECATED(func) func
 #endif
 
+#if OS_WIN
+#define CPP_98 1
+#define CPP_11 1
+#define CPP_14 1
+#define CPP_17 0
+#define CPP_20 0
+#define CPP_VER 2014
+#else
 #if (__cplusplus == 199711L) // C++98
 #define CPP_98 1
 #define CPP_11 0
@@ -100,12 +108,13 @@
 #define CPP_20 0
 #define CPP_VER 1997
 #endif
+#endif
 
-#if CPP_14
+#if CPP_VER >= 2014
 #define CMM_NOEXCEPT noexcept
 #define CMM_CONSTEXPR constexpr
 #define CMM_CONSTEXPR_FUNC constexpr
-#elif CPP_11
+#elif CPP_VER >= 2011
 #define CMM_NOEXCEPT noexcept
 #define CMM_CONSTEXPR constexpr
 #define CMM_CONSTEXPR_FUNC
