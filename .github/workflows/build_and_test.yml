@@ -5,32 +5,48 @@ on:
     branches:
       - 'main'
       - 'dev'
+      - 'GithubActions'
   pull_request:
+    types: [opened, synchronize]
     branches:
       - 'main'
       - 'dev'
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-  CXX: g++
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
-        # os: [ubuntu-22.04, ubuntu-20.04, windows-latest]
-        os: [ubuntu-22.04, ubuntu-20.04]
-        # os: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04]
+        # TODO: Disable macos builds for now until new changes are resolved.
+        #{runs_on: macos-12, name: "macOS Clang", CC: clang, CXX: clang++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
+        {runs_on: ubuntu-latest, name: "Clang 14 libc++", CC: clang-14, CXX: clang++-14, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
+        {runs_on: ubuntu-latest, name: "Clang 14 libstdc++", CC: clang-14, CXX: clang++-14, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
+        {runs_on: ubuntu-latest, name: "Clang 14 libstdc++ Release", CC: clang-14, CXX: clang++-14, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
+        {runs_on: ubuntu-latest, name: "GCC 12 Debug", CC: gcc-12, CXX: g++-12, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
+        {runs_on: ubuntu-latest, name: "GCC 12 Release", CC: gcc-12, CXX: g++-12, CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
+        # TODO: Disable Windows builds for now until new changes are resolved.
+        #{runs_on: windows-latest, name: "MSVC", CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
+        #{runs_on: windows-latest, name: "MSVC Release", CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
         node-version: [12.x]
+    runs-on: ${{ matrix.toolchain.runs_on }}
+    env:
+      # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+      CMAKE_BUILD_TYPE: ${{ matrix.toolchain.CMAKE_BUILD_TYPE }}
+      CMAKE_C_COMPILER: ${{ matrix.toolchain.CC }}
+      CMAKE_C_FLAGS: ${{ matrix.toolchain.CFLAGS }}
+      CMAKE_CXX_COMPILER: ${{ matrix.toolchain.CXX }}
+      CMAKE_CXX_FLAGS: ${{ matrix.toolchain.CFLAGS }}
+      CMAKE_EXE_LINKER_FLAGS: ${{ matrix.toolchain.CFLAGS }}
+      CMAKE_EXTRA_FLAGS: ${{ matrix.toolchain.CMAKE_FLAGS }}
+      CMAKE_SHARED_LINKER_FLAGS: ${{ matrix.toolchain.CFLAGS }}
 
     steps:
+    - name: Checkout
     - uses: actions/checkout@v3
 
     - name: Log versions
-      # run: $CXX --version && cmake --version
       run: cmake --version
 
     - name: Install gtest manually
@@ -54,4 +70,5 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: bash unitTest.sh
+      shell: bash
 
