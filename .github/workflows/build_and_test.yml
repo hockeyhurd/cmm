@@ -21,11 +21,11 @@ jobs:
         toolchain:
           # TODO: Disable macos builds for now until new changes are resolved.
           #- {runs_on: macos-12, name: "macOS Clang", CC: clang, CXX: clang++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang 14 libc++", CC: clang-14, CXX: clang++-14, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang 14 libstdc++", CC: clang-14, CXX: clang++-14, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang 14 libstdc++ Release", CC: clang-14, CXX: clang++-14, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
-          - {runs_on: ubuntu-latest, name: "GCC 12 Debug", CC: gcc-12, CXX: g++-12, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "GCC 12 Release", CC: gcc-12, CXX: g++-12, CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "Clang 12 libc++", CC: clang-12, CXX: clang++-12, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "Clang 12 libstdc++", CC: clang-12, CXX: clang++-12, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "Clang 12 libstdc++ Release", CC: clang-12, CXX: clang++-12, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "GCC 10 Debug", CC: gcc-10, CXX: g++-10, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "GCC 10 Release", CC: gcc-10, CXX: g++-10, CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
           # TODO: Disable Windows builds for now until new changes are resolved.
           #- {runs_on: windows-latest, name: "MSVC", CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
           #- {runs_on: windows-latest, name: "MSVC Release", CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
