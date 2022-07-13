@@ -32,8 +32,6 @@ jobs:
     runs-on: ${{ matrix.toolchain.runs_on }}
     env:
       # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-      #CC: ${{ matrix.toolchain.CC }}
-      #CXX: ${{ matrix.toolchain.CXX }}
       CMAKE_BUILD_TYPE: ${{ matrix.toolchain.CMAKE_BUILD_TYPE }}
       CMAKE_C_COMPILER: ${{ matrix.toolchain.CC }}
       CMAKE_C_FLAGS: ${{ matrix.toolchain.CFLAGS }}
@@ -62,11 +60,11 @@ jobs:
 
       - name: Build
         # Build your program with the given configuration
-        run: cd ${{github.workspace}}/build && make all
+        run: cd ${{github.workspace}}/build && make -j 2 all
 
       - name: Build Tests
         # Build your program with the given configuration
-        run: cd ${{github.workspace}}/build && make tests
+        run: cd ${{github.workspace}}/build && make -j 2 tests
 
       - name: Test
         # working-directory: ${{github.workspace}}/build
