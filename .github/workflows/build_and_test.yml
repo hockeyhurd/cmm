@@ -43,7 +43,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Log versions
-        run: cmake --version
+        run: |
+          cmake --version
+          ${CMAKE_CXX_COMPILER} -v --version
+        shell: bash
 
       - name: Install gtest manually
         run: |
