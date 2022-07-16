@@ -439,6 +439,20 @@ namespace cmm
         void setStringSymbol(std::string&& stringSymbol) CMM_NOEXCEPT;
 
     private:
+
+        /**
+         * Performs logic to conditionally clean our value str (i.e. TokenType::SYMBOL or TokenType::STRING).
+         */
+        void conditionallyCleanString() CMM_NOEXCEPT;
+
+        /**
+         * Gets whether this is an std::string (i.e. TokenType::SYMBOL or TokenType::STRING).
+         *
+         * @return bool.
+         */
+        bool isCStringOrStringSymbol() const CMM_NOEXCEPT;
+
+    private:
         union Values
         {
             bool b;
