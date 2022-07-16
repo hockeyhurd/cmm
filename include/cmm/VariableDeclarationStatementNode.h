@@ -22,7 +22,7 @@ namespace cmm
     class TypeNode;
     class VariableNode;
 
-    class DeclarationStatementNode : public StatementNode
+    class VariableDeclarationStatementNode : public StatementNode
     {
     public:
 
@@ -32,36 +32,36 @@ namespace cmm
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        DeclarationStatementNode(std::unique_ptr<TypeNode>&& type, std::unique_ptr<VariableNode>&& variable) CMM_NOEXCEPT;
+        VariableDeclarationStatementNode(std::unique_ptr<TypeNode>&& type, std::unique_ptr<VariableNode>&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
          */
-        DeclarationStatementNode(const DeclarationStatementNode&) = delete;
+        VariableDeclarationStatementNode(const VariableDeclarationStatementNode&) = delete;
 
         /**
          * Move constructor.
          */
-        DeclarationStatementNode(DeclarationStatementNode&&) CMM_NOEXCEPT = default;
+        VariableDeclarationStatementNode(VariableDeclarationStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
          */
-        ~DeclarationStatementNode() = default;
+        ~VariableDeclarationStatementNode() = default;
 
         /**
          * Copy assignment operator.
          *
-         * @return DeclarationStatementNode reference.
+         * @return VariableDeclarationStatementNode reference.
          */
-        DeclarationStatementNode& operator= (const DeclarationStatementNode&) = delete;
+        VariableDeclarationStatementNode& operator= (const VariableDeclarationStatementNode&) = delete;
 
         /**
          * Move assignment operator.
          *
-         * @return DeclarationStatementNode reference.
+         * @return VariableDeclarationStatementNode reference.
          */
-        DeclarationStatementNode& operator= (DeclarationStatementNode&&) CMM_NOEXCEPT = default;
+        VariableDeclarationStatementNode& operator= (VariableDeclarationStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets the datatype.

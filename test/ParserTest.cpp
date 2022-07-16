@@ -5,7 +5,7 @@
 #include <cmm/Parser.h>
 #include <cmm/Token.h>
 #include <cmm/Types.h>
-#include <cmm/DeclarationStatementNode.h>
+#include <cmm/VariableDeclarationStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/ParenExpressionNode.h>
@@ -337,7 +337,7 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::DECLARATION_STATEMENT);
 
-    auto* rootDeclarationStatementPtr = static_cast<DeclarationStatementNode*>(compUnitPtr->getRoot());
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(compUnitPtr->getRoot());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
 }
 

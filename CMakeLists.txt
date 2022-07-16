@@ -17,7 +17,7 @@ endif()
 include_directories(include)
 
 # All cmmcore source files
-set(SOURCE_FILES src/CompilationUnitNode.cpp src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/DeclarationStatementNode.cpp src/BinOpNode.cpp
+set(SOURCE_FILES src/CompilationUnitNode.cpp src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/VariableDeclarationStatementNode.cpp src/BinOpNode.cpp
     src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/Parser.cpp src/ParenExpressionNode.cpp src/Snapshot.cpp src/StatementNode.cpp
     src/StringView.cpp src/Token.cpp src/Types.cpp src/TypeNode.cpp src/VariableNode.cpp)
 

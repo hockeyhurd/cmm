@@ -8,7 +8,7 @@
 #include <cmm/Parser.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/CompilationUnitNode.h>
-#include <cmm/DeclarationStatementNode.h>
+#include <cmm/VariableDeclarationStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/LitteralNode.h>
@@ -139,7 +139,7 @@ namespace cmm
         }
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<DeclarationStatementNode>(std::move(type), std::move(variableName)) :
+               std::make_unique<VariableDeclarationStatementNode>(std::move(type), std::move(variableName)) :
                nullptr;
     }
 
