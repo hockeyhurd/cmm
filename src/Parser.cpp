@@ -7,8 +7,10 @@
 
 #include <cmm/Parser.h>
 #include <cmm/BinOpNode.h>
+#include <cmm/BlockNode.h>
 #include <cmm/CompilationUnitNode.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
+#include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/LitteralNode.h>
@@ -46,6 +48,10 @@ namespace cmm
     // Statements:
     static std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage);
+
+    // Other utility parsing functions
+    static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<std::string>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
 
     // Expression types:
@@ -77,16 +83,7 @@ namespace cmm
             return nullptr;
         }
 
-        const auto snapshot = lexer.snap();
-        auto node = parseDeclarationStatement(lexer, errorMessage);
-
-        if (node == nullptr)
-        {
-            // TODO: Do we need to restore??
-            lexer.restore(snapshot);
-
-            node = parseExpressionStatement(lexer, errorMessage);
-        }
+        auto node = parseStatement(lexer, errorMessage);
 
         // Make sure no other tokens are left in the lexer's token stream.
         if (!lexer.completedOrWhitespaceOnly())
@@ -117,6 +114,42 @@ namespace cmm
     }
 
     /* static */
+    std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.peekNextToken(token);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LCURLY_BRACKET)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        // Consume token
+        lexer.nextToken(token, errorMessage);
+
+        BlockNode::StatementList statements;
+        statements.reserve(0x10);
+
+        //{
+        // TODO: Impelement.
+        //}
+
+        result = lexer.peekNextToken(token);
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RCURLY_BRACKET)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        // Consume token
+        lexer.nextToken(token, errorMessage);
+
+        return std::make_optional<BlockNode>(std::move(statements));
+    }
+
+    /* static */
     std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto expression = parseExpression(lexer, errorMessage);
@@ -124,6 +157,23 @@ namespace cmm
         return expectSemicolon(lexer, errorMessage) ?
                std::make_unique<ExpressionStatementNode>(std::move(expression)) :
                nullptr;
+    }
+
+    /* static */
+    std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        const auto snapshot = lexer.snap();
+        auto node = parseDeclarationStatement(lexer, errorMessage);
+
+        if (node == nullptr)
+        {
+            // TODO: Do we need to restore??
+            lexer.restore(snapshot);
+
+            node = parseExpressionStatement(lexer, errorMessage);
+        }
+
+        return node;
     }
 
     /* static */
@@ -182,12 +232,25 @@ namespace cmm
 
         // Lookahead to see if this is a function declaration or definition before
         // committing to this being a variable.
-        auto optioanlFunctionArgs = parseFunctionParameters(lexer, errorMessage);
-        if (optioanlFunctionArgs.has_value())
+        auto optionalFunctionArgs = parseFunctionParameters(lexer, errorMessage);
+
+        if (optionalFunctionArgs.has_value())
         {
-            return expectSemicolon(lexer, errorMessage) ?
-                std::make_unique<FunctionDeclarationStatementNode>(*type, variableName->getName()) :
-                nullptr;
+            auto optionalBlockStatement = parseBlockStatement(lexer, errorMessage);
+
+            // Function definition
+            if (optionalBlockStatement.has_value())
+            {
+                return std::make_unique<FunctionDefinitionStatementNode>(*type, variableName->getName(), std::move(*optionalBlockStatement));
+            }
+
+            // Function declaration
+            else
+            {
+                return expectSemicolon(lexer, errorMessage) ?
+                    std::make_unique<FunctionDeclarationStatementNode>(*type, variableName->getName()) :
+                    nullptr;
+            }
         }
 
         return expectSemicolon(lexer, errorMessage) ?

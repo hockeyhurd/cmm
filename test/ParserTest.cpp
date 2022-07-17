@@ -6,6 +6,7 @@
 #include <cmm/Token.h>
 #include <cmm/Types.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
+#include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/ParenExpressionNode.h>
@@ -357,6 +358,25 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
+{
+    const std::string input = "int x() {}";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
