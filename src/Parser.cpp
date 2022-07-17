@@ -133,7 +133,20 @@ namespace cmm
         statements.reserve(0x10);
 
         //{
-        // TODO: Impelement.
+        while (true)
+        {
+            auto currentStatement = parseStatement(lexer, errorMessage);
+
+            if (currentStatement != nullptr)
+            {
+                statements.push_back(std::unique_ptr<StatementNode>(static_cast<StatementNode*>(currentStatement.release())));
+            }
+
+            else
+            {
+                break;
+            }
+        }
         //}
 
         result = lexer.peekNextToken(token);
@@ -171,6 +184,12 @@ namespace cmm
             lexer.restore(snapshot);
 
             node = parseExpressionStatement(lexer, errorMessage);
+        }
+
+        if (node == nullptr)
+        {
+            // TODO: Do we need to restore??
+            lexer.restore(snapshot);
         }
 
         return node;
@@ -284,7 +303,6 @@ namespace cmm
         // Expect opening '('
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
         {
-            // TODO: is restore necessary??
             lexer.restore(snapshot);
             return nullptr;
         }
@@ -299,7 +317,6 @@ namespace cmm
         // Expect closing ')'
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
         {
-            // TODO: is restore necessary??
             lexer.restore(snapshot);
 
             if (errorMessage != nullptr)
@@ -460,16 +477,7 @@ namespace cmm
             return std::make_unique<VariableNode>(token.asStringSymbol());
         // Unimplemented types
         default:
-            // TODO: Do we want to just return 'nullptr' going forward??
-#if 0
-            std::ostringstream os;
-            os << "unexpected token type received '"
-               << toString(token.getType()) << '\'';
-            unimplementedAbort(os.str());
             return nullptr;
-#else
-            return nullptr;
-#endif
         }
 
         return nullptr;

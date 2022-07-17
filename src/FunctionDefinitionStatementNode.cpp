@@ -38,6 +38,16 @@ namespace cmm
         return funcName;
     }
 
+    BlockNode& FunctionDefinitionStatementNode::getBlock() CMM_NOEXCEPT
+    {
+        return block;
+    }
+
+    const BlockNode& FunctionDefinitionStatementNode::getBlock() const CMM_NOEXCEPT
+    {
+        return block;
+    }
+
     std::string FunctionDefinitionStatementNode::toString() const /* override */
     {
         return "FunctionDefinitionStatementNode";

@@ -96,6 +96,22 @@ namespace cmm
         const std::string& getName() const CMM_NOEXCEPT;
 
         /**
+         * Gets the BlockNode.
+         * Note: Exposed for unit testing.
+         *
+         * @return BlockNode.
+         */
+        BlockNode& getBlock() CMM_NOEXCEPT;
+
+        /**
+         * Gets the BlockNode.
+         * Note: Exposed for unit testing.
+         *
+         * @return BlockNode.
+         */
+        const BlockNode& getBlock() const CMM_NOEXCEPT;
+
+        /**
          * Generic and templated function needed for visitor pattern.
          */
         template<class ReturnT, class DerivedT, class VisitorT>
