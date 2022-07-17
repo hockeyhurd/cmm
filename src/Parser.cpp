@@ -50,7 +50,7 @@ namespace cmm
     static std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
-    static std::unique_ptr<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
+    static std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
     {
@@ -123,7 +123,7 @@ namespace cmm
         auto snapshot = lexer.snap();
         auto type = parseType(lexer, errorMessage);
 
-        if (type == nullptr)
+        if (!type.has_value())
         {
             lexer.restore(snapshot);
             return nullptr;
@@ -375,14 +375,14 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<TypeNode> parseType(Lexer& lexer, std::string* errorMessage)
+    std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage)
     {
         Token token('\0', false);
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         if (!lexResult || !token.isStringSymbol())
         {
-            return nullptr;
+            return std::nullopt;
         }
 
         auto type = token.asStringSymbol();
@@ -393,11 +393,11 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                return std::make_unique<TypeNode>(enumType.value());
+                return std::make_optional<TypeNode>(enumType.value());
             }
         }
 
-        return nullptr;
+        return std::nullopt;
     }
 }
 
