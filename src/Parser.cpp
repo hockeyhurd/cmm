@@ -36,6 +36,11 @@ namespace cmm
         std::exit(EXIT_FAILURE);
     }
 
+    inline static Token newToken()
+    {
+        return Token('\0', false);
+    }
+
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
     // Statements:
@@ -104,7 +109,7 @@ namespace cmm
     /* static */
     bool expectSemicolon(Lexer& lexer, std::string* errorMessage)
     {
-        Token token('\0', false);
+        auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         return lexResult && token.getType() == TokenType::CHAR_SYMBOL &&
@@ -125,7 +130,7 @@ namespace cmm
     std::optional<std::vector<std::string>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
-        Token token('\0', false);
+        auto token = newToken();
         auto result = lexer.peekNextToken(token);
 
         if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
@@ -175,7 +180,6 @@ namespace cmm
             return nullptr;
         }
 
-        // TODO: Refactor to seperate function
         // Lookahead to see if this is a function declaration or definition before
         // committing to this being a variable.
         auto optioanlFunctionArgs = parseFunctionParameters(lexer, errorMessage);
@@ -211,7 +215,7 @@ namespace cmm
     {
         const auto snapshot = lexer.snap();
 
-        Token token('\0', false);
+        auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
         // Expect opening '('
@@ -262,7 +266,7 @@ namespace cmm
             return nullptr;
         }
 
-        Token token('\0', false);
+        auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
         while (lexResult)
@@ -299,7 +303,7 @@ namespace cmm
             return nullptr;
         }
 
-        Token token('\0', false);
+        auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
         while (lexResult)
@@ -336,7 +340,7 @@ namespace cmm
             return nullptr;
         }
 
-        Token token('\0', false);
+        auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
         while (lexResult)
@@ -365,7 +369,7 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
-        Token token('\0', false);
+        auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         if (!lexResult)
@@ -411,7 +415,7 @@ namespace cmm
     /* static */
     std::unique_ptr<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
-        Token token('\0', false);
+        auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         if (!lexResult)
@@ -425,7 +429,7 @@ namespace cmm
     /* static */
     std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage)
     {
-        Token token('\0', false);
+        auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         if (!lexResult || !token.isStringSymbol())
