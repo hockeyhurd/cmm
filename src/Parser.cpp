@@ -139,7 +139,7 @@ namespace cmm
         }
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<VariableDeclarationStatementNode>(std::move(type), std::move(variableName)) :
+               std::make_unique<VariableDeclarationStatementNode>(*type, std::move(variableName)) :
                nullptr;
     }
 
