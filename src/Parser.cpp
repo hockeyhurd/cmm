@@ -8,7 +8,7 @@
 #include <cmm/Parser.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/CompilationUnitNode.h>
-#include <cmm/VariableDeclarationStatementNode.h>
+#include <cmm/FunctionDeclarationStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/LitteralNode.h>
@@ -17,6 +17,7 @@
 #include <cmm/Token.h>
 #include <cmm/TypeNode.h>
 #include <cmm/VariableNode.h>
+#include <cmm/VariableDeclarationStatementNode.h>
 
 #include <iostream>
 #include <sstream>
@@ -136,6 +137,38 @@ namespace cmm
         {
             lexer.restore(snapshot);
             return nullptr;
+        }
+
+        // Lookahead to see if this is a function declaration or definition before
+        // committing to this being a variable.
+        snapshot = lexer.snap();
+        Token token('\0', false);
+        auto result = lexer.peekNextToken(token);
+
+        if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
+        {
+            // Capture the token
+            lexer.nextToken(token, errorMessage);
+
+            // Lookahead to the next token
+            result = lexer.peekNextToken(token);
+
+            // TODO: support arguments.  For now, just expect closing 'CHAR_RPAREN'.
+            if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_RPAREN)
+            {
+                // Capture the token
+                lexer.nextToken(token, errorMessage);
+
+                return expectSemicolon(lexer, errorMessage) ?
+                       std::make_unique<FunctionDeclarationStatementNode>(*type, variableName->getName()) :
+                       nullptr;
+            }
+
+            // Failed prediction, restore and continue with the assumption this is just a variable.
+            else
+            {
+                lexer.restore(snapshot);
+            }
         }
 
         return expectSemicolon(lexer, errorMessage) ?
