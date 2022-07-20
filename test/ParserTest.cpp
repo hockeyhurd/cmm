@@ -429,6 +429,59 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
     ASSERT_EQ(iter, blockNode.cend());
 }
 
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleStatementInBlock)
+{
+    const std::string input = "int x() { float y; char z; }";
+    const std::string funcName = "x";
+    const std::string var1Name = "y";
+    const std::string var2Name = "z";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, funcName);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_FALSE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 2);
+
+    auto iter = blockNode.cbegin();
+
+    {
+        ASSERT_NE(iter, blockNode.cend());
+
+        const auto& declPtr = *iter;
+        ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+        const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
+        ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+        ASSERT_EQ(varDeclPtr->getName(), var1Name);
+    }
+
+    ++iter;
+    ASSERT_NE(iter, blockNode.cend());
+
+    {
+        const auto& declPtr = *iter;
+        ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+        const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
+        ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::CHAR);
+        ASSERT_EQ(varDeclPtr->getName(), var2Name);
+    }
+
+    ++iter;
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
 {
     const std::string input = "(42);";
