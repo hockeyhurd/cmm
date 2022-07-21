@@ -10,14 +10,16 @@
 namespace cmm
 {
     FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(TypeNode type,
-        const std::string& funcName) :
-        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT), type(type), funcName(funcName)
+        const std::string& funcName, ParamList&& params) :
+        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT), type(type), funcName(funcName),
+        params(std::move(params))
     {
     }
 
     FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(TypeNode type,
-        std::string&& funcName) CMM_NOEXCEPT :
-        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT), type(type), funcName(std::move(funcName))
+        std::string&& funcName, ParamList&& params) CMM_NOEXCEPT :
+        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT), type(type), funcName(std::move(funcName)),
+        params(std::move(params))
     {
     }
 
@@ -34,6 +36,28 @@ namespace cmm
     const std::string& FunctionDeclarationStatementNode::getName() const CMM_NOEXCEPT
     {
         return funcName;
+    }
+
+    FunctionDeclarationStatementNode::ParamListIter FunctionDeclarationStatementNode::begin() CMM_NOEXCEPT
+    {
+        return params.begin();
+    }
+
+    const FunctionDeclarationStatementNode::ParamListConseIter
+    FunctionDeclarationStatementNode::cbegin() const CMM_NOEXCEPT
+    {
+        return params.cbegin();
+    }
+
+    FunctionDeclarationStatementNode::ParamListIter FunctionDeclarationStatementNode::end() CMM_NOEXCEPT
+    {
+        return params.end();
+    }
+
+    const FunctionDeclarationStatementNode::ParamListConseIter
+    FunctionDeclarationStatementNode::cend() const CMM_NOEXCEPT
+    {
+        return params.cend();
     }
 
     std::string FunctionDeclarationStatementNode::toString() const /* override */

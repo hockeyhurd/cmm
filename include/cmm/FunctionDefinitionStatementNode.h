@@ -13,6 +13,7 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/BlockNode.h>
+#include <cmm/ParameterNode.h>
 #include <cmm/StatementNode.h>
 #include <cmm/TypeNode.h>
 
@@ -27,14 +28,9 @@ namespace cmm
     {
     public:
 
-        /**
-         * Constructor.
-         *
-         * @param type the TypeNode.
-         * @param name the name of the function.
-         * @param block the block of the function.
-         */
-        FunctionDefinitionStatementNode(TypeNode type, const std::string& funcName, BlockNode&& block);
+        using ParamList = std::vector<ParameterNode>;
+        using ParamListIter = ParamList::iterator;
+        using ParamListConseIter = ParamList::const_iterator;
 
         /**
          * Constructor.
@@ -42,8 +38,21 @@ namespace cmm
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param block the block of the function.
+         * @param params the parameter list.
          */
-        FunctionDefinitionStatementNode(TypeNode type, std::string&& funcName, BlockNode&& block) CMM_NOEXCEPT;
+        FunctionDefinitionStatementNode(TypeNode type, const std::string& funcName,
+            BlockNode&& block, ParamList&& params = ParamList());
+
+        /**
+         * Constructor.
+         *
+         * @param type the TypeNode.
+         * @param name the name of the function.
+         * @param block the block of the function.
+         * @param params the parameter list.
+         */
+        FunctionDefinitionStatementNode(TypeNode type, std::string&& funcName,
+            BlockNode&& block, ParamList&& params = ParamList()) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -112,6 +121,34 @@ namespace cmm
         const BlockNode& getBlock() const CMM_NOEXCEPT;
 
         /**
+         * Parameter list iterator from the beginning.
+         *
+         * @return ParamListIter.
+         */
+        ParamListIter begin() CMM_NOEXCEPT;
+
+        /**
+         * Parameter list const iterator from the beginning.
+         *
+         * @return ParamListConseIter.
+         */
+        const ParamListConseIter cbegin() const CMM_NOEXCEPT;
+
+        /**
+         * Parameter list iterator from the end.
+         *
+         * @return ParamListIter.
+         */
+        ParamListIter end() CMM_NOEXCEPT;
+
+        /**
+         * Parameter list const iterator from the end.
+         *
+         * @return ParamListConseIter.
+         */
+        const ParamListConseIter cend() const CMM_NOEXCEPT;
+
+        /**
          * Generic and templated function needed for visitor pattern.
          */
         template<class ReturnT, class DerivedT, class VisitorT>
@@ -127,6 +164,7 @@ namespace cmm
         TypeNode type;
         std::string funcName;
         BlockNode block;
+        ParamList params;
     };
 }
 
