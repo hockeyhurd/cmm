@@ -49,7 +49,7 @@ namespace cmm
 
     enum class TokenType
     {
-        BOOL = 0, CHAR, CHAR_SYMBOL, FLOAT, DOUBLE, INT16, INT32, INT64, NAME, NULL_T, STRING, SYMBOL
+        BOOL = 0, CHAR, CHAR_SYMBOL, FLOAT, DOUBLE, INT16, INT32, INT64, /*NAME,*/ NULL_T, STRING, SYMBOL
     };
 
     CMM_CONSTEXPR_FUNC const char* toString(const TokenType tokenType) CMM_NOEXCEPT

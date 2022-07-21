@@ -17,6 +17,7 @@
 #include <cmm/VariableNode.h>
 
 // std includes
+#include <optional>
 #include <string>
 
 namespace cmm
@@ -26,7 +27,14 @@ namespace cmm
     public:
 
         /**
-         * Constructor
+         * Constructor without a variable name.
+         *
+         * @param type the type of this variable.
+         */
+        ParameterNode(TypeNode&& type) CMM_NOEXCEPT;
+
+        /**
+         * Constructor with a variable name.
          *
          * @param type the type of this variable.
          * @param variable the variable of this parameter.
@@ -75,16 +83,16 @@ namespace cmm
         /**
          * The associated variable of the parameter.
          *
-         * @return reference to the VariableNode.
+         * @return optional reference to the VariableNode.
          */
-        VariableNode& getVariable() CMM_NOEXCEPT;
+        std::optional<VariableNode>& getVariable() CMM_NOEXCEPT;
 
         /**
          * The associated variable of the parameter.
          *
-         * @return const reference to the VariableNode.
+         * @return optional const reference to the VariableNode.
          */
-        const VariableNode& getVariable() const CMM_NOEXCEPT;
+        const std::optional<VariableNode>& getVariable() const CMM_NOEXCEPT;
 
         std::string toString() const override;
 
@@ -94,7 +102,7 @@ namespace cmm
         TypeNode type;
 
         // The variable for this parameter.
-        VariableNode variable;
+        std::optional<VariableNode> variable;
     };
 }
 

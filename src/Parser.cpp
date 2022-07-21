@@ -14,6 +14,7 @@
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/LitteralNode.h>
+#include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
@@ -52,7 +53,7 @@ namespace cmm
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
-    static std::optional<std::vector<std::string>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
+    static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
@@ -63,7 +64,7 @@ namespace cmm
 
     // Terminal nodes:
     static std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
 
@@ -196,11 +197,11 @@ namespace cmm
     }
 
     /* static */
-    std::optional<std::vector<std::string>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage)
+    std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
         auto token = newToken();
-        auto result = lexer.peekNextToken(token);
+        bool result = lexer.peekNextToken(token);
 
         if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
         {
@@ -210,12 +211,76 @@ namespace cmm
             // Lookahead to the next token
             result = lexer.peekNextToken(token);
 
-            // TODO: support arguments.  For now, just expect closing 'CHAR_RPAREN'.
-            if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_RPAREN)
+            if (result)
             {
-                // Capture the token
-                lexer.nextToken(token, errorMessage);
-                return std::make_optional(std::vector<std::string>());
+                std::vector<ParameterNode> params;
+
+                while (result)
+                {
+                    // No args, capture and return.
+                    if (token.isCharSymbol() && token.asCharSymbol() == CHAR_RPAREN)
+                    {
+                        // Capture the token
+                        lexer.nextToken(token, errorMessage);
+                        return std::make_optional(std::move(params));
+                    }
+
+                    // TODO: For now, not supporting structs.  Assume primitive or error out.
+                    else if (token.isStringSymbol())
+                    {
+                        // This could be 'func(int)' or 'func(int x)', so we check if the variable was parsed or not.
+                        auto typeOpt = parseType(lexer, errorMessage);
+                        auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
+
+                        // This is the 'func(int x)' case.
+                        if (variableNodeOpt.has_value())
+                        {
+                            // TODO: Should probably verify it is safe to do this
+                            // without checking the optional for 'has_value'.
+                            params.emplace_back(std::move(*typeOpt), std::move(*variableNodeOpt));
+                        }
+
+                        // This is the 'func(int)' case.
+                        else
+                        {
+                            // TODO: Should probably verify it is safe to do this
+                            // without checking the optional for 'has_value'.
+                            params.emplace_back(std::move(*typeOpt));
+                        }
+                    }
+
+                    // Failed prediction, restore and continue with the assumption this is just a variable.
+                    else
+                    {
+                        if (errorMessage != nullptr)
+                        {
+                            std::ostringstream os;
+                            os << "[PARSER]: Encountered an un-expected token: "
+                                << toString(token.getType()) << " at " << lexer.getLocation();
+                            *errorMessage = os.str();
+                        }
+
+                        // TODO: exit parse failure
+                        lexer.restore(snapshot);
+                        return std::nullopt;
+                    }
+
+                    // Peek ahead for the next loop iteration.
+                    result = lexer.peekNextToken(token);
+                }
+
+                // If we get to this point, result must be false OR we forget to return.
+                // Assume the first case and report as an error.
+                if (errorMessage != nullptr)
+                {
+                    std::ostringstream os;
+                    // TODO: Come up with a better error message.
+                    os << "[PARSER]: failed to lookahead to the next token at " << lexer.getLocation();
+                    *errorMessage = os.str();
+                }
+
+                lexer.restore(snapshot);
+                return std::nullopt;
             }
 
             // Failed prediction, restore and continue with the assumption this is just a variable.
@@ -241,9 +306,9 @@ namespace cmm
         }
 
         snapshot = lexer.snap();
-        auto variableName = parseVariableNode(lexer, errorMessage);
+        auto variableNameOpt = parseVariableNode(lexer, errorMessage);
 
-        if (variableName == nullptr)
+        if (!variableNameOpt.has_value())
         {
             lexer.restore(snapshot);
             return nullptr;
@@ -260,20 +325,20 @@ namespace cmm
             // Function definition
             if (optionalBlockStatement.has_value())
             {
-                return std::make_unique<FunctionDefinitionStatementNode>(*type, variableName->getName(), std::move(*optionalBlockStatement));
+                return std::make_unique<FunctionDefinitionStatementNode>(*type, std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement));
             }
 
             // Function declaration
             else
             {
                 return expectSemicolon(lexer, errorMessage) ?
-                    std::make_unique<FunctionDeclarationStatementNode>(*type, variableName->getName()) :
+                    std::make_unique<FunctionDeclarationStatementNode>(*type, std::move(variableNameOpt->getName())) :
                     nullptr;
             }
         }
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<VariableDeclarationStatementNode>(*type, std::move(variableName)) :
+               std::make_unique<VariableDeclarationStatementNode>(*type, std::move(*variableNameOpt)) :
                nullptr;
     }
 
@@ -484,17 +549,17 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         if (!lexResult)
         {
-            return nullptr;
+            return std::nullopt;
         }
 
-        return std::make_unique<VariableNode>(token.asStringSymbol());
+        return std::make_optional<VariableNode>(token.asStringSymbol());
     }
 
     /* static */

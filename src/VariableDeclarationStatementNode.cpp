@@ -6,12 +6,11 @@
  */
 
 #include <cmm/VariableDeclarationStatementNode.h>
-#include <cmm/VariableNode.h>
 
 namespace cmm
 {
     VariableDeclarationStatementNode::VariableDeclarationStatementNode(TypeNode type,
-        std::unique_ptr<VariableNode>&& variable) CMM_NOEXCEPT :
+        VariableNode&& variable) CMM_NOEXCEPT :
         StatementNode(NodeType::VARIABLE_DECLARATION_STATEMENT), type(type), variable(std::move(variable))
     {
     }
@@ -23,12 +22,12 @@ namespace cmm
 
     std::string& VariableDeclarationStatementNode::getName() CMM_NOEXCEPT
     {
-        return variable->getName();
+        return variable.getName();
     }
 
     const std::string& VariableDeclarationStatementNode::getName() const CMM_NOEXCEPT
     {
-        return variable->getName();
+        return variable.getName();
     }
 
     std::string VariableDeclarationStatementNode::toString() const /* override */

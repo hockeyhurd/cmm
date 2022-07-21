@@ -14,14 +14,14 @@
 #include <cmm/Types.h>
 #include <cmm/StatementNode.h>
 #include <cmm/TypeNode.h>
+#include <cmm/VariableNode.h>
 
 // std includes
+#include <optional>
 #include <string>
 
 namespace cmm
 {
-    class VariableNode;
-
     class VariableDeclarationStatementNode : public StatementNode
     {
     public:
@@ -32,7 +32,7 @@ namespace cmm
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        VariableDeclarationStatementNode(TypeNode type, std::unique_ptr<VariableNode>&& variable) CMM_NOEXCEPT;
+        VariableDeclarationStatementNode(TypeNode type, VariableNode&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -98,7 +98,7 @@ namespace cmm
     private:
 
         TypeNode type;
-        std::unique_ptr<VariableNode> variable;
+        VariableNode variable;
     };
 }
 

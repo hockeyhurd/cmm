@@ -482,6 +482,51 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
     ASSERT_EQ(iter, blockNode.cend());
 }
 
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSingleParam)
+{
+    const std::string input = "int x(int y);";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithSingleParam)
+{
+    const std::string input = "int x(int y) {}";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_TRUE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 0);
+
+    const auto iter = blockNode.cbegin();
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
 {
     const std::string input = "(42);";

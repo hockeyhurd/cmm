@@ -10,6 +10,10 @@
 
 namespace cmm
 {
+    ParameterNode::ParameterNode(TypeNode&& type) CMM_NOEXCEPT :
+        Node(NodeType::PARAMETER), type(std::move(type)), variable(std::nullopt)
+    {
+    }
 
     ParameterNode::ParameterNode(TypeNode&& type, VariableNode&& variable) CMM_NOEXCEPT :
         Node(NodeType::PARAMETER), type(std::move(type)), variable(std::move(variable))
@@ -26,12 +30,12 @@ namespace cmm
         return type;
     }
 
-    VariableNode& ParameterNode::getVariable() CMM_NOEXCEPT
+    std::optional<VariableNode>& ParameterNode::getVariable() CMM_NOEXCEPT
     {
         return variable;
     }
 
-    const VariableNode& ParameterNode::getVariable() const CMM_NOEXCEPT
+    const std::optional<VariableNode>& ParameterNode::getVariable() const CMM_NOEXCEPT
     {
         return variable;
     }
