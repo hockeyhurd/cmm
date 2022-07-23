@@ -39,6 +39,17 @@ namespace cmm
         std::exit(EXIT_FAILURE);
     }
 
+    /**
+     * Checks if we can write an error message if and only if the pointer is
+     * NOT 'nullptr' and an  error message does NOT already exist (i.e. is empty).
+     *
+     * return bool.
+     */
+    inline static bool canWriteErrorMessage(std::string* errorMessage)
+    {
+        return errorMessage != nullptr && errorMessage->empty();
+    }
+
     inline static Token newToken()
     {
         return Token('\0', false);
@@ -89,7 +100,7 @@ namespace cmm
         // Make sure no other tokens are left in the lexer's token stream.
         if (!lexer.completedOrWhitespaceOnly())
         {
-            if (errorMessage != nullptr)
+            if (canWriteErrorMessage(errorMessage))
             {
                 std::ostringstream os;
                 os << "[PARSER]: Error un-parsed tokens at " << lexer.getLocation()
@@ -252,7 +263,7 @@ namespace cmm
                     // Failed prediction, restore and continue with the assumption this is just a variable.
                     else
                     {
-                        if (errorMessage != nullptr)
+                        if (canWriteErrorMessage(errorMessage))
                         {
                             std::ostringstream os;
                             os << "[PARSER]: Encountered an un-expected token: "
@@ -260,7 +271,6 @@ namespace cmm
                             *errorMessage = os.str();
                         }
 
-                        // TODO: exit parse failure
                         lexer.restore(snapshot);
                         return std::nullopt;
                     }
@@ -281,7 +291,7 @@ namespace cmm
 
                 // If we get to this point, result must be false OR we forget to return.
                 // Assume the first case and report as an error.
-                if (errorMessage != nullptr)
+                if (canWriteErrorMessage(errorMessage))
                 {
                     std::ostringstream os;
                     // TODO: Come up with a better error message.
@@ -394,7 +404,7 @@ namespace cmm
         {
             lexer.restore(snapshot);
 
-            if (errorMessage != nullptr)
+            if (canWriteErrorMessage(errorMessage))
             {
                 std::ostringstream os;
                 os << "[PARSER]: Error: Expected closing parenthesis at "
