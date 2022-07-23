@@ -265,8 +265,18 @@ namespace cmm
                         return std::nullopt;
                     }
 
-                    // Peek ahead for the next loop iteration.
+                    // Peek ahead
                     result = lexer.peekNextToken(token);
+
+                    // Check to see if the next char is a comma and if so consume that now.
+                    if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
+                    {
+                        // Consume the comma
+                        result = lexer.nextToken(token, errorMessage);
+
+                        // Now do the peek ahead again for the next iteration.
+                        result = lexer.peekNextToken(token);
+                    }
                 }
 
                 // If we get to this point, result must be false OR we forget to return.
