@@ -571,7 +571,7 @@ namespace cmm
     /* static */
     std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto snapshot = lexer.snap();
+        const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
