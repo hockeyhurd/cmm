@@ -571,11 +571,13 @@ namespace cmm
     /* static */
     std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
+        const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
-        if (!lexResult)
+        if (!lexResult || !token.isStringSymbol())
         {
+            lexer.restore(snapshot);
             return std::nullopt;
         }
 
