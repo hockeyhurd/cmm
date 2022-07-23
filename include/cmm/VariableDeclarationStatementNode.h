@@ -1,5 +1,5 @@
 /**
- * An AST node for declaration statement ast nodes.
+ * An AST node for a variable declaration statement ast nodes.
  *
  * @author hockeyhurd
  * @version 2022-06-25
@@ -7,22 +7,22 @@
 
 #pragma once
 
-#ifndef CMM_DECLARATION_STATEMENT_H
-#define CMM_DECLARATION_STATEMENT_H
+#ifndef CMM_VARIABLE_DECLARATION_STATEMENT_H
+#define CMM_VARIABLE_DECLARATION_STATEMENT_H
 
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/StatementNode.h>
+#include <cmm/TypeNode.h>
+#include <cmm/VariableNode.h>
 
 // std includes
+#include <optional>
 #include <string>
 
 namespace cmm
 {
-    class TypeNode;
-    class VariableNode;
-
-    class DeclarationStatementNode : public StatementNode
+    class VariableDeclarationStatementNode : public StatementNode
     {
     public:
 
@@ -32,36 +32,36 @@ namespace cmm
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        DeclarationStatementNode(std::unique_ptr<TypeNode>&& type, std::unique_ptr<VariableNode>&& variable) CMM_NOEXCEPT;
+        VariableDeclarationStatementNode(TypeNode type, VariableNode&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
          */
-        DeclarationStatementNode(const DeclarationStatementNode&) = delete;
+        VariableDeclarationStatementNode(const VariableDeclarationStatementNode&) = delete;
 
         /**
          * Move constructor.
          */
-        DeclarationStatementNode(DeclarationStatementNode&&) CMM_NOEXCEPT = default;
+        VariableDeclarationStatementNode(VariableDeclarationStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
          */
-        ~DeclarationStatementNode() = default;
+        ~VariableDeclarationStatementNode() = default;
 
         /**
          * Copy assignment operator.
          *
-         * @return DeclarationStatementNode reference.
+         * @return VariableDeclarationStatementNode reference.
          */
-        DeclarationStatementNode& operator= (const DeclarationStatementNode&) = delete;
+        VariableDeclarationStatementNode& operator= (const VariableDeclarationStatementNode&) = delete;
 
         /**
          * Move assignment operator.
          *
-         * @return DeclarationStatementNode reference.
+         * @return VariableDeclarationStatementNode reference.
          */
-        DeclarationStatementNode& operator= (DeclarationStatementNode&&) CMM_NOEXCEPT = default;
+        VariableDeclarationStatementNode& operator= (VariableDeclarationStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets the datatype.
@@ -97,10 +97,10 @@ namespace cmm
 
     private:
 
-        std::unique_ptr<TypeNode> type;
-        std::unique_ptr<VariableNode> variable;
+        TypeNode type;
+        VariableNode variable;
     };
 }
 
-#endif //!CMM_DECLARATION_STATEMENT_H
+#endif //!CMM_VARIABLE_DECLARATION_STATEMENT_H
 

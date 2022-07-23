@@ -5,12 +5,14 @@
 #include <cmm/Parser.h>
 #include <cmm/Token.h>
 #include <cmm/Types.h>
-#include <cmm/DeclarationStatementNode.h>
+#include <cmm/FunctionDeclarationStatementNode.h>
+#include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/StatementNode.h>
 #include <cmm/VariableNode.h>
+#include <cmm/VariableDeclarationStatementNode.h>
 
 #include <gtest/gtest.h>
 
@@ -329,16 +331,290 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 {
     const std::string input = "int x;";
+    const std::string name = "x";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
-    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::DECLARATION_STATEMENT);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
-    auto* rootDeclarationStatementPtr = static_cast<DeclarationStatementNode*>(compUnitPtr->getRoot());
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(compUnitPtr->getRoot());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
+{
+    const std::string input = "int x();";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
+{
+    const std::string input = "int x() {}";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_TRUE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 0);
+
+    const auto iter = blockNode.cbegin();
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleStatementInBlock)
+{
+    const std::string input = "int x() { float y; }";
+    const std::string funcName = "x";
+    const std::string varName = "y";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, funcName);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_FALSE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 1);
+
+    auto iter = blockNode.cbegin();
+    ASSERT_NE(iter, blockNode.cend());
+
+    const auto& declPtr = *iter;
+    ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
+    ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+    ASSERT_EQ(varDeclPtr->getName(), varName);
+
+    ++iter;
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleStatementInBlock)
+{
+    const std::string input = "int x() { float y; char z; }";
+    const std::string funcName = "x";
+    const std::string var1Name = "y";
+    const std::string var2Name = "z";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, funcName);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_FALSE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 2);
+
+    auto iter = blockNode.cbegin();
+
+    {
+        ASSERT_NE(iter, blockNode.cend());
+
+        const auto& declPtr = *iter;
+        ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+        const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
+        ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+        ASSERT_EQ(varDeclPtr->getName(), var1Name);
+    }
+
+    ++iter;
+    ASSERT_NE(iter, blockNode.cend());
+
+    {
+        const auto& declPtr = *iter;
+        ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+        const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
+        ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::CHAR);
+        ASSERT_EQ(varDeclPtr->getName(), var2Name);
+    }
+
+    ++iter;
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSingleParam)
+{
+    const std::string input = "int x(int y);";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithTwoParams)
+{
+    const std::string input = "int x(int y, double z);";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithMultipleParams)
+{
+    const std::string input = "int x(char a, double b, long c);";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithSingleParam)
+{
+    const std::string input = "int x(int y) {}";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_TRUE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 0);
+
+    const auto iter = blockNode.cbegin();
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithTwoParams)
+{
+    const std::string input = "int x(int y, double z) {}";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_TRUE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 0);
+
+    const auto iter = blockNode.cbegin();
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithMultipleParams)
+{
+    const std::string input = "int x(int a, char b, float c) {}";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_TRUE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 0);
+
+    const auto iter = blockNode.cbegin();
+    ASSERT_EQ(iter, blockNode.cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
