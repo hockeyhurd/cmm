@@ -20,7 +20,6 @@
 namespace cmm
 {
     // TODO: Consider moving to a seperate file
-    // TODO: Still needed??
     enum class NodeType
     {
         UNKNOWN = 0, COMPILATION_UNIT, BIN_OP, BLOCK, FUNCTION_DECLARATION_STATEMENT, FUNCTION_DEFINITION_STATEMENT,

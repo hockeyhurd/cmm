@@ -14,7 +14,6 @@
 #include <cmm/Types.h>
 #include <cmm/Node.h>
 #include <cmm/StatementNode.h>
-// #include <cmm/TypeNode.h>
 
 // std includes
 #include <string>
