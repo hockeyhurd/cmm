@@ -101,11 +101,11 @@
 #define CPP_VER 1997
 #endif
 
-#if CPP_14
+#if CPP_VER >= 2014
 #define CMM_NOEXCEPT noexcept
 #define CMM_CONSTEXPR constexpr
 #define CMM_CONSTEXPR_FUNC constexpr
-#elif CPP_11
+#elif CPP_VER >= 2011
 #define CMM_NOEXCEPT noexcept
 #define CMM_CONSTEXPR constexpr
 #define CMM_CONSTEXPR_FUNC
