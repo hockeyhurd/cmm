@@ -383,7 +383,7 @@ namespace cmm
         const auto snapshot = lexer.snap();
 
         auto token = newToken();
-        bool lexResult = lexer.peekNextToken(token);
+        bool lexResult = lexer.nextToken(token);
 
         // Expect opening '('
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
@@ -392,12 +392,9 @@ namespace cmm
             return nullptr;
         }
 
-        // Accept the '(' token after lookahead.
-        lexResult = lexer.nextToken(token, errorMessage);
-
         // wrapped expression i.e. (expr)
         auto expression = parseExpression(lexer, errorMessage);
-        lexResult = lexer.peekNextToken(token);
+        lexResult = lexer.nextToken(token);
 
         // Expect closing ')'
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
@@ -414,9 +411,6 @@ namespace cmm
 
             return nullptr;
         }
-
-        // Accept the ')' token after lookahead.
-        lexResult = lexer.nextToken(token, errorMessage);
 
         return std::make_unique<ParenExpressionNode>(std::move(expression));
     }
