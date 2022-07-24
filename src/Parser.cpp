@@ -16,6 +16,7 @@
 #include <cmm/LitteralNode.h>
 #include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
+#include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 #include <cmm/TypeNode.h>
