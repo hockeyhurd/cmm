@@ -329,6 +329,49 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
     ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
 }
 
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgsAndAssignment)
+{
+    const std::string input = "a = 123.0 + func();";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 {
     const std::string input = "int x;";
