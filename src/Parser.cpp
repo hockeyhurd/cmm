@@ -71,7 +71,7 @@ namespace cmm
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<FunctionCallNode> parseFunctionCall(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -402,7 +402,7 @@ namespace cmm
         if (node == nullptr)
         {
             lexer.restore(snapshot);
-            node = parseParenExpression(lexer, errorMessage);
+            node = parseFunctionCallOrVariable(lexer, errorMessage);
         }
 
         if (node == nullptr)
