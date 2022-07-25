@@ -71,7 +71,7 @@ namespace cmm
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<FunctionCallNode> parseFunctionCall(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -396,14 +396,13 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage)
     {
-#if 0
         const auto snapshot = lexer.snap();
         auto node = parseAssignmentBinOpNode(lexer, errorMessage);
 
         if (node == nullptr)
         {
             lexer.restore(snapshot);
-            node = parseFunctionCall(lexer, errorMessage);
+            node = parseFunctionCallOrVariable(lexer, errorMessage);
         }
 
         if (node == nullptr)
@@ -411,33 +410,12 @@ namespace cmm
             lexer.restore(snapshot);
             node = parseParenExpression(lexer, errorMessage);
         }
-#else
-        const auto snapshot = lexer.snap();
-
-        // Note: with the additions of function calls, this needs to be a 'higher'
-        // priority (i.e. called before parseAssignmentBinOpNode) because it doesn't
-        // handle functions, just variables.
-        // TODO: Is this a bug??
-        std::unique_ptr<ExpressionNode> node = parseFunctionCall(lexer, errorMessage);
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseAssignmentBinOpNode(lexer, errorMessage);
-        }
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseParenExpression(lexer, errorMessage);
-        }
-#endif
 
         return node;
     }
 
     /* static */
-    std::unique_ptr<FunctionCallNode> parseFunctionCall(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage)
     {
         // Options are:
         // func()
@@ -467,8 +445,7 @@ namespace cmm
         // No args present, normal variable.
         else
         {
-            return nullptr;
-            // return std::make_unique<FunctionCallNode>(std::move(*optionalVariableNode));
+            return std::make_unique<VariableNode>(std::move(*optionalVariableNode));
         }
 
         // Should be unreachable...
@@ -626,6 +603,7 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
+        const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
@@ -651,7 +629,9 @@ namespace cmm
         case TokenType::INT64:
             return std::make_unique<LitteralNode>(token.asInt64());
         case TokenType::SYMBOL:
-            return std::make_unique<VariableNode>(token.asStringSymbol());
+            // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
+            lexer.restore(snapshot);
+            return parseFunctionCallOrVariable(lexer, errorMessage);
         // Unimplemented types
         default:
             return nullptr;
