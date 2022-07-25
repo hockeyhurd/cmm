@@ -17,9 +17,10 @@ endif()
 include_directories(include)
 
 # All cmmcore source files
-set(SOURCE_FILES src/BinOpNode.cpp src/BlockNode.cpp src/CompilationUnitNode.cpp src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/FunctionDeclarationStatementNode.cpp
-    src/FunctionDefinitionStatementNode.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/Parser.cpp src/ParenExpressionNode.cpp
-    src/Snapshot.cpp src/StatementNode.cpp src/StringView.cpp src/Token.cpp src/Types.cpp src/TypeNode.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp)
+set(SOURCE_FILES src/ArgNode.cpp src/BinOpNode.cpp src/BlockNode.cpp src/CompilationUnitNode.cpp src/ExpressionNode.cpp src/ExpressionStatementNode.cpp
+    src/FunctionDeclarationStatementNode.cpp src/FunctionCallNode.cpp src/FunctionDefinitionStatementNode.cpp src/Lexer.cpp src/LitteralNode.cpp
+    src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/Parser.cpp src/ParenExpressionNode.cpp src/Snapshot.cpp src/StatementNode.cpp
+    src/StringView.cpp src/Token.cpp src/Types.cpp src/TypeNode.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp)
 
 # Require threading library (Linux/Unix this is pthreads).
 set(THREADS_PREFER_PTHREAD_FLAG ON)
