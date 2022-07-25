@@ -49,10 +49,10 @@ namespace cmm
 
     enum class TokenType
     {
-        BOOL = 0, CHAR, CHAR_SYMBOL, FLOAT, DOUBLE, INT16, INT32, INT64, NAME, NULL_T, STRING, SYMBOL
+        BOOL = 0, CHAR, CHAR_SYMBOL, FLOAT, DOUBLE, INT16, INT32, INT64, NULL_T, STRING, SYMBOL
     };
 
-    CMM_CONSTEXPR_FUNC const char* toString(const TokenType tokenType) noexcept
+    CMM_CONSTEXPR_FUNC const char* toString(const TokenType tokenType) CMM_NOEXCEPT
     {
         switch (tokenType)
         {
@@ -92,7 +92,7 @@ namespace cmm
          *
          * @param b the boolean.
          */
-        explicit Token(const bool b) noexcept;
+        explicit Token(const bool b) CMM_NOEXCEPT;
 
         /**
          * Constructor initialized with the text to be tokenized.
@@ -100,21 +100,21 @@ namespace cmm
          * @param ch the character represented by the char.
          * @param isSymbol bool whether this is a char type "'a'" vs char symbol "a".
          */
-        explicit Token(const char ch, const bool isSymbol) noexcept;
+        explicit Token(const char ch, const bool isSymbol) CMM_NOEXCEPT;
 
         /**
          * Constructor initialized with the text to be tokenized.
          *
          * @param intValue the 32-bit integer value.
          */
-        explicit Token(const s32 intValue) noexcept;
+        explicit Token(const s32 intValue) CMM_NOEXCEPT;
 
         /**
          * Constructor initialized with the text to be tokenized.
          *
          * @param doubleValue the 64-bit double value.
          */
-        explicit Token(const f64 doubleValue) noexcept;
+        explicit Token(const f64 doubleValue) CMM_NOEXCEPT;
 
         /**
          * Constructor initialized with the text to be tokenized.
@@ -140,7 +140,7 @@ namespace cmm
         /**
          * Default move constructor.
          */
-        Token(Token&&) noexcept;
+        Token(Token&&) CMM_NOEXCEPT;
 
         /**
          * Default destructor.
@@ -155,14 +155,14 @@ namespace cmm
         /**
          * Default move assignment operator.
          */
-        Token& operator= (Token&&) noexcept;
+        Token& operator= (Token&&) CMM_NOEXCEPT;
 
         /**
          * Gets the TokenType.
          *
          * @return TokenType.
          */
-        TokenType getType() const noexcept;
+        TokenType getType() const CMM_NOEXCEPT;
 
         /**
          * Gets the value as a bool.
@@ -171,21 +171,21 @@ namespace cmm
          *
          * @return bool.
          */
-        bool asBool() const noexcept;
+        bool asBool() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a bool.
          *
          * @return bool.
          */
-        bool isBool() const noexcept;
+        bool isBool() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param b the bool value to set.
          */
-        void setBool(const bool b) noexcept;
+        void setBool(const bool b) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a char.
@@ -194,21 +194,21 @@ namespace cmm
          *
          * @return char.
          */
-        char asChar() const noexcept;
+        char asChar() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a char.
          *
          * @return bool.
          */
-        bool isChar() const noexcept;
+        bool isChar() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param ch the char to set.
          */
-        void setChar(const char ch) noexcept;
+        void setChar(const char ch) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a double.
@@ -217,21 +217,21 @@ namespace cmm
          *
          * @return f64.
          */
-        f64 asDouble() const noexcept;
+        f64 asDouble() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a double.
          *
          * @return bool.
          */
-        bool isDouble() const noexcept;
+        bool isDouble() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param doubleValue the double to set.
          */
-        void setDouble(const f64 doubleValue) noexcept;
+        void setDouble(const f64 doubleValue) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a float.
@@ -240,21 +240,21 @@ namespace cmm
          *
          * @return f32.
          */
-        f32 asFloat() const noexcept;
+        f32 asFloat() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a float.
          *
          * @return bool.
          */
-        bool isFloat() const noexcept;
+        bool isFloat() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param floatValue the double to set.
          */
-        void setFloat(const f32 floatValue) noexcept;
+        void setFloat(const f32 floatValue) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a int16.
@@ -263,21 +263,21 @@ namespace cmm
          *
          * @return f64.
          */
-        s16 asInt16() const noexcept;
+        s16 asInt16() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a int16.
          *
          * @return bool.
          */
-        bool isInt16() const noexcept;
+        bool isInt16() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param doubleValue the int16 to set.
          */
-        void setInt16(const s16 intValue) noexcept;
+        void setInt16(const s16 intValue) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a int32.
@@ -286,21 +286,21 @@ namespace cmm
          *
          * @return f64.
          */
-        s32 asInt32() const noexcept;
+        s32 asInt32() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a int32.
          *
          * @return bool.
          */
-        bool isInt32() const noexcept;
+        bool isInt32() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param doubleValue the int32 to set.
          */
-        void setInt32(const s32 intValue) noexcept;
+        void setInt32(const s32 intValue) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a int64.
@@ -309,33 +309,33 @@ namespace cmm
          *
          * @return f64.
          */
-        s64 asInt64() const noexcept;
+        s64 asInt64() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a int64.
          *
          * @return bool.
          */
-        bool isInt64() const noexcept;
+        bool isInt64() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param doubleValue the int64 to set.
          */
-        void setInt64(const s64 intValue) noexcept;
+        void setInt64(const s64 intValue) CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a null value.
          *
          * @return bool.
          */
-        bool isNull() const noexcept;
+        bool isNull() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to null.
          */
-        void setNull() noexcept;
+        void setNull() CMM_NOEXCEPT;
 
         /**
          * Gets the value as a char.
@@ -344,7 +344,7 @@ namespace cmm
          *
          * @return std::string reference.
          */
-        std::string& asCString() noexcept;
+        std::string& asCString() CMM_NOEXCEPT;
 
         /**
          * Gets the value as a char.
@@ -353,14 +353,14 @@ namespace cmm
          *
          * @return const std::string reference.
          */
-        const std::string& asCString() const noexcept;
+        const std::string& asCString() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a std::string.
          *
          * @return bool.
          */
-        bool isCString() const noexcept;
+        bool isCString() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
@@ -383,21 +383,21 @@ namespace cmm
          *
          * @return char.
          */
-        char asCharSymbol() const noexcept;
+        char asCharSymbol() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a char symbol.
          *
          * @return bool.
          */
-        bool isCharSymbol() const noexcept;
+        bool isCharSymbol() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param char symbol the char to set.
          */
-        void setCharSymbol(const char charSymbol) noexcept;
+        void setCharSymbol(const char charSymbol) CMM_NOEXCEPT;
 
         /**
          * Gets the value as a std::string symbol.
@@ -406,7 +406,7 @@ namespace cmm
          *
          * @return std::string.
          */
-        std::string& asStringSymbol() noexcept;
+        std::string& asStringSymbol() CMM_NOEXCEPT;
 
         /**
          * Gets the value as a std::string symbol.
@@ -415,28 +415,42 @@ namespace cmm
          *
          * @return std::string.
          */
-        const std::string& asStringSymbol() const noexcept;
+        const std::string& asStringSymbol() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a string symbol.
          *
          * @return bool.
          */
-        bool isStringSymbol() const noexcept;
+        bool isStringSymbol() const CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param string symbol the char to set.
          */
-        void setStringSymbol(const std::string& stringSymbol) noexcept;
+        void setStringSymbol(const std::string& stringSymbol) CMM_NOEXCEPT;
 
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
          * @param string symbol the char to set.
          */
-        void setStringSymbol(std::string&& stringSymbol) noexcept;
+        void setStringSymbol(std::string&& stringSymbol) CMM_NOEXCEPT;
+
+    private:
+
+        /**
+         * Performs logic to conditionally clean our value str (i.e. TokenType::SYMBOL or TokenType::STRING).
+         */
+        void conditionallyCleanString() CMM_NOEXCEPT;
+
+        /**
+         * Gets whether this is an std::string (i.e. TokenType::SYMBOL or TokenType::STRING).
+         *
+         * @return bool.
+         */
+        bool isCStringOrStringSymbol() const CMM_NOEXCEPT;
 
     private:
         union Values

@@ -38,6 +38,8 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <optional>
+#include <string>
 // #include <cfloat>
 
 #ifndef _USE_MATH_DEFINES
@@ -99,11 +101,11 @@
 #define CPP_VER 1997
 #endif
 
-#if CPP_14
+#if CPP_VER >= 2014
 #define CMM_NOEXCEPT noexcept
 #define CMM_CONSTEXPR constexpr
 #define CMM_CONSTEXPR_FUNC constexpr
-#elif CPP_11
+#elif CPP_VER >= 2011
 #define CMM_NOEXCEPT noexcept
 #define CMM_CONSTEXPR constexpr
 #define CMM_CONSTEXPR_FUNC
@@ -146,6 +148,50 @@ namespace cmm
 
     const f32 f32_e = 2.71828182845904523536F;
     const f64 f64_e = 2.71828182845904523536;
+
+    enum class EnumCType
+    {
+        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
+        DOUBLE, STRING, STRUCT
+    };
+
+    struct CType
+    {
+        std::size_t length;
+
+        union
+        {
+            void* valueVoidPtr;
+            char  valueChar;
+            bool  valueBool;
+            s8    valueS8;
+            s16   valueS16;
+            s32   valueS32;
+            s64   valueS64;
+            f32   valueF32;
+            f64   valueF64;
+            // TODO: Consider making this const
+            char*  valueString;
+            // TODO: revisit structs
+            // char  valueStruct[0];
+        };
+
+        CType(void* valueVoidPtr) CMM_NOEXCEPT;
+        CType(const bool valueBool) CMM_NOEXCEPT;
+        CType(const char valueChar) CMM_NOEXCEPT;
+        CType(const s8 valueS8) CMM_NOEXCEPT;
+        CType(const s16 valueS16) CMM_NOEXCEPT;
+        CType(const s32 valueS32) CMM_NOEXCEPT;
+        CType(const s64 valueS64) CMM_NOEXCEPT;
+        CType(const f32 valueF32) CMM_NOEXCEPT;
+        CType(const f64 valueF64) CMM_NOEXCEPT;
+        CType(char* valueString) CMM_NOEXCEPT;
+        // TODO: revisit structs
+        // CType(const std::size_t length);
+    };
+
+    bool isCType(const std::string& str) CMM_NOEXCEPT;
+    std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
 }
 

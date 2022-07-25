@@ -10,6 +10,10 @@
 #ifndef CMM_SNAPSHOT_H
 #define CMM_SNAPSHOT_H
 
+// Our includes
+#include <cmm/Types.h>
+
+// std includes
 #include <cstdlib>
 
 namespace cmm
@@ -18,14 +22,14 @@ namespace cmm
     {
     public:
         Snapshot(const std::size_t pos);
-        Snapshot(const Snapshot&) noexcept = default;
-        Snapshot(Snapshot&&) noexcept = default;
+        Snapshot(const Snapshot&) CMM_NOEXCEPT = default;
+        Snapshot(Snapshot&&) CMM_NOEXCEPT = default;
         ~Snapshot() = default;
 
-        Snapshot& operator= (const Snapshot&) noexcept = default;
-        Snapshot& operator= (Snapshot&&) noexcept = default;
+        Snapshot& operator= (const Snapshot&) CMM_NOEXCEPT = default;
+        Snapshot& operator= (Snapshot&&) CMM_NOEXCEPT = default;
 
-        std::size_t getPosition() const noexcept;
+        std::size_t getPosition() const CMM_NOEXCEPT;
 
     private:
         std::size_t pos;

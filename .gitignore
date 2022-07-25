@@ -26,11 +26,13 @@
 *.a
 *.lib
 
-# Executables
+# Executables/directories
 *.exe
 *.out
 *.app
 build
+x86
+x64
 doc
 cppcheck.xml
 
