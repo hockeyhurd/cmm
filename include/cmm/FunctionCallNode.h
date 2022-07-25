@@ -3,8 +3,8 @@
  *
  * @author hockeyhurd
  * @version 2022-07-24
- */
 
+ */
 #pragma once
 
 #ifndef CMM_FUNCTION_CALL_H
