@@ -11,12 +11,13 @@
 namespace cmm
 {
 
-    FunctionCallNode::FunctionCallNode() : Node(NodeType::FUNCTION_CALL)
+    FunctionCallNode::FunctionCallNode(VariableNode&& name) CMM_NOEXCEPT :
+        ExpressionNode(NodeType::FUNCTION_CALL), name(std::move(name))
     {
     }
 
-    FunctionCallNode::FunctionCallNode(ArgList&& args) CMM_NOEXCEPT :
-        Node(NodeType::FUNCTION_CALL), args(std::move(args))
+    FunctionCallNode::FunctionCallNode(VariableNode&& name, ArgList&& args) CMM_NOEXCEPT :
+        ExpressionNode(NodeType::FUNCTION_CALL), name(std::move(name)), args(std::move(args))
     {
     }
 

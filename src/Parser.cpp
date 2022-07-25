@@ -6,9 +6,11 @@
  */
 
 #include <cmm/Parser.h>
+#include <cmm/ArgNode.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/BlockNode.h>
 #include <cmm/CompilationUnitNode.h>
+#include <cmm/FunctionCallNode.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
 #include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
@@ -64,10 +66,12 @@ namespace cmm
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
+    static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<FunctionCallNode> parseFunctionCall(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -205,6 +209,33 @@ namespace cmm
         }
 
         return node;
+    }
+
+    /* static */
+    std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.nextToken(token, errorMessage);
+
+        // Expect opening paren (i.e. '(').
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        // TODO: Parser non-trivial, empty args case.
+        result = lexer.nextToken(token, errorMessage);
+
+        // Expect closing paren (i.e. ')').
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        return std::make_optional(std::vector<ArgNode>());
     }
 
     /* static */
@@ -365,16 +396,83 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage)
     {
+#if 0
         const auto snapshot = lexer.snap();
         auto node = parseAssignmentBinOpNode(lexer, errorMessage);
 
         if (node == nullptr)
         {
             lexer.restore(snapshot);
-            node = parseParenExpression(lexer, errorMessage);
+            node = parseFunctionCall(lexer, errorMessage);
         }
 
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            node = parseParenExpression(lexer, errorMessage);
+        }
+#else
+        const auto snapshot = lexer.snap();
+
+        // Note: with the additions of function calls, this needs to be a 'higher'
+        // priority (i.e. called before parseAssignmentBinOpNode) because it doesn't
+        // handle functions, just variables.
+        // TODO: Is this a bug??
+        std::unique_ptr<ExpressionNode> node = parseFunctionCall(lexer, errorMessage);
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            node = parseAssignmentBinOpNode(lexer, errorMessage);
+        }
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            node = parseParenExpression(lexer, errorMessage);
+        }
+#endif
+
         return node;
+    }
+
+    /* static */
+    std::unique_ptr<FunctionCallNode> parseFunctionCall(Lexer& lexer, std::string* errorMessage)
+    {
+        // Options are:
+        // func()
+        // func(void) (same as no args, TODO: future capability)
+        // func(arg)
+        // func(arg0, arg1, ..., argN)
+        // func(...) (variadic args, TODO: future capability)
+
+        auto snapshot = lexer.snap();
+        auto optionalVariableNode = parseVariableNode(lexer, errorMessage);
+
+        // Did not get a name of the function, early exit.
+        if (!optionalVariableNode.has_value())
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto optionalArgList = parseFunctionCallArgs(lexer, errorMessage);
+
+        // Has args
+        if (optionalArgList.has_value())
+        {
+            return std::make_unique<FunctionCallNode>(std::move(*optionalVariableNode), std::move(*optionalArgList));
+        }
+
+        // No args present, normal variable.
+        else
+        {
+            return nullptr;
+            // return std::make_unique<FunctionCallNode>(std::move(*optionalVariableNode));
+        }
+
+        // Should be unreachable...
+        return nullptr;
     }
 
     /* static */

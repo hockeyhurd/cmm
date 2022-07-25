@@ -3,8 +3,8 @@
  *
  * @author hockeyhurd
  * @version 2022-07-24
- */
 
+ */
 #pragma once
 
 #ifndef CMM_FUNCTION_CALL_H
@@ -13,7 +13,8 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/ArgNode.h>
-#include <cmm/Node.h>
+#include <cmm/ExpressionNode.h>
+#include <cmm/VariableNode.h>
 
 // std includes
 #include <string>
@@ -21,7 +22,7 @@
 
 namespace cmm
 {
-    class FunctionCallNode : public Node
+    class FunctionCallNode : public ExpressionNode
     {
     public:
         using ArgList = std::vector<ArgNode>;
@@ -32,16 +33,19 @@ namespace cmm
     public:
 
         /**
-         * Default constructor
+         * Constructor with no args.
+         *
+         * @param name the name of our function to be called.
          */
-        FunctionCallNode();
+        FunctionCallNode(VariableNode&& name) CMM_NOEXCEPT;
 
         /**
          * Constructor with list of arguments used.
          *
+         * @param name the name of our function to be called.
          * @param args the ArgList of the function call.
          */
-        FunctionCallNode(ArgList&& args) CMM_NOEXCEPT;
+        FunctionCallNode(VariableNode&& name, ArgList&& args) CMM_NOEXCEPT;
 
         /**
          * Copy constructor
@@ -114,6 +118,9 @@ namespace cmm
         std::string toString() const override;
 
     private:
+
+        // The name of the function
+        VariableNode name;
 
         // The list of ArgNode's used in this function call.
         ArgList args;

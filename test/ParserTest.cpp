@@ -1,18 +1,19 @@
 #include <cmm/BinOpNode.h>
 #include <cmm/CompilationUnitNode.h>
-#include <cmm/Lexer.h>
-#include <cmm/LitteralNode.h>
-#include <cmm/Parser.h>
-#include <cmm/Token.h>
-#include <cmm/Types.h>
-#include <cmm/FunctionDeclarationStatementNode.h>
-#include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
+#include <cmm/FunctionCallNode.h>
+#include <cmm/FunctionDeclarationStatementNode.h>
+#include <cmm/FunctionDefinitionStatementNode.h>
+#include <cmm/Lexer.h>
+#include <cmm/LitteralNode.h>
 #include <cmm/ParenExpressionNode.h>
+#include <cmm/Parser.h>
 #include <cmm/StatementNode.h>
-#include <cmm/VariableNode.h>
+#include <cmm/Token.h>
+#include <cmm/Types.h>
 #include <cmm/VariableDeclarationStatementNode.h>
+#include <cmm/VariableNode.h>
 
 #include <gtest/gtest.h>
 
@@ -750,6 +751,31 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallNoArgs)
+{
+    const std::string input = "func();";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    // TODO: Compiler error on next line??
+    // auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    // ASSERT_NE(functionCallPtr->getExpression(), nullptr);
+    // ASSERT_EQ(functionCallPtr->getExpression()->getType(), NodeType::LITTERAL);
+
+    // auto* intPtr = static_cast<LitteralNode*>(functionCallPtr->getExpression());
+    // ASSERT_EQ(intPtr->getValueType(), EnumCType::INT32);
+    // ASSERT_EQ(intPtr->getValue().valueS32, 42);
 }
 
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
