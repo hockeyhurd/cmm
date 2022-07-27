@@ -372,6 +372,307 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
 }
 
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleVariableArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func(x);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleIntArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func(42);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleCharArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func('c');";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleDoubleArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func(2.5);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleBoolArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func(true);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleNullArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func(NULL);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleStringArgAndAssignment)
+{
+    const std::string input = "a = 123.0 + func(\"Hello, world!\");";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
+    ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(rightSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
+
+    // TODO: Restore this code...
+    [[maybe_unused]]
+    auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
+    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
+    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+}
+
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 {
     const std::string input = "int x;";
@@ -818,7 +1119,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleVariableArg)
 {
     const std::string input = "func(x);";
     Parser parser(input);
@@ -839,6 +1140,220 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleArg)
     // TODO: Finish checks here:
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+
+    const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
+    ASSERT_EQ(variableNodePtr->getName(), "x");
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleBoolArg)
+{
+    const std::string input = "func(false);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::BOOL);
+    ASSERT_EQ(litteralNodePtr->getValue().valueBool, false);
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleCharArg)
+{
+    const std::string input = "func('A');";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::CHAR);
+    ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'A');
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleDoubleArg)
+{
+    const std::string input = "func(2.5);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(litteralNodePtr->getValue().valueF64, 2.5);
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleIntArg)
+{
+    const std::string input = "func(42);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(litteralNodePtr->getValue().valueS32, 42);
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, DISABLED_ParseCompilationNodeFunctionCallStatementASingleNullArg)
+{
+    const std::string input = "func(NULL);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    // TODO: This fails... resolve this issue.
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::NULL_T);
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, DISABLED_ParseCompilationNodeFunctionCallStatementASingleStringArg)
+{
+    const std::string input = "func(\"Hello, world!\");";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: This fails here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    const auto* expressionNodePtr = argListIter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::STRING);
+    ASSERT_EQ(litteralNodePtr->getValue().valueString, "Hello, world!");
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
