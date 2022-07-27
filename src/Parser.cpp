@@ -710,6 +710,8 @@ namespace cmm
             return std::make_unique<LitteralNode>(token.asInt32());
         case TokenType::INT64:
             return std::make_unique<LitteralNode>(token.asInt64());
+        case TokenType::NULL_T:
+            return std::make_unique<LitteralNode>();
         case TokenType::SYMBOL:
             // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
             lexer.restore(snapshot);

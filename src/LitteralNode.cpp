@@ -9,6 +9,11 @@
 
 namespace cmm
 {
+    LitteralNode::LitteralNode() CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL),
+        value((void*) nullptr), type(EnumCType::NULL_T)
+    {
+    }
+
     LitteralNode::LitteralNode(void* value) CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL),
         value(value), type(EnumCType::VOID_PTR)
     {

@@ -72,6 +72,26 @@ TEST(ParserTest, ParseCompilationNodeBoolFalse)
     ASSERT_FALSE(boolPtr->getValue().valueBool);
 }
 
+TEST(ParserTest, ParseCompilationNodeNullFalse)
+{
+    const std::string input = "NULL ;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+
+    auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(boolPtr->getValueType(), EnumCType::NULL_T);
+    ASSERT_EQ(boolPtr->getValue().valueVoidPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeInt)
 {
     const std::string input = "32;";
@@ -1288,7 +1308,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleIntArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeFunctionCallStatementASingleNullArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleNullArg)
 {
     const std::string input = "func(NULL);";
     Parser parser(input);
