@@ -78,7 +78,7 @@ namespace cmm
     static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
 
     // Terminal nodes:
-    static std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
@@ -493,7 +493,7 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto left = parseLitteralOrVariableNode(lexer, errorMessage);
+        auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
 
         if (left == nullptr)
         {
@@ -601,7 +601,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
