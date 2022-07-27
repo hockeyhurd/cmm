@@ -1342,7 +1342,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleNullArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, DISABLED_ParseCompilationNodeFunctionCallStatementASingleStringArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleStringArg)
 {
     const std::string input = "func(\"Hello, world!\");";
     Parser parser(input);
@@ -1370,7 +1370,7 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeFunctionCallStatementASingleString
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::STRING);
-    ASSERT_EQ(litteralNodePtr->getValue().valueString, "Hello, world!");
+    ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "Hello, world!", 16), 0);
 
     ++argListIter;
     ASSERT_EQ(argListIter, functionCallPtr->cend());

@@ -75,7 +75,7 @@ namespace cmm
         /**
          * Default constructor for c-strings type.
          */
-        LitteralNode(const char* value) CMM_NOEXCEPT;
+        explicit LitteralNode(const char* value) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -90,7 +90,7 @@ namespace cmm
         /**
          * Destructor
          */
-        ~LitteralNode() = default;
+        ~LitteralNode();
 
         /**
          * Copy assignment operator.

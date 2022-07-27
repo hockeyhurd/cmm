@@ -25,6 +25,7 @@
 #include <cmm/VariableDeclarationStatementNode.h>
 
 #include <iostream>
+#include <cstring>
 #include <optional>
 #include <sstream>
 #include <vector>
@@ -710,6 +711,19 @@ namespace cmm
             return std::make_unique<LitteralNode>(token.asInt32());
         case TokenType::INT64:
             return std::make_unique<LitteralNode>(token.asInt64());
+        case TokenType::STRING:
+        {
+            const auto size = token.asCString().size();
+
+            // Note: +1 for null-terminating character
+            char* copyStr = new char[size + 1];
+            std::strncpy(copyStr, token.asCString().c_str(), size);
+
+            // Ensure last char is null-terminated
+            copyStr[size] = '\0';
+
+            return std::make_unique<LitteralNode>(copyStr);
+        }
         case TokenType::NULL_T:
             return std::make_unique<LitteralNode>();
         case TokenType::SYMBOL:
