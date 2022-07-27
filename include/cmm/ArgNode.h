@@ -13,26 +13,30 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/Node.h>
-#include <cmm/VariableNode.h>
 
 // std includes
+#include <memory>
 #include <string>
 
 namespace cmm
 {
+    class ExpressionNode;
+
     class ArgNode : public Node
     {
     public:
 
         /**
-         * Default constructor
+         * Constructor with a value.
+         *
+         * @param value the value used as an argument.
          */
-        ArgNode(VariableNode&& variable) CMM_NOEXCEPT;
+        ArgNode(std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT;
 
         /**
          * Copy constructor
          */
-        ArgNode(const ArgNode&) = default;
+        ArgNode(const ArgNode&) = delete;
 
         /**
          * Move constructor
@@ -47,7 +51,7 @@ namespace cmm
         /**
          * Copy assignment operator.
          */
-        ArgNode& operator= (const ArgNode&) = default;
+        ArgNode& operator= (const ArgNode&) = delete;
 
         /**
          * Move assignment operator.
@@ -55,18 +59,18 @@ namespace cmm
         ArgNode& operator= (ArgNode&&) CMM_NOEXCEPT = default;
 
         /**
-         * Gets the name of this argument.
+         * Gets the value of this argument.
          *
-         * @return std::string.
+         * @return EnumCType.
          */
-        std::string& getName() CMM_NOEXCEPT;
+        ExpressionNode* getValue() CMM_NOEXCEPT;
 
         /**
-         * Gets the name of this argument.
+         * Gets the value of this argument.
          *
-         * @return std::string.
+         * @return EnumCType.
          */
-        const std::string& getName() const CMM_NOEXCEPT;
+        const ExpressionNode* getValue() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -81,8 +85,8 @@ namespace cmm
 
     private:
 
-        // The variable used in this arg
-        VariableNode variable;
+        // The value used in this arg
+        std::unique_ptr<ExpressionNode> value;
 
     };
 }

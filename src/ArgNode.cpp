@@ -7,22 +7,23 @@
 
 // Our includes
 #include <cmm/ArgNode.h>
+#include <cmm/ExpressionNode.h>
 
 namespace cmm
 {
 
-    ArgNode::ArgNode(VariableNode&& variable) CMM_NOEXCEPT : Node(NodeType::ARG), variable(std::move(variable))
+    ArgNode::ArgNode(std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT : Node(NodeType::ARG), value(std::move(value))
     {
     }
 
-    std::string& ArgNode::getName() CMM_NOEXCEPT
+    ExpressionNode* ArgNode::getValue() CMM_NOEXCEPT
     {
-        return variable.getName();
+        return value.get();
     }
 
-    const std::string& ArgNode::getName() const CMM_NOEXCEPT
+    const ExpressionNode* ArgNode::getValue() const CMM_NOEXCEPT
     {
-        return variable.getName();
+        return value.get();
     }
 
     std::string ArgNode::toString() const /* override */

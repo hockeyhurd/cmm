@@ -216,26 +216,107 @@ namespace cmm
     {
         auto snapshot = lexer.snap();
         auto token = newToken();
-        bool result = lexer.nextToken(token, errorMessage);
+        bool result = lexer.peekNextToken(token);
 
         // Expect opening paren (i.e. '(').
-        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
         {
-            lexer.restore(snapshot);
-            return std::nullopt;
+            // Capture the token
+            result = lexer.nextToken(token, errorMessage);
+
+            // Lookahead to the next token
+            result = lexer.peekNextToken(token);
+
+            if (result)
+            {
+                std::vector<ArgNode> args;
+
+                while (result)
+                {
+                    // No args, capture and return.
+                    if (token.isCharSymbol() && token.asCharSymbol() == CHAR_RPAREN)
+                    {
+                        // Capture the token
+                        lexer.nextToken(token, errorMessage);
+                        return std::make_optional(std::move(args));
+                    }
+
+                    // else if (token.isStringSymbol())
+                    else if (!token.isCharSymbol())
+                    // else
+                    {
+                        // This could be 'func()' or 'func(x)', so we check if the variable was parsed or not.
+#if 0
+                        auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
+
+                        // This is the 'func(int x)' case.
+                        if (variableNodeOpt.has_value())
+                        {
+                            // TODO: Should probably verify it is safe to do this
+                            // without checking the optional for 'has_value'.
+                            args.emplace_back(std::move(*variableNodeOpt));
+                        }
+#else
+                        auto litteralPtr = parseLitteralOrLRValueNode(lexer, errorMessage);
+
+                        if (litteralPtr != nullptr)
+                        {
+                            args.emplace_back(std::move(litteralPtr));
+                        }
+#endif
+                    }
+
+                    // Failed prediction, restore and continue with the assumption this is just a variable.
+                    /*else
+                    {
+                        if (canWriteErrorMessage(errorMessage))
+                        {
+                            std::ostringstream os;
+                            os << "[PARSER]: Encountered an un-expected token: "
+                                << toString(token.getType()) << " at " << lexer.getLocation();
+                            *errorMessage = os.str();
+                        }
+
+                        lexer.restore(snapshot);
+                        return std::nullopt;
+                    }*/
+
+                    // Peek ahead
+                    result = lexer.peekNextToken(token);
+
+                    // Check to see if the next char is a comma and if so consume that now.
+                    if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
+                    {
+                        // Consume the comma
+                        result = lexer.nextToken(token, errorMessage);
+
+                        // Now do the peek ahead again for the next iteration.
+                        result = lexer.peekNextToken(token);
+                    }
+                }
+
+                // If we get to this point, result must be false OR we forget to return.
+                // Assume the first case and report as an error.
+                if (canWriteErrorMessage(errorMessage))
+                {
+                    std::ostringstream os;
+                    // TODO: Come up with a better error message.
+                    os << "[PARSER]: failed to lookahead to the next token at " << lexer.getLocation();
+                    *errorMessage = os.str();
+                }
+
+                lexer.restore(snapshot);
+                return std::nullopt;
+            }
+
+            // Failed prediction, restore and continue with the assumption this is just a variable.
+            else
+            {
+                lexer.restore(snapshot);
+            }
         }
 
-        // TODO: Parser non-trivial, empty args case.
-        result = lexer.nextToken(token, errorMessage);
-
-        // Expect closing paren (i.e. ')').
-        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
-        {
-            lexer.restore(snapshot);
-            return std::nullopt;
-        }
-
-        return std::make_optional(std::vector<ArgNode>());
+        return std::nullopt;
     }
 
     /* static */
@@ -245,6 +326,7 @@ namespace cmm
         auto token = newToken();
         bool result = lexer.peekNextToken(token);
 
+        // Expect opening paren (i.e. '(').
         if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
         {
             // Capture the token

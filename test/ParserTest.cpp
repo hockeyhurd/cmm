@@ -796,7 +796,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(iter, blockNode.cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallNoArgs)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)
 {
     const std::string input = "func();";
     Parser parser(input);
@@ -811,14 +811,34 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallNoArgs)
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
     ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
 
-    // TODO: Compiler error on next line??
-    // auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
-    // ASSERT_NE(functionCallPtr->getExpression(), nullptr);
-    // ASSERT_EQ(functionCallPtr->getExpression()->getType(), NodeType::LITTERAL);
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
 
-    // auto* intPtr = static_cast<LitteralNode*>(functionCallPtr->getExpression());
-    // ASSERT_EQ(intPtr->getValueType(), EnumCType::INT32);
-    // ASSERT_EQ(intPtr->getValue().valueS32, 42);
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleArg)
+{
+    const std::string input = "func(x);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
