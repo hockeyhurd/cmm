@@ -1139,7 +1139,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleVariableArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleVariableArg)
 {
     const std::string input = "func(x);";
     Parser parser(input);
@@ -1172,7 +1172,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleVariableArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleBoolArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleBoolArg)
 {
     const std::string input = "func(false);";
     Parser parser(input);
@@ -1206,7 +1206,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleBoolArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleCharArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleCharArg)
 {
     const std::string input = "func('A');";
     Parser parser(input);
@@ -1240,7 +1240,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleCharArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleDoubleArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleDoubleArg)
 {
     const std::string input = "func(2.5);";
     Parser parser(input);
@@ -1274,7 +1274,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleDoubleArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleIntArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleIntArg)
 {
     const std::string input = "func(42);";
     Parser parser(input);
@@ -1308,7 +1308,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleIntArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleNullArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleNullArg)
 {
     const std::string input = "func(NULL);";
     Parser parser(input);
@@ -1342,7 +1342,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleNullArg)
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
 
-TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleStringArg)
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleStringArg)
 {
     const std::string input = "func(\"Hello, world!\");";
     Parser parser(input);
@@ -1375,6 +1375,346 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementASingleStringArg)
     ++argListIter;
     ASSERT_EQ(argListIter, functionCallPtr->cend());
 }
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoVariablesArgs)
+{
+    const std::string input = "func(x, y);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+
+        const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
+        ASSERT_EQ(variableNodePtr->getName(), "x");
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+
+        const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
+        ASSERT_EQ(variableNodePtr->getName(), "y");
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
+{
+    const std::string input = "func(false, true);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::BOOL);
+        ASSERT_EQ(litteralNodePtr->getValue().valueBool, false);
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::BOOL);
+        ASSERT_EQ(litteralNodePtr->getValue().valueBool, true);
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
+{
+    const std::string input = "func('A', 'B');";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::CHAR);
+        ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'A');
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::CHAR);
+        ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'B');
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
+{
+    const std::string input = "func(123.45, -100.001);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::DOUBLE);
+        ASSERT_EQ(litteralNodePtr->getValue().valueF64, 123.45);
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::DOUBLE);
+        ASSERT_EQ(litteralNodePtr->getValue().valueF64, -100.001);
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
+{
+    const std::string input = "func(42, -1);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::INT32);
+        ASSERT_EQ(litteralNodePtr->getValue().valueS32, 42);
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::INT32);
+        ASSERT_EQ(litteralNodePtr->getValue().valueS32, -1);
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
+{
+    const std::string input = "func(NULL, NULL);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    // TODO: Finish checks here:
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        // TODO: This fails... resolve this issue.
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::NULL_T);
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        // TODO: This fails... resolve this issue.
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::NULL_T);
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
+{
+    const std::string input = "func(\"Hello, world!\", \"My name is... the REAL SLIM SHADY!!\");";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+
+    auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
+    ASSERT_NE(functionCallPtr, nullptr);
+
+    auto argListIter = functionCallPtr->cbegin();
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::STRING);
+        ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "Hello, world!", 16), 0);
+    }
+
+    ++argListIter;
+    ASSERT_NE(argListIter, functionCallPtr->cend());
+
+    {
+        const auto* expressionNodePtr = argListIter->getValue();
+        ASSERT_NE(expressionNodePtr, nullptr);
+        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+        const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+        ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::STRING);
+        ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "My name is... the REAL SLIM SHADY!!", 48), 0);
+    }
+
+    ++argListIter;
+    ASSERT_EQ(argListIter, functionCallPtr->cend());
+}
+
 
 TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
 {
