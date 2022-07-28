@@ -385,11 +385,13 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_TRUE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 0);
+
+    const auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleVariableArgAndAssignment)
@@ -428,11 +430,23 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+
+    const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
+    ASSERT_EQ(variableNodePtr->getName(), "x");
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleIntArgAndAssignment)
@@ -471,11 +485,24 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(litteralNodePtr->getValue().valueS32, 42);
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleCharArgAndAssignment)
@@ -514,11 +541,24 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::CHAR);
+    ASSERT_EQ(litteralNodePtr->getValue().valueS32, 'c');
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleDoubleArgAndAssignment)
@@ -557,11 +597,24 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::DOUBLE);
+    ASSERT_EQ(litteralNodePtr->getValue().valueF64, 2.5);
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleBoolArgAndAssignment)
@@ -600,11 +653,24 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::BOOL);
+    ASSERT_EQ(litteralNodePtr->getValue().valueBool, true);
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleNullArgAndAssignment)
@@ -643,11 +709,24 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::NULL_T);
+    ASSERT_EQ(litteralNodePtr->getValue().valueVoidPtr, nullptr);
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingleStringArgAndAssignment)
@@ -686,11 +765,24 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
-    // TODO: Restore this code...
-    [[maybe_unused]]
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
-    // ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::DOUBLE);
-    // ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
+    ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
+    ASSERT_FALSE(rightFunctionCallPtr->empty());
+    ASSERT_EQ(rightFunctionCallPtr->size(), 1);
+
+    auto iter = rightFunctionCallPtr->cbegin();
+    ASSERT_NE(iter, rightFunctionCallPtr->cend());
+
+    const auto* expressionNodePtr = iter->getValue();
+    ASSERT_NE(expressionNodePtr, nullptr);
+    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+
+    const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
+    ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::STRING);
+    ASSERT_EQ(std::string(litteralNodePtr->getValue().valueString), "Hello, world!");
+
+    ++iter;
+    ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)

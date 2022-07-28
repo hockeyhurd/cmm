@@ -31,6 +31,16 @@ namespace cmm
         return args.size();
     }
 
+    std::string& FunctionCallNode::getName() CMM_NOEXCEPT
+    {
+        return name.getName();
+    }
+
+    const std::string& FunctionCallNode::getName() const CMM_NOEXCEPT
+    {
+        return name.getName();
+    }
+
     FunctionCallNode::ArgListIter FunctionCallNode::begin() CMM_NOEXCEPT
     {
         return args.begin();

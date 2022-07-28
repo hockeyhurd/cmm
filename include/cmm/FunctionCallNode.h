@@ -87,6 +87,20 @@ namespace cmm
         size_type size() const CMM_NOEXCEPT;
 
         /**
+         * Gets the name of the function being called.
+         *
+         * @return reference to std::string name.
+         */
+        std::string& getName() CMM_NOEXCEPT;
+
+        /**
+         * Gets the name of the function being called.
+         *
+         * @return const reference to std::string name.
+         */
+        const std::string& getName() const CMM_NOEXCEPT;
+
+        /**
          * Iterator to the beginning of the statement list.
          */
         ArgListIter begin() CMM_NOEXCEPT;
