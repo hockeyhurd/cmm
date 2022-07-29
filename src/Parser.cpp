@@ -18,6 +18,7 @@
 #include <cmm/LitteralNode.h>
 #include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
+#include <cmm/ReturnStatementNode.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 #include <cmm/TypeNode.h>
@@ -68,6 +69,7 @@ namespace cmm
     // Statements:
     static std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage);
 
     // Other utility parsing functions
@@ -93,7 +95,7 @@ namespace cmm
     {
     }
 
-    Parser::Parser(std::string&& input) : lexer(std::move(input))
+    Parser::Parser(std::string&& input) CMM_NOEXCEPT : lexer(std::move(input))
     {
     }
 
@@ -195,10 +197,59 @@ namespace cmm
     }
 
     /* static */
+    std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        // TODO: Implement
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isStringSymbol() || token.asStringSymbol() != "return")
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Optional expression.  Try and lookahead to see if something is there
+        result = lexer.peekNextToken(token);
+
+        if (!result)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Must be a semi-colon, expect end of return statement.
+        if (token.isCharSymbol() && token.asCharSymbol() == CHAR_SEMI_COLON)
+        {
+            // No need to consume the token after peek since 'expectSemicolon'
+            // will handle this for us.
+            return expectSemicolon(lexer, errorMessage) ?
+                std::make_unique<ReturnStatementNode>() :
+                nullptr;
+        }
+
+        // Else, must contain an expression
+        auto expression = parseExpression(lexer, errorMessage);
+
+        return expectSemicolon(lexer, errorMessage) ?
+               std::make_unique<ReturnStatementNode>(std::move(expression)) :
+               nullptr;
+    }
+
+    /* static */
     std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
-        auto node = parseDeclarationStatement(lexer, errorMessage);
+        auto node = parseReturnStatement(lexer, errorMessage);
+
+        if (node == nullptr)
+        {
+            // TODO: Do we need to restore??
+            lexer.restore(snapshot);
+
+            node = parseDeclarationStatement(lexer, errorMessage);
+        }
 
         if (node == nullptr)
         {

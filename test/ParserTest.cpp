@@ -9,6 +9,7 @@
 #include <cmm/LitteralNode.h>
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/Parser.h>
+#include <cmm/ReturnStatementNode.h>
 #include <cmm/StatementNode.h>
 #include <cmm/Token.h>
 #include <cmm/Types.h>
@@ -1105,6 +1106,49 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(iter, blockNode.cend());
 }
 
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithSingleParamAndReturnStatement)
+{
+    const std::string input = "int x(int y) { return 42; }";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+
+    auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+
+    const auto& outName = rootDefinitionStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+
+    const auto& blockNode = rootDefinitionStatementPtr->getBlock();
+    ASSERT_FALSE(blockNode.empty());
+    ASSERT_EQ(blockNode.size(), 1);
+
+    auto iter = blockNode.cbegin();
+    ASSERT_NE(iter, blockNode.cend());
+
+    const auto& statementPtr = *iter;
+    ASSERT_EQ(statementPtr->getType(), NodeType::RETURN_STATEMENT);
+
+    const auto* returnStatementPtr = static_cast<const ReturnStatementNode*>(statementPtr.get());
+    ASSERT_TRUE(returnStatementPtr->hasExpression());
+
+    const auto* expressionPtr = returnStatementPtr->getExpression();
+    ASSERT_NE(expressionPtr, nullptr);
+    ASSERT_EQ(expressionPtr->getType(), NodeType::LITTERAL);
+
+    const auto* intLitteralPtr = static_cast<const LitteralNode*>(expressionPtr);
+    ASSERT_EQ(intLitteralPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(intLitteralPtr->getValue().valueS32, 42);
+
+    ++iter;
+    ASSERT_EQ(iter, blockNode.cend());
+}
+
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithTwoParams)
 {
     const std::string input = "int x(int y, double z) {}";
@@ -1890,6 +1934,70 @@ TEST(ParserTest, ParseCompilationNodeMultipleMissingMultipleClosingParen)
 
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeReturnStatementWithNoExpression)
+{
+    const std::string input = "return;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::RETURN_STATEMENT);
+
+    const auto* returnStatementPtr = static_cast<ReturnStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_FALSE(returnStatementPtr->hasExpression());
+
+    const auto* expression = returnStatementPtr->getExpression();
+    ASSERT_EQ(expression, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeReturnStatementWithIntExpression)
+{
+    const std::string input = "return 42;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::RETURN_STATEMENT);
+
+    auto* returnStatementPtr = static_cast<ReturnStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_TRUE(returnStatementPtr->hasExpression());
+
+    const auto* expression = returnStatementPtr->getExpression();
+    ASSERT_NE(expression, nullptr);
+    ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
+
+    const auto* intLitteralPtr = static_cast<const LitteralNode*>(expression);
+    ASSERT_EQ(intLitteralPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(intLitteralPtr->getValue().valueS32, 42);
+}
+
+TEST(ParserTest, ParseCompilationNodeReturnStatementWithBoolExpression)
+{
+    const std::string input = "return true;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::RETURN_STATEMENT);
+
+    auto* returnStatementPtr = static_cast<ReturnStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_TRUE(returnStatementPtr->hasExpression());
+
+    const auto* expression = returnStatementPtr->getExpression();
+    ASSERT_NE(expression, nullptr);
+    ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
+
+    const auto* boolLitteralPtr = static_cast<const LitteralNode*>(expression);
+    ASSERT_EQ(boolLitteralPtr->getValueType(), EnumCType::BOOL);
+    ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
 }
 
 s32 main(s32 argc, char* argv[])
