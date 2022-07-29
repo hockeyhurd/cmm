@@ -30,6 +30,11 @@
 #include <sstream>
 #include <vector>
 
+#if OS_WIN
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
+
 namespace cmm
 {
 
@@ -781,3 +786,6 @@ namespace cmm
     }
 }
 
+#if OS_WIN
+#pragma warning(pop)
+#endif

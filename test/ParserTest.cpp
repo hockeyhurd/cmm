@@ -555,7 +555,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getValueType(), EnumCType::CHAR);
-    ASSERT_EQ(litteralNodePtr->getValue().valueS32, 'c');
+    ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'c');
 
     ++iter;
     ASSERT_EQ(iter, rightFunctionCallPtr->cend());
