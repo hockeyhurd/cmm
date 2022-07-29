@@ -673,7 +673,6 @@ namespace cmm
     bool Lexer::isWhitespace(char ch) CMM_NOEXCEPT
     {
         return ch == CHAR_SPACE || ch == CHAR_TAB ||
-               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN ||
                ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 }
