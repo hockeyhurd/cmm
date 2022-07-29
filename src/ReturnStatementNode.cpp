@@ -1,5 +1,5 @@
 /**
- * An AST node for a variable declaration statement ast nodes.
+ * An AST node for a return statement ast nodes.
  *
  * @author hockeyhurd
  * @version 2022-07-29
