@@ -279,7 +279,7 @@ namespace cmm
 
             auto* rawStatement = static_cast<StatementNode*>(statement.release());
             std::unique_ptr<StatementNode> elseStatementPtr(rawStatement);
-            return std::make_unique<IfElseStatement>(std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
+            return std::make_unique<IfElseStatementNode>(std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
         }
 
         // No else block, restore and continue with just the if block.
@@ -288,7 +288,7 @@ namespace cmm
             lexer.restore(elseSnapshot);
         }
 
-        return std::make_unique<IfElseStatement>(std::move(expression), std::move(ifStatementPtr));
+        return std::make_unique<IfElseStatementNode>(std::move(expression), std::move(ifStatementPtr));
     }
 
     /* static */

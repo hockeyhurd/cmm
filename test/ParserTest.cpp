@@ -2012,18 +2012,85 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndNoElse)
     ASSERT_NE(compUnitPtr, nullptr);
     ASSERT_EQ(compUnitPtr->getRootType(), NodeType::IF_ELSE_STATEMENT);
 
-#if 0
-    auto* returnStatementPtr = static_cast<ReturnStatementNode*>(compUnitPtr->getRoot());
-    ASSERT_TRUE(returnStatementPtr->hasExpression());
+    auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(compUnitPtr->getRoot());
+    const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
+    ASSERT_NE(ifConditonalExpression , nullptr);
+    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
 
-    const auto* expression = returnStatementPtr->getExpression();
-    ASSERT_NE(expression, nullptr);
-    ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
-
-    const auto* boolLitteralPtr = static_cast<const LitteralNode*>(expression);
+    const auto* boolLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
     ASSERT_EQ(boolLitteralPtr->getValueType(), EnumCType::BOOL);
     ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
-#endif
+
+    ASSERT_FALSE(ifElseStatementPtr->hasElseStatement());
+}
+
+TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElse)
+{
+    const std::string input = "if (1) { x = 42; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::IF_ELSE_STATEMENT);
+
+    auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(compUnitPtr->getRoot());
+    const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
+    ASSERT_NE(ifConditonalExpression , nullptr);
+    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+
+    const auto* intLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
+    ASSERT_EQ(intLitteralPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(intLitteralPtr->getValue().valueS32, 1);
+
+    ASSERT_FALSE(ifElseStatementPtr->hasElseStatement());
+}
+
+TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndElseWithEmptyBlockNode)
+{
+    const std::string input = "if (true) {} else {}";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::IF_ELSE_STATEMENT);
+
+    auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(compUnitPtr->getRoot());
+    const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
+    ASSERT_NE(ifConditonalExpression , nullptr);
+    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+
+    const auto* boolLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
+    ASSERT_EQ(boolLitteralPtr->getValueType(), EnumCType::BOOL);
+    ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
+
+    ASSERT_TRUE(ifElseStatementPtr->hasElseStatement());
+}
+
+TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElseWithBlockNode)
+{
+    const std::string input = "if ('c') { x = 42; } else { x = -123; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::IF_ELSE_STATEMENT);
+
+    auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(compUnitPtr->getRoot());
+    const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
+    ASSERT_NE(ifConditonalExpression , nullptr);
+    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+
+    const auto* charLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
+    ASSERT_EQ(charLitteralPtr->getValueType(), EnumCType::CHAR);
+    ASSERT_EQ(charLitteralPtr->getValue().valueChar, 'c');
+
+    ASSERT_TRUE(ifElseStatementPtr->hasElseStatement());
 }
 
 s32 main(s32 argc, char* argv[])
