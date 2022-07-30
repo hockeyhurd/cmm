@@ -5,6 +5,7 @@
 #include <cmm/FunctionCallNode.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
 #include <cmm/FunctionDefinitionStatementNode.h>
+#include <cmm/IfElseStatementNode.h>
 #include <cmm/Lexer.h>
 #include <cmm/LitteralNode.h>
 #include <cmm/ParenExpressionNode.h>
@@ -1998,6 +1999,31 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithBoolExpression)
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(expression);
     ASSERT_EQ(boolLitteralPtr->getValueType(), EnumCType::BOOL);
     ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
+}
+
+TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndNoElse)
+{
+    const std::string input = "if (true) {}";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::IF_ELSE_STATEMENT);
+
+#if 0
+    auto* returnStatementPtr = static_cast<ReturnStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_TRUE(returnStatementPtr->hasExpression());
+
+    const auto* expression = returnStatementPtr->getExpression();
+    ASSERT_NE(expression, nullptr);
+    ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
+
+    const auto* boolLitteralPtr = static_cast<const LitteralNode*>(expression);
+    ASSERT_EQ(boolLitteralPtr->getValueType(), EnumCType::BOOL);
+    ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
+#endif
 }
 
 s32 main(s32 argc, char* argv[])

@@ -15,6 +15,7 @@
 #include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
+#include <cmm/IfElseStatementNode.h>
 #include <cmm/LitteralNode.h>
 #include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
@@ -69,6 +70,7 @@ namespace cmm
     // Statements:
     static std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage);
 
@@ -197,10 +199,102 @@ namespace cmm
     }
 
     /* static */
+    std::unique_ptr<Node> parseIfElseStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        const auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isStringSymbol() || token.asStringSymbol() != "if")
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect open paren before conditional.
+        result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect condition
+        auto expression = parseExpression(lexer, errorMessage);
+
+        // Expression MUST exist (i.e. not null).
+        if (expression == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream os;
+                os << "[PARSER]: Expected a condition expression following the start of an 'if' statement at "
+                   << lexer.getLocation();
+                *errorMessage = os.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect closing paren after conditional.
+        result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect some statement next.
+        auto statement = parseStatement(lexer, errorMessage);
+
+        // statement MUST exist (i.e. not null).
+        if (statement == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream os;
+                os << "[PARSER]: Expected a statement following the an 'if' condition at "
+                   << lexer.getLocation();
+                *errorMessage = os.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto* rawStatement = static_cast<StatementNode*>(statement.release());
+        std::unique_ptr<StatementNode> ifStatementPtr(rawStatement);
+
+        // Lookahead to see if we have an 'else' part.
+        const auto elseSnapshot = lexer.snap();
+        result = lexer.nextToken(token, errorMessage);
+
+        // Expect else statement next
+        if (result && token.isStringSymbol() && token.asStringSymbol() == "else")
+        {
+            statement = parseStatement(lexer, errorMessage);
+
+            auto* rawStatement = static_cast<StatementNode*>(statement.release());
+            std::unique_ptr<StatementNode> elseStatementPtr(rawStatement);
+            return std::make_unique<IfElseStatement>(std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
+        }
+
+        // No else block, restore and continue with just the if block.
+        else
+        {
+            lexer.restore(elseSnapshot);
+        }
+
+        return std::make_unique<IfElseStatement>(std::move(expression), std::move(ifStatementPtr));
+    }
+
+    /* static */
     std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
     {
-        // TODO: Implement
-        auto snapshot = lexer.snap();
+        const auto snapshot = lexer.snap();
         auto token = newToken();
         bool result = lexer.nextToken(token, errorMessage);
 
@@ -245,23 +339,55 @@ namespace cmm
 
         if (node == nullptr)
         {
-            // TODO: Do we need to restore??
             lexer.restore(snapshot);
+            node = parseIfElseStatement(lexer, errorMessage);
+        }
 
+        else
+        {
+            return node;
+        }
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
             node = parseDeclarationStatement(lexer, errorMessage);
         }
 
-        if (node == nullptr)
+        else
         {
-            // TODO: Do we need to restore??
-            lexer.restore(snapshot);
-
-            node = parseExpressionStatement(lexer, errorMessage);
+            return node;
         }
 
         if (node == nullptr)
         {
-            // TODO: Do we need to restore??
+            lexer.restore(snapshot);
+            auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
+
+            if (optionalBlockNode.has_value())
+            {
+                node = std::make_unique<BlockNode>(std::move(*optionalBlockNode));
+            }
+        }
+
+        else
+        {
+            return node;
+        }
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            node = parseExpressionStatement(lexer, errorMessage);
+        }
+
+        else
+        {
+            return node;
+        }
+
+        if (node == nullptr)
+        {
             lexer.restore(snapshot);
         }
 
