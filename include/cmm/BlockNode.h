@@ -102,6 +102,17 @@ namespace cmm
          */
         const StatementListConstIter cend() const CMM_NOEXCEPT;
 
+        /**
+         * Generic and templated function needed for visitor pattern.
+         */
+        template<class ReturnT, class DerivedT, class VisitorT>
+        ReturnT accept(VisitorT& visitor)
+        {
+            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
+        }
+
+        std::string toString() const override;
+
     private:
 
         // The internal list of StatementNodes
