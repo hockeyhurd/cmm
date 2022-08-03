@@ -48,5 +48,10 @@ namespace cmm
     {
         return statements.cend();
     }
+
+    std::string BlockNode::toString() const /* override */
+    {
+        return "BlockNode";
+    }
 }
 

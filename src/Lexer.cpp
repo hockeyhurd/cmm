@@ -64,13 +64,13 @@ namespace cmm
         if (completed())
             return true;
 
-        Snapshot snap(index);
+        Snapshot snapshot = snap();
         consumeWhitespace();
 
         const bool result = completed();
 
         // Restore incase we might try to do more in the future.
-        restore(snap);
+        restore(snapshot);
 
         return result;
     }
@@ -83,21 +83,22 @@ namespace cmm
 
     bool Lexer::peekNextToken(Token& token)
     {
-        Snapshot snap(index);
+        Snapshot snapshot = snap();
         const bool result = nextToken(token, nullptr);
-        restore(snap);
+        restore(snapshot);
 
         return result;
     }
 
     void Lexer::restore(const Snapshot& snap) CMM_NOEXCEPT
     {
-        index = snap.getPosition();
+        index = snap.getIndex();
+        location = snap.getLocation();
     }
 
     Snapshot Lexer::snap() CMM_NOEXCEPT
     {
-        return Snapshot(index);
+        return Snapshot(index, location);
     }
 
     void Lexer::consumeWhitespace()
@@ -662,7 +663,6 @@ namespace cmm
     bool Lexer::isWhitespace(char ch) CMM_NOEXCEPT
     {
         return ch == CHAR_SPACE || ch == CHAR_TAB ||
-               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN ||
                ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 }

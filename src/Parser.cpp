@@ -6,16 +6,20 @@
  */
 
 #include <cmm/Parser.h>
+#include <cmm/ArgNode.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/BlockNode.h>
 #include <cmm/CompilationUnitNode.h>
+#include <cmm/FunctionCallNode.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
 #include <cmm/FunctionDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
+#include <cmm/IfElseStatementNode.h>
 #include <cmm/LitteralNode.h>
 #include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
+#include <cmm/ReturnStatementNode.h>
 #include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
@@ -24,9 +28,15 @@
 #include <cmm/VariableDeclarationStatementNode.h>
 
 #include <iostream>
+#include <cstring>
 #include <optional>
 #include <sstream>
 #include <vector>
+
+#if OS_WIN
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
 
 namespace cmm
 {
@@ -61,21 +71,25 @@ namespace cmm
     // Statements:
     static std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage);
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
+    static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
 
     // Terminal nodes:
-    static std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
@@ -84,7 +98,7 @@ namespace cmm
     {
     }
 
-    Parser::Parser(std::string&& input) : lexer(std::move(input))
+    Parser::Parser(std::string&& input) CMM_NOEXCEPT : lexer(std::move(input))
     {
     }
 
@@ -186,26 +200,307 @@ namespace cmm
     }
 
     /* static */
+    std::unique_ptr<Node> parseIfElseStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        const auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isStringSymbol() || token.asStringSymbol() != "if")
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect open paren before conditional.
+        result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect condition
+        auto expression = parseExpression(lexer, errorMessage);
+
+        // Expression MUST exist (i.e. not null).
+        if (expression == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream os;
+                os << "[PARSER]: Expected a condition expression following the start of an 'if' statement at "
+                   << lexer.getLocation();
+                *errorMessage = os.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect closing paren after conditional.
+        result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect some statement next.
+        auto statement = parseStatement(lexer, errorMessage);
+
+        // statement MUST exist (i.e. not null).
+        if (statement == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream os;
+                os << "[PARSER]: Expected a statement following the an 'if' condition at "
+                   << lexer.getLocation();
+                *errorMessage = os.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto* rawStatement = static_cast<StatementNode*>(statement.release());
+        std::unique_ptr<StatementNode> ifStatementPtr(rawStatement);
+
+        // Lookahead to see if we have an 'else' part.
+        const auto elseSnapshot = lexer.snap();
+        result = lexer.nextToken(token, errorMessage);
+
+        // Expect else statement next
+        if (result && token.isStringSymbol() && token.asStringSymbol() == "else")
+        {
+            statement = parseStatement(lexer, errorMessage);
+
+            auto* rawStatement = static_cast<StatementNode*>(statement.release());
+            std::unique_ptr<StatementNode> elseStatementPtr(rawStatement);
+            return std::make_unique<IfElseStatementNode>(std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
+        }
+
+        // No else block, restore and continue with just the if block.
+        else
+        {
+            lexer.restore(elseSnapshot);
+        }
+
+        return std::make_unique<IfElseStatementNode>(std::move(expression), std::move(ifStatementPtr));
+    }
+
+    /* static */
+    std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        const auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isStringSymbol() || token.asStringSymbol() != "return")
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Optional expression.  Try and lookahead to see if something is there
+        result = lexer.peekNextToken(token);
+
+        if (!result)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Must be a semi-colon, expect end of return statement.
+        if (token.isCharSymbol() && token.asCharSymbol() == CHAR_SEMI_COLON)
+        {
+            // No need to consume the token after peek since 'expectSemicolon'
+            // will handle this for us.
+            return expectSemicolon(lexer, errorMessage) ?
+                std::make_unique<ReturnStatementNode>() :
+                nullptr;
+        }
+
+        // Else, must contain an expression
+        auto expression = parseExpression(lexer, errorMessage);
+
+        return expectSemicolon(lexer, errorMessage) ?
+               std::make_unique<ReturnStatementNode>(std::move(expression)) :
+               nullptr;
+    }
+
+    /* static */
     std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
-        auto node = parseDeclarationStatement(lexer, errorMessage);
+        auto node = parseReturnStatement(lexer, errorMessage);
 
         if (node == nullptr)
         {
-            // TODO: Do we need to restore??
             lexer.restore(snapshot);
+            node = parseIfElseStatement(lexer, errorMessage);
+        }
 
-            node = parseExpressionStatement(lexer, errorMessage);
+        else
+        {
+            return node;
         }
 
         if (node == nullptr)
         {
-            // TODO: Do we need to restore??
+            lexer.restore(snapshot);
+            node = parseDeclarationStatement(lexer, errorMessage);
+        }
+
+        else
+        {
+            return node;
+        }
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
+
+            if (optionalBlockNode.has_value())
+            {
+                node = std::make_unique<BlockNode>(std::move(*optionalBlockNode));
+            }
+        }
+
+        else
+        {
+            return node;
+        }
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
+            node = parseExpressionStatement(lexer, errorMessage);
+        }
+
+        else
+        {
+            return node;
+        }
+
+        if (node == nullptr)
+        {
             lexer.restore(snapshot);
         }
 
         return node;
+    }
+
+    /* static */
+    std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.peekNextToken(token);
+
+        // Expect opening paren (i.e. '(').
+        if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
+        {
+            // Capture the token
+            result = lexer.nextToken(token, errorMessage);
+
+            // Lookahead to the next token
+            result = lexer.peekNextToken(token);
+
+            if (result)
+            {
+                std::vector<ArgNode> args;
+
+                while (result)
+                {
+                    // No args, capture and return.
+                    if (token.isCharSymbol() && token.asCharSymbol() == CHAR_RPAREN)
+                    {
+                        // Capture the token
+                        lexer.nextToken(token, errorMessage);
+                        return std::make_optional(std::move(args));
+                    }
+
+                    // else if (token.isStringSymbol())
+                    else if (!token.isCharSymbol())
+                    // else
+                    {
+                        // This could be 'func()' or 'func(x)', so we check if the variable was parsed or not.
+#if 0
+                        auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
+
+                        // This is the 'func(int x)' case.
+                        if (variableNodeOpt.has_value())
+                        {
+                            // TODO: Should probably verify it is safe to do this
+                            // without checking the optional for 'has_value'.
+                            args.emplace_back(std::move(*variableNodeOpt));
+                        }
+#else
+                        auto litteralPtr = parseLitteralOrLRValueNode(lexer, errorMessage);
+
+                        if (litteralPtr != nullptr)
+                        {
+                            args.emplace_back(std::move(litteralPtr));
+                        }
+#endif
+                    }
+
+                    // Failed prediction, restore and continue with the assumption this is just a variable.
+                    /*else
+                    {
+                        if (canWriteErrorMessage(errorMessage))
+                        {
+                            std::ostringstream os;
+                            os << "[PARSER]: Encountered an un-expected token: "
+                                << toString(token.getType()) << " at " << lexer.getLocation();
+                            *errorMessage = os.str();
+                        }
+
+                        lexer.restore(snapshot);
+                        return std::nullopt;
+                    }*/
+
+                    // Peek ahead
+                    result = lexer.peekNextToken(token);
+
+                    // Check to see if the next char is a comma and if so consume that now.
+                    if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
+                    {
+                        // Consume the comma
+                        result = lexer.nextToken(token, errorMessage);
+
+                        // Now do the peek ahead again for the next iteration.
+                        result = lexer.peekNextToken(token);
+                    }
+                }
+
+                // If we get to this point, result must be false OR we forget to return.
+                // Assume the first case and report as an error.
+                if (canWriteErrorMessage(errorMessage))
+                {
+                    std::ostringstream os;
+                    // TODO: Come up with a better error message.
+                    os << "[PARSER]: failed to lookahead to the next token at " << lexer.getLocation();
+                    *errorMessage = os.str();
+                }
+
+                lexer.restore(snapshot);
+                return std::nullopt;
+            }
+
+            // Failed prediction, restore and continue with the assumption this is just a variable.
+            else
+            {
+                lexer.restore(snapshot);
+            }
+        }
+
+        return std::nullopt;
     }
 
     /* static */
@@ -217,6 +512,7 @@ namespace cmm
         auto token = newToken();
         bool result = lexer.peekNextToken(token);
 
+        // Expect opening paren (i.e. '(').
         if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
         {
             // Capture the token
@@ -377,10 +673,54 @@ namespace cmm
         if (node == nullptr)
         {
             lexer.restore(snapshot);
+            node = parseFunctionCallOrVariable(lexer, errorMessage);
+        }
+
+        if (node == nullptr)
+        {
+            lexer.restore(snapshot);
             node = parseParenExpression(lexer, errorMessage);
         }
 
         return node;
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage)
+    {
+        // Options are:
+        // func()
+        // func(void) (same as no args, TODO: future capability)
+        // func(arg)
+        // func(arg0, arg1, ..., argN)
+        // func(...) (variadic args, TODO: future capability)
+
+        auto snapshot = lexer.snap();
+        auto optionalVariableNode = parseVariableNode(lexer, errorMessage);
+
+        // Did not get a name of the function, early exit.
+        if (!optionalVariableNode.has_value())
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto optionalArgList = parseFunctionCallArgs(lexer, errorMessage);
+
+        // Has args
+        if (optionalArgList.has_value())
+        {
+            return std::make_unique<FunctionCallNode>(std::move(*optionalVariableNode), std::move(*optionalArgList));
+        }
+
+        // No args present, normal variable.
+        else
+        {
+            return std::make_unique<VariableNode>(std::move(*optionalVariableNode));
+        }
+
+        // Should be unreachable...
+        return nullptr;
     }
 
     /* static */
@@ -390,7 +730,7 @@ namespace cmm
         const auto snapshot = lexer.snap();
 
         auto token = newToken();
-        bool lexResult = lexer.peekNextToken(token);
+        bool lexResult = lexer.nextToken(token);
 
         // Expect opening '('
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
@@ -399,12 +739,9 @@ namespace cmm
             return nullptr;
         }
 
-        // Accept the '(' token after lookahead.
-        lexResult = lexer.nextToken(token, errorMessage);
-
         // wrapped expression i.e. (expr)
         auto expression = parseExpression(lexer, errorMessage);
-        lexResult = lexer.peekNextToken(token);
+        lexResult = lexer.nextToken(token);
 
         // Expect closing ')'
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
@@ -423,16 +760,13 @@ namespace cmm
             return nullptr;
         }
 
-        // Accept the ')' token after lookahead.
-        lexResult = lexer.nextToken(token, errorMessage);
-
         return std::make_unique<ParenExpressionNode>(std::move(expression));
     }
 
     /* static */
     std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto left = parseLitteralOrVariableNode(lexer, errorMessage);
+        auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
 
         if (left == nullptr)
         {
@@ -540,8 +874,9 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<ExpressionNode> parseLitteralOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage)
     {
+        const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
@@ -566,8 +901,25 @@ namespace cmm
             return std::make_unique<LitteralNode>(token.asInt32());
         case TokenType::INT64:
             return std::make_unique<LitteralNode>(token.asInt64());
+        case TokenType::STRING:
+        {
+            const auto size = token.asCString().size();
+
+            // Note: +1 for null-terminating character
+            char* copyStr = new char[size + 1];
+            std::strncpy(copyStr, token.asCString().c_str(), size);
+
+            // Ensure last char is null-terminated
+            copyStr[size] = '\0';
+
+            return std::make_unique<LitteralNode>(copyStr);
+        }
+        case TokenType::NULL_T:
+            return std::make_unique<LitteralNode>();
         case TokenType::SYMBOL:
-            return std::make_unique<VariableNode>(token.asStringSymbol());
+            // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
+            lexer.restore(snapshot);
+            return parseFunctionCallOrVariable(lexer, errorMessage);
         // Unimplemented types
         default:
             return nullptr;
@@ -619,3 +971,6 @@ namespace cmm
     }
 }
 
+#if OS_WIN
+#pragma warning(pop)
+#endif
