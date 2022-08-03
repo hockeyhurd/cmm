@@ -506,7 +506,7 @@ namespace cmm
     /* static */
     std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage)
     {
-        static Reporter& reporter = Reporter::instance();
+        static auto& reporter = Reporter::instance();
 
         auto snapshot = lexer.snap();
         auto token = newToken();
