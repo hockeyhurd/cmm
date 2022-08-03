@@ -20,6 +20,7 @@
 #include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/ReturnStatementNode.h>
+#include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 #include <cmm/TypeNode.h>
@@ -103,6 +104,8 @@ namespace cmm
 
     std::unique_ptr<CompilationUnitNode> Parser::parseCompilationUnit(std::string* errorMessage)
     {
+        static Reporter& reporter = Reporter::instance();
+
         if (lexer.completedOrWhitespaceOnly())
         {
             // TODO: Add debug logging??
@@ -116,10 +119,8 @@ namespace cmm
         {
             if (canWriteErrorMessage(errorMessage))
             {
-                std::ostringstream os;
-                os << "[PARSER]: Error un-parsed tokens at " << lexer.getLocation()
-                   << ". This likely indicates an internal bug.";
-                *errorMessage = os.str();
+                *errorMessage = "Un-parsed tokens remaining. This likely indicates an internal bug.";
+                reporter.error(*errorMessage, lexer.getLocation());
             }
 
             return nullptr;
@@ -505,6 +506,8 @@ namespace cmm
     /* static */
     std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage)
     {
+        static auto& reporter = Reporter::instance();
+
         auto snapshot = lexer.snap();
         auto token = newToken();
         bool result = lexer.peekNextToken(token);
@@ -562,9 +565,10 @@ namespace cmm
                         if (canWriteErrorMessage(errorMessage))
                         {
                             std::ostringstream os;
-                            os << "[PARSER]: Encountered an un-expected token: "
-                                << toString(token.getType()) << " at " << lexer.getLocation();
+                            os << "Encountered an un-expected token: " << toString(token.getType());
                             *errorMessage = os.str();
+
+                            reporter.error(*errorMessage, lexer.getLocation());
                         }
 
                         lexer.restore(snapshot);
@@ -591,8 +595,10 @@ namespace cmm
                 {
                     std::ostringstream os;
                     // TODO: Come up with a better error message.
-                    os << "[PARSER]: failed to lookahead to the next token at " << lexer.getLocation();
+                    os << "Failed to lookahead to the next token at " << lexer.getLocation();
                     *errorMessage = os.str();
+
+                    reporter.error(*errorMessage, lexer.getLocation());
                 }
 
                 lexer.restore(snapshot);
@@ -720,6 +726,7 @@ namespace cmm
     /* static */
     std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
     {
+        static Reporter& reporter = Reporter::instance();
         const auto snapshot = lexer.snap();
 
         auto token = newToken();
@@ -744,9 +751,10 @@ namespace cmm
             if (canWriteErrorMessage(errorMessage))
             {
                 std::ostringstream os;
-                os << "[PARSER]: Error: Expected closing parenthesis at "
-                   << lexer.getLocation();
+                os << "Expected closing parenthesis";
                 *errorMessage = os.str();
+
+                reporter.error(*errorMessage, lexer.getLocation());
             }
 
             return nullptr;
