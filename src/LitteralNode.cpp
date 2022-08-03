@@ -9,6 +9,11 @@
 
 namespace cmm
 {
+    LitteralNode::LitteralNode() CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL),
+        value((void*) nullptr), type(EnumCType::NULL_T)
+    {
+    }
+
     LitteralNode::LitteralNode(void* value) CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL),
         value(value), type(EnumCType::VOID_PTR)
     {
@@ -56,9 +61,17 @@ namespace cmm
 
     // NOTE: Safe const_cast because this is a litteral and CType doesn't care what kind of char* it actually is.
     LitteralNode::LitteralNode(const char* value) CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL),
-        value(const_cast<char*>(value)),
-        type(EnumCType::STRING)
+        value(const_cast<char*>(value)), type(EnumCType::STRING)
     {
+    }
+
+    LitteralNode::~LitteralNode()
+    {
+        if (type == EnumCType::STRING && value.valueString != nullptr)
+        {
+            delete[] value.valueString;
+            value.valueString = nullptr;
+        }
     }
 
     EnumCType LitteralNode::getValueType() const CMM_NOEXCEPT

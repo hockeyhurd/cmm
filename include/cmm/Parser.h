@@ -39,7 +39,7 @@ namespace cmm
          *
          * @param input to move
          */
-        Parser(std::string&& input);
+        Parser(std::string&& input) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.

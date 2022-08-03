@@ -15,7 +15,6 @@
 #include <cmm/ExpressionNode.h>
 
 // std includes
-// #include <optional>
 #include <string>
 
 namespace cmm
