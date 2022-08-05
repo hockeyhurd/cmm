@@ -12,14 +12,13 @@ int main()
 {
     std::cout << "Hello, world!\n";
 
-    std::string input = "int func();";
+    std::string input = "int func(int x, double y);";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
 
     Dump dump;
     dump.visit(*compUnitPtr);
-    // dump.visit(compUnitPtr.get());
 
     return 0;
 }
