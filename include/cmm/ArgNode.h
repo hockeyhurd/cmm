@@ -59,18 +59,18 @@ namespace cmm
         ArgNode& operator= (ArgNode&&) CMM_NOEXCEPT = default;
 
         /**
-         * Gets the value of this argument.
+         * Gets the expression in this argument.
          *
          * @return EnumCType.
          */
-        ExpressionNode* getValue() CMM_NOEXCEPT;
+        ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
-         * Gets the value of this argument.
+         * Gets the expression in this argument.
          *
          * @return EnumCType.
          */
-        const ExpressionNode* getValue() const CMM_NOEXCEPT;
+        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override
         {
