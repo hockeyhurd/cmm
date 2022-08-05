@@ -58,7 +58,6 @@ namespace cmm
         virtual VisitorResult visit(FunctionCallNode& node) override;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) override;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) override;
-        virtual VisitorResult visit(ExpressionNode& node) override;
         virtual VisitorResult visit(ExpressionStatementNode& node) override;
         virtual VisitorResult visit(IfElseStatementNode& node) override;
         virtual VisitorResult visit(LitteralNode& node) override;

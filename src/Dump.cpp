@@ -201,11 +201,6 @@ namespace cmm
         return VisitorResult();
     }
 
-    VisitorResult Dump::visit(ExpressionNode& node)
-    {
-        CMM_UNIMPLEMENTED_EXCEPTION();
-    }
-
     VisitorResult Dump::visit(ExpressionStatementNode& node)
     {
         printIndentation();
