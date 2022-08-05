@@ -5,28 +5,14 @@
  * @version 2022-06-14
  */
 
+// Our includes
 #include <cmm/Parser.h>
-#include <cmm/ArgNode.h>
-#include <cmm/BinOpNode.h>
-#include <cmm/BlockNode.h>
-#include <cmm/CompilationUnitNode.h>
-#include <cmm/FunctionCallNode.h>
-#include <cmm/FunctionDeclarationStatementNode.h>
-#include <cmm/FunctionDefinitionStatementNode.h>
-#include <cmm/ExpressionNode.h>
-#include <cmm/ExpressionStatementNode.h>
-#include <cmm/IfElseStatementNode.h>
-#include <cmm/LitteralNode.h>
-#include <cmm/ParameterNode.h>
-#include <cmm/ParenExpressionNode.h>
-#include <cmm/ReturnStatementNode.h>
+#include <cmm/NodeList.h>
 #include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
-#include <cmm/TypeNode.h>
-#include <cmm/VariableNode.h>
-#include <cmm/VariableDeclarationStatementNode.h>
 
+// std includes
 #include <iostream>
 #include <cstring>
 #include <optional>

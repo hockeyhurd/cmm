@@ -1,21 +1,5 @@
-#include <cmm/BinOpNode.h>
-#include <cmm/CompilationUnitNode.h>
-#include <cmm/ExpressionNode.h>
-#include <cmm/ExpressionStatementNode.h>
-#include <cmm/FunctionCallNode.h>
-#include <cmm/FunctionDeclarationStatementNode.h>
-#include <cmm/FunctionDefinitionStatementNode.h>
-#include <cmm/IfElseStatementNode.h>
-#include <cmm/Lexer.h>
-#include <cmm/LitteralNode.h>
-#include <cmm/ParenExpressionNode.h>
+#include <cmm/NodeList.h>
 #include <cmm/Parser.h>
-#include <cmm/ReturnStatementNode.h>
-#include <cmm/StatementNode.h>
-#include <cmm/Token.h>
-#include <cmm/Types.h>
-#include <cmm/VariableDeclarationStatementNode.h>
-#include <cmm/VariableNode.h>
 
 #include <gtest/gtest.h>
 
