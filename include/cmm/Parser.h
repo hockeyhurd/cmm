@@ -13,6 +13,7 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/Lexer.h>
+#include <cmm/NodeListFwd.h>
 
 // std includes
 #include <memory>
