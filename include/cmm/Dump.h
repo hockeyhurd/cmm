@@ -23,10 +23,8 @@ namespace cmm
 
         /**
          * Constructor with a value.
-         *
-         * @param value the value used as an argument.
          */
-        Dump() CMM_NOEXCEPT = default;
+        Dump() CMM_NOEXCEPT;
 
         /**
          * Copy constructor
@@ -70,6 +68,18 @@ namespace cmm
         virtual VisitorResult visit(TypeNode& node) override;
         virtual VisitorResult visit(VariableNode& node) override;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) override;
+
+    private:
+
+        void increaseIntentation(const s32 amount = 4) CMM_NOEXCEPT;
+        void decreaseIntentation(const s32 amount = 4) CMM_NOEXCEPT;
+        void printIndentation() const;
+        void printNewLine() const;
+
+    private:
+
+        // The current indentation
+        s32 indent;
     };
 }
 

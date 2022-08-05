@@ -9,8 +9,21 @@
 #include <cmm/Dump.h>
 #include <cmm/NodeList.h>
 
+// std includes
+#include <iostream>
+
 namespace cmm
 {
+    template<class T>
+    static void printNode(const T& node)
+    {
+        std::cout << '[' << node.toString() << "]: ";
+    }
+
+    Dump::Dump() CMM_NOEXCEPT : indent(0)
+    {
+    }
+
     VisitorResult Dump::visit(ArgNode& node)
     {
         CMM_UNIMPLEMENTED_EXCEPTION();
@@ -28,7 +41,16 @@ namespace cmm
 
     VisitorResult Dump::visit(CompilationUnitNode& node)
     {
-        return node.getRoot()->accept(this);
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto result = node.getRoot() ? node.getRoot()->accept(this) : VisitorResult();
+        decreaseIntentation();
+        printNewLine();
+
+        return result;
     }
 
     VisitorResult Dump::visit(FunctionCallNode& node)
@@ -38,7 +60,38 @@ namespace cmm
 
     VisitorResult Dump::visit(FunctionDeclarationStatementNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        auto& typeNode = node.getTypeNode();
+        typeNode.accept(this);
+
+        printIndentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "params: [";
+        printNewLine();
+
+        for (auto iter = node.begin(); iter != node.end(); ++iter)
+        {
+            increaseIntentation();
+            iter->accept(this);
+            decreaseIntentation();
+        }
+
+        printIndentation();
+        std::cout << ']';
+        printNewLine();
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(FunctionDefinitionStatementNode& node)
@@ -68,7 +121,25 @@ namespace cmm
 
     VisitorResult Dump::visit(ParameterNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        auto& typeNode = node.getDatatype();
+        typeNode.accept(this);
+
+        auto& optionalVariableNode = node.getVariable();
+
+        if (optionalVariableNode.has_value())
+        {
+            optionalVariableNode->accept(this);
+        }
+
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(ParenExpressionNode& node)
@@ -83,17 +154,60 @@ namespace cmm
 
     VisitorResult Dump::visit(TypeNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << toString(node.getDatatype());
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(VariableNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << node.getName();
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(VariableDeclarationStatementNode& node)
     {
         CMM_UNIMPLEMENTED_EXCEPTION();
+    }
+
+    void Dump::increaseIntentation(const s32 amount) CMM_NOEXCEPT
+    {
+        indent += amount;
+    }
+
+    void Dump::decreaseIntentation(const s32 amount) CMM_NOEXCEPT
+    {
+        indent = std::max(0, indent - amount);
+    }
+
+    void Dump::printIndentation() const
+    {
+        for (s32 i = 0; i < indent; ++i)
+        {
+            std::cout << ' ';
+        }
+    }
+
+    void Dump::printNewLine() const
+    {
+        std::cout << std::endl;
     }
 
 }

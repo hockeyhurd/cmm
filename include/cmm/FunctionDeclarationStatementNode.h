@@ -82,6 +82,20 @@ namespace cmm
         FunctionDeclarationStatementNode& operator= (FunctionDeclarationStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
+         * Gets the TypeNode type.
+         *
+         * @return reference to TypeNode type.
+         */
+        TypeNode& getTypeNode() CMM_NOEXCEPT;
+
+        /**
+         * Gets the TypeNode type.
+         *
+         * @return reference to TypeNode type.
+         */
+        const TypeNode& getTypeNode() const CMM_NOEXCEPT;
+
+        /**
          * Gets the datatype.
          *
          * @return TypeNode.

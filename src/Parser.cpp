@@ -633,14 +633,14 @@ namespace cmm
             // Function definition
             if (optionalBlockStatement.has_value())
             {
-                return std::make_unique<FunctionDefinitionStatementNode>(*type, std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement));
+                return std::make_unique<FunctionDefinitionStatementNode>(*type, std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
             }
 
             // Function declaration
             else
             {
                 return expectSemicolon(lexer, errorMessage) ?
-                    std::make_unique<FunctionDeclarationStatementNode>(*type, std::move(variableNameOpt->getName())) :
+                    std::make_unique<FunctionDeclarationStatementNode>(*type, std::move(variableNameOpt->getName()), std::move(*optionalFunctionArgs)) :
                     nullptr;
             }
         }
