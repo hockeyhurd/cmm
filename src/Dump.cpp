@@ -26,7 +26,18 @@ namespace cmm
 
     VisitorResult Dump::visit(ArgNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(BinOpNode& node)
@@ -89,7 +100,30 @@ namespace cmm
 
     VisitorResult Dump::visit(FunctionCallNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "args: [\n";
+
+        for (auto iter = node.begin(); iter != node.end(); ++iter)
+        {
+            increaseIntentation();
+            iter->accept(this);
+            decreaseIntentation();
+        }
+
+        printIndentation();
+        std::cout << "]\n";
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(FunctionDeclarationStatementNode& node)
@@ -209,7 +243,7 @@ namespace cmm
             std::cout << "void*";
             break;
         case EnumCType::BOOL:
-            std::cout << node.getValue().valueBool;
+            std::cout << (node.getValue().valueBool ? "true" : "false");
             break;
         case EnumCType::CHAR:
             std::cout << static_cast<s32>(node.getValue().valueChar);

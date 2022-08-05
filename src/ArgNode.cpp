@@ -16,12 +16,12 @@ namespace cmm
     {
     }
 
-    ExpressionNode* ArgNode::getValue() CMM_NOEXCEPT
+    ExpressionNode* ArgNode::getExpression() CMM_NOEXCEPT
     {
         return value.get();
     }
 
-    const ExpressionNode* ArgNode::getValue() const CMM_NOEXCEPT
+    const ExpressionNode* ArgNode::getExpression() const CMM_NOEXCEPT
     {
         return value.get();
     }

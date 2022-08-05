@@ -424,7 +424,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
 
@@ -479,7 +479,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -535,7 +535,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -591,7 +591,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -647,7 +647,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -703,7 +703,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -759,7 +759,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto iter = rightFunctionCallPtr->cbegin();
     ASSERT_NE(iter, rightFunctionCallPtr->cend());
 
-    const auto* expressionNodePtr = iter->getValue();
+    const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1282,7 +1282,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleVariableArg
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
 
@@ -1315,7 +1315,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleBoolArg)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1349,7 +1349,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleCharArg)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1383,7 +1383,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleDoubleArg)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1417,7 +1417,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleIntArg)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1451,7 +1451,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleNullArg)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1485,7 +1485,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleStringArg)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
-    const auto* expressionNodePtr = argListIter->getValue();
+    const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1519,7 +1519,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoVariablesArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
 
@@ -1531,7 +1531,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoVariablesArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
 
@@ -1566,7 +1566,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1579,7 +1579,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1615,7 +1615,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1628,7 +1628,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1664,7 +1664,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1677,7 +1677,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1713,7 +1713,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1726,7 +1726,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1762,7 +1762,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1775,7 +1775,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1810,7 +1810,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
@@ -1823,7 +1823,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
     {
-        const auto* expressionNodePtr = argListIter->getValue();
+        const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
