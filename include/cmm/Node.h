@@ -12,6 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Visitor.h>
 
 // std includes
 #include <memory>
@@ -78,11 +79,7 @@ namespace cmm
         /**
          * Generic and templated function needed for visitor pattern.
          */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
-        {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
-        }
+        virtual VisitorResult accept(Visitor* visitor) = 0;
 
         /**
          * Gets a string representation of this node. Typically, this is just

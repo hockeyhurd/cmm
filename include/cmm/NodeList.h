@@ -21,9 +21,11 @@
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/IfElseStatementNode.h>
 #include <cmm/LitteralNode.h>
+#include <cmm/Node.h>
 #include <cmm/ParameterNode.h>
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/ReturnStatementNode.h>
+#include <cmm/StatementNode.h>
 #include <cmm/TypeNode.h>
 #include <cmm/VariableNode.h>
 #include <cmm/VariableDeclarationStatementNode.h>

@@ -5,7 +5,9 @@
  * @version 2022-06-14
  */
 
+// Our includes
 #include <cmm/CompilationUnitNode.h>
+#include <cmm/StatementNode.h>
 
 namespace cmm
 {
@@ -14,17 +16,17 @@ namespace cmm
     {
     }
 
-    CompilationUnitNode::CompilationUnitNode(std::unique_ptr<Node>&& root) CMM_NOEXCEPT :
+    CompilationUnitNode::CompilationUnitNode(std::unique_ptr<StatementNode>&& root) CMM_NOEXCEPT :
         Node(NodeType::COMPILATION_UNIT), root(std::move(root))
     {
     }
 
-    Node* CompilationUnitNode::getRoot() CMM_NOEXCEPT
+    StatementNode* CompilationUnitNode::getRoot() CMM_NOEXCEPT
     {
         return root.get();
     }
 
-    const Node* CompilationUnitNode::getRoot() const CMM_NOEXCEPT
+    const StatementNode* CompilationUnitNode::getRoot() const CMM_NOEXCEPT
     {
         return root.get();
     }

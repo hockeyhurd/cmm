@@ -23,9 +23,11 @@ namespace cmm
     class ExpressionStatementNode;
     class IfElseStatementNode;
     class LitteralNode;
+    class Node;
     class ParameterNode;
     class ParenExpressionNode;
     class ReturnStatementNode;
+    class StatementNode;
     class TypeNode;
     class VariableNode;
     class VariableDeclarationStatementNode;
