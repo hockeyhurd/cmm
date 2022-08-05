@@ -216,7 +216,40 @@ namespace cmm
 
     VisitorResult Dump::visit(IfElseStatementNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << "if (\n";
+
+        increaseIntentation();
+        auto* ifCondExpression = node.getIfConditional();
+        ifCondExpression->accept(this);
+        printIndentation();
+        std::cout << ")\n";
+        decreaseIntentation();
+
+        increaseIntentation();
+        auto* ifStatement = node.getIfStatement();
+        ifStatement->accept(this);
+        decreaseIntentation();
+
+        auto* elseStatement = node.getElseStatement();
+
+        if (elseStatement != nullptr)
+        {
+            printIndentation();
+            std::cout << "else\n";
+            increaseIntentation();
+            ifStatement->accept(this);
+            decreaseIntentation();
+        }
+
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(LitteralNode& node)
@@ -303,7 +336,16 @@ namespace cmm
 
     VisitorResult Dump::visit(ParenExpressionNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(ReturnStatementNode& node)
