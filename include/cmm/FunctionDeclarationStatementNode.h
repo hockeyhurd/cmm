@@ -130,14 +130,7 @@ namespace cmm
          */
         const ParamListConseIter cend() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
-        {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
-        }
+        VisitorResult accept(Visitor* visitor) override;
 
         std::string toString() const override;
 

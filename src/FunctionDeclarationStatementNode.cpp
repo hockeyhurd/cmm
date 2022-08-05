@@ -59,6 +59,11 @@ namespace cmm
     {
         return params.cend();
     }
+    
+    VisitorResult FunctionDeclarationStatementNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
+    }
 
     std::string FunctionDeclarationStatementNode::toString() const /* override */
     {

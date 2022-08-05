@@ -55,11 +55,11 @@ namespace cmm
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
     // Statements:
-    static std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<Node> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<StatementNode> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<StatementNode> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<StatementNode> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage);
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
@@ -176,7 +176,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<Node> parseExpressionStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<StatementNode> parseExpressionStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto expression = parseExpression(lexer, errorMessage);
 
@@ -186,7 +186,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<Node> parseIfElseStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<StatementNode> parseIfElseStatement(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
@@ -279,7 +279,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<Node> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
@@ -319,7 +319,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<Node> parseStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         auto node = parseReturnStatement(lexer, errorMessage);
@@ -602,7 +602,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<Node> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<StatementNode> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
         auto type = parseType(lexer, errorMessage);

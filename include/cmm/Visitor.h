@@ -14,12 +14,50 @@
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
 
+// std includes
+#include <sstream>
+#include <string>
+
+#define CMM_UNIMPLEMENTED_EXCEPTION() unimplementedException(__FILE__, __func__, __LINE__)
+
 namespace cmm
 {
-    template<class T>
-    class Visitor
+    enum class EnumVisitorResultType
+    {
+        NODE = 0, STRING, NULL_T
+    };
+
+    class VisitorResult
     {
     public:
+
+        VisitorResult() CMM_NOEXCEPT;
+        VisitorResult(Node* node, const bool owned) CMM_NOEXCEPT;
+        explicit VisitorResult(std::string* str) CMM_NOEXCEPT;
+
+        VisitorResult(const VisitorResult&) = delete;
+        VisitorResult(VisitorResult&&) CMM_NOEXCEPT = default;
+        ~VisitorResult();
+
+        VisitorResult& operator= (const VisitorResult&) = delete;
+        VisitorResult& operator= (VisitorResult&&) CMM_NOEXCEPT = default;
+
+    public:
+
+        union
+        {
+            Node* node;
+            std::string* str;
+            void* null;
+        } result;
+
+        bool owned;
+        EnumVisitorResultType resultType;
+    };
+
+    class Visitor
+    {
+    protected:
 
         /**
          * Constructor with a value.
@@ -33,12 +71,12 @@ namespace cmm
         /**
          * Copy constructor
          */
-        Visitor(const Visitor<T>&) = delete;
+        Visitor(const Visitor&) = delete;
 
         /**
          * Move constructor
          */
-        Visitor(Visitor<T>&&) CMM_NOEXCEPT = delete;
+        Visitor(Visitor&&) CMM_NOEXCEPT = delete;
 
         /**
          * Default destructor
@@ -48,30 +86,30 @@ namespace cmm
         /**
          * Copy assignment operator.
          */
-        Visitor<T>& operator= (const Visitor<T>&) = delete;
+        Visitor& operator= (const Visitor&) = delete;
 
         /**
          * Move assignment operator.
          */
-        Visitor<T>& operator= (Visitor<T>&&) CMM_NOEXCEPT = delete;
+        Visitor& operator= (Visitor&&) CMM_NOEXCEPT = delete;
 
-        virtual T visitor(ArgNode& node) = 0;
-        virtual T visitor(BinOpNode& node) = 0;
-        virtual T visitor(BlockNode& node) = 0;
-        virtual T visitor(CompilationUnitNode& node) = 0;
-        virtual T visitor(FunctionCallNode& node) = 0;
-        virtual T visitor(FunctionDeclarationStatementNode& node) = 0;
-        virtual T visitor(FunctionDefinitionStatementNode& node) = 0;
-        virtual T visitor(ExpressionNode& node) = 0;
-        virtual T visitor(ExpressionStatementNode& node) = 0;
-        virtual T visitor(IfElseStatementNode& node) = 0;
-        virtual T visitor(LitteralNode& node) = 0;
-        virtual T visitor(ParameterNode& node) = 0;
-        virtual T visitor(ParenExpressionNode& node) = 0;
-        virtual T visitor(ReturnStatementNode& node) = 0;
-        virtual T visitor(TypeNode& node) = 0;
-        virtual T visitor(VariableNode& node) = 0;
-        virtual T visitor(VariableDeclarationStatementNode& node) = 0;
+        virtual VisitorResult visit(ArgNode& node) = 0;
+        virtual VisitorResult visit(BinOpNode& node) = 0;
+        virtual VisitorResult visit(BlockNode& node) = 0;
+        virtual VisitorResult visit(CompilationUnitNode& node) = 0;
+        virtual VisitorResult visit(FunctionCallNode& node) = 0;
+        virtual VisitorResult visit(FunctionDeclarationStatementNode& node) = 0;
+        virtual VisitorResult visit(FunctionDefinitionStatementNode& node) = 0;
+        virtual VisitorResult visit(ExpressionNode& node) = 0;
+        virtual VisitorResult visit(ExpressionStatementNode& node) = 0;
+        virtual VisitorResult visit(IfElseStatementNode& node) = 0;
+        virtual VisitorResult visit(LitteralNode& node) = 0;
+        virtual VisitorResult visit(ParameterNode& node) = 0;
+        virtual VisitorResult visit(ParenExpressionNode& node) = 0;
+        virtual VisitorResult visit(ReturnStatementNode& node) = 0;
+        virtual VisitorResult visit(TypeNode& node) = 0;
+        virtual VisitorResult visit(VariableNode& node) = 0;
+        virtual VisitorResult visit(VariableDeclarationStatementNode& node) = 0;
 
     protected:
 
@@ -80,10 +118,17 @@ namespace cmm
          * not be implemented.
          *
          * @param fileName the name of the current file being processed.
+         * @param funcName the name of the function where the error occurred.
          * @param line the line in this non-implemented function.
          */
         [[noreturn]]
-        static void unimplementedException(const char* fileName, const std::size_t line);
+        static void unimplementedException(const char* fileName, const char* funcName, const std::size_t line)
+        {
+            std::ostringstream os;
+            os << "[BUG]: Unimplemented exception thrown at " << fileName << ": " << funcName << ": " << line;
+
+            throw std::runtime_error(os.str());
+        }
 
     };
 }
