@@ -31,12 +31,46 @@ namespace cmm
 
     VisitorResult Dump::visit(BinOpNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* leftNode = node.getLeft();
+        leftNode->accept(this);
+
+        auto* rightNode = node.getRight();
+        rightNode->accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(BlockNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << "{\n";
+
+        increaseIntentation();
+
+        for (auto iter = node.begin(); iter != node.end(); ++iter)
+        {
+            auto& statementPtr = *iter;
+            statementPtr->accept(this);
+        }
+
+        decreaseIntentation();
+
+        printIndentation();
+        std::cout << "}\n";
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(CompilationUnitNode& node)
@@ -96,7 +130,41 @@ namespace cmm
 
     VisitorResult Dump::visit(FunctionDefinitionStatementNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        auto& typeNode = node.getTypeNode();
+        typeNode.accept(this);
+
+        printIndentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "params: [";
+        printNewLine();
+
+        for (auto iter = node.begin(); iter != node.end(); ++iter)
+        {
+            increaseIntentation();
+            iter->accept(this);
+            decreaseIntentation();
+        }
+
+        printIndentation();
+        std::cout << ']';
+        printNewLine();
+
+        auto& blockNode = node.getBlock();
+        blockNode.accept(this);
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(ExpressionNode& node)
@@ -106,7 +174,15 @@ namespace cmm
 
     VisitorResult Dump::visit(ExpressionStatementNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        node.getExpression()->accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(IfElseStatementNode& node)
@@ -116,7 +192,61 @@ namespace cmm
 
     VisitorResult Dump::visit(LitteralNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << toString(node.getValueType()) << ": ";
+
+        switch (node.getValueType())
+        {
+        case EnumCType::NULL_T:
+            std::cout << "NULL";
+            break;
+        case EnumCType::VOID_PTR:
+            std::cout << "void*";
+            break;
+        case EnumCType::BOOL:
+            std::cout << node.getValue().valueBool;
+            break;
+        case EnumCType::CHAR:
+            std::cout << static_cast<s32>(node.getValue().valueChar);
+            break;
+        case EnumCType::INT8:
+            std::cout << static_cast<s32>(node.getValue().valueS8);
+            break;
+        case EnumCType::INT16:
+            std::cout << node.getValue().valueS16;
+            break;
+        case EnumCType::INT32:
+            std::cout << node.getValue().valueS32;
+            break;
+        case EnumCType::INT64:
+            std::cout << node.getValue().valueS64;
+            break;
+        case EnumCType::FLOAT:
+            std::cout << node.getValue().valueF32;
+            break;
+        case EnumCType::DOUBLE:
+            std::cout << node.getValue().valueF64;
+            break;
+        case EnumCType::STRING:
+            std::cout << node.getValue().valueString;
+            break;
+        case EnumCType::STRUCT:
+            std::cout << "struct";
+            break;
+        default:
+            std::cout << "Unknown type";
+            break;
+        }
+
+        printNewLine();
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(ParameterNode& node)
@@ -149,7 +279,16 @@ namespace cmm
 
     VisitorResult Dump::visit(ReturnStatementNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(TypeNode& node)
@@ -184,7 +323,22 @@ namespace cmm
 
     VisitorResult Dump::visit(VariableDeclarationStatementNode& node)
     {
-        CMM_UNIMPLEMENTED_EXCEPTION();
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        auto& typeNode = node.getTypeNode();
+        typeNode.accept(this);
+
+        printIndentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+
+        decreaseIntentation();
+
+        return VisitorResult();
     }
 
     void Dump::increaseIntentation(const s32 amount) CMM_NOEXCEPT
