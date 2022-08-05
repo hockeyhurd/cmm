@@ -12,7 +12,7 @@ int main()
 {
     std::cout << "Hello, world!\n";
 
-    std::string input = "int func(int x, double y);";
+    std::string input = "int x;";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
