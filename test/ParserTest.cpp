@@ -351,6 +351,107 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
     ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
 }
 
+TEST(ParserTest, ParseCompilationNodeDoubleAssignToParenAddExpression)
+{
+    const std::string input = "a = (10 + 32);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndParenSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndParenSumPtr ->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndParenSumPtr ->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), NodeType::PAREN_EXPRESSION);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndParenSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightParenPtr = static_cast<ParenExpressionNode*>(rootAssignAndParenSumPtr->getRight());
+    ASSERT_NE(rightParenPtr->getExpression(), nullptr);
+    ASSERT_EQ(rightParenPtr->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* sumExpressionPtr = static_cast<BinOpNode*>(rightParenPtr->getExpression());
+    ASSERT_EQ(sumExpressionPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(sumExpressionPtr->getLeft(), nullptr);
+    ASSERT_EQ(sumExpressionPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(sumExpressionPtr->getRight(), nullptr);
+    ASSERT_EQ(sumExpressionPtr->getRight()->getType(), NodeType::LITTERAL);
+
+    auto* leftIntPtr = static_cast<LitteralNode*>(sumExpressionPtr->getLeft());
+    ASSERT_EQ(leftIntPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getValue().valueS32, 10);
+
+    auto* rightIntPtr = static_cast<LitteralNode*>(sumExpressionPtr->getRight());
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getValue().valueS32, 32);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoubleAssignToNestedParenAddExpression)
+{
+    const std::string input = "a = (11 + (32 - 1));";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+    ASSERT_EQ(compUnitPtr->getRootType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(compUnitPtr->getRoot());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignAndParenSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndParenSumPtr ->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndParenSumPtr ->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), NodeType::PAREN_EXPRESSION);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndParenSumPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightParenPtr = static_cast<ParenExpressionNode*>(rootAssignAndParenSumPtr->getRight());
+    ASSERT_NE(rightParenPtr->getExpression(), nullptr);
+    ASSERT_EQ(rightParenPtr->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* firstBinOpPtr = static_cast<BinOpNode*>(rightParenPtr->getExpression());
+    ASSERT_EQ(firstBinOpPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(firstBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(firstBinOpPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(firstBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(firstBinOpPtr->getRight()->getType(), NodeType::PAREN_EXPRESSION);
+
+    auto* nestedParenExpressionPtr = static_cast<ParenExpressionNode*>(firstBinOpPtr->getRight());
+    ASSERT_NE(nestedParenExpressionPtr->getExpression(), nullptr);
+    ASSERT_EQ(nestedParenExpressionPtr->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* nestedBinOpPtr = static_cast<BinOpNode*>(nestedParenExpressionPtr->getExpression());
+    ASSERT_EQ(nestedBinOpPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
+    ASSERT_NE(nestedBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(nestedBinOpPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_NE(nestedBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(nestedBinOpPtr->getRight()->getType(), NodeType::LITTERAL);
+
+    auto* nestedLeftIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getLeft());
+    ASSERT_EQ(nestedLeftIntPtr ->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(nestedLeftIntPtr ->getValue().valueS32, 32);
+
+    auto* nestedRightIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getRight());
+    ASSERT_EQ(nestedRightIntPtr ->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(nestedRightIntPtr ->getValue().valueS32, 1);
+}
+
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgsAndAssignment)
 {
     const std::string input = "a = 123.0 + func();";
