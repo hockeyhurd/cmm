@@ -790,7 +790,7 @@ namespace cmm
             }
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_ASTERISK ? EnumBinOpNodeType::MULTIPLY : EnumBinOpNodeType::DIVIDE;
-            auto right = parseMultiplyDivideBinOpNode(lexer, errorMessage);
+            auto right = parseExpression(lexer, errorMessage);
             left = std::make_unique<BinOpNode>(actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
@@ -827,7 +827,7 @@ namespace cmm
             }
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_PLUS ? EnumBinOpNodeType::ADD: EnumBinOpNodeType::SUBTRACT;
-            auto right = parseAddSubBinOpNode(lexer, errorMessage);
+            auto right = parseExpression(lexer, errorMessage);
             left = std::make_unique<BinOpNode>(actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
@@ -863,7 +863,7 @@ namespace cmm
                 return left;
             }
 
-            auto right = parseAssignmentBinOpNode(lexer, errorMessage);
+            auto right = parseExpression(lexer, errorMessage);
             left = std::make_unique<BinOpNode>(EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
