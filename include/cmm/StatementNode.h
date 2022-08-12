@@ -58,7 +58,7 @@ namespace cmm
          */
         StatementNode& operator= (StatementNode&&) CMM_NOEXCEPT = default;
 
-        // virtual VisitorResult accept(Visitor* visitor) override = 0;
+        virtual VisitorResult accept(Visitor* visitor) override = 0;
 
         virtual std::string toString() const override;
     };
