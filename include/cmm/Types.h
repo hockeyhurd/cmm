@@ -195,9 +195,6 @@ namespace cmm
 
     constexpr const char* toString(const EnumCType type)
     {
-        /*NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
-        DOUBLE, STRING, STRUCT*/
-
         switch (type)
         {
         case EnumCType::NULL_T:
