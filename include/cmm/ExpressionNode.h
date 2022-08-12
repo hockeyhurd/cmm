@@ -60,7 +60,6 @@ namespace cmm
         ExpressionNode& operator= (ExpressionNode&&) CMM_NOEXCEPT = default;
 
         virtual VisitorResult accept(Visitor* visitor) override = 0;
-
         virtual std::string toString() const override;
 
     };
