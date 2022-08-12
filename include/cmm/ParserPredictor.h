@@ -76,7 +76,7 @@ namespace cmm
          */
         inline bool empty() const CMM_NOEXCEPT
         {
-            return table.empty();
+            return tokenTable.empty() && typeTable.empty();
         }
 
         /**
@@ -96,9 +96,9 @@ namespace cmm
         std::optional<PredictionContext<T>> predict(const Token& token) CMM_NOEXCEPT
         {
             std::optional<PredictionContext<T>> result = std::nullopt;
-            const auto findResult = table.find(token);
+            const auto findResult = tokenTable.find(token);
 
-            if (findResult != table.cend())
+            if (findResult != tokenTable.cend())
             {
                 result = findResult->second;
             }
@@ -111,13 +111,24 @@ namespace cmm
          */
         inline void registerFunction(const Token& token, T func)
         {
-            table.emplace(token, func);
+            tokenTable.emplace(token, func);
+        }
+
+        /**
+         * Registers the function to the lookup table.
+         */
+        inline void registerFunction(const TokenType& type, T func)
+        {
+            typeTable.emplace(type, func);
         }
 
     private:
 
-        // The lookup table
-        std::unordered_map<Token, PredictionContext<T>, TokenHasher> table;
+        // The lookup table by 'specific' Token
+        std::unordered_map<Token, PredictionContext<T>, TokenHasher> tokenTable;
+
+        // The lookup table by TokenType
+        std::unordered_map<TokenType, PredictionContext<T>, TokenHasher> typeTable;
 
     };
 }
