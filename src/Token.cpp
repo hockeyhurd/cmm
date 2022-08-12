@@ -9,6 +9,7 @@
 // std includes
 #include <functional>
 #include <stdexcept>
+#include <type_traits>
 
 namespace cmm
 {
@@ -536,6 +537,13 @@ namespace cmm
         }
 
         return result;
+    }
+
+    std::size_t TokenTypeHasher::operator() (const TokenType& type) const
+    {
+        const auto result = *reinterpret_cast<const std::size_t*>(&type);
+        return result;
+        // return static_cast<std::underlying_type_t<TokenType>>(type);
     }
 }
 

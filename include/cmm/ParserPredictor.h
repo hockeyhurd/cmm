@@ -91,6 +91,7 @@ namespace cmm
         /**
          * Attempts to predict the next parser function to call based on the provided token.
          *
+         * @param token the Token to base our prediction from.
          * @return optional PredictionContext.
          */
         std::optional<PredictionContext<T>> predict(const Token& token) CMM_NOEXCEPT
@@ -101,6 +102,17 @@ namespace cmm
             if (findResult != tokenTable.cend())
             {
                 result = findResult->second;
+            }
+
+            // Try to find by type
+            else
+            {
+                const auto findTypeResult = typeTable.find(token.getType());
+
+                if (findTypeResult != typeTable.cend())
+                {
+                    result = findTypeResult->second;
+                }
             }
 
             return result;
@@ -128,7 +140,7 @@ namespace cmm
         std::unordered_map<Token, PredictionContext<T>, TokenHasher> tokenTable;
 
         // The lookup table by TokenType
-        std::unordered_map<TokenType, PredictionContext<T>, TokenHasher> typeTable;
+        std::unordered_map<TokenType, PredictionContext<T>, TokenTypeHasher> typeTable;
 
     };
 }

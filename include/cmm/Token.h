@@ -498,6 +498,11 @@ namespace cmm
     {
         std::size_t operator() (const Token& token) const;
     };
+
+    struct TokenTypeHasher
+    {
+        std::size_t operator() (const TokenType& type) const;
+    };
 }
 
 #endif //!CMM_TOKEN_H
