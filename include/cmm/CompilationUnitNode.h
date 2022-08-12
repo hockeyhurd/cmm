@@ -16,7 +16,8 @@
 
 namespace cmm
 {
-    class Node;
+    // Forward declarations
+    class StatementNode;
 
     class CompilationUnitNode : public Node
     {
@@ -32,7 +33,7 @@ namespace cmm
          * TODO: This should eventually be replaced with something more concrete like
          * one or more translation units ('TranslationUnitNode'??).
          */
-        CompilationUnitNode(std::unique_ptr<Node>&& root) CMM_NOEXCEPT;
+        CompilationUnitNode(std::unique_ptr<StatementNode>&& root) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -67,17 +68,17 @@ namespace cmm
          * Gets the Root node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
-         * @return const Node pointer.
+         * @return const StatementNode pointer.
          */
-        Node* getRoot() CMM_NOEXCEPT;
+        StatementNode* getRoot() CMM_NOEXCEPT;
 
         /**
          * Gets the Root node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
-         * @return Node pointer.
+         * @return StatementNode pointer.
          */
-        const Node* getRoot() const CMM_NOEXCEPT;
+        const StatementNode* getRoot() const CMM_NOEXCEPT;
 
         /**
          * Gets the Root node.  This is needed for unit testing (at least for now).
@@ -87,13 +88,9 @@ namespace cmm
          */
         NodeType getRootType() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
+        VisitorResult accept(Visitor* visitor) override
         {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
+            return visitor->visit(*this);
         }
 
         std::string toString() const override;
@@ -101,7 +98,7 @@ namespace cmm
     private:
 
         // The underlying 'root' node.
-        std::unique_ptr<Node> root;
+        std::unique_ptr<StatementNode> root;
     };
 }
 

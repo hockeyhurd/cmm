@@ -84,6 +84,20 @@ namespace cmm
         FunctionDefinitionStatementNode& operator= (FunctionDefinitionStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
+         * Gets the TypeNode type.
+         *
+         * @return reference to TypeNode type.
+         */
+        TypeNode& getTypeNode() CMM_NOEXCEPT;
+
+        /**
+         * Gets the TypeNode type.
+         *
+         * @return reference to TypeNode type.
+         */
+        const TypeNode& getTypeNode() const CMM_NOEXCEPT;
+
+        /**
          * Gets the datatype.
          *
          * @return TypeNode.
@@ -148,13 +162,9 @@ namespace cmm
          */
         const ParamListConseIter cend() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
+        VisitorResult accept(Visitor* visitor) override
         {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
+            return visitor->visit(*this);
         }
 
         std::string toString() const override;

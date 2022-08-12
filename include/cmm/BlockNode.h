@@ -21,7 +21,7 @@
 
 namespace cmm
 {
-    class BlockNode : public Node
+    class BlockNode : public StatementNode
     {
     public:
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
@@ -102,13 +102,9 @@ namespace cmm
          */
         const StatementListConstIter cend() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
+        VisitorResult accept(Visitor* visitor) override
         {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
+            return visitor->visit(*this);
         }
 
         std::string toString() const override;

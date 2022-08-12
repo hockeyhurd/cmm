@@ -59,26 +59,22 @@ namespace cmm
         ArgNode& operator= (ArgNode&&) CMM_NOEXCEPT = default;
 
         /**
-         * Gets the value of this argument.
+         * Gets the expression in this argument.
          *
          * @return EnumCType.
          */
-        ExpressionNode* getValue() CMM_NOEXCEPT;
+        ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
-         * Gets the value of this argument.
+         * Gets the expression in this argument.
          *
          * @return EnumCType.
          */
-        const ExpressionNode* getValue() const CMM_NOEXCEPT;
+        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
+        VisitorResult accept(Visitor* visitor) override
         {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
+            return visitor->visit(*this);
         }
 
         std::string toString() const override;

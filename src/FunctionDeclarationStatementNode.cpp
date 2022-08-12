@@ -23,6 +23,16 @@ namespace cmm
     {
     }
 
+    TypeNode& FunctionDeclarationStatementNode::getTypeNode() CMM_NOEXCEPT
+    {
+        return type;
+    }
+
+    const TypeNode& FunctionDeclarationStatementNode::getTypeNode() const CMM_NOEXCEPT
+    {
+        return type;
+    }
+
     EnumCType FunctionDeclarationStatementNode::getDatatype() const CMM_NOEXCEPT
     {
         return type.getDatatype();
@@ -58,6 +68,11 @@ namespace cmm
     FunctionDeclarationStatementNode::cend() const CMM_NOEXCEPT
     {
         return params.cend();
+    }
+    
+    VisitorResult FunctionDeclarationStatementNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string FunctionDeclarationStatementNode::toString() const /* override */

@@ -15,6 +15,16 @@ namespace cmm
     {
     }
 
+    TypeNode& VariableDeclarationStatementNode::getTypeNode() CMM_NOEXCEPT
+    {
+        return type;
+    }
+
+    const TypeNode& VariableDeclarationStatementNode::getTypeNode() const CMM_NOEXCEPT
+    {
+        return type;
+    }
+
     EnumCType VariableDeclarationStatementNode::getDatatype() const CMM_NOEXCEPT
     {
         return type.getDatatype();
