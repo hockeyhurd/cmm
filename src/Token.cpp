@@ -7,6 +7,7 @@
 #include <cmm/Token.h>
 
 // std includes
+#include <functional>
 #include <stdexcept>
 
 namespace cmm
@@ -506,7 +507,7 @@ namespace cmm
             break;
         case TokenType::CHAR_SYMBOL:
         case TokenType::CHAR:
-            result = *reinterpret_cast<const std::size_t*>(&token.value.ch);
+            result = static_cast<const std::size_t>(token.value.ch);
             break;
         case TokenType::DOUBLE:
             result = *reinterpret_cast<const std::size_t*>(&token.value.doubleValue);
@@ -515,20 +516,20 @@ namespace cmm
             result = *reinterpret_cast<const std::size_t*>(&token.value.floatValue);
             break;
         case TokenType::INT16:
-            result = *reinterpret_cast<const std::size_t*>(&token.value.int16Value);
+            result = static_cast<const std::size_t>(token.value.int16Value);
             break;
         case TokenType::INT32:
-            result = *reinterpret_cast<const std::size_t*>(&token.value.int32Value);
+            result = static_cast<const std::size_t>(token.value.int32Value);
             break;
         case TokenType::INT64:
-            result = *reinterpret_cast<const std::size_t*>(&token.value.int64Value);
+            result = static_cast<const std::size_t>(token.value.int64Value);
             break;
         case TokenType::NULL_T:
             result = 0;
             break;
         case TokenType::SYMBOL:
         case TokenType::STRING:
-            result = *reinterpret_cast<const std::size_t*>(token.value.str);
+            result = std::hash<std::string>()(*token.value.str);
             break;
         default:
             throw std::runtime_error("Unexpected token type");

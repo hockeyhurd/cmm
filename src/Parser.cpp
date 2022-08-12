@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/Parser.h>
+#include <cmm/ParserPredictor.h>
 #include <cmm/NodeList.h>
 #include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
@@ -321,40 +322,49 @@ namespace cmm
     /* static */
     std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage)
     {
+        static ParserPredictor<std::unique_ptr<StatementNode>(Lexer&, std::string*)> predictor;
+
+        if (predictor.empty())
+        {
+            auto token = newToken();
+            token.setStringSymbol("return");
+            predictor.registerFunction(token, parseReturnStatement);
+
+            token.setStringSymbol("if");
+            predictor.registerFunction(token, parseIfElseStatement);
+
+            token.setCharSymbol(CHAR_LCURLY_BRACKET);
+
+            static const auto parseBlockStatementWrapper = [] (Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
+            {
+                auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
+                return optionalBlockNode.has_value() ? std::make_unique<BlockNode>(std::move(*optionalBlockNode)) : nullptr;
+            };
+
+            predictor.registerFunction(token, parseBlockStatementWrapper);
+        }
+
+        auto tokenLookahead = newToken();
+        const bool result = lexer.peekNextToken(tokenLookahead);
+
+        if (result)
+        {
+            auto predictionContext = predictor.predict(tokenLookahead);
+
+            if (predictionContext.has_value())
+            {
+                return predictor.call<std::unique_ptr<StatementNode>>(*predictionContext, lexer, errorMessage);
+            }
+        }
+
+        // TODO: See if we can get this in the predictor as well.  Leaving for now...
         const auto snapshot = lexer.snap();
-        auto node = parseReturnStatement(lexer, errorMessage);
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseIfElseStatement(lexer, errorMessage);
-        }
-
-        else
-        {
-            return node;
-        }
+        std::unique_ptr<StatementNode> node(nullptr);
 
         if (node == nullptr)
         {
             lexer.restore(snapshot);
             node = parseDeclarationStatement(lexer, errorMessage);
-        }
-
-        else
-        {
-            return node;
-        }
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
-
-            if (optionalBlockNode.has_value())
-            {
-                node = std::make_unique<BlockNode>(std::move(*optionalBlockNode));
-            }
         }
 
         else
@@ -411,45 +421,16 @@ namespace cmm
                         return std::make_optional(std::move(args));
                     }
 
-                    // else if (token.isStringSymbol())
                     else if (!token.isCharSymbol())
-                    // else
                     {
                         // This could be 'func()' or 'func(x)', so we check if the variable was parsed or not.
-#if 0
-                        auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
-
-                        // This is the 'func(int x)' case.
-                        if (variableNodeOpt.has_value())
-                        {
-                            // TODO: Should probably verify it is safe to do this
-                            // without checking the optional for 'has_value'.
-                            args.emplace_back(std::move(*variableNodeOpt));
-                        }
-#else
                         auto litteralPtr = parseLitteralOrLRValueNode(lexer, errorMessage);
 
                         if (litteralPtr != nullptr)
                         {
                             args.emplace_back(std::move(litteralPtr));
                         }
-#endif
                     }
-
-                    // Failed prediction, restore and continue with the assumption this is just a variable.
-                    /*else
-                    {
-                        if (canWriteErrorMessage(errorMessage))
-                        {
-                            std::ostringstream os;
-                            os << "[PARSER]: Encountered an un-expected token: "
-                                << toString(token.getType()) << " at " << lexer.getLocation();
-                            *errorMessage = os.str();
-                        }
-
-                        lexer.restore(snapshot);
-                        return std::nullopt;
-                    }*/
 
                     // Peek ahead
                     result = lexer.peekNextToken(token);
