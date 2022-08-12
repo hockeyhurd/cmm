@@ -70,7 +70,7 @@ namespace cmm
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -634,6 +634,28 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage)
     {
+        static ParserPredictor<std::unique_ptr<ExpressionNode>(Lexer&, std::string*)> predictor;
+
+        if (predictor.empty())
+        {
+            auto token = newToken();
+            token.setCharSymbol(CHAR_LPAREN);
+            predictor.registerFunction(token, parseParenExpression);
+        }
+
+        auto tokenLookahead = newToken();
+        bool result = lexer.peekNextToken(tokenLookahead);
+
+        if (result)
+        {
+            auto predictionContext = predictor.predict(tokenLookahead);
+
+            if (predictionContext.has_value())
+            {
+                return predictor.call<std::unique_ptr<ExpressionNode>>(*predictionContext, lexer, errorMessage);
+            }
+        }
+
         const auto snapshot = lexer.snap();
         auto node = parseAssignmentBinOpNode(lexer, errorMessage);
 
@@ -641,12 +663,6 @@ namespace cmm
         {
             lexer.restore(snapshot);
             node = parseFunctionCallOrVariable(lexer, errorMessage);
-        }
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseParenExpression(lexer, errorMessage);
         }
 
         return node;
@@ -691,7 +707,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<ParenExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage)
     {
         static Reporter& reporter = Reporter::instance();
         const auto snapshot = lexer.snap();
