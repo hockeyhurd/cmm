@@ -83,8 +83,13 @@ namespace cmm
         }
     }
 
+    // Forward declaration
+    struct TokenHasher;
+
     class Token
     {
+        friend TokenHasher;
+
     public:
 
         /**
@@ -438,6 +443,22 @@ namespace cmm
          */
         void setStringSymbol(std::string&& stringSymbol) CMM_NOEXCEPT;
 
+        /**
+         * Equality operator
+         * 
+         * @param other const reference to another Token to be compared.
+         * @return bool.
+         */
+        bool operator== (const Token& other) const;
+
+        /**
+         * In-equality operator
+         * 
+         * @param other const reference to another Token to be compared.
+         * @return bool.
+         */
+        bool operator!= (const Token& other) const;
+
     private:
 
         /**
@@ -471,6 +492,11 @@ namespace cmm
 
         // The underlying token value.
         Values value;
+    };
+
+    struct TokenHasher
+    {
+        std::size_t operator() (const Token& token) const;
     };
 }
 
