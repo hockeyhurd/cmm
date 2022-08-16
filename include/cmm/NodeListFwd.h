@@ -28,6 +28,7 @@ namespace cmm
     class ParenExpressionNode;
     class ReturnStatementNode;
     class StatementNode;
+    class TranslationUnitNode;
     class TypeNode;
     class VariableNode;
     class VariableDeclarationStatementNode;

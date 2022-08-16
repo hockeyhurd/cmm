@@ -26,6 +26,7 @@
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/ReturnStatementNode.h>
 #include <cmm/StatementNode.h>
+#include <cmm/TranslationUnitNode.h>
 #include <cmm/TypeNode.h>
 #include <cmm/VariableNode.h>
 #include <cmm/VariableDeclarationStatementNode.h>

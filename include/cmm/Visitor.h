@@ -106,6 +106,7 @@ namespace cmm
         virtual VisitorResult visit(ParameterNode& node) = 0;
         virtual VisitorResult visit(ParenExpressionNode& node) = 0;
         virtual VisitorResult visit(ReturnStatementNode& node) = 0;
+        virtual VisitorResult visit(TranslationUnitNode& node) = 0;
         virtual VisitorResult visit(TypeNode& node) = 0;
         virtual VisitorResult visit(VariableNode& node) = 0;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) = 0;

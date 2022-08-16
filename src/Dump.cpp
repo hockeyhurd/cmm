@@ -11,6 +11,7 @@
 
 // std includes
 #include <iostream>
+#include <functional>
 
 namespace cmm
 {
@@ -358,6 +359,20 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
         decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(TranslationUnitNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        std::for_each(node.begin(), node.end(), [this](std::unique_ptr<StatementNode>& statement) { if (statement != nullptr) statement->accept(this); });
+        decreaseIntentation();
+        printNewLine();
 
         return VisitorResult();
     }

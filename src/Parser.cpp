@@ -113,7 +113,6 @@ namespace cmm
             return nullptr;
         }
 
-        // For now since we don't have proper statements, expect a semi-colon here.
         return std::make_unique<CompilationUnitNode>(std::move(node));
     }
 
