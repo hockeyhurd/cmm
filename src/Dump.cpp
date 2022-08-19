@@ -10,8 +10,8 @@
 #include <cmm/NodeList.h>
 
 // std includes
+#include <algorithm>
 #include <iostream>
-#include <functional>
 
 namespace cmm
 {
