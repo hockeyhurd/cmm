@@ -55,12 +55,15 @@ namespace cmm
 
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
+    static TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage);
+
     // Statements:
     static std::unique_ptr<StatementNode> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage);
+    static std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage);
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
@@ -99,7 +102,7 @@ namespace cmm
             return nullptr;
         }
 
-        auto node = parseStatement(lexer, errorMessage);
+        auto translationUnit = parseTranslationUnit(lexer, errorMessage);
 
         // Make sure no other tokens are left in the lexer's token stream.
         if (!lexer.completedOrWhitespaceOnly())
@@ -113,7 +116,7 @@ namespace cmm
             return nullptr;
         }
 
-        return std::make_unique<CompilationUnitNode>(std::move(node));
+        return std::make_unique<CompilationUnitNode>(std::move(translationUnit));
     }
 
     /* static */
@@ -391,6 +394,21 @@ namespace cmm
     }
 
     /* static */
+    std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage)
+    {
+        auto statement = parseStatement(lexer, errorMessage);
+
+        if (statement == nullptr)
+        {
+            return std::nullopt;
+        }
+
+        std::vector<std::unique_ptr<StatementNode>> results;
+        results.push_back(std::move(statement));
+        return std::make_optional(std::move(results));
+    }
+
+    /* static */
     std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
@@ -579,6 +597,20 @@ namespace cmm
         }
 
         return std::nullopt;
+    }
+
+    /* static */
+    TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage)
+    {
+        auto statements = parseOneOrMoreStatements(lexer, errorMessage);
+
+        if (statements.has_value())
+        {
+            TranslationUnitNode translationUnit(std::move(*statements));
+            return translationUnit;
+        }
+
+        return TranslationUnitNode();
     }
 
     /* static */

@@ -92,7 +92,7 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
-        auto result = node.getRoot() ? node.getRoot()->accept(this) : VisitorResult();
+        auto result = node.getRoot().accept(this);
         decreaseIntentation();
         printNewLine();
 

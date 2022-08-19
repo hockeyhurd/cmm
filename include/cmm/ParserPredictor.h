@@ -29,7 +29,7 @@ namespace cmm
     {
         std::function<T> func;
 
-        explicit CMM_CONSTEXPR_FUNC PredictionContext(T func) : func(func) {}
+        explicit CMM_CONSTEXPR_FUNC PredictionContext(T func) CMM_NOEXCEPT : func(func) {}
     };
 
     template <class T>

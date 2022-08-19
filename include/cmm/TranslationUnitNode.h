@@ -33,6 +33,11 @@ namespace cmm
     public:
 
         /**
+         * Default constructor.
+         */
+        TranslationUnitNode() CMM_NOEXCEPT;
+
+        /**
          * Constructor.
          *
          * @param statements a vector of statements (declarations and/or definitions)
