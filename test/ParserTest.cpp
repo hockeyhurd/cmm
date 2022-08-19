@@ -2365,6 +2365,48 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElseWithBloc
     ASSERT_TRUE(ifElseStatementPtr->hasElseStatement());
 }
 
+TEST(ParserTest, ParseCompilationNodeMultipleStatements)
+{
+    const std::string input = "true; false;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto statementIter = translationUnit.begin();
+    ASSERT_NE(statementIter, translationUnit.end());
+    ASSERT_EQ((*statementIter)->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    {
+        auto* expressionStatement  = static_cast<ExpressionStatementNode*>(statementIter->get());
+        ASSERT_NE(expressionStatement->getExpression(), nullptr);
+        ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+
+        auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
+        ASSERT_EQ(boolPtr->getValueType(), EnumCType::BOOL);
+        ASSERT_TRUE(boolPtr->getValue().valueBool);
+    }
+
+    ++statementIter;
+    ASSERT_NE(statementIter, translationUnit.end());
+
+    {
+        auto* expressionStatement  = static_cast<ExpressionStatementNode*>(statementIter->get());
+        ASSERT_NE(expressionStatement->getExpression(), nullptr);
+        ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+
+        auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
+        ASSERT_EQ(boolPtr->getValueType(), EnumCType::BOOL);
+        ASSERT_FALSE(boolPtr->getValue().valueBool);
+    }
+
+    ++statementIter;
+    ASSERT_EQ(statementIter, translationUnit.end());
+}
+
 s32 main(s32 argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

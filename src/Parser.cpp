@@ -396,16 +396,24 @@ namespace cmm
     /* static */
     std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage)
     {
-        auto statement = parseStatement(lexer, errorMessage);
-
-        if (statement == nullptr)
-        {
-            return std::nullopt;
-        }
-
         std::vector<std::unique_ptr<StatementNode>> results;
-        results.push_back(std::move(statement));
-        return std::make_optional(std::move(results));
+        bool parsedAtLeastOne = false;
+
+        do
+        {
+            auto statement = parseStatement(lexer, errorMessage);
+
+            if (statement == nullptr)
+            {
+                break;
+            }
+
+            results.push_back(std::move(statement));
+            parsedAtLeastOne = true;
+        }
+        while (true);
+
+        return parsedAtLeastOne ? std::make_optional(std::move(results)) : std::nullopt;
     }
 
     /* static */
