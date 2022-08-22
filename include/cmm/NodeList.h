@@ -30,6 +30,7 @@
 #include <cmm/TypeNode.h>
 #include <cmm/VariableNode.h>
 #include <cmm/VariableDeclarationStatementNode.h>
+#include <cmm/WhileStatementNode.h>
 
 #endif //!CMM_NODE_LIST_H
 

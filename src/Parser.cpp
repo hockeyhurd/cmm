@@ -62,6 +62,7 @@ namespace cmm
     static std::unique_ptr<StatementNode> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<StatementNode> parseWhileStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage);
 
@@ -322,6 +323,85 @@ namespace cmm
     }
 
     /* static */
+    std::unique_ptr<StatementNode> parseWhileStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        static Reporter& reporter = Reporter::instance();
+
+        const auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.nextToken(token, errorMessage);
+
+        // Look for 'while'
+        if (!result || !token.isStringSymbol() || token.asStringSymbol() != "while")
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Look for '('
+        result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = "expected '(' following the start of a while statement's conditional expression.";
+                reporter.error(*errorMessage, lexer.getLocation());
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect conditional expression
+        auto conditional = parseExpression(lexer, errorMessage);
+
+        if (conditional == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = "expected an expression as part of the while loop's conditional expression.";
+                reporter.error(*errorMessage, lexer.getLocation());
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect closing paren
+        result = lexer.nextToken(token, errorMessage);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = "expected ')' following the end of a while statement's conditional expression.";
+                reporter.error(*errorMessage, lexer.getLocation());
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect some statement to loop on
+        auto statementPtr = parseStatement(lexer, errorMessage);
+
+        if (statementPtr == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = "expected a statement following while loop's conditional expression.";
+                reporter.error(*errorMessage, lexer.getLocation());
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        return std::make_unique<WhileStatementNode>(std::move(conditional), std::move(statementPtr));
+    }
+
+    /* static */
     std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage)
     {
         static ParserPredictor<std::unique_ptr<StatementNode>(Lexer&, std::string*)> predictor;
@@ -334,6 +414,9 @@ namespace cmm
 
             token.setStringSymbol("if");
             predictor.registerFunction(token, parseIfElseStatement);
+
+            token.setStringSymbol("while");
+            predictor.registerFunction(token, parseWhileStatement);
 
             token.setCharSymbol(CHAR_LCURLY_BRACKET);
 

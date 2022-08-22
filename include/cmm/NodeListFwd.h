@@ -32,6 +32,7 @@ namespace cmm
     class TypeNode;
     class VariableNode;
     class VariableDeclarationStatementNode;
+    class WhileStatementNode;
 }
 
 #endif //!CMM_NODE_LIST_FWD_H

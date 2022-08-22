@@ -427,6 +427,31 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(WhileStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        printIndentation();
+        std::cout << "condition:\n";
+        auto* conditional = node.getConditional();
+        conditional->accept(this);
+        printNewLine();
+
+        printIndentation();
+        std::cout << "statement:\n";
+        auto* statement = node.getStatement();
+        statement->accept(this);
+        printNewLine();
+
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
     void Dump::increaseIntentation(const s32 amount) CMM_NOEXCEPT
     {
         indent += amount;

@@ -2355,14 +2355,85 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElseWithBloc
 
     auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(firstStatement.get());
     const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
-    ASSERT_NE(ifConditonalExpression , nullptr);
-    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+    ASSERT_NE(ifConditonalExpression, nullptr);
+    ASSERT_EQ(ifConditonalExpression->getType(), NodeType::LITTERAL);
 
     const auto* charLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
     ASSERT_EQ(charLitteralPtr->getValueType(), EnumCType::CHAR);
     ASSERT_EQ(charLitteralPtr->getValue().valueChar, 'c');
 
     ASSERT_TRUE(ifElseStatementPtr->hasElseStatement());
+}
+
+TEST(ParserTest, ParseCompilationNodeWhileStatementWithEmptyBlockNode)
+{
+    const std::string input = "while (true) {}";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::WHILE_STATEMENT);
+
+    auto* whileStatementPtr = static_cast<WhileStatementNode*>(firstStatement.get());
+    auto* conditionalPtr = whileStatementPtr->getConditional();
+    ASSERT_NE(conditionalPtr, nullptr);
+    ASSERT_EQ(conditionalPtr->getType(), NodeType::LITTERAL);
+
+    auto* boolPtr = static_cast<LitteralNode*>(conditionalPtr);
+    ASSERT_EQ(boolPtr->getValueType(), EnumCType::BOOL);
+    ASSERT_TRUE(boolPtr->getValue().valueBool);
+
+    auto* statementPtr = whileStatementPtr->getStatement();
+    ASSERT_NE(statementPtr, nullptr);
+    ASSERT_EQ(statementPtr->getType(), NodeType::BLOCK);
+
+    auto* blockNodePtr = static_cast<BlockNode*>(statementPtr);
+    ASSERT_TRUE(blockNodePtr->empty());
+    ASSERT_EQ(blockNodePtr->size(), 0);
+    ASSERT_EQ(blockNodePtr->cbegin(), blockNodePtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeWhileStatementWithBlockNode)
+{
+    const std::string input = "while (true) { i = i * 2; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::WHILE_STATEMENT);
+
+    auto* whileStatementPtr = static_cast<WhileStatementNode*>(firstStatement.get());
+    auto* conditionalPtr = whileStatementPtr->getConditional();
+    ASSERT_NE(conditionalPtr, nullptr);
+    ASSERT_EQ(conditionalPtr->getType(), NodeType::LITTERAL);
+
+    auto* boolPtr = static_cast<LitteralNode*>(conditionalPtr);
+    ASSERT_EQ(boolPtr->getValueType(), EnumCType::BOOL);
+    ASSERT_TRUE(boolPtr->getValue().valueBool);
+
+    auto* statementPtr = whileStatementPtr->getStatement();
+    ASSERT_NE(statementPtr, nullptr);
+    ASSERT_EQ(statementPtr->getType(), NodeType::BLOCK);
+
+    auto* blockNodePtr = static_cast<BlockNode*>(statementPtr);
+    ASSERT_FALSE(blockNodePtr->empty());
+    ASSERT_EQ(blockNodePtr->size(), 1);
+
+    auto iter = blockNodePtr->cbegin();
+    ASSERT_NE(iter, blockNodePtr->cend());
+
+    ++iter;
+    ASSERT_EQ(iter, blockNodePtr->cend());
 }
 
 TEST(ParserTest, ParseCompilationNodeMultipleStatements)

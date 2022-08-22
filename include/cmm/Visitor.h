@@ -110,6 +110,7 @@ namespace cmm
         virtual VisitorResult visit(TypeNode& node) = 0;
         virtual VisitorResult visit(VariableNode& node) = 0;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) = 0;
+        virtual VisitorResult visit(WhileStatementNode& node) = 0;
 
     protected:
 

@@ -10,9 +10,7 @@ using namespace cmm;
 
 int main()
 {
-    std::cout << "Hello, world!\n";
-
-    std::string input = "if (x) {} else {}";
+    std::string input = "while (true) { i = i + 2; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

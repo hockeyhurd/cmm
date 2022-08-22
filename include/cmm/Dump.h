@@ -68,6 +68,7 @@ namespace cmm
         virtual VisitorResult visit(TypeNode& node) override;
         virtual VisitorResult visit(VariableNode& node) override;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) override;
+        virtual VisitorResult visit(WhileStatementNode& node) override;
 
     private:
 
