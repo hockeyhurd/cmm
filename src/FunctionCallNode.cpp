@@ -11,12 +11,7 @@
 namespace cmm
 {
 
-    FunctionCallNode::FunctionCallNode(VariableNode&& name) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::FUNCTION_CALL), name(std::move(name))
-    {
-    }
-
-    FunctionCallNode::FunctionCallNode(VariableNode&& name, ArgList&& args) CMM_NOEXCEPT :
+    FunctionCallNode::FunctionCallNode(std::string name, ArgList&& args) CMM_NOEXCEPT :
         ExpressionNode(NodeType::FUNCTION_CALL), name(std::move(name)), args(std::move(args))
     {
     }
@@ -33,12 +28,12 @@ namespace cmm
 
     std::string& FunctionCallNode::getName() CMM_NOEXCEPT
     {
-        return name.getName();
+        return name;
     }
 
     const std::string& FunctionCallNode::getName() const CMM_NOEXCEPT
     {
-        return name.getName();
+        return name;
     }
 
     FunctionCallNode::ArgListIter FunctionCallNode::begin() CMM_NOEXCEPT
@@ -59,6 +54,11 @@ namespace cmm
     const FunctionCallNode::ArgListConstIter FunctionCallNode::cend() const CMM_NOEXCEPT
     {
         return args.cend();
+    }
+
+    VisitorResult FunctionCallNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string FunctionCallNode::toString() const /* override */

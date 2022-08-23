@@ -815,7 +815,7 @@ namespace cmm
         // Has args
         if (optionalArgList.has_value())
         {
-            return std::make_unique<FunctionCallNode>(std::move(*optionalVariableNode), std::move(*optionalArgList));
+            return std::make_unique<FunctionCallNode>(optionalVariableNode->getName(), std::move(*optionalArgList));
         }
 
         // No args present, normal variable.
