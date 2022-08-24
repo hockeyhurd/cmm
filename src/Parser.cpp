@@ -810,7 +810,7 @@ namespace cmm
         if (node == nullptr)
         {
             lexer.restore(snapshot);
-            node = parseFunctionCallOrVariable(lexer, errorMessage);
+            return nullptr;
         }
 
         return node;
@@ -841,7 +841,14 @@ namespace cmm
         // Has args
         if (optionalArgList.has_value())
         {
+            // TODO: Fix this
+#if 1
             return std::make_unique<FunctionCallNode>(optionalVariableNode->getName(), std::move(*optionalArgList));
+#else
+            return std::make_unique<FunctionCallNode>(optionalVariableNode->getName(),
+                                                      std::move(*optionalArgList),
+                                                      optionalVariableNode->getDereferenceCount());
+#endif
         }
 
         // No args present, normal variable.
@@ -1047,6 +1054,7 @@ namespace cmm
         }
         case TokenType::NULL_T:
             return std::make_unique<LitteralNode>();
+        case TokenType::CHAR_SYMBOL:
         case TokenType::SYMBOL:
             // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
             lexer.restore(snapshot);
@@ -1062,6 +1070,7 @@ namespace cmm
     /* static */
     std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
         const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -1072,6 +1081,12 @@ namespace cmm
             return std::nullopt;
         }
 
+        else if (optionalDimensionCount.has_value())
+        {
+            return std::make_optional<VariableNode>(token.asStringSymbol(), *optionalDimensionCount);
+        }
+
+        // else
         return std::make_optional<VariableNode>(token.asStringSymbol());
     }
 

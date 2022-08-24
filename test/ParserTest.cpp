@@ -324,6 +324,40 @@ TEST(ParserTest, ParseCompilationNodeIntAssignment)
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 10);
 }
 
+TEST(ParserTest, ParseCompilationNodeIntAssignmentViaPointer)
+{
+    const std::string input = "*a = 10;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::LITTERAL);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getDereferenceCount(), 1);
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightIntPtr = static_cast<LitteralNode*>(rootAssignPtr->getRight());
+    ASSERT_EQ(rightIntPtr->getValueType(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getValue().valueS32, 10);
+}
+
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
 {
     const std::string input = "a = 123.0 + 32.0;";
@@ -933,6 +967,142 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     ++iter;
     ASSERT_EQ(iter, rightFunctionCallPtr->cend());
+}
+
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPointer)
+{
+    const std::string input = "a = *b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::VARIABLE);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getDereferenceCount(), 0);
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getRight());
+    ASSERT_EQ(rightVariablePtr->getDereferenceCount(), 1);
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaPointer)
+{
+    const std::string input = "*a = *b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::VARIABLE);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getDereferenceCount(), 1);
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getRight());
+    ASSERT_EQ(rightVariablePtr->getDereferenceCount(), 1);
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaDoublePointer)
+{
+    const std::string input = "*a = **b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::VARIABLE);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getDereferenceCount(), 1);
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getRight());
+    ASSERT_EQ(rightVariablePtr->getDereferenceCount(), 2);
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarDoublePointerAssignmentViaDoublePointer)
+{
+    const std::string input = "**a = **b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::VARIABLE);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getDereferenceCount(), 2);
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getRight());
+    ASSERT_EQ(rightVariablePtr->getDereferenceCount(), 2);
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
 }
 
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
