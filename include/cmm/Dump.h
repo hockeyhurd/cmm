@@ -55,6 +55,7 @@ namespace cmm
         virtual VisitorResult visit(BinOpNode& node) override;
         virtual VisitorResult visit(BlockNode& node) override;
         virtual VisitorResult visit(CompilationUnitNode& node) override;
+        virtual VisitorResult visit(DerefNode& node) override;
         virtual VisitorResult visit(FunctionCallNode& node) override;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) override;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) override;

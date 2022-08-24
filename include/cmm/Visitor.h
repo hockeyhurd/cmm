@@ -97,6 +97,7 @@ namespace cmm
         virtual VisitorResult visit(BinOpNode& node) = 0;
         virtual VisitorResult visit(BlockNode& node) = 0;
         virtual VisitorResult visit(CompilationUnitNode& node) = 0;
+        virtual VisitorResult visit(DerefNode& node) = 0;
         virtual VisitorResult visit(FunctionCallNode& node) = 0;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) = 0;

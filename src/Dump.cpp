@@ -99,6 +99,21 @@ namespace cmm
         return result;
     }
 
+    VisitorResult Dump::visit(DerefNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        // std::cout << toString(node.getDatatype());
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(FunctionCallNode& node)
     {
         printIndentation();

@@ -16,6 +16,7 @@ namespace cmm
     class BinOpNode;
     class BlockNode;
     class CompilationUnitNode;
+    class DerefNode;
     class FunctionCallNode;
     class FunctionDeclarationStatementNode;
     class FunctionDefinitionStatementNode;

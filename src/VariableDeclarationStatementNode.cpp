@@ -30,6 +30,11 @@ namespace cmm
         return type.getDatatype();
     }
 
+    u32 VariableDeclarationStatementNode::getDimensions() const CMM_NOEXCEPT
+    {
+        return type.getDimensions();
+    }
+
     std::string& VariableDeclarationStatementNode::getName() CMM_NOEXCEPT
     {
         return variable.getName();

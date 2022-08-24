@@ -1105,13 +1105,12 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                // TODO: fix
-                // auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
 
-                /*if (optionalDimensionCount.has_value())
+                if (optionalDimensionCount.has_value())
                 {
                     return std::make_optional<TypeNode>(enumType.value(), *optionalDimensionCount);
-                }*/
+                }
 
                 // else
                 return std::make_optional<TypeNode>(enumType.value());

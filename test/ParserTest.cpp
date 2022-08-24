@@ -1114,8 +1114,6 @@ TEST(ParserTest, ParseCompilationNodeVarDoublePointerAssignmentViaDoublePointer)
 }
 #endif
 
-// TODO: Fix
-#if 0
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 {
     const std::string input = "int x;";
@@ -1207,7 +1205,6 @@ TEST(ParserTest, ParseCompilationNodeIntQuadPointerDeclarationStatement)
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
 }
-#endif
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
 {
