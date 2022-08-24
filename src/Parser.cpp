@@ -70,6 +70,7 @@ namespace cmm
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
+    static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage);
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
@@ -83,7 +84,7 @@ namespace cmm
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
-    static std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage);
+    static std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage);
 
     Parser::Parser(const std::string& input) : lexer(input)
     {
@@ -579,6 +580,31 @@ namespace cmm
     }
 
     /* static */
+    std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool result = lexer.peekNextToken(token);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_ASTERISK)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        u32 count = 0;
+
+        while (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_ASTERISK)
+        {
+            lexer.nextToken(token, errorMessage);
+            ++count;
+            result = lexer.peekNextToken(token);
+        }
+
+        return std::make_optional(count);
+    }
+
+    /* static */
     std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage)
     {
         static auto& reporter = Reporter::instance();
@@ -614,7 +640,7 @@ namespace cmm
                     else if (token.isStringSymbol())
                     {
                         // This could be 'func(int)' or 'func(int x)', so we check if the variable was parsed or not.
-                        auto typeOpt = parseType(lexer, errorMessage);
+                        auto typeOpt = parseTypeNode(lexer, errorMessage);
                         auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
 
                         // This is the 'func(int x)' case.
@@ -708,7 +734,7 @@ namespace cmm
     std::unique_ptr<StatementNode> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
     {
         auto snapshot = lexer.snap();
-        auto type = parseType(lexer, errorMessage);
+        auto type = parseTypeNode(lexer, errorMessage);
 
         if (!type.has_value())
         {
@@ -1050,7 +1076,7 @@ namespace cmm
     }
 
     /* static */
-    std::optional<TypeNode> parseType(Lexer& lexer, std::string* errorMessage)
+    std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage)
     {
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -1068,6 +1094,14 @@ namespace cmm
 
             if (enumType.has_value())
             {
+                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+
+                if (optionalDimensionCount.has_value())
+                {
+                    return std::make_optional<TypeNode>(enumType.value(), *optionalDimensionCount);
+                }
+
+                // else
                 return std::make_optional<TypeNode>(enumType.value());
             }
         }

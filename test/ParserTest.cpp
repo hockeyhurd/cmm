@@ -952,6 +952,76 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 0);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntPointerDeclarationStatement)
+{
+    const std::string input = "int* x;";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 1);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntDoublePointerDeclarationStatement)
+{
+    const std::string input = "int** x;";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 2);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntQuadPointerDeclarationStatement)
+{
+    const std::string input = "int* * * * x;";
+    const std::string name = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 4);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1042,6 +1112,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
 
     const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
     ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+    ASSERT_EQ(varDeclPtr->getDimensions(), 0);
     ASSERT_EQ(varDeclPtr->getName(), varName);
 
     ++iter;
@@ -1085,6 +1156,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
 
         const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
         ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+        ASSERT_EQ(varDeclPtr->getDimensions(), 0);
         ASSERT_EQ(varDeclPtr->getName(), var1Name);
     }
 
@@ -1097,6 +1169,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
 
         const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
         ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::CHAR);
+        ASSERT_EQ(varDeclPtr->getDimensions(), 0);
         ASSERT_EQ(varDeclPtr->getName(), var2Name);
     }
 

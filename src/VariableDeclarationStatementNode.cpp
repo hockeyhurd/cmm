@@ -30,6 +30,11 @@ namespace cmm
         return type.getDatatype();
     }
 
+    u32 VariableDeclarationStatementNode::getDimensions() const CMM_NOEXCEPT
+    {
+        return type.getDimensions();
+    }
+
     std::string& VariableDeclarationStatementNode::getName() CMM_NOEXCEPT
     {
         return variable.getName();
@@ -38,6 +43,11 @@ namespace cmm
     const std::string& VariableDeclarationStatementNode::getName() const CMM_NOEXCEPT
     {
         return variable.getName();
+    }
+
+    VisitorResult VariableDeclarationStatementNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string VariableDeclarationStatementNode::toString() const /* override */

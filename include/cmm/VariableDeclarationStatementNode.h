@@ -85,6 +85,11 @@ namespace cmm
         EnumCType getDatatype() const CMM_NOEXCEPT;
 
         /**
+         * The number of pointer inderection.
+         */
+        u32 getDimensions() const CMM_NOEXCEPT;
+
+        /**
          * Gets the variable.
          *
          * @return VariableNode.
@@ -98,11 +103,7 @@ namespace cmm
          */
         const std::string& getName() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
-
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:
