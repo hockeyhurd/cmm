@@ -1070,7 +1070,8 @@ namespace cmm
     /* static */
     std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+        // TODO: fix
+        // auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
         const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
@@ -1079,11 +1080,6 @@ namespace cmm
         {
             lexer.restore(snapshot);
             return std::nullopt;
-        }
-
-        else if (optionalDimensionCount.has_value())
-        {
-            return std::make_optional<VariableNode>(token.asStringSymbol(), *optionalDimensionCount);
         }
 
         // else
@@ -1109,12 +1105,13 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+                // TODO: fix
+                // auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
 
-                if (optionalDimensionCount.has_value())
+                /*if (optionalDimensionCount.has_value())
                 {
                     return std::make_optional<TypeNode>(enumType.value(), *optionalDimensionCount);
-                }
+                }*/
 
                 // else
                 return std::make_optional<TypeNode>(enumType.value());

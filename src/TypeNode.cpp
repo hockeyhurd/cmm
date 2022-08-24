@@ -10,23 +10,13 @@
 namespace cmm
 {
     TypeNode::TypeNode(const EnumCType type) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE), type(type), pointerInderectionCount(0)
-    {
-    }
-
-    TypeNode::TypeNode(const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE), type(type), pointerInderectionCount(pointerInderectionCount)
+        Node(NodeType::VARIABLE), type(type)
     {
     }
 
     EnumCType TypeNode::getDatatype() const CMM_NOEXCEPT
     {
         return type;
-    }
-
-    u32 TypeNode::getDimensions() const CMM_NOEXCEPT
-    {
-        return pointerInderectionCount;
     }
 
     VisitorResult TypeNode::accept(Visitor* visitor) /* override */

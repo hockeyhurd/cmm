@@ -39,22 +39,6 @@ namespace cmm
         explicit VariableNode(std::string&& name) CMM_NOEXCEPT;
 
         /**
-         * Constructor.
-         *
-         * @param name the std::string name of the variable.
-         * @param derefCount the number of dereferences.
-         */
-        VariableNode(const std::string& name, const u32 derefCount);
-
-        /**
-         * Constructor.
-         *
-         * @param name the std::string name of the variable.
-         * @param derefCount the number of dereferences.
-         */
-        VariableNode(std::string&& name, const u32 derefCount) CMM_NOEXCEPT;
-
-        /**
          * Copy constructor.
          */
         VariableNode(const VariableNode&) = default;
@@ -97,13 +81,6 @@ namespace cmm
          */
         const std::string& getName() const CMM_NOEXCEPT;
 
-        /**
-         * The number of dereferences.
-         *
-         * @return u32 dereference count.
-         */
-        u32 getDereferenceCount() const CMM_NOEXCEPT;
-
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -111,9 +88,6 @@ namespace cmm
 
         // The name of the variable.
         std::string name;
-
-        // The amount of derefencing '*'.
-        u32 derefCount;
     };
 }
 
