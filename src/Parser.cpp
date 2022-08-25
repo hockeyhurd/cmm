@@ -53,7 +53,10 @@ namespace cmm
         return Token('\0', false);
     }
 
+    static bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch);
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
+
+    static bool testExpectChar(Lexer& lexer, std::string* errorMessage, const char ch);
 
     static TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage);
 
@@ -82,7 +85,7 @@ namespace cmm
 
     // Terminal nodes:
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<ExpressionNode> parseDerefOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseAddressOfOrDerefOrVariableNode(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage);
@@ -123,13 +126,33 @@ namespace cmm
     }
 
     /* static */
-    bool expectSemicolon(Lexer& lexer, std::string* errorMessage)
+    bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch)
     {
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
 
         return lexResult && token.getType() == TokenType::CHAR_SYMBOL &&
-               token.asCharSymbol() == CHAR_SEMI_COLON;
+               token.asCharSymbol() == ch;
+    }
+
+    /* static */
+    bool expectSemicolon(Lexer& lexer, std::string* errorMessage)
+    {
+        return expectChar(lexer, errorMessage, CHAR_SEMI_COLON);
+    }
+
+    /* static */
+    bool testExpectChar(Lexer& lexer, std::string* errorMessage, const char ch)
+    {
+        const auto snapshot = lexer.snap();
+        const bool result = expectChar(lexer, errorMessage, ch);
+
+        if (!result)
+        {
+            lexer.restore(snapshot);
+        }
+
+        return result;
     }
 
     /* static */
@@ -827,8 +850,10 @@ namespace cmm
         // func(arg0, arg1, ..., argN)
         // func(...) (variadic args, TODO: future capability)
 
+        static auto& reporter = Reporter::instance();
+
         auto snapshot = lexer.snap();
-        auto derefOrVariablePtr = parseDerefOrVariableNode(lexer, errorMessage);
+        auto derefOrVariablePtr = parseAddressOfOrDerefOrVariableNode(lexer, errorMessage);
 
         // Did not get a name of the function, early exit.
         if (!derefOrVariablePtr)
@@ -844,7 +869,21 @@ namespace cmm
         {
             auto nodeType = derefOrVariablePtr->getType();
 
-            if (nodeType == NodeType::DEREF)
+            if (nodeType == NodeType::ADDRESS_OF)
+            {
+                const char* theErrorMessage = "cannot take the address of a function call.";
+
+                if (canWriteErrorMessage(errorMessage))
+                {
+                    *errorMessage = theErrorMessage;
+                }
+
+                reporter.error(theErrorMessage, lexer.getLocation());
+                lexer.restore(snapshot);
+                return nullptr;
+            }
+
+            else if (nodeType == NodeType::DEREF)
             {
                 const auto* derefPtr = static_cast<DerefNode*>(derefOrVariablePtr.get());
                 nodeType = derefPtr->getRootType();
@@ -1084,23 +1123,23 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<ExpressionNode> parseDerefOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseAddressOfOrDerefOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
+        const bool foundAddressOfOp = testExpectChar(lexer, errorMessage, CHAR_AMPERSAND);
         auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
-        auto variable = parseVariableNode(lexer, errorMessage);
+        auto optionalVariable = parseVariableNode(lexer, errorMessage);
 
-        if (!variable.has_value())
+        if (!optionalVariable.has_value())
         {
             lexer.restore(snapshot);
             return nullptr;
         }
 
-        auto variablePtr = std::make_unique<VariableNode>(std::move(*variable));
-
         // '*x' case:
         if (optionalDimensionCount.has_value())
         {
+            auto variablePtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
             std::unique_ptr<ExpressionNode> result = std::make_unique<DerefNode>(std::move(variablePtr));
 
             for (u32 i = 1; i < *optionalDimensionCount; ++i)
@@ -1110,6 +1149,14 @@ namespace cmm
 
             return result;
         }
+
+        // '&x' case:
+        else if (foundAddressOfOp)
+        {
+            return std::make_unique<AddressOfNode>(std::move(*optionalVariable));
+        }
+
+        auto variablePtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
 
         // else normal 'x' case:
         return variablePtr;

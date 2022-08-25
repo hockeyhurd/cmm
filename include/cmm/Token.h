@@ -19,6 +19,7 @@
 
 namespace cmm
 {
+    CMM_CONSTEXPR char CHAR_AMPERSAND = '&';
     CMM_CONSTEXPR char CHAR_ASTERISK = '*';
     CMM_CONSTEXPR char CHAR_BACK_SLASH = '\\';
     CMM_CONSTEXPR char CHAR_BACK_SPACE = (char) 12;

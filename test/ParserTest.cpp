@@ -972,6 +972,61 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOf)
+{
+    const std::string input = "a = &b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::ADDRESS_OF);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightAddressOfPtr = static_cast<AddressOfNode*>(rootAssignPtr->getRight());
+    auto& rightVariable = rightAddressOfPtr->getVariable();
+    ASSERT_EQ(rightVariable.getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOfFuncCausesError)
+{
+    const std::string input = "a = &b();";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeVarDerefAssignmentViaAddressOfFuncCausesError)
+{
+    const std::string input = "**a = &b();";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPointer)
 {
     const std::string input = "a = *b;";
@@ -1006,6 +1061,43 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPointer)
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightDerefPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaAddressOf)
+{
+    const std::string input = "*a = &b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::DEREF);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::ADDRESS_OF);
+
+    auto* leftDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getLeft());
+    ASSERT_NE(leftDerefPtr->getExpression(), nullptr);
+    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(leftDerefPtr->getExpression());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightAddressOfPtr = static_cast<AddressOfNode*>(rootAssignPtr->getRight());
+    auto& rightVariable = rightAddressOfPtr->getVariable();
+    ASSERT_EQ(rightVariable.getName(), "b");
 }
 
 TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaPointer)
