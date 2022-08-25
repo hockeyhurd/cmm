@@ -11,7 +11,7 @@
 namespace cmm
 {
     DerefNode::DerefNode(std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::DEREF), expr(std::move(expr))
+        ExpressionNode(NodeType::DEREF), expr(std::move(expr)), rootType(NodeType::UNKNOWN)
     {
     }
 
@@ -23,6 +23,24 @@ namespace cmm
     const ExpressionNode* DerefNode::getExpression() const CMM_NOEXCEPT
     {
         return expr.get();
+    }
+
+    NodeType DerefNode::getRootType() const CMM_NOEXCEPT
+    {
+        if (rootType == NodeType::UNKNOWN)
+        {
+            auto* lastExpr = expr.get();
+
+            while (lastExpr != nullptr && lastExpr->getType() == NodeType::DEREF)
+            {
+                auto* derefNode = static_cast<DerefNode*>(lastExpr);
+                lastExpr = derefNode->getExpression();
+            }
+
+            rootType = lastExpr->getType();
+        }
+
+        return rootType;
     }
 
     VisitorResult DerefNode::accept(Visitor* visitor) /* override */

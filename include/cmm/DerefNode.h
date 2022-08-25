@@ -73,6 +73,15 @@ namespace cmm
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
+        /**
+         * Attempts to pointer chase until we get the underlying type.
+         * This is needed because there could be several other DerefNodes before
+         * we get to say a VariableNode.
+         *
+         * @return underlying NodeType of wrapped ExpressionNode.
+         */
+        NodeType getRootType() const CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -80,6 +89,9 @@ namespace cmm
 
         // The expression to be dereferenced.
         std::unique_ptr<ExpressionNode> expr;
+
+        // Cached root NodeType.
+        mutable NodeType rootType;
     };
 }
 

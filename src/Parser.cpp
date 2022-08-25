@@ -82,6 +82,7 @@ namespace cmm
 
     // Terminal nodes:
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseDerefOrVariableNode(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage);
@@ -827,10 +828,10 @@ namespace cmm
         // func(...) (variadic args, TODO: future capability)
 
         auto snapshot = lexer.snap();
-        auto optionalVariableNode = parseVariableNode(lexer, errorMessage);
+        auto derefOrVariablePtr = parseDerefOrVariableNode(lexer, errorMessage);
 
         // Did not get a name of the function, early exit.
-        if (!optionalVariableNode.has_value())
+        if (!derefOrVariablePtr)
         {
             lexer.restore(snapshot);
             return nullptr;
@@ -841,20 +842,35 @@ namespace cmm
         // Has args
         if (optionalArgList.has_value())
         {
-            // TODO: Fix this
-#if 1
-            return std::make_unique<FunctionCallNode>(optionalVariableNode->getName(), std::move(*optionalArgList));
-#else
-            return std::make_unique<FunctionCallNode>(optionalVariableNode->getName(),
-                                                      std::move(*optionalArgList),
-                                                      optionalVariableNode->getDereferenceCount());
-#endif
+            auto nodeType = derefOrVariablePtr->getType();
+
+            if (nodeType == NodeType::DEREF)
+            {
+                const auto* derefPtr = static_cast<DerefNode*>(derefOrVariablePtr.get());
+                nodeType = derefPtr->getRootType();
+            }
+
+            if (nodeType == NodeType::VARIABLE)
+            {
+                auto* variablePtr = static_cast<VariableNode*>(derefOrVariablePtr.get());
+                auto funcName = variablePtr->getName();
+
+                return std::make_unique<FunctionCallNode>(std::move(funcName), std::move(*optionalArgList));
+            }
+
+            // else
+            std::ostringstream builder;
+            builder << "Un-expected NodeType of " << *reinterpret_cast<int*>(&nodeType);
+            unimplementedAbort(builder.str());
+
+            // Not reachable
+            return nullptr;
         }
 
-        // No args present, normal variable.
+        // No args present, normal variable regardless if there is a DerefNode on it or not.
         else
         {
-            return std::make_unique<VariableNode>(std::move(*optionalVariableNode));
+            return derefOrVariablePtr;
         }
 
         // Should be unreachable...
@@ -1068,10 +1084,40 @@ namespace cmm
     }
 
     /* static */
+    std::unique_ptr<ExpressionNode> parseDerefOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    {
+        const auto snapshot = lexer.snap();
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+        auto variable = parseVariableNode(lexer, errorMessage);
+
+        if (!variable.has_value())
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto variablePtr = std::make_unique<VariableNode>(std::move(*variable));
+
+        // '*x' case:
+        if (optionalDimensionCount.has_value())
+        {
+            std::unique_ptr<ExpressionNode> result = std::make_unique<DerefNode>(std::move(variablePtr));
+
+            for (u32 i = 1; i < *optionalDimensionCount; ++i)
+            {
+                result = std::make_unique<DerefNode>(std::move(result));
+            }
+
+            return result;
+        }
+
+        // else normal 'x' case:
+        return variablePtr;
+    }
+
+    /* static */
     std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage)
     {
-        // TODO: fix
-        // auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
         const auto snapshot = lexer.snap();
         auto token = newToken();
         const bool lexResult = lexer.nextToken(token, errorMessage);
