@@ -51,6 +51,7 @@ namespace cmm
          */
         Dump& operator= (Dump&&) CMM_NOEXCEPT = delete;
 
+        virtual VisitorResult visit(AddressOfNode& node) override;
         virtual VisitorResult visit(ArgNode& node) override;
         virtual VisitorResult visit(BinOpNode& node) override;
         virtual VisitorResult visit(BlockNode& node) override;

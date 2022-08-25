@@ -93,6 +93,7 @@ namespace cmm
          */
         Visitor& operator= (Visitor&&) CMM_NOEXCEPT = delete;
 
+        virtual VisitorResult visit(AddressOfNode& node) = 0;
         virtual VisitorResult visit(ArgNode& node) = 0;
         virtual VisitorResult visit(BinOpNode& node) = 0;
         virtual VisitorResult visit(BlockNode& node) = 0;

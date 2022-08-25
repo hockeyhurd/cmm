@@ -25,6 +25,22 @@ namespace cmm
     {
     }
 
+    VisitorResult Dump::visit(AddressOfNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto& variable = node.getVariable();
+        variable.accept(this);
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(ArgNode& node)
     {
         printIndentation();
