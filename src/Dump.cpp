@@ -106,8 +106,9 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
-        printIndentation();
-        // std::cout << toString(node.getDatatype());
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
         decreaseIntentation();
         printNewLine();
 

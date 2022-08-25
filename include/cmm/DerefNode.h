@@ -62,14 +62,14 @@ namespace cmm
         /**
          * Gets the expression to be dereferenced.
          *
-         * @return std::string.
+         * @return pointer to ExpressionNode.
          */
         ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
          * Gets the expression to be dereferenced.
          *
-         * @return std::string.
+         * @return const pointer to ExpressionNode.
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
