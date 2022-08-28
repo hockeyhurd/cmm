@@ -10,6 +10,7 @@
 #include <cmm/NodeList.h>
 
 // std includes
+#include <algorithm>
 #include <iostream>
 
 namespace cmm
@@ -22,6 +23,22 @@ namespace cmm
 
     Dump::Dump() CMM_NOEXCEPT : indent(0)
     {
+    }
+
+    VisitorResult Dump::visit(AddressOfNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto& variable = node.getVariable();
+        variable.accept(this);
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(ArgNode& node)
@@ -91,11 +108,27 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
-        auto result = node.getRoot() ? node.getRoot()->accept(this) : VisitorResult();
+        auto result = node.getRoot().accept(this);
         decreaseIntentation();
         printNewLine();
 
         return result;
+    }
+
+    VisitorResult Dump::visit(DerefNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
     }
 
     VisitorResult Dump::visit(FunctionCallNode& node)
@@ -362,6 +395,20 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(TranslationUnitNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        std::for_each(node.begin(), node.end(), [this](std::unique_ptr<StatementNode>& statement) { if (statement != nullptr) statement->accept(this); });
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(TypeNode& node)
     {
         printIndentation();
@@ -405,6 +452,31 @@ namespace cmm
 
         printIndentation();
         std::cout << "name: " << node.getName();
+        printNewLine();
+
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(WhileStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        printIndentation();
+        std::cout << "condition:\n";
+        auto* conditional = node.getConditional();
+        conditional->accept(this);
+        printNewLine();
+
+        printIndentation();
+        std::cout << "statement:\n";
+        auto* statement = node.getStatement();
+        statement->accept(this);
         printNewLine();
 
         decreaseIntentation();

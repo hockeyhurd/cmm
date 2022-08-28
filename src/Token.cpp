@@ -3,7 +3,13 @@
  * @version 2022-05-13
  */
 
+// Our includes
 #include <cmm/Token.h>
+
+// std includes
+#include <functional>
+#include <stdexcept>
+#include <type_traits>
 
 namespace cmm
 {
@@ -424,6 +430,59 @@ namespace cmm
         }
     }
 
+    bool Token::operator== (const Token& other) const
+    {
+        if (type != other.type)
+        {
+            return false;
+        }
+
+        switch (type)
+        {
+        case TokenType::BOOL:
+            return value.b == other.value.b;
+        case TokenType::CHAR:
+        case TokenType::CHAR_SYMBOL:
+            return value.ch == other.value.ch;
+        case TokenType::DOUBLE:
+            return *reinterpret_cast<const u64*>(&value.doubleValue) ==
+                   *reinterpret_cast<const u64*>(&other.value.doubleValue);
+        case TokenType::FLOAT:
+            return *reinterpret_cast<const u32*>(&value.floatValue) ==
+                   *reinterpret_cast<const u32*>(&other.value.floatValue);
+        case TokenType::INT16:
+            return value.int16Value == other.value.int16Value;
+        case TokenType::INT32:
+            return value.int32Value == other.value.int32Value;
+        case TokenType::INT64:
+            return value.int64Value == other.value.int64Value;
+        case TokenType::NULL_T:
+            return true;
+        case TokenType::SYMBOL:
+        case TokenType::STRING:
+            {
+                // Compare pointers
+                if (value.str == other.value.str)
+                {
+                    return true;
+                }
+
+                // Compare each character
+                return *value.str == *other.value.str;
+            }
+            return false;
+        default:
+            return false;
+        }
+
+        return false;
+    }
+
+    bool Token::operator!= (const Token& other) const
+    {
+        return !(*this == other);
+    }
+
     void Token::conditionallyCleanString() CMM_NOEXCEPT
     {
         if (isCStringOrStringSymbol() && value.str != nullptr)
@@ -436,6 +495,55 @@ namespace cmm
     bool Token::isCStringOrStringSymbol() const CMM_NOEXCEPT
     {
         return type == TokenType::STRING || type == TokenType::SYMBOL;
+    }
+
+    std::size_t TokenHasher::operator() (const Token& token) const
+    {
+        std::size_t result = 0;
+
+        switch (token.getType())
+        {
+        case TokenType::BOOL:
+            result = *reinterpret_cast<const std::size_t*>(&token.value.b);
+            break;
+        case TokenType::CHAR_SYMBOL:
+        case TokenType::CHAR:
+            result = static_cast<const std::size_t>(token.value.ch);
+            break;
+        case TokenType::DOUBLE:
+            result = *reinterpret_cast<const std::size_t*>(&token.value.doubleValue);
+            break;
+        case TokenType::FLOAT:
+            result = *reinterpret_cast<const std::size_t*>(&token.value.floatValue);
+            break;
+        case TokenType::INT16:
+            result = static_cast<const std::size_t>(token.value.int16Value);
+            break;
+        case TokenType::INT32:
+            result = static_cast<const std::size_t>(token.value.int32Value);
+            break;
+        case TokenType::INT64:
+            result = static_cast<const std::size_t>(token.value.int64Value);
+            break;
+        case TokenType::NULL_T:
+            result = 0;
+            break;
+        case TokenType::SYMBOL:
+        case TokenType::STRING:
+            result = std::hash<std::string>()(*token.value.str);
+            break;
+        default:
+            throw std::runtime_error("Unexpected token type");
+        }
+
+        return result;
+    }
+
+    std::size_t TokenTypeHasher::operator() (const TokenType& type) const
+    {
+        const auto result = *reinterpret_cast<const std::size_t*>(&type);
+        return result;
+        // return static_cast<std::underlying_type_t<TokenType>>(type);
     }
 }
 

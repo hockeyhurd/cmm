@@ -93,10 +93,12 @@ namespace cmm
          */
         Visitor& operator= (Visitor&&) CMM_NOEXCEPT = delete;
 
+        virtual VisitorResult visit(AddressOfNode& node) = 0;
         virtual VisitorResult visit(ArgNode& node) = 0;
         virtual VisitorResult visit(BinOpNode& node) = 0;
         virtual VisitorResult visit(BlockNode& node) = 0;
         virtual VisitorResult visit(CompilationUnitNode& node) = 0;
+        virtual VisitorResult visit(DerefNode& node) = 0;
         virtual VisitorResult visit(FunctionCallNode& node) = 0;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) = 0;
@@ -106,9 +108,11 @@ namespace cmm
         virtual VisitorResult visit(ParameterNode& node) = 0;
         virtual VisitorResult visit(ParenExpressionNode& node) = 0;
         virtual VisitorResult visit(ReturnStatementNode& node) = 0;
+        virtual VisitorResult visit(TranslationUnitNode& node) = 0;
         virtual VisitorResult visit(TypeNode& node) = 0;
         virtual VisitorResult visit(VariableNode& node) = 0;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) = 0;
+        virtual VisitorResult visit(WhileStatementNode& node) = 0;
 
     protected:
 

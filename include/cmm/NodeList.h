@@ -10,10 +10,12 @@
 #ifndef CMM_NODE_LIST_H
 #define CMM_NODE_LIST_H
 
+#include <cmm/AddressOfNode.h>
 #include <cmm/ArgNode.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/BlockNode.h>
 #include <cmm/CompilationUnitNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/FunctionCallNode.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
 #include <cmm/FunctionDefinitionStatementNode.h>
@@ -26,9 +28,11 @@
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/ReturnStatementNode.h>
 #include <cmm/StatementNode.h>
+#include <cmm/TranslationUnitNode.h>
 #include <cmm/TypeNode.h>
 #include <cmm/VariableNode.h>
 #include <cmm/VariableDeclarationStatementNode.h>
+#include <cmm/WhileStatementNode.h>
 
 #endif //!CMM_NODE_LIST_H
 

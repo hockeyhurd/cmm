@@ -24,14 +24,15 @@ namespace cmm
     public:
 
         /**
-         * Default constructor.
+         * Constructor.
          *
          * @param name the std::string name of the variable.
+         * @param derefCount the number of dereferences.
          */
         explicit VariableNode(const std::string& name);
 
         /**
-         * Default constructor.
+         * Constructor.
          *
          * @param name the std::string name of the variable.
          */
@@ -80,11 +81,7 @@ namespace cmm
          */
         const std::string& getName() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
-
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:

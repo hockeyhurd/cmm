@@ -12,28 +12,33 @@
 namespace cmm
 {
     CompilationUnitNode::CompilationUnitNode() CMM_NOEXCEPT : Node(NodeType::COMPILATION_UNIT),
-        root(nullptr)
+        root()
     {
     }
 
-    CompilationUnitNode::CompilationUnitNode(std::unique_ptr<StatementNode>&& root) CMM_NOEXCEPT :
-        Node(NodeType::COMPILATION_UNIT), root(std::move(root))
+    CompilationUnitNode::CompilationUnitNode(TranslationUnitNode&& translationUnit) CMM_NOEXCEPT :
+        Node(NodeType::COMPILATION_UNIT), root(std::move(translationUnit))
     {
     }
 
-    StatementNode* CompilationUnitNode::getRoot() CMM_NOEXCEPT
+    TranslationUnitNode& CompilationUnitNode::getRoot() CMM_NOEXCEPT
     {
-        return root.get();
+        return root;
     }
 
-    const StatementNode* CompilationUnitNode::getRoot() const CMM_NOEXCEPT
+    const TranslationUnitNode& CompilationUnitNode::getRoot() const CMM_NOEXCEPT
     {
-        return root.get();
+        return root;
     }
 
     NodeType CompilationUnitNode::getRootType() const CMM_NOEXCEPT
     {
-        return root != nullptr ? root->getType() : NodeType::UNKNOWN;
+        return root.getType();
+    }
+
+    VisitorResult CompilationUnitNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string CompilationUnitNode::toString() const /* override */

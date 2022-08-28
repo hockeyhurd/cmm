@@ -9,11 +9,13 @@
 
 namespace cmm
 {
-    VariableNode::VariableNode(const std::string& name) : ExpressionNode(NodeType::VARIABLE), name(name)
+    VariableNode::VariableNode(const std::string& name) : ExpressionNode(NodeType::VARIABLE),
+        name(name)
     {
     }
 
-    VariableNode::VariableNode(std::string&& name) CMM_NOEXCEPT : ExpressionNode(NodeType::VARIABLE), name(std::move(name))
+    VariableNode::VariableNode(std::string&& name) CMM_NOEXCEPT : ExpressionNode(NodeType::VARIABLE),
+        name(std::move(name))
     {
     }
 
@@ -25,6 +27,11 @@ namespace cmm
     const std::string& VariableNode::getName() const CMM_NOEXCEPT
     {
         return name;
+    }
+
+    VisitorResult VariableNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string VariableNode::toString() const /* override */

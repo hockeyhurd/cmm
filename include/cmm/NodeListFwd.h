@@ -12,10 +12,12 @@
 
 namespace cmm
 {
+    class AddressOfNode;
     class ArgNode;
     class BinOpNode;
     class BlockNode;
     class CompilationUnitNode;
+    class DerefNode;
     class FunctionCallNode;
     class FunctionDeclarationStatementNode;
     class FunctionDefinitionStatementNode;
@@ -28,9 +30,11 @@ namespace cmm
     class ParenExpressionNode;
     class ReturnStatementNode;
     class StatementNode;
+    class TranslationUnitNode;
     class TypeNode;
     class VariableNode;
     class VariableDeclarationStatementNode;
+    class WhileStatementNode;
 }
 
 #endif //!CMM_NODE_LIST_FWD_H

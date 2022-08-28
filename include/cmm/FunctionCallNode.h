@@ -14,7 +14,6 @@
 #include <cmm/Types.h>
 #include <cmm/ArgNode.h>
 #include <cmm/ExpressionNode.h>
-#include <cmm/VariableNode.h>
 
 // std includes
 #include <string>
@@ -33,19 +32,12 @@ namespace cmm
     public:
 
         /**
-         * Constructor with no args.
-         *
-         * @param name the name of our function to be called.
-         */
-        FunctionCallNode(VariableNode&& name) CMM_NOEXCEPT;
-
-        /**
          * Constructor with list of arguments used.
          *
          * @param name the name of our function to be called.
          * @param args the ArgList of the function call.
          */
-        FunctionCallNode(VariableNode&& name, ArgList&& args) CMM_NOEXCEPT;
+        FunctionCallNode(std::string name, ArgList&& args) CMM_NOEXCEPT;
 
         /**
          * Copy constructor
@@ -120,17 +112,14 @@ namespace cmm
          */
         const ArgListConstIter cend() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
+        VisitorResult accept(Visitor* visitor) override;
 
         std::string toString() const override;
 
     private:
 
         // The name of the function
-        VariableNode name;
+        std::string name;
 
         // The list of ArgNode's used in this function call.
         ArgList args;
