@@ -23,54 +23,59 @@ namespace cmm
     public:
 
         /**
+         * Default constructor for NULL type.
+         */
+        LitteralNode() CMM_NOEXCEPT;
+
+        /**
          * Default constructor for void pointer type.
          */
-        LitteralNode(void* value) CMM_NOEXCEPT;
+        explicit LitteralNode(void* value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for bool type.
          */
-        LitteralNode(const bool value) CMM_NOEXCEPT;
+        explicit LitteralNode(const bool value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for char type.
          */
-        LitteralNode(const char value) CMM_NOEXCEPT;
+        explicit LitteralNode(const char value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s8 type.
          */
-        LitteralNode(const s8 value) CMM_NOEXCEPT;
+        explicit LitteralNode(const s8 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s16 type.
          */
-        LitteralNode(const s16 value) CMM_NOEXCEPT;
+        explicit LitteralNode(const s16 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s32 type.
          */
-        LitteralNode(const s32 value) CMM_NOEXCEPT;
+        explicit LitteralNode(const s32 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s64 type.
          */
-        LitteralNode(const s64 value) CMM_NOEXCEPT;
+        explicit LitteralNode(const s64 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for f32 type.
          */
-        LitteralNode(const f32 value) CMM_NOEXCEPT;
+        explicit LitteralNode(const f32 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for f64 type.
          */
-        LitteralNode(const f64 value) CMM_NOEXCEPT;
+        explicit LitteralNode(const f64 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for c-strings type.
          */
-        LitteralNode(const char* value) CMM_NOEXCEPT;
+        explicit LitteralNode(const char* value) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -85,7 +90,7 @@ namespace cmm
         /**
          * Destructor
          */
-        ~LitteralNode() = default;
+        ~LitteralNode();
 
         /**
          * Copy assignment operator.
@@ -115,13 +120,9 @@ namespace cmm
          */
         CType getValue() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
+        VisitorResult accept(Visitor* visitor) override
         {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
+            return visitor->visit(*this);
         }
 
         std::string toString() const override;

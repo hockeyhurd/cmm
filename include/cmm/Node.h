@@ -12,6 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Visitor.h>
 
 // std includes
 #include <memory>
@@ -22,9 +23,11 @@ namespace cmm
     // TODO: Consider moving to a seperate file
     enum class NodeType
     {
-        UNKNOWN = 0, COMPILATION_UNIT, BIN_OP, BLOCK, FUNCTION_DECLARATION_STATEMENT, FUNCTION_DEFINITION_STATEMENT,
-        EXPRESSION_STATEMENT, EXPRESSION, PARAMETER, PAREN_EXPRESSION, LITTERAL,
-        VARIABLE, VARIABLE_DECLARATION_STATEMENT
+        UNKNOWN = 0, ADDRESS_OF, ARG, COMPILATION_UNIT, BIN_OP, BLOCK, DEREF,
+        FUNCTION_CALL, FUNCTION_DECLARATION_STATEMENT, FUNCTION_DEFINITION_STATEMENT,
+        EXPRESSION_STATEMENT, EXPRESSION, IF_ELSE_STATEMENT, PARAMETER, PAREN_EXPRESSION,
+        LITTERAL, RETURN_STATEMENT, TRANSLATION_UNIT, VARIABLE, VARIABLE_DECLARATION_STATEMENT,
+        WHILE_STATEMENT
     };
 
     class Node
@@ -77,11 +80,7 @@ namespace cmm
         /**
          * Generic and templated function needed for visitor pattern.
          */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
-        {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
-        }
+        virtual VisitorResult accept(Visitor* visitor) = 0;
 
         /**
          * Gets a string representation of this node. Typically, this is just

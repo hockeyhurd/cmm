@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/Lexer.h>
+#include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 
@@ -63,13 +64,13 @@ namespace cmm
         if (completed())
             return true;
 
-        Snapshot snap(index);
+        Snapshot snapshot = snap();
         consumeWhitespace();
 
         const bool result = completed();
 
         // Restore incase we might try to do more in the future.
-        restore(snap);
+        restore(snapshot);
 
         return result;
     }
@@ -82,21 +83,22 @@ namespace cmm
 
     bool Lexer::peekNextToken(Token& token)
     {
-        Snapshot snap(index);
+        Snapshot snapshot = snap();
         const bool result = nextToken(token, nullptr);
-        restore(snap);
+        restore(snapshot);
 
         return result;
     }
 
     void Lexer::restore(const Snapshot& snap) CMM_NOEXCEPT
     {
-        index = snap.getPosition();
+        index = snap.getIndex();
+        location = snap.getLocation();
     }
 
     Snapshot Lexer::snap() CMM_NOEXCEPT
     {
-        return Snapshot(index);
+        return Snapshot(index, location);
     }
 
     void Lexer::consumeWhitespace()
@@ -159,6 +161,8 @@ namespace cmm
 
     bool Lexer::nextTokenInternal(Token& token, std::string* errorMessage)
     {
+        static Reporter& reporter = Reporter::instance();
+
         // Always clear the buffer when lexing the next token.
         builder.clear();
 
@@ -225,10 +229,8 @@ namespace cmm
                         {
                             if (errorMessage != nullptr)
                             {
-                                std::ostringstream err;
-                                err << "[LEXER]: Error: Last character was escaped, but this character does not need to be at "
-                                    << location.toString();
-                                *errorMessage = err.str();
+                                *errorMessage = "Last character was escaped, but this character does not need to be";
+                                reporter.error(*errorMessage, location);
                             }
                         }
                     }
@@ -248,10 +250,8 @@ namespace cmm
                 {
                     if (errorMessage != nullptr)
                     {
-                        std::ostringstream err;
-                        err << "[LEXER]: Error: Unfinished escape sequences at "
-                            << location.toString();
-                        *errorMessage = err.str();
+                        *errorMessage = "Unfinished escape sequences";
+                        reporter.error(*errorMessage, location);
                     }
                 }
 
@@ -343,10 +343,8 @@ namespace cmm
                         {
                             if (errorMessage != nullptr)
                             {
-                                std::ostringstream err;
-                                err << "[LEXER]: Error: Lexing a decimal number that contained '.' after using 'E' or 'e' at "
-                                    << location.toString();
-                                *errorMessage = err.str();
+                                *errorMessage = "Lexing a decimal number that contained '.' after using 'E' or 'e'";
+                                reporter.error(*errorMessage, location);
                             }
 
                             return false;
@@ -356,10 +354,8 @@ namespace cmm
                         {
                             if (errorMessage != nullptr)
                             {
-                                std::ostringstream err;
-                                err << "[LEXER]: Error: Lexing a decimal number that contained multiple '.' in a double value at "
-                                    << location.toString();
-                                *errorMessage = err.str();
+                                *errorMessage = "Lexing a decimal number that contained multiple '.' in a double value";
+                                reporter.error(*errorMessage, location);
                             }
 
                             return false;
@@ -378,10 +374,8 @@ namespace cmm
                             {
                                 if (errorMessage != nullptr)
                                 {
-                                    std::ostringstream err;
-                                    err << "[LEXER]: Error: Lexing a decimal number that contained whitespace after 'e' or 'E' at "
-                                        << location.toString();
-                                    *errorMessage = err.str();
+                                    *errorMessage = "Lexing a decimal number that contained whitespace after 'e' or 'E'";
+                                    reporter.error(*errorMessage, location);
                                 }
 
                                 return false;
@@ -394,10 +388,9 @@ namespace cmm
                                 if (errorMessage != nullptr)
                                 {
                                     std::ostringstream err;
-                                    err << "[LEXER]: Error: Invalid character after using 'e' or 'E' "
-                                        << nextCh << " at "
-                                        << location.toString();
+                                    err << "[LEXER]: Error: Invalid character after using 'e' or 'E' " << nextCh;
                                     *errorMessage = err.str();
+                                    reporter.error(*errorMessage, location);
                                 }
 
                                 return false;
@@ -408,10 +401,8 @@ namespace cmm
                         {
                             if (errorMessage != nullptr)
                             {
-                                std::ostringstream err;
-                                err << "[LEXER]: Error: Lexing a decimal number that contained multiple 'e' or 'E' in a double value at "
-                                    << location.toString();
-                                *errorMessage = err.str();
+                                *errorMessage = "Lexing a decimal number that contained multiple 'e' or 'E' in a double value";
+                                reporter.error(*errorMessage, location);
                             }
 
                             return false;
@@ -564,6 +555,7 @@ namespace cmm
             case CHAR_COLON:
             case CHAR_COMMA:
             case CHAR_SEMI_COLON:
+            case CHAR_AMPERSAND:
             case CHAR_ASTERISK:
             case CHAR_EQUALS:
                 token.setCharSymbol(currentChar);
@@ -575,9 +567,9 @@ namespace cmm
                 if (errorMessage != nullptr)
                 {
                     std::ostringstream err;
-                    err << "[LEXER]: Error: Unexpected token exception '" << builder
-                        << "\" at " << location.toString();
+                    err << "Unexpected token exception '" << builder << "\"";
                     *errorMessage = err.str();
+                    reporter.error(*errorMessage, location);
                 }
             }
             }
@@ -672,7 +664,6 @@ namespace cmm
     bool Lexer::isWhitespace(char ch) CMM_NOEXCEPT
     {
         return ch == CHAR_SPACE || ch == CHAR_TAB ||
-               ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN ||
                ch == CHAR_NEWLINE || ch == CHAR_CARRIAGE_RETURN;
     }
 }

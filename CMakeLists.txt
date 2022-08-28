@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Wall -Wextra -Wno-unused-paramete
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-4 -O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 if (NOT CMAKE_BUILD_TYPE)
     message("-- CMAKE_BUILD_TYPE variable not set. Defaulting to \"Release\"")
@@ -17,9 +17,15 @@ endif()
 include_directories(include)
 
 # All cmmcore source files
-set(SOURCE_FILES src/BinOpNode.cpp src/BlockNode.cpp src/CompilationUnitNode.cpp src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/FunctionDeclarationStatementNode.cpp
-    src/FunctionDefinitionStatementNode.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/Parser.cpp src/ParenExpressionNode.cpp
-    src/Snapshot.cpp src/StatementNode.cpp src/StringView.cpp src/Token.cpp src/Types.cpp src/TypeNode.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp)
+set(SOURCE_FILES src/AddressOfNode.cpp src/ArgNode.cpp src/BinOpNode.cpp src/BlockNode.cpp
+    src/CompilationUnitNode.cpp src/DerefNode.cpp src/Dump.cpp
+    src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/FunctionDeclarationStatementNode.cpp
+    src/FunctionCallNode.cpp src/FunctionDefinitionStatementNode.cpp src/IfElseStatementNode.cpp src/Lexer.cpp
+    src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/ParenExpressionNode.cpp
+    src/Parser.cpp src/ParserPredictor.cpp
+    src/Reporter.cpp src/ReturnStatementNode.cpp src/Snapshot.cpp src/StatementNode.cpp src/StringView.cpp src/Token.cpp
+    src/TranslationUnitNode.cpp src/Types.cpp src/TypeNode.cpp
+    src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp src/Visitor.cpp src/WhileStatementNode.cpp)
 
 # Require threading library (Linux/Unix this is pthreads).
 set(THREADS_PREFER_PTHREAD_FLAG ON)

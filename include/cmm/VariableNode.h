@@ -15,7 +15,6 @@
 #include <cmm/ExpressionNode.h>
 
 // std includes
-// #include <optional>
 #include <string>
 
 namespace cmm
@@ -25,14 +24,15 @@ namespace cmm
     public:
 
         /**
-         * Default constructor.
+         * Constructor.
          *
          * @param name the std::string name of the variable.
+         * @param derefCount the number of dereferences.
          */
         explicit VariableNode(const std::string& name);
 
         /**
-         * Default constructor.
+         * Constructor.
          *
          * @param name the std::string name of the variable.
          */
@@ -81,15 +81,7 @@ namespace cmm
          */
         const std::string& getName() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
-        {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
-        }
-
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:

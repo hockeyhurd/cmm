@@ -21,7 +21,7 @@
 
 namespace cmm
 {
-    class BlockNode : public Node
+    class BlockNode : public StatementNode
     {
     public:
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
@@ -101,6 +101,13 @@ namespace cmm
          * Const iterator to the end of the statement list.
          */
         const StatementListConstIter cend() const CMM_NOEXCEPT;
+
+        VisitorResult accept(Visitor* visitor) override
+        {
+            return visitor->visit(*this);
+        }
+
+        std::string toString() const override;
 
     private:
 

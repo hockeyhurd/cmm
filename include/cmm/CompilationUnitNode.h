@@ -13,10 +13,12 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/Node.h>
+#include <cmm/TranslationUnitNode.h>
 
 namespace cmm
 {
-    class Node;
+    // Forward declarations
+    class StatementNode;
 
     class CompilationUnitNode : public Node
     {
@@ -28,11 +30,9 @@ namespace cmm
         CompilationUnitNode() CMM_NOEXCEPT;
 
         /**
-         * Constructor with some 'root' like node.
-         * TODO: This should eventually be replaced with something more concrete like
-         * one or more translation units ('TranslationUnitNode'??).
+         * Constructor with translationn unit.
          */
-        CompilationUnitNode(std::unique_ptr<Node>&& root) CMM_NOEXCEPT;
+        CompilationUnitNode(TranslationUnitNode&& translationUnit) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -64,20 +64,20 @@ namespace cmm
         CompilationUnitNode& operator= (CompilationUnitNode&&) CMM_NOEXCEPT = default;
 
         /**
-         * Gets the Root node.  This is needed for unit testing (at least for now).
+         * Gets the root TranslationUnitNode node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
-         * @return const Node pointer.
+         * @return TranslationUnitNode pointer.
          */
-        Node* getRoot() CMM_NOEXCEPT;
+        TranslationUnitNode& getRoot() CMM_NOEXCEPT;
 
         /**
-         * Gets the Root node.  This is needed for unit testing (at least for now).
+         * Gets the root TranslationUnitNode node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
-         * @return Node pointer.
+         * @return const TranslationUnitNode pointer.
          */
-        const Node* getRoot() const CMM_NOEXCEPT;
+        const TranslationUnitNode& getRoot() const CMM_NOEXCEPT;
 
         /**
          * Gets the Root node.  This is needed for unit testing (at least for now).
@@ -87,21 +87,16 @@ namespace cmm
          */
         NodeType getRootType() const CMM_NOEXCEPT;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
-        {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
-        }
+        VisitorResult accept(Visitor* visitor) override;
 
         std::string toString() const override;
 
     private:
 
-        // The underlying 'root' node.
-        std::unique_ptr<Node> root;
+        // The underlying 'root' translation unit node.
+        // TODO: This should be updated to be a vector at some point in order to
+        // support multiple translation unit within this compilation unit.
+        TranslationUnitNode root;
     };
 }
 

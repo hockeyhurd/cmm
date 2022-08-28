@@ -10,11 +10,11 @@
 
 namespace cmm
 {
-    BlockNode::BlockNode() : Node(NodeType::BLOCK)
+    BlockNode::BlockNode() : StatementNode(NodeType::BLOCK)
     {
     }
 
-    BlockNode::BlockNode(StatementList&& statements) CMM_NOEXCEPT : Node(NodeType::BLOCK),
+    BlockNode::BlockNode(StatementList&& statements) CMM_NOEXCEPT : StatementNode(NodeType::BLOCK),
         statements(std::move(statements))
     {
     }
@@ -47,6 +47,11 @@ namespace cmm
     const BlockNode::StatementListConstIter BlockNode::cend() const CMM_NOEXCEPT
     {
         return statements.cend();
+    }
+
+    std::string BlockNode::toString() const /* override */
+    {
+        return "BlockNode";
     }
 }
 

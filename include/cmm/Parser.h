@@ -13,6 +13,7 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/Lexer.h>
+#include <cmm/NodeListFwd.h>
 
 // std includes
 #include <memory>
@@ -39,7 +40,7 @@ namespace cmm
          *
          * @param input to move
          */
-        Parser(std::string&& input);
+        Parser(std::string&& input) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.

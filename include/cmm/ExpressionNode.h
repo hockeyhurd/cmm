@@ -59,15 +59,7 @@ namespace cmm
          */
         ExpressionNode& operator= (ExpressionNode&&) CMM_NOEXCEPT = default;
 
-        /**
-         * Generic and templated function needed for visitor pattern.
-         */
-        template<class ReturnT, class DerivedT, class VisitorT>
-        ReturnT accept(VisitorT& visitor)
-        {
-            return visitor.visit(*std::static_pointer_cast<DerivedT>(*this));
-        }
-
+        virtual VisitorResult accept(Visitor* visitor) override = 0;
         virtual std::string toString() const override;
 
     };

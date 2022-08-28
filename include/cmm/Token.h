@@ -19,6 +19,7 @@
 
 namespace cmm
 {
+    CMM_CONSTEXPR char CHAR_AMPERSAND = '&';
     CMM_CONSTEXPR char CHAR_ASTERISK = '*';
     CMM_CONSTEXPR char CHAR_BACK_SLASH = '\\';
     CMM_CONSTEXPR char CHAR_BACK_SPACE = (char) 12;
@@ -83,8 +84,13 @@ namespace cmm
         }
     }
 
+    // Forward declaration
+    struct TokenHasher;
+
     class Token
     {
+        friend TokenHasher;
+
     public:
 
         /**
@@ -438,6 +444,22 @@ namespace cmm
          */
         void setStringSymbol(std::string&& stringSymbol) CMM_NOEXCEPT;
 
+        /**
+         * Equality operator
+         * 
+         * @param other const reference to another Token to be compared.
+         * @return bool.
+         */
+        bool operator== (const Token& other) const;
+
+        /**
+         * In-equality operator
+         * 
+         * @param other const reference to another Token to be compared.
+         * @return bool.
+         */
+        bool operator!= (const Token& other) const;
+
     private:
 
         /**
@@ -471,6 +493,16 @@ namespace cmm
 
         // The underlying token value.
         Values value;
+    };
+
+    struct TokenHasher
+    {
+        std::size_t operator() (const Token& token) const;
+    };
+
+    struct TokenTypeHasher
+    {
+        std::size_t operator() (const TokenType& type) const;
     };
 }
 

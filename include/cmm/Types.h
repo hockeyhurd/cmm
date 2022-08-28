@@ -193,6 +193,41 @@ namespace cmm
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
+    constexpr const char* toString(const EnumCType type)
+    {
+        switch (type)
+        {
+        case EnumCType::NULL_T:
+            return "NULL";
+        case EnumCType::VOID_PTR:
+            return "void*";
+        case EnumCType::BOOL:
+            return "bool";
+        case EnumCType::CHAR:
+            return "char";
+        case EnumCType::INT8:
+            return "int8";
+        case EnumCType::INT16:
+            return "int16";
+        case EnumCType::INT32:
+            return "int32";
+        case EnumCType::INT64:
+            return "int64";
+        case EnumCType::FLOAT:
+            return "float";
+        case EnumCType::DOUBLE:
+            return "double";
+        case EnumCType::STRING:
+            return "string";
+        case EnumCType::STRUCT:
+            return "struct";
+        default:
+            return "Unknown type";
+        }
+
+        return "Unknown type";
+    }
+
 }
 
 #endif //!CMM_TYPES_H
