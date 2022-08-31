@@ -15,11 +15,6 @@
 
 namespace cmm
 {
-    enum class EnumLocality
-    {
-        GLOBAL = 0, LOCAL, PARAMETER
-    };
-
     class VariableContext
     {
     public:
@@ -29,8 +24,9 @@ namespace cmm
          *
          * @param type the EnumCType of the variable.
          * @param locality the spacial location of the variable.
+         * @param modifiers the modifiers used on the variable.
          */
-        VariableContext(const EnumCType type, const EnumLocality locality) CMM_NOEXCEPT;
+        VariableContext(const EnumCType type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -75,6 +71,13 @@ namespace cmm
          */
         EnumLocality getLocality() const CMM_NOEXCEPT;
 
+        /**
+         * Gets the EnumModifier used with this variable.
+         *
+         * @return EnumModifier.
+         */
+        EnumModifier getModifiers() const CMM_NOEXCEPT;
+
     private:
 
         // The type of the variable.
@@ -82,6 +85,9 @@ namespace cmm
 
         // The spacial location of the variable.
         EnumLocality locality;
+
+        // The modifiers of the variable.
+        EnumModifier modifiers;
     };
 }
 

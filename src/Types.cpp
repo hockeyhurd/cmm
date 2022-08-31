@@ -18,9 +18,9 @@ namespace cmm
 
     static void initCTypeMap()
     {
-        /*ctypeMap = { {"NULL", EnumCType::NULL_T}, {"bool", EnumCType::BOOL}, {"char", EnumCType::CHAR},
-            {"short", EnumCType::INT16}, {"int", EnumCType::INT32}, {"long", EnumCType::INT64}, {"float", EnumCType::FLOAT}, {"double", EnumCType::DOUBLE} };*/
         ctypeMap.emplace("NULL", EnumCType::NULL_T);
+        ctypeMap.emplace("void", EnumCType::VOID);
+        ctypeMap.emplace("void*", EnumCType::VOID_PTR);
         ctypeMap.emplace("bool", EnumCType::BOOL);
         ctypeMap.emplace("char", EnumCType::CHAR);
         ctypeMap.emplace("short", EnumCType::INT16);
@@ -28,6 +28,7 @@ namespace cmm
         ctypeMap.emplace("long", EnumCType::INT64);
         ctypeMap.emplace("float", EnumCType::FLOAT);
         ctypeMap.emplace("double", EnumCType::DOUBLE);
+        ctypeMap.emplace("struct", EnumCType::STRUCT);
     }
 
     bool isCType(const std::string& str) CMM_NOEXCEPT

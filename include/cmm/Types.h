@@ -149,7 +149,26 @@ namespace cmm
     const f32 f32_e = 2.71828182845904523536F;
     const f64 f64_e = 2.71828182845904523536;
 
-    enum class EnumCType
+    enum class EnumLocality : u16
+    {
+        GLOBAL = 0, INTERNAL, LOCAL, PARAMETER
+    };
+
+    // Note: modifier 'extern' is implicit, so we don't include that here regardles
+    // if the modifier is explicitly used.
+    enum EnumModifier : u16
+    {
+        NO_MOD = 0, STATIC = 1, CONST_POINTER = 2, CONST_VALUE = 4, ALL_VALUES = 7
+    };
+
+    constexpr bool isValidModifier(const u16 value)
+    {
+        constexpr u16 invAllValues = ~EnumModifier::ALL_VALUES;
+
+        return (value & invAllValues) == 0;
+    }
+
+    enum class EnumCType : u16
     {
         NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
         DOUBLE, STRING, STRUCT
@@ -199,6 +218,8 @@ namespace cmm
         {
         case EnumCType::NULL_T:
             return "NULL";
+        case EnumCType::VOID:
+            return "void";
         case EnumCType::VOID_PTR:
             return "void*";
         case EnumCType::BOOL:
