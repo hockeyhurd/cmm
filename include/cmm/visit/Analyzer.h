@@ -13,7 +13,7 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
-#include <cmm/Scope.h>
+#include <cmm/ScopeManager.h>
 #include <cmm/VariableContext.h>
 #include <cmm/visit/Visitor.h>
 
@@ -87,7 +87,7 @@ namespace cmm
         static Reporter& reporter;
 
         // The symbol table wrapped around a stack based scope. 
-        Scope scope;
+        ScopeManager scope;
 
     };
 }

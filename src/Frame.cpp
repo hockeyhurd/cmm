@@ -6,7 +6,7 @@
  */
 
 // Our includes
-#include <cmm/Scope.h>
+#include <cmm/ScopeManager.h>
 
 namespace cmm
 {
@@ -34,7 +34,7 @@ namespace cmm
 
         if (findResult != variables.cend())
         {
-            return &findResult->second;;
+            return &findResult->second;
         }
 
         // See if we can check the parent
@@ -52,7 +52,7 @@ namespace cmm
 
         if (findResult != variables.cend())
         {
-            return &findResult->second;;
+            return &findResult->second;
         }
 
         // See if we can check the parent

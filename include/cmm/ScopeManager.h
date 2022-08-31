@@ -7,8 +7,8 @@
 
 #pragma once
 
-#ifndef CMM_SCOPE_H
-#define CMM_SCOPE_H
+#ifndef CMM_SCOPE_MANAGER_H
+#define CMM_SCOPE_MANAGER_H
 
 // Our includes
 #include <cmm/Types.h>
@@ -23,43 +23,43 @@ namespace cmm
     // Forward declarations:
     class VariableContext;
 
-    class Scope
+    class ScopeManager
     {
     public:
 
         /**
          * Default constructor.
          */
-        Scope();
+        ScopeManager();
 
         /**
          * Copy constructor.
          */
-        Scope(const Scope&) = delete;
+        ScopeManager(const ScopeManager&) = delete;
 
         /**
          * Move constructor.
          */
-        Scope(Scope&&) CMM_NOEXCEPT = default;
+        ScopeManager(ScopeManager&&) CMM_NOEXCEPT = default;
 
         /**
          * Destructor
          */
-        ~Scope() = default;
+        ~ScopeManager() = default;
 
         /**
          * Copy assignment operator.
          *
-         * @return Scope reference.
+         * @return ScopeManager reference.
          */
-        Scope& operator= (const Scope&) = delete;
+        ScopeManager& operator= (const ScopeManager&) = delete;
 
         /**
          * Move assignment operator.
          *
-         * @return Scope reference.
+         * @return ScopeManager reference.
          */
-        Scope& operator= (Scope&&) CMM_NOEXCEPT = default;
+        ScopeManager& operator= (ScopeManager&&) CMM_NOEXCEPT = default;
 
         /**
          * Gets a reference to the current Frame.
@@ -127,5 +127,5 @@ namespace cmm
     };
 }
 
-#endif //!CMM_SCOPE_H
+#endif //!CMM_SCOPE_MANAGER_H
 

@@ -6,7 +6,7 @@
  */
 
 // Our includes
-#include <cmm/Scope.h>
+#include <cmm/ScopeManager.h>
 #include <cmm/VariableContext.h>
 
 // std includes
@@ -14,23 +14,23 @@
 
 namespace cmm
 {
-    Scope::Scope()
+    ScopeManager::ScopeManager()
     {
         // We always push a frame at the beginning to handle global scope.
         frames.emplace_back(Frame());
     }
 
-    Frame& Scope::getCurrentFrame() CMM_NOEXCEPT
+    Frame& ScopeManager::getCurrentFrame() CMM_NOEXCEPT
     {
         return frames.back();
     }
 
-    const Frame& Scope::getCurrentFrame() const CMM_NOEXCEPT
+    const Frame& ScopeManager::getCurrentFrame() const CMM_NOEXCEPT
     {
         return frames.back();
     }
 
-    void Scope::push(const bool canSeeParent)
+    void ScopeManager::push(const bool canSeeParent)
     {
         Frame* parent = nullptr;
 
@@ -43,7 +43,7 @@ namespace cmm
         frames.emplace_back(parent);
     }
 
-    void Scope::pop()
+    void ScopeManager::pop()
     {
         // Make sure we don't pop the first frame
         if (frames.size() > 1)
@@ -52,25 +52,25 @@ namespace cmm
         }
     }
 
-    void Scope::add(const std::string& variable, const VariableContext& context)
+    void ScopeManager::add(const std::string& variable, const VariableContext& context)
     {
         auto& frame = getCurrentFrame();
         frame.add(variable, context);
     }
 
-    void Scope::add(std::string&& variable, const VariableContext& context)
+    void ScopeManager::add(std::string&& variable, const VariableContext& context)
     {
         auto& frame = getCurrentFrame();
         frame.add(std::move(variable), context);
     }
 
-    VariableContext* Scope::find(const std::string& variable)
+    VariableContext* ScopeManager::find(const std::string& variable)
     {
         auto& frame = getCurrentFrame();
         return frame.find(variable);
     }
 
-    const VariableContext* Scope::find(const std::string& variable) const
+    const VariableContext* ScopeManager::find(const std::string& variable) const
     {
         const auto& frame = getCurrentFrame();
         return frame.find(variable);
