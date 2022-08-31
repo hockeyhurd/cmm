@@ -64,9 +64,15 @@ namespace cmm
         frame.add(std::move(variable), context);
     }
 
-    std::optional<EnumCType> Scope::find(const std::string& variable) const
+    VariableContext* Scope::find(const std::string& variable)
     {
         auto& frame = getCurrentFrame();
+        return frame.find(variable);
+    }
+
+    const VariableContext* Scope::find(const std::string& variable) const
+    {
+        const auto& frame = getCurrentFrame();
         return frame.find(variable);
     }
 }

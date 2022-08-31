@@ -28,13 +28,13 @@ namespace cmm
         variables.emplace(std::move(variable), context);
     }
 
-    std::optional<EnumCType> Frame::find(const std::string& variable) const
+    VariableContext* Frame::find(const std::string& variable)
     {
         const auto findResult = variables.find(variable);
 
         if (findResult != variables.cend())
         {
-            return std::make_optional(findResult->second.getType());
+            return &findResult->second;;
         }
 
         // See if we can check the parent
@@ -43,7 +43,25 @@ namespace cmm
             return parent->find(variable);
         }
 
-        return std::nullopt;
+        return nullptr;
+    }
+
+    const VariableContext* Frame::find(const std::string& variable) const
+    {
+        const auto findResult = variables.find(variable);
+
+        if (findResult != variables.cend())
+        {
+            return &findResult->second;;
+        }
+
+        // See if we can check the parent
+        else if (parent != nullptr)
+        {
+            return parent->find(variable);
+        }
+
+        return nullptr;
     }
 
     Frame::iterator Frame::begin() CMM_NOEXCEPT

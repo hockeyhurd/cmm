@@ -15,7 +15,6 @@
 #include <cmm/VariableContext.h>
 
 // std includes
-#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -92,9 +91,17 @@ namespace cmm
          * Attempts to lookup the variable in the frame.
          *
          * @param variable the variable to lookup.
-         * @return optional EnumCType value if found, else std::nullopt.
+         * @return pointer to the VariableContext if found, else nullptr.
          */
-        std::optional<EnumCType> find(const std::string& variable) const;
+        VariableContext* find(const std::string& variable);
+
+        /**
+         * Attempts to lookup the variable in the frame.
+         *
+         * @param variable the variable to lookup.
+         * @return const pointer to the VariableContext if found, else nullptr.
+         */
+        const VariableContext* find(const std::string& variable) const;
 
         /**
          * The beginning of the frame.
