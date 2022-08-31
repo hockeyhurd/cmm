@@ -6,8 +6,8 @@
  */
 
 // Our includes
-#include <cmm/Dump.h>
 #include <cmm/NodeList.h>
+#include <cmm/visit/Dump.h>
 
 // std includes
 #include <algorithm>

@@ -12,7 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Visitor.h>
+#include <cmm/visit/Visitor.h>
 
 // std includes
 #include <memory>
