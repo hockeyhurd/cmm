@@ -12,6 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/VariableContext.h>
 
 // std includes
 #include <optional>
@@ -24,7 +25,7 @@ namespace cmm
     {
     public:
 
-        using VarMap = std::unordered_map<std::string, EnumCType>;
+        using VarMap = std::unordered_map<std::string, VariableContext>;
         using iterator = VarMap::iterator;
         using const_iterator = VarMap::const_iterator;
 
@@ -75,17 +76,17 @@ namespace cmm
          * Adds the variable to the frame.
          *
          * @param variable the variable to add.
-         * @param type the type of the variable.
+         * @param context the context of the variable.
          */
-        void add(const std::string& variable, const EnumCType type);
+        void add(const std::string& variable, const VariableContext& context);
 
         /**
          * Adds the variable to the frame.
          *
          * @param variable the variable to add.
-         * @param type the type of the variable.
+         * @param context the context of the variable.
          */
-        void add(std::string&& variable, const EnumCType type);
+        void add(std::string&& variable, const VariableContext& context);
 
         /**
          * Attempts to lookup the variable in the frame.

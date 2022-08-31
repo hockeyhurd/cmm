@@ -18,14 +18,14 @@ namespace cmm
     {
     }
 
-    void Frame::add(const std::string& variable, const EnumCType type)
+    void Frame::add(const std::string& variable, const VariableContext& context)
     {
-        variables.emplace(variable, type);
+        variables.emplace(variable, context);
     }
 
-    void Frame::add(std::string&& variable, const EnumCType type)
+    void Frame::add(std::string&& variable, const VariableContext& context)
     {
-        variables.emplace(std::move(variable), type);
+        variables.emplace(std::move(variable), context);
     }
 
     std::optional<EnumCType> Frame::find(const std::string& variable) const
@@ -34,7 +34,7 @@ namespace cmm
 
         if (findResult != variables.cend())
         {
-            return std::make_optional(findResult->second);
+            return std::make_optional(findResult->second.getType());
         }
 
         // See if we can check the parent

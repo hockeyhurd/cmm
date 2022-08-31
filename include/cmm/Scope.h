@@ -21,6 +21,9 @@
 
 namespace cmm
 {
+    // Forward declarations:
+    class VariableContext;
+
     class Scope
     {
     public:
@@ -88,17 +91,17 @@ namespace cmm
          * Adds the variable to the frame.
          *
          * @param variable the variable to add.
-         * @param type the type of the variable.
+         * @param context the context of the variable.
          */
-        void add(const std::string& variable, const EnumCType type);
+        void add(const std::string& variable, const VariableContext& context);
 
         /**
          * Adds the variable to the frame.
          *
          * @param variable the variable to add.
-         * @param type the type of the variable.
+         * @param context the context of the variable.
          */
-        void add(std::string&& variable, const EnumCType type);
+        void add(std::string&& variable, const VariableContext& context);
 
         /**
          * Attempts to lookup the variable in the frame.

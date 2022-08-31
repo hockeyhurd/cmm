@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/Scope.h>
+#include <cmm/VariableContext.h>
 
 // std includes
 #include <memory>
@@ -51,16 +52,16 @@ namespace cmm
         }
     }
 
-    void Scope::add(const std::string& variable, const EnumCType type)
+    void Scope::add(const std::string& variable, const VariableContext& context)
     {
         auto& frame = getCurrentFrame();
-        frame.add(variable, type);
+        frame.add(variable, context);
     }
 
-    void Scope::add(std::string&& variable, const EnumCType type)
+    void Scope::add(std::string&& variable, const VariableContext& context)
     {
         auto& frame = getCurrentFrame();
-        frame.add(std::move(variable), type);
+        frame.add(std::move(variable), context);
     }
 
     std::optional<EnumCType> Scope::find(const std::string& variable) const
