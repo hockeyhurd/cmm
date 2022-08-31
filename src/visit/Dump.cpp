@@ -300,6 +300,9 @@ namespace cmm
         case EnumCType::NULL_T:
             std::cout << "NULL";
             break;
+        case EnumCType::VOID:
+            std::cout << "void";
+            break;
         case EnumCType::VOID_PTR:
             std::cout << "void*";
             break;

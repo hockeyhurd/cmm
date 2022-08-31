@@ -27,7 +27,7 @@ set(SOURCE_FILES src/AddressOfNode.cpp src/ArgNode.cpp src/BinOpNode.cpp src/Blo
     src/Scope.cpp src/Token.cpp
     src/TranslationUnitNode.cpp src/Types.cpp src/TypeNode.cpp
     src/VariableContext.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp src/WhileStatementNode.cpp
-    src/visit/Dump.cpp src/visit/Visitor.cpp)
+    src/visit/Analyzer.cpp src/visit/Dump.cpp src/visit/Visitor.cpp)
 
 # Require threading library (Linux/Unix this is pthreads).
 set(THREADS_PREFER_PTHREAD_FLAG ON)

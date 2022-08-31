@@ -1,6 +1,7 @@
 // Our includes
 #include <cmm/NodeList.h>
 #include <cmm/Parser.h>
+#include <cmm/visit/Analyzer.h>
 #include <cmm/visit/Dump.h>
 
 // std includes
@@ -17,6 +18,9 @@ int main()
 
     Dump dump;
     dump.visit(*compUnitPtr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
 
     return 0;
 }
