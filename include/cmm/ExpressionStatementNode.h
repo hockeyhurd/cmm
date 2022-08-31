@@ -27,9 +27,10 @@ namespace cmm
         /**
          * Default constructor.
          *
+         * @param location the location of this node.
          * @param expression the ExpressionNode.
          */
-        ExpressionStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        ExpressionStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

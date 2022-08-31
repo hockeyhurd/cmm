@@ -28,15 +28,18 @@ namespace cmm
 
         /**
          * Default constructor without a defined expression to return.
+         *
+         * @param location the location of this node.
          */
-        ReturnStatementNode() CMM_NOEXCEPT;
+        explicit ReturnStatementNode(const Location& location) CMM_NOEXCEPT;
 
         /**
          * Constructor with a defined expression to return.
          *
+         * @param location the location of this node.
          * @param expression the returned expression.
          */
-        ReturnStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        ReturnStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

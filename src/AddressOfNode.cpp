@@ -10,8 +10,8 @@
 
 namespace cmm
 {
-    AddressOfNode::AddressOfNode(VariableNode&& variable) CMM_NOEXCEPT : ExpressionNode(NodeType::ADDRESS_OF),
-        variable(std::move(variable))
+    AddressOfNode::AddressOfNode(const Location& location, VariableNode&& variable) CMM_NOEXCEPT :
+        ExpressionNode(NodeType::ADDRESS_OF, location), variable(std::move(variable))
     {
     }
 

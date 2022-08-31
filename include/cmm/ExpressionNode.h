@@ -26,7 +26,7 @@ namespace cmm
         /**
          * Default constructor.
          */
-        ExpressionNode(const NodeType type) CMM_NOEXCEPT;
+        ExpressionNode(const NodeType type, const Location& location) CMM_NOEXCEPT;
 
     public:
 

@@ -75,16 +75,16 @@ namespace cmm
         return result;
     }
 
-    bool Lexer::nextToken(Token& token, std::string* errorMessage)
+    bool Lexer::nextToken(Token& token, std::string* errorMessage, Location* pLocation)
     {
-        const bool result = nextTokenInternal(token, errorMessage);
+        const bool result = nextTokenInternal(token, errorMessage, pLocation);
         return result;
     }
 
     bool Lexer::peekNextToken(Token& token)
     {
         Snapshot snapshot = snap();
-        const bool result = nextToken(token, nullptr);
+        const bool result = nextToken(token, nullptr, nullptr);
         restore(snapshot);
 
         return result;
@@ -160,7 +160,7 @@ namespace cmm
         return CHAR_EOF;
     }
 
-    bool Lexer::nextTokenInternal(Token& token, std::string* errorMessage)
+    bool Lexer::nextTokenInternal(Token& token, std::string* errorMessage, Location* pLocation)
     {
         static Reporter& reporter = Reporter::instance();
 
@@ -169,6 +169,11 @@ namespace cmm
 
         // Always start by consuming any 'dead' whitespace.
         consumeWhitespace();
+
+        if (pLocation != nullptr)
+        {
+            *pLocation = getLocation();
+        }
 
         while (index < text.size())
         {

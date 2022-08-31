@@ -11,13 +11,13 @@
 
 namespace cmm
 {
-    CompilationUnitNode::CompilationUnitNode() CMM_NOEXCEPT : Node(NodeType::COMPILATION_UNIT),
+    CompilationUnitNode::CompilationUnitNode() CMM_NOEXCEPT : Node(NodeType::COMPILATION_UNIT, Location()),
         root()
     {
     }
 
     CompilationUnitNode::CompilationUnitNode(TranslationUnitNode&& translationUnit) CMM_NOEXCEPT :
-        Node(NodeType::COMPILATION_UNIT), root(std::move(translationUnit))
+        Node(NodeType::COMPILATION_UNIT, translationUnit.getLocation()), root(std::move(translationUnit))
     {
     }
 

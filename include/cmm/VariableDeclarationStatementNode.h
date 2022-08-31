@@ -29,10 +29,11 @@ namespace cmm
         /**
          * Default constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        VariableDeclarationStatementNode(TypeNode type, VariableNode&& variable) CMM_NOEXCEPT;
+        VariableDeclarationStatementNode(const Location& location, TypeNode type, VariableNode&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

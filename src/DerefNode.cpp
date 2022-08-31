@@ -10,8 +10,8 @@
 
 namespace cmm
 {
-    DerefNode::DerefNode(std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::DEREF), expr(std::move(expr)), rootType(NodeType::UNKNOWN)
+    DerefNode::DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT :
+        ExpressionNode(NodeType::DEREF, location), expr(std::move(expr)), rootType(NodeType::UNKNOWN)
     {
     }
 

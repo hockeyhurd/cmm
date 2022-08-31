@@ -12,7 +12,7 @@
 namespace cmm
 {
 
-    ArgNode::ArgNode(std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT : Node(NodeType::ARG), value(std::move(value))
+    ArgNode::ArgNode(const Location& location, std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT : Node(NodeType::ARG, location), value(std::move(value))
     {
     }
 

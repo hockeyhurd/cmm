@@ -10,12 +10,8 @@
 
 namespace cmm
 {
-    BlockNode::BlockNode() : StatementNode(NodeType::BLOCK)
-    {
-    }
-
-    BlockNode::BlockNode(StatementList&& statements) CMM_NOEXCEPT : StatementNode(NodeType::BLOCK),
-        statements(std::move(statements))
+    BlockNode::BlockNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT :
+        StatementNode(NodeType::BLOCK, location), statements(std::move(statements))
     {
     }
 

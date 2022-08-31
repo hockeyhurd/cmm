@@ -29,17 +29,19 @@ namespace cmm
         /**
          * Constructor without a variable name.
          *
+         * @param location the location of this node.
          * @param type the type of this variable.
          */
-        ParameterNode(TypeNode&& type) CMM_NOEXCEPT;
+        ParameterNode(const Location& location, TypeNode&& type) CMM_NOEXCEPT;
 
         /**
          * Constructor with a variable name.
          *
+         * @param location the location of this node.
          * @param type the type of this variable.
          * @param variable the variable of this parameter.
          */
-        ParameterNode(TypeNode&& type, VariableNode&& variable) CMM_NOEXCEPT;
+        ParameterNode(const Location& location, TypeNode&& type, VariableNode&& variable) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.

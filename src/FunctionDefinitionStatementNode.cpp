@@ -9,16 +9,16 @@
 
 namespace cmm
 {
-    FunctionDefinitionStatementNode::FunctionDefinitionStatementNode(TypeNode type,
+    FunctionDefinitionStatementNode::FunctionDefinitionStatementNode(const Location& location, TypeNode type,
         const std::string& funcName, BlockNode&& block, ParamList&& params) :
-        StatementNode(NodeType::FUNCTION_DEFINITION_STATEMENT), type(type), funcName(funcName),
+        StatementNode(NodeType::FUNCTION_DEFINITION_STATEMENT, location), type(type), funcName(funcName),
         block(std::move(block)), params(std::move(params))
     {
     }
 
-    FunctionDefinitionStatementNode::FunctionDefinitionStatementNode(TypeNode type,
+    FunctionDefinitionStatementNode::FunctionDefinitionStatementNode(const Location& location, TypeNode type,
         std::string&& funcName, BlockNode&& block, ParamList&& params) CMM_NOEXCEPT :
-        StatementNode(NodeType::FUNCTION_DEFINITION_STATEMENT), type(type), funcName(std::move(funcName)),
+        StatementNode(NodeType::FUNCTION_DEFINITION_STATEMENT, location), type(type), funcName(std::move(funcName)),
         block(std::move(block)), params(std::move(params))
     {
     }

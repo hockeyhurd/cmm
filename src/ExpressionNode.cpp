@@ -12,7 +12,7 @@
 namespace cmm
 {
 
-    ExpressionNode::ExpressionNode(const NodeType type) CMM_NOEXCEPT : Node(type)
+    ExpressionNode::ExpressionNode(const NodeType type, const Location& location) CMM_NOEXCEPT : Node(type, location)
     {
     }
 

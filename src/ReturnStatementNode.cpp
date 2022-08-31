@@ -10,13 +10,13 @@
 
 namespace cmm
 {
-    ReturnStatementNode::ReturnStatementNode() CMM_NOEXCEPT : StatementNode(NodeType::RETURN_STATEMENT),
-        expression(nullptr)
+    ReturnStatementNode::ReturnStatementNode(const Location& location) CMM_NOEXCEPT :
+        StatementNode(NodeType::RETURN_STATEMENT, location), expression(nullptr)
     {
     }
 
-    ReturnStatementNode::ReturnStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
-        StatementNode(NodeType::RETURN_STATEMENT), expression(std::move(expression))
+    ReturnStatementNode::ReturnStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
+        StatementNode(NodeType::RETURN_STATEMENT, location), expression(std::move(expression))
     {
     }
 

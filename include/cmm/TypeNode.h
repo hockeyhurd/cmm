@@ -23,17 +23,19 @@ namespace cmm
         /**
          * Default constructor.
          *
+         * @param location the location of this node.
          * @param type the EnumCType.
          */
-        explicit TypeNode(const EnumCType type) CMM_NOEXCEPT;
+        TypeNode(const Location& location, const EnumCType type) CMM_NOEXCEPT;
 
         /**
          * Default constructor.
          *
+         * @param location the location of this node.
          * @param type the EnumCType.
          * @param pointerInderectionCount the amount of pointer inderection or dimensions.
          */
-        TypeNode(const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT;
+        TypeNode(const Location& location, const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

@@ -23,9 +23,10 @@ namespace cmm
         /**
          * Default constructor with binary op type.
          *
+         * @param location the location of this node.
          * @param type the EnumBinOpNodeType.
          */
-        ParenExpressionNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        ParenExpressionNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

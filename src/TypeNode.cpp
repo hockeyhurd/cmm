@@ -9,13 +9,13 @@
 
 namespace cmm
 {
-    TypeNode::TypeNode(const EnumCType type) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE), type(type), pointerInderectionCount(0)
+    TypeNode::TypeNode(const Location& location, const EnumCType type) CMM_NOEXCEPT :
+        Node(NodeType::VARIABLE, location), type(type), pointerInderectionCount(0)
     {
     }
 
-    TypeNode::TypeNode(const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE), type(type), pointerInderectionCount(pointerInderectionCount)
+    TypeNode::TypeNode(const Location& location, const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT :
+        Node(NodeType::VARIABLE, location), type(type), pointerInderectionCount(pointerInderectionCount)
     {
     }
 

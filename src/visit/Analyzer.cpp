@@ -11,12 +11,18 @@
 #include <cmm/Reporter.h>
 
 // std includes
-// #include <algorithm>
+#include <limits>
 
 namespace cmm
 {
     /* static */
     Reporter& Analyzer::reporter = Reporter::instance();
+
+    template<class T>
+    static bool inRange(const T& value)
+    {
+        return std::numeric_limits<T>::min() <= value && value <= std::numeric_limits<T>::max();
+    }
 
     Analyzer::Analyzer() CMM_NOEXCEPT
     {
@@ -150,53 +156,100 @@ namespace cmm
     VisitorResult Analyzer::visit(LitteralNode& node)
     {
         // TODO: Do we need to do anything here??
-#if 0
         switch (node.getValueType())
         {
         case EnumCType::NULL_T:
-            std::cout << "NULL";
             break;
         case EnumCType::VOID:
-            std::cout << "void";
             break;
         case EnumCType::VOID_PTR:
-            std::cout << "void*";
-            break;
-        case EnumCType::BOOL:
-            std::cout << (node.getValue().valueBool ? "true" : "false");
-            break;
-        case EnumCType::CHAR:
-            std::cout << static_cast<s32>(node.getValue().valueChar);
-            break;
-        case EnumCType::INT8:
-            std::cout << static_cast<s32>(node.getValue().valueS8);
-            break;
-        case EnumCType::INT16:
-            std::cout << node.getValue().valueS16;
-            break;
-        case EnumCType::INT32:
-            std::cout << node.getValue().valueS32;
-            break;
-        case EnumCType::INT64:
-            std::cout << node.getValue().valueS64;
-            break;
-        case EnumCType::FLOAT:
-            std::cout << node.getValue().valueF32;
-            break;
-        case EnumCType::DOUBLE:
-            std::cout << node.getValue().valueF64;
             break;
         case EnumCType::STRING:
-            std::cout << node.getValue().valueString;
+            break;
+        case EnumCType::BOOL:
+            break;
+        case EnumCType::CHAR:
+        {
+            if (!inRange(node.getValue().valueChar))
+            {
+                std::ostringstream os;
+                os << "value '" << static_cast<int>(node.getValue().valueChar)
+                   << "'" << " is outside of the expected range for a char."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
+            break;
+        case EnumCType::INT8:
+        {
+            if (!inRange(node.getValue().valueS8))
+            {
+                std::ostringstream os;
+                os << "value '" << static_cast<int>(node.getValue().valueS8)
+                   << "'" << " is outside of the expected range for a 8-bit signed int."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
+            break;
+        case EnumCType::INT16:
+        {
+            if (!inRange(node.getValue().valueS16))
+            {
+                std::ostringstream os;
+                os << "value '" << static_cast<int>(node.getValue().valueS16)
+                   << "'" << " is outside of the expected range for a 16-bit signed int."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
+            break;
+        case EnumCType::INT32:
+        {
+            if (!inRange(node.getValue().valueS32))
+            {
+                std::ostringstream os;
+                os << "value '" << node.getValue().valueS32
+                   << "'" << " is outside of the expected range for a 32-bit signed int."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
+            break;
+        case EnumCType::INT64:
+        {
+            if (!inRange(node.getValue().valueS64))
+            {
+                std::ostringstream os;
+                os << "value '" << node.getValue().valueS64
+                   << "'" << " is outside of the expected range for a 64-bit signed int."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
+            break;
+        case EnumCType::FLOAT:
+        {
+            if (!inRange(node.getValue().valueF32))
+            {
+                std::ostringstream os;
+                os << "value '" << node.getValue().valueF32
+                   << "'" << " is outside of the expected range for a 32-bit float."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
+            break;
+        case EnumCType::DOUBLE:
+        {
+            if (!inRange(node.getValue().valueF64))
+            {
+                std::ostringstream os;
+                os << "value '" << node.getValue().valueF64
+                   << "'" << " is outside of the expected range for a 64-bit double."; 
+                reporter.warn(os.str(), node.getLocation());
+            }
+        }
             break;
         case EnumCType::STRUCT:
-            std::cout << "struct";
             break;
         default:
-            std::cout << "Unknown type";
             break;
         }
-#endif
 
         return VisitorResult();
     }

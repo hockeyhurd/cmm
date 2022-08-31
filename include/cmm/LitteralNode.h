@@ -24,58 +24,80 @@ namespace cmm
 
         /**
          * Default constructor for NULL type.
+         *
+         * @param location the location of this node.
          */
-        LitteralNode() CMM_NOEXCEPT;
+        explicit LitteralNode(const Location& location) CMM_NOEXCEPT;
 
         /**
          * Default constructor for void pointer type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(void* value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, void* value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for bool type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const bool value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const bool value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for char type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const char value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const char value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s8 type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const s8 value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const s8 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s16 type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const s16 value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const s16 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s32 type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const s32 value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const s32 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for s64 type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const s64 value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const s64 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for f32 type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const f32 value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const f32 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for f64 type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const f64 value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const f64 value) CMM_NOEXCEPT;
 
         /**
          * Default constructor for c-strings type.
+         *
+         * @param location the location of this node.
          */
-        explicit LitteralNode(const char* value) CMM_NOEXCEPT;
+        LitteralNode(const Location& location, const char* value) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

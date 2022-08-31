@@ -11,12 +11,12 @@
 
 namespace cmm
 {
-    TranslationUnitNode::TranslationUnitNode() CMM_NOEXCEPT : Node(NodeType::TRANSLATION_UNIT)
+    TranslationUnitNode::TranslationUnitNode() CMM_NOEXCEPT : Node(NodeType::TRANSLATION_UNIT, Location())
     {
     }
 
-    TranslationUnitNode::TranslationUnitNode(StatementList&& statements) CMM_NOEXCEPT :
-        Node(NodeType::TRANSLATION_UNIT), statements(std::move(statements))
+    TranslationUnitNode::TranslationUnitNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT :
+        Node(NodeType::TRANSLATION_UNIT, location), statements(std::move(statements))
     {
     }
 

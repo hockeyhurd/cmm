@@ -24,6 +24,7 @@ namespace cmm
     class FunctionCallNode : public ExpressionNode
     {
     public:
+
         using ArgList = std::vector<ArgNode>;
         using size_type = ArgList::size_type;
         using ArgListIter = ArgList::iterator;
@@ -34,10 +35,11 @@ namespace cmm
         /**
          * Constructor with list of arguments used.
          *
+         * @param location the location of this node.
          * @param name the name of our function to be called.
          * @param args the ArgList of the function call.
          */
-        FunctionCallNode(std::string name, ArgList&& args) CMM_NOEXCEPT;
+        FunctionCallNode(const Location& location, std::string name, ArgList&& args) CMM_NOEXCEPT;
 
         /**
          * Copy constructor

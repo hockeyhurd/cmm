@@ -10,7 +10,7 @@
 namespace cmm
 {
 
-    Node::Node(const NodeType type) CMM_NOEXCEPT : type(type)
+    Node::Node(const NodeType type, const Location& location) CMM_NOEXCEPT : type(type), location(location)
     {
     }
 
@@ -18,6 +18,18 @@ namespace cmm
     NodeType Node::getType() const CMM_NOEXCEPT
     {
         return type;
+    }
+
+    /* virtual */
+    Location& Node::getLocation() CMM_NOEXCEPT
+    {
+        return location;
+    }
+
+    /* virtual */
+    const Location& Node::getLocation() const CMM_NOEXCEPT
+    {
+        return location;
     }
 
     /* virtual */

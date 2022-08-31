@@ -12,6 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Location.h>
 #include <cmm/visit/Visitor.h>
 
 // std includes
@@ -37,7 +38,7 @@ namespace cmm
         /**
          * Default constructor that can only be constructed by a derived type.
          */
-        Node(const NodeType type) CMM_NOEXCEPT;
+        Node(const NodeType type, const Location& location) CMM_NOEXCEPT;
 
     public:
 
@@ -78,6 +79,20 @@ namespace cmm
         virtual NodeType getType() const CMM_NOEXCEPT;
 
         /**
+         * Get the location of this node.
+         *
+         * @return Location.
+         */
+        virtual Location& getLocation() CMM_NOEXCEPT;
+
+        /**
+         * Get the location of this node.
+         *
+         * @return Location.
+         */
+        virtual const Location& getLocation() const CMM_NOEXCEPT;
+
+        /**
          * Generic and templated function needed for visitor pattern.
          */
         virtual VisitorResult accept(Visitor* visitor) = 0;
@@ -94,6 +109,9 @@ namespace cmm
 
         // The type of this Node
         NodeType type;
+
+        // The Location of this Node.
+        Location location;
     };
 }
 

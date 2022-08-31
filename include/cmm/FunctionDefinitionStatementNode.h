@@ -35,23 +35,25 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param block the block of the function.
          * @param params the parameter list.
          */
-        FunctionDefinitionStatementNode(TypeNode type, const std::string& funcName,
-            BlockNode&& block, ParamList&& params = ParamList());
+        FunctionDefinitionStatementNode(const Location& location, TypeNode type,
+            const std::string& funcName, BlockNode&& block, ParamList&& params = ParamList());
 
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param block the block of the function.
          * @param params the parameter list.
          */
-        FunctionDefinitionStatementNode(TypeNode type, std::string&& funcName,
+        FunctionDefinitionStatementNode(const Location& location, TypeNode type, std::string&& funcName,
             BlockNode&& block, ParamList&& params = ParamList()) CMM_NOEXCEPT;
 
         /**
