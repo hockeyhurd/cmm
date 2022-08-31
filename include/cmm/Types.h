@@ -151,7 +151,7 @@ namespace cmm
 
     enum class EnumCType
     {
-        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
+        NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
         DOUBLE, STRING, STRUCT
     };
 
