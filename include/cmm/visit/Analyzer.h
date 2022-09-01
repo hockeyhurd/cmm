@@ -17,6 +17,10 @@
 #include <cmm/VariableContext.h>
 #include <cmm/visit/Visitor.h>
 
+// std includes
+#include <stack>
+#include <vector>
+
 namespace cmm
 {
     // Forward declarations:
@@ -79,7 +83,7 @@ namespace cmm
 
     private:
 
-        // void printNewLine() const;
+        static EnumCType deduceType(ExpressionNode* expression);
 
     private:
 
@@ -88,6 +92,9 @@ namespace cmm
 
         // The symbol table wrapped around a stack based scope. 
         ScopeManager scope;
+
+        // For tracking current locality.
+        std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;
 
     };
 }

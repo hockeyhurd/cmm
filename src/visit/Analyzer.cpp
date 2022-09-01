@@ -26,6 +26,7 @@ namespace cmm
 
     Analyzer::Analyzer() CMM_NOEXCEPT
     {
+        localityStack.push(EnumLocality::GLOBAL);
     }
 
     VisitorResult Analyzer::visit(AddressOfNode& node)
@@ -47,10 +48,33 @@ namespace cmm
     VisitorResult Analyzer::visit(BinOpNode& node)
     {
         auto* leftNode = node.getLeft();
-        leftNode->accept(this);
+        auto leftNodeResult = leftNode->accept(this);
 
         auto* rightNode = node.getRight();
-        rightNode->accept(this);
+        auto rightNodeResult = rightNode->accept(this);
+
+        auto leftType = deduceType(leftNode);
+        auto rightType = deduceType(rightNode);
+
+        if (leftType != rightType)
+        {
+            if (canPromote(leftType, rightType))
+            {
+                std::ostringstream builder;
+                builder << "Type mismatch between " << toString(leftType)
+                        << " and " << toString(rightType)
+                        << " but is promotable.";
+                reporter.warn(builder.str(), node.getLocation());
+            }
+
+            else
+            {
+                std::ostringstream builder;
+                builder << "Type mismatch between " << toString(leftType)
+                        << " and " << toString(rightType);
+                reporter.error(builder.str(), node.getLocation());
+            }
+        }
 
         return VisitorResult();
     }
@@ -111,6 +135,8 @@ namespace cmm
 
     VisitorResult Analyzer::visit(FunctionDefinitionStatementNode& node)
     {
+        localityStack.push(EnumLocality::LOCAL);
+
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
 
@@ -124,6 +150,8 @@ namespace cmm
 
         auto& blockNode = node.getBlock();
         blockNode.accept(this);
+
+        localityStack.pop();
 
         return VisitorResult();
     }
@@ -155,8 +183,7 @@ namespace cmm
 
     VisitorResult Analyzer::visit(LitteralNode& node)
     {
-        // TODO: Do we need to do anything here??
-        switch (node.getValueType())
+        switch (node.getDatatype())
         {
         case EnumCType::NULL_T:
             break;
@@ -309,9 +336,16 @@ namespace cmm
 
     VisitorResult Analyzer::visit(VariableNode& node)
     {
-        // TODO: What to do here??
-        [[maybe_unused]]
-        auto& name = node.getName();
+        auto& varName = node.getName();
+        auto* varContext = scope.find(varName);
+
+        if (varContext == nullptr)
+        {
+            reporter.bug("Failed to find variable in current context.", node.getLocation(), true);
+        }
+
+        node.setDatatype(varContext->getType());
+
         return VisitorResult();
     }
 
@@ -319,6 +353,10 @@ namespace cmm
     {
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
+
+        auto currentLocality = localityStack.top();
+        VariableContext context(node.getDatatype(), currentLocality, EnumModifier::NO_MOD);
+        scope.add(node.getName(), context);
 
         return VisitorResult();
     }
@@ -332,6 +370,12 @@ namespace cmm
         statement->accept(this);
 
         return VisitorResult();
+    }
+
+    /* static */
+    EnumCType Analyzer::deduceType(ExpressionNode* expression)
+    {
+        return expression->getDatatype();
     }
 }
 

@@ -10,6 +10,8 @@
 
 // std includes
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace cmm
 {
@@ -29,6 +31,78 @@ namespace cmm
         ctypeMap.emplace("float", EnumCType::FLOAT);
         ctypeMap.emplace("double", EnumCType::DOUBLE);
         ctypeMap.emplace("struct", EnumCType::STRUCT);
+    }
+
+    bool canPromote(const EnumCType from, const EnumCType to)
+    {
+        static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> promoMap;
+
+        // One time map init
+        if (promoMap.empty())
+        {
+            // promoMap.emplace(EnumCType::BOOL, EnumCType::BOOL);
+            // promoMap.emplace(EnumCType::CHAR, EnumCType::CHAR);
+            // promoMap.emplace(EnumCType::CHAR, EnumCType::INT8);
+            // promoMap.emplace(EnumCType::CHAR, EnumCType::INT16);
+            // promoMap.emplace(EnumCType::CHAR, EnumCType::INT32);
+            // promoMap.emplace(EnumCType::CHAR, EnumCType::INT64);
+            // promoMap.emplace(EnumCType::INT8, EnumCType::INT8);
+            // promoMap.emplace(EnumCType::INT8, EnumCType::INT16);
+            // promoMap.emplace(EnumCType::INT8, EnumCType::INT32);
+            // promoMap.emplace(EnumCType::INT8, EnumCType::INT64);
+            // promoMap.emplace(EnumCType::INT16, EnumCType::INT16);
+            // promoMap.emplace(EnumCType::INT16, EnumCType::INT32);
+            // promoMap.emplace(EnumCType::INT16, EnumCType::INT64);
+            // promoMap.emplace(EnumCType::INT32, EnumCType::INT32);
+            // promoMap.emplace(EnumCType::INT32, EnumCType::INT64);
+            // promoMap.emplace(EnumCType::INT64, EnumCType::INT64);
+            {
+                auto& set = promoMap[EnumCType::CHAR];
+                set.emplace(EnumCType::CHAR);
+                set.emplace(EnumCType::INT8);
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT8];
+                set.emplace(EnumCType::CHAR);
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT16];
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT32];
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT64];
+                set.emplace(EnumCType::INT64);
+            }
+        }
+
+        const auto firstFindResult = promoMap.find(from);
+
+        if (firstFindResult == promoMap.cend())
+        {
+            return false;
+        }
+
+        const auto& set = firstFindResult->second;
+        const auto secondFindResult = set.find(to);
+
+        return secondFindResult != set.cend();
     }
 
     bool isCType(const std::string& str) CMM_NOEXCEPT

@@ -293,9 +293,9 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getValueType()) << ": ";
+        std::cout << toString(node.getDatatype()) << ": ";
 
-        switch (node.getValueType())
+        switch (node.getDatatype())
         {
         case EnumCType::NULL_T:
             std::cout << "NULL";

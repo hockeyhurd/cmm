@@ -209,6 +209,7 @@ namespace cmm
         // CType(const std::size_t length);
     };
 
+    bool canPromote(const EnumCType from, const EnumCType to);
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 

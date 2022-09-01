@@ -129,13 +129,6 @@ namespace cmm
         LitteralNode& operator= (LitteralNode&&) CMM_NOEXCEPT = default;
 
         /**
-         * Get the type of this litteral.
-         *
-         * @return EnumCType.
-         */
-        EnumCType getValueType() const CMM_NOEXCEPT;
-
-        /**
          * Get the underly value.
          *
          * @return CType.
@@ -152,7 +145,6 @@ namespace cmm
     private:
 
         CType value;
-        EnumCType type;
     };
 }
 
