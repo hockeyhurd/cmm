@@ -2273,6 +2273,8 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
     auto argListIter = functionCallPtr->cbegin();
     ASSERT_NE(argListIter, functionCallPtr->cend());
 
+    CMM_CONSTEXPR f64 eps = 0.00001;
+
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
@@ -2280,7 +2282,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::DOUBLE);
-        ASSERT_EQ(litteralNodePtr->getValue().valueF64, 123.45);
+        ASSERT_NEAR(litteralNodePtr->getValue().valueF64, 123.45, eps);
     }
 
     ++argListIter;
@@ -2293,7 +2295,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::DOUBLE);
-        ASSERT_EQ(litteralNodePtr->getValue().valueF64, -100.001);
+        ASSERT_NEAR(litteralNodePtr->getValue().valueF64, -100.001, eps);
     }
 
     ++argListIter;

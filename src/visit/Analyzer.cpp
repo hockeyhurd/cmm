@@ -19,9 +19,21 @@ namespace cmm
     Reporter& Analyzer::reporter = Reporter::instance();
 
     template<class T>
-    static bool inRange(const T& value)
+    static bool inRange(const T value)
     {
         return std::numeric_limits<T>::min() <= value && value <= std::numeric_limits<T>::max();
+    }
+
+    template<>
+    static bool inRange(const f32 value)
+    {
+        return -std::numeric_limits<f32>::max() <= value && value <= std::numeric_limits<f32>::max();
+    }
+
+    template<>
+    static bool inRange(const f64 value)
+    {
+        return -std::numeric_limits<f64>::max() <= value && value <= std::numeric_limits<f64>::max();
     }
 
     Analyzer::Analyzer() CMM_NOEXCEPT
