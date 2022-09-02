@@ -36,7 +36,7 @@ namespace cmm
     static std::optional<f32> validateFloat(const std::string& str)
     {
         const auto doubleResult = validateDouble(str);
-        return doubleResult.has_value() && (f64) -std::numeric_limits<f32>::max() <= *doubleResult && *doubleResult <= (f64) std::numeric_limits<f32>::max() ?
+        return doubleResult.has_value() && (f64) std::numeric_limits<f32>::lowest() <= *doubleResult && *doubleResult <= (f64) std::numeric_limits<f32>::max() ?
                std::make_optional(static_cast<f32>(*doubleResult)) : std::nullopt;
     }
 
