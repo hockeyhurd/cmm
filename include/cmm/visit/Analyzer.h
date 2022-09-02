@@ -19,6 +19,8 @@
 
 // std includes
 #include <stack>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace cmm
@@ -28,6 +30,13 @@ namespace cmm
 
     class Analyzer : public Visitor
     {
+    private:
+
+        enum class EnumFuncState
+        {
+            DECLARED = 0, DEFINED
+        };
+
     public:
 
         /**
@@ -85,6 +94,15 @@ namespace cmm
 
         static EnumCType deduceType(ExpressionNode* expression);
 
+        /**
+         * Validates that function already exists or does not requiring updating the internal map.
+         *
+         * @param name the name of the function.
+         * @param state the state to be updated (Note: does not actually update the table).
+         * @return bool.
+         */
+        bool validateFunction(const std::string& name, const EnumFuncState state);
+
     private:
 
         // Our reporter for reporting things.
@@ -92,6 +110,9 @@ namespace cmm
 
         // The symbol table wrapped around a stack based scope. 
         ScopeManager scope;
+
+        // A map for keeping track of functions available.
+        std::unordered_map<std::string, EnumFuncState> functionTable;
 
         // For tracking current locality.
         std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;

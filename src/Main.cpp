@@ -11,16 +11,19 @@ using namespace cmm;
 
 int main()
 {
-    std::string input = "*a = &b;";
+    std::string input = "int main() { int a; int b; b = 42; a = b; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
 
-    Dump dump;
-    dump.visit(*compUnitPtr);
+    if (compUnitPtr != nullptr)
+    {
+        Dump dump;
+        dump.visit(*compUnitPtr);
 
-    Analyzer analyzer;
-    analyzer.visit(*compUnitPtr);
+        Analyzer analyzer;
+        analyzer.visit(*compUnitPtr);
+    }
 
     return 0;
 }

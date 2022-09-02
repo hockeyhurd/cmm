@@ -81,10 +81,14 @@ namespace cmm
 
     VisitorResult Analyzer::visit(BlockNode& node)
     {
+        scope.push(true);
+
         for (auto& statementPtr : node)
         {
             statementPtr->accept(this);
         }
+
+        scope.pop();
 
         return VisitorResult();
     }
@@ -106,8 +110,16 @@ namespace cmm
 
     VisitorResult Analyzer::visit(FunctionCallNode& node)
     {
-        [[maybe_unused]]
-        auto& name = node.getName();
+        const auto& funcName = node.getName();
+        const auto findResult = functionTable.find(funcName);
+
+        if (findResult == functionTable.cend())
+        {
+            std::ostringstream builder;
+            builder << "Could not find a declaration or definition for function '"
+                    << funcName << "'.";
+            reporter.error(builder.str(), node.getLocation());
+        }
 
         for (auto& func : node)
         {
@@ -122,12 +134,39 @@ namespace cmm
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
 
-        [[maybe_unused]]
-        auto& name = node.getName();
+        const auto& funcName = node.getName();
 
-        for (auto& decl : node)
+        if (!validateFunction(funcName, EnumFuncState::DECLARED))
         {
-            decl.accept(this);
+            const auto previousState = functionTable[funcName];
+            std::ostringstream builder;
+
+            if (previousState == EnumFuncState::DECLARED)
+            {
+                builder << "Function '" << funcName << "' was already previously declared and does not need to be declared here as well.";
+                reporter.warn(builder.str(), node.getLocation());
+            }
+
+            else if (previousState == EnumFuncState::DEFINED)
+            {
+                builder << "Function '" << funcName << "' was already previously defined and does not need to be declared here as well.";
+                reporter.warn(builder.str(), node.getLocation());
+            }
+
+            else
+            {
+                reporter.bug("Unknown EnumFuncState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDeclarationStatementNode&))", node.getLocation(), false);
+            }
+        }
+
+        else
+        {
+            functionTable[funcName] = EnumFuncState::DECLARED;
+        }
+
+        for (auto& paramNode : node)
+        {
+            paramNode.accept(this);
         }
 
         return VisitorResult();
@@ -135,23 +174,50 @@ namespace cmm
 
     VisitorResult Analyzer::visit(FunctionDefinitionStatementNode& node)
     {
-        localityStack.push(EnumLocality::LOCAL);
+        scope.push(true);
 
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
 
-        [[maybe_unused]]
-        auto& name = node.getName();
+        const auto& funcName = node.getName();
 
-        for (auto& funcDef : node)
+        if (!validateFunction(funcName, EnumFuncState::DECLARED))
         {
-            funcDef.accept(this);
+            const auto previousState = functionTable[funcName];
+            std::ostringstream builder;
+
+            if (previousState == EnumFuncState::DEFINED)
+            {
+                builder << "Function '" << funcName << "' was already previously defined and does not need to be defined here as well (multiple definitions).";
+                reporter.error(builder.str(), node.getLocation());
+            }
+
+            else
+            {
+                reporter.bug("Unknown EnumFuncState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDefinitionStatementNode&))", node.getLocation(), false);
+            }
         }
+
+        else
+        {
+            functionTable[funcName] = EnumFuncState::DEFINED;
+        }
+
+        localityStack.push(EnumLocality::PARAMETER);
+
+        for (auto& paramNode : node)
+        {
+            paramNode.accept(this);
+        }
+
+        localityStack.pop();
+        localityStack.push(EnumLocality::LOCAL);
 
         auto& blockNode = node.getBlock();
         blockNode.accept(this);
 
         localityStack.pop();
+        scope.pop();
 
         return VisitorResult();
     }
@@ -290,6 +356,10 @@ namespace cmm
 
         if (optionalVariableNode.has_value())
         {
+            const auto currentLocality = localityStack.top();
+            VariableContext context(typeNode.getDatatype(), currentLocality, EnumModifier::NO_MOD);
+            scope.add(optionalVariableNode->getName(), context);
+
             optionalVariableNode->accept(this);
         }
 
@@ -320,6 +390,12 @@ namespace cmm
             {
                 statement->accept(this);
             }
+
+            else
+            {
+                static const char* errorMessage = "Un-expected statement with a nullptr.";
+                reporter.bug(errorMessage, node.getLocation(), true);
+            }
         }
 
         return VisitorResult();
@@ -341,7 +417,10 @@ namespace cmm
 
         if (varContext == nullptr)
         {
-            reporter.bug("Failed to find variable in current context.", node.getLocation(), true);
+            std::ostringstream builder;
+            builder << "Failed to find variable '" << varName << "' in current context.";
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
         }
 
         node.setDatatype(varContext->getType());
@@ -376,6 +455,20 @@ namespace cmm
     EnumCType Analyzer::deduceType(ExpressionNode* expression)
     {
         return expression->getDatatype();
+    }
+
+    bool Analyzer::validateFunction(const std::string& name, const Analyzer::EnumFuncState state)
+    {
+        const auto findResult = functionTable.find(name);
+
+        if (findResult == functionTable.cend())
+        {
+            return true;
+        }
+
+        const auto currentState = findResult->second;
+        const bool invResult = currentState == state || (currentState == EnumFuncState::DEFINED && state == EnumFuncState::DECLARED);
+        return !invResult;
     }
 }
 
