@@ -38,7 +38,7 @@ namespace cmm
         return parsedCount > 0 ? std::make_optional(value) : std::optional<f64>();
     }
 
-    Lexer::Lexer(const std::string& text) : text(text), index(0)
+    Lexer::Lexer(const std::string& text) : text(text), index(0), location(1, 0)
     {
         builder.reserve(0x40);
     }
@@ -125,6 +125,7 @@ namespace cmm
             // We know it's whitespace and room to consume the char, so simply
             // increment the index.
             ++index;
+            ++location.pos;
         }
     }
 
