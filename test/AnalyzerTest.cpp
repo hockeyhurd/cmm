@@ -11,7 +11,7 @@ using namespace cmm;
 
 static Reporter& reporter = Reporter::instance();
 
-TEST(ParserTest, AnalyzerWarnCharAssignment)
+TEST(AnalyzerTest, AnalyzerWarnCharAssignment)
 {
     const std::string input = "char a; a = 256;";
     Parser parser(input);

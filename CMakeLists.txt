@@ -37,8 +37,8 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # Require GMP and GMPXX (C++ wrapper) libraries.
-find_package(GMP 6.2.1 REQUIRED)
-find_package(GMPXX 6.2.1 REQUIRED)
+find_package(GMP 6.2.0 REQUIRED)
+find_package(GMPXX 6.2.0 REQUIRED)
 
 enable_testing()
 find_package(GTest REQUIRED)
