@@ -40,7 +40,7 @@ if (GMP_INCLUDE_DIRS AND GMP_LIBRARIES)
   # This program will fail to compile if GMP is too old.
   # We prefer to perform this "test" at compile-time to
   # avoid problems with e.g. try_run() during cross-compilation.
-  file(WRITE ${PROJECT_BINARY_DIR}/gmp-version-check.c ""
+  file(WRITE ${PROJECT_BINARY_DIR}/gmp_version_check.c ""
   "#include <gmp.h>\n"
   "\n"
   "#define GMP_FIND_VERSION_MAJOR ${GMP_FIND_VERSION_MAJOR}\n"
@@ -65,7 +65,7 @@ if (GMP_INCLUDE_DIRS AND GMP_LIBRARIES)
   # strings substituted in.
   try_compile(GMP_VERSION_OK
           "${PROJECT_BINARY_DIR}"
-          "${PROJECT_BINARY_DIR}/gmp-version-check.c"
+          "${PROJECT_BINARY_DIR}/gmp_version_check.c"
           CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${GMP_INCLUDE_DIRS}")
 endif ()
 

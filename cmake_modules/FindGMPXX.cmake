@@ -27,16 +27,12 @@ if (NOT GMPXX_FIND_VERSION)
     "${GMPXX_FIND_VERSION_MAJOR}.${GMPXX_FIND_VERSION_MINOR}.${GMPXX_FIND_VERSION_PATCH}")
 endif ()
 
-find_path(GMP_INCLUDE_DIRS
-          NAMES gmp.h
-          PATHS $ENV{GMPXXDIR} ${INCLUDE_INSTALL_DIR})
-
 find_path(GMPXX_INCLUDE_DIRS
-          NAMES gmpxx.h
+          NAMES gmp.h gmpxx.h
           PATHS $ENV{GMPXXDIR} ${INCLUDE_INSTALL_DIR})
 
 find_library(GMPXX_LIBRARIES
-             gmpxx
+             gmp gmpxx
              PATHS $ENV{GMPXXDIR} ${LIB_INSTALL_DIR})
 
 if (GMPXX_INCLUDE_DIRS AND GMPXX_LIBRARIES)
@@ -71,7 +67,7 @@ if (GMPXX_INCLUDE_DIRS AND GMPXX_LIBRARIES)
   try_compile(GMPXX_VERSION_OK
           "${PROJECT_BINARY_DIR}"
           "${PROJECT_BINARY_DIR}/gmpxx_version_check.cpp"
-          CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${GMP_INCLUDE_DIRS},${GMPXX_INCLUDE_DIRS}")
+          CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${GMPXX_INCLUDE_DIRS}")
 endif ()
 
 if (NOT GMPXX_VERSION_OK)
