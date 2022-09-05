@@ -136,6 +136,14 @@ namespace cmm
 
     VisitorResult Analyzer::visit(FunctionDeclarationStatementNode& node)
     {
+        if (localityStack.top() != EnumLocality::GLOBAL)
+        {
+            std::ostringstream builder;
+            builder << "Function '" << node.getName() << "' is being declared outside of global scope. Function declarations must exist in global scope only.";
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
 
@@ -164,6 +172,14 @@ namespace cmm
             }
         }
 
+        // If in global scope, we must make sure there is NOT a variable with the same name (i.e. redefinition error).
+        else if (scope.find(node.getName()) != nullptr)
+        {
+            std::ostringstream builder;
+            builder << "Function '" << node.getName() << "' matches a variable definition";
+            reporter.error(builder.str(), node.getLocation());
+        }
+
         else
         {
             functionTable[funcName] = EnumFuncState::DECLARED;
@@ -179,6 +195,14 @@ namespace cmm
 
     VisitorResult Analyzer::visit(FunctionDefinitionStatementNode& node)
     {
+        if (localityStack.top() != EnumLocality::GLOBAL)
+        {
+            std::ostringstream builder;
+            builder << "Function '" << node.getName() << "' is being declared outside of global scope. Function definitions must exist in global scope only.";
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
         scope.push(true);
 
         auto& typeNode = node.getTypeNode();
@@ -444,6 +468,7 @@ namespace cmm
         // Before we add it to the current scope, we should check if this declaration would be a duplicate
         // and conditionally report this case.  Note: This condition must strictly be in the current frame
         // of reference and not a parent, since this would be allowed.
+        // Also, if we are in global scope, we must check this isn't a function too.
 
         auto* lookupContext = scope.find(node.getName());
 
@@ -451,6 +476,13 @@ namespace cmm
         {
             std::ostringstream builder;
             builder << "Redefinition of variable '" << node.getName() << '\'';
+            reporter.error(builder.str(), node.getLocation());
+        }
+
+        else if (currentLocality == EnumLocality::GLOBAL && functionTable.find(node.getName()) != functionTable.cend())
+        {
+            std::ostringstream builder;
+            builder << "Redefinition of variable '" << node.getName() << "\' from a function to a variable";
             reporter.error(builder.str(), node.getLocation());
         }
 
