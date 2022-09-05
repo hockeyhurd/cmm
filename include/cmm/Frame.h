@@ -88,7 +88,7 @@ namespace cmm
         void add(std::string&& variable, const VariableContext& context);
 
         /**
-         * Attempts to lookup the variable in the frame.
+         * Attempts to lookup the variable in the current frame (only).
          *
          * @param variable the variable to lookup.
          * @return pointer to the VariableContext if found, else nullptr.
@@ -96,12 +96,28 @@ namespace cmm
         VariableContext* find(const std::string& variable);
 
         /**
-         * Attempts to lookup the variable in the frame.
+         * Attempts to lookup the variable in the frame (only).
          *
          * @param variable the variable to lookup.
          * @return const pointer to the VariableContext if found, else nullptr.
          */
         const VariableContext* find(const std::string& variable) const;
+
+        /**
+         * Attempts to lookup the variable in the frame or parent frame (if applicable).
+         *
+         * @param variable the variable to lookup.
+         * @return pointer to the VariableContext if found, else nullptr.
+         */
+        VariableContext* findAny(const std::string& variable);
+
+        /**
+         * Attempts to lookup the variable in the frame or parent frame (if applicable).
+         *
+         * @param variable the variable to lookup.
+         * @return const pointer to the VariableContext if found, else nullptr.
+         */
+        const VariableContext* findAny(const std::string& variable) const;
 
         /**
          * The beginning of the frame.
@@ -122,6 +138,22 @@ namespace cmm
          * The end of the frame.
          */
         const_iterator cend() const CMM_NOEXCEPT;
+
+    private:
+
+        /**
+         * Common find function.
+         *
+         * @return pointer to the VariableContext if found, else nullptr.
+         */
+        VariableContext* commonFind(const std::string& variable, const bool allowParent);
+
+        /**
+         * Common find function.
+         *
+         * @return const pointer to the VariableContext if found, else nullptr.
+         */
+        const VariableContext* commonFind(const std::string& variable, const bool allowParent) const;
 
     private:
 

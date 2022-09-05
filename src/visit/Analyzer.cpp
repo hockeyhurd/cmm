@@ -47,6 +47,11 @@ namespace cmm
 
     VisitorResult Analyzer::visit(BinOpNode& node)
     {
+        // TODO: How should we handle the case of: "x = y = 42;"??
+        // Ideally, we would like to treat the sub/right-expression as "normal",
+        // then re-write the sub/right expression as just another "RVALUE".
+        // I guess we'll just need to re-visit this when we get to code generation.
+
         auto* leftNode = node.getLeft();
         auto leftNodeResult = leftNode->accept(this);
 
@@ -405,15 +410,15 @@ namespace cmm
     {
         // TODO: What to do here??
         [[maybe_unused]]
-        auto datatype = node.getDatatype();
+        const auto datatype = node.getDatatype();
 
         return VisitorResult();
     }
 
     VisitorResult Analyzer::visit(VariableNode& node)
     {
-        auto& varName = node.getName();
-        auto* varContext = scope.find(varName);
+        const auto& varName = node.getName();
+        const auto* varContext = scope.findAny(varName);
 
         if (varContext == nullptr)
         {
@@ -435,7 +440,24 @@ namespace cmm
 
         auto currentLocality = localityStack.top();
         VariableContext context(node.getDatatype(), currentLocality, EnumModifier::NO_MOD);
-        scope.add(node.getName(), context);
+
+        // Before we add it to the current scope, we should check if this declaration would be a duplicate
+        // and conditionally report this case.  Note: This condition must strictly be in the current frame
+        // of reference and not a parent, since this would be allowed.
+
+        auto* lookupContext = scope.find(node.getName());
+
+        if (lookupContext != nullptr)
+        {
+            std::ostringstream builder;
+            builder << "Redefinition of variable '" << node.getName() << '\'';
+            reporter.error(builder.str(), node.getLocation());
+        }
+
+        else
+        {
+            scope.add(node.getName(), context);
+        }
 
         return VisitorResult();
     }

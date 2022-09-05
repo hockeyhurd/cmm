@@ -105,6 +105,9 @@ namespace cmm
 
     private:
 
+        // TODO: When we get to structs, we will need some sort of
+        // table for tracking this...
+
         // Our reporter for reporting things.
         static Reporter& reporter;
 

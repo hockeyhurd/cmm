@@ -30,38 +30,22 @@ namespace cmm
 
     VariableContext* Frame::find(const std::string& variable)
     {
-        const auto findResult = variables.find(variable);
-
-        if (findResult != variables.cend())
-        {
-            return &findResult->second;
-        }
-
-        // See if we can check the parent
-        else if (parent != nullptr)
-        {
-            return parent->find(variable);
-        }
-
-        return nullptr;
+        return commonFind(variable, false);
     }
 
     const VariableContext* Frame::find(const std::string& variable) const
     {
-        const auto findResult = variables.find(variable);
+        return commonFind(variable, false);
+    }
 
-        if (findResult != variables.cend())
-        {
-            return &findResult->second;
-        }
+    VariableContext* Frame::findAny(const std::string& variable)
+    {
+        return commonFind(variable, true);
+    }
 
-        // See if we can check the parent
-        else if (parent != nullptr)
-        {
-            return parent->find(variable);
-        }
-
-        return nullptr;
+    const VariableContext* Frame::findAny(const std::string& variable) const
+    {
+        return commonFind(variable, true);
     }
 
     Frame::iterator Frame::begin() CMM_NOEXCEPT
@@ -82,6 +66,42 @@ namespace cmm
     Frame::const_iterator Frame::cend() const CMM_NOEXCEPT
     {
         return variables.cend();
+    }
+
+    VariableContext* Frame::commonFind(const std::string& variable, const bool allowParent)
+    {
+        const auto findResult = variables.find(variable);
+
+        if (findResult != variables.cend())
+        {
+            return &findResult->second;
+        }
+
+        // See if we can check the parent
+        else if (parent != nullptr && allowParent)
+        {
+            return parent->commonFind(variable, allowParent);
+        }
+
+        return nullptr;
+    }
+
+    const VariableContext* Frame::commonFind(const std::string& variable, const bool allowParent) const
+    {
+        const auto findResult = variables.find(variable);
+
+        if (findResult != variables.cend())
+        {
+            return &findResult->second;
+        }
+
+        // See if we can check the parent
+        else if (parent != nullptr && allowParent)
+        {
+            return parent->commonFind(variable, allowParent);
+        }
+
+        return nullptr;
     }
 }
 

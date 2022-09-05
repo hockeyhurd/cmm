@@ -154,6 +154,46 @@ namespace cmm
         GLOBAL = 0, INTERNAL, LOCAL, PARAMETER
     };
 
+    constexpr const char* toString(const EnumLocality locality)
+    {
+        switch (locality)
+        {
+        case EnumLocality::GLOBAL:
+            return "GLOBAL";
+        case EnumLocality::INTERNAL:
+            return "INTERNAL";
+        case EnumLocality::LOCAL:
+            return "LOCAL";
+        case EnumLocality::PARAMETER:
+            return "PARAMETER";
+        default:
+            return "UNKNOWN";
+        }
+
+        return nullptr;
+    }
+
+    enum class EnumLRValue : u16
+    {
+        UNKNOWN = 0, LVALUE, RVALUE
+    };
+
+    constexpr const char* toString(const EnumLRValue valueType)
+    {
+        switch (valueType)
+        {
+        case EnumLRValue::LVALUE:
+            return "LVALUE";
+        case EnumLRValue::RVALUE:
+            return "RVALUE";
+        case EnumLRValue::UNKNOWN:
+        default:
+            return "UNKNOWN";
+        }
+
+        return nullptr;
+    }
+
     // Note: modifier 'extern' is implicit, so we don't include that here regardles
     // if the modifier is explicitly used.
     enum EnumModifier : u16

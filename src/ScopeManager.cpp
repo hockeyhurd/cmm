@@ -75,5 +75,17 @@ namespace cmm
         const auto& frame = getCurrentFrame();
         return frame.find(variable);
     }
+
+    VariableContext* ScopeManager::findAny(const std::string& variable)
+    {
+        auto& frame = getCurrentFrame();
+        return frame.findAny(variable);
+    }
+
+    const VariableContext* ScopeManager::findAny(const std::string& variable) const
+    {
+        const auto& frame = getCurrentFrame();
+        return frame.findAny(variable);
+    }
 }
 

@@ -103,7 +103,7 @@ namespace cmm
         void add(std::string&& variable, const VariableContext& context);
 
         /**
-         * Attempts to lookup the variable in the frame.
+         * Attempts to lookup the variable in the frame (only).
          *
          * @param variable the variable to lookup.
          * @return pointer to the VariableContext if found, else nullptr.
@@ -111,12 +111,28 @@ namespace cmm
         VariableContext* find(const std::string& variable);
 
         /**
-         * Attempts to lookup the variable in the frame.
+         * Attempts to lookup the variable in the frame (only).
          *
          * @param variable the variable to lookup.
          * @return const pointer to the VariableContext if found, else nullptr.
          */
         const VariableContext* find(const std::string& variable) const;
+
+        /**
+         * Attempts to lookup the variable in the frame or parent frame (if applicable).
+         *
+         * @param variable the variable to lookup.
+         * @return pointer to the VariableContext if found, else nullptr.
+         */
+        VariableContext* findAny(const std::string& variable);
+
+        /**
+         * Attempts to lookup the variable in the frame or parent frame (if applicable).
+         *
+         * @param variable the variable to lookup.
+         * @return const pointer to the VariableContext if found, else nullptr.
+         */
+        const VariableContext* findAny(const std::string& variable) const;
 
         // End of convenience functions section.
 
