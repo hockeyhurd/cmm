@@ -55,6 +55,13 @@ namespace cmm
         auto* leftNode = node.getLeft();
         auto leftNodeResult = leftNode->accept(this);
 
+        if (node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT && leftNode->getType() != NodeType::VARIABLE)
+        {
+            reporter.error("Expression is not assignable", leftNode->getLocation());
+
+            return VisitorResult();
+        }
+
         auto* rightNode = node.getRight();
         auto rightNodeResult = rightNode->accept(this);
 

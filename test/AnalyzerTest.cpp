@@ -11,9 +11,26 @@ using namespace cmm;
 
 static Reporter& reporter = Reporter::instance();
 
-TEST(AnalyzerTest, AnalyzerWarnCharAssignment)
+TEST(AnalyzerTest, AnalyzerExpressionNotAssignableError)
 {
-    const std::string input = "int main() { char a; a = 256; }";
+    const std::string input = "int main() { int x; 4 = x; return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+
+    reporter.reset();
+}
+
+TEST(AnalyzerTest, AnalyzerCharAssignmentWarning)
+{
+    const std::string input = "int main() { char a; a = 256; return 0; }";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
@@ -30,7 +47,7 @@ TEST(AnalyzerTest, AnalyzerWarnCharAssignment)
 
 TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionError)
 {
-    const std::string input = "int main() { char a; a = 'c'; char a; }";
+    const std::string input = "int main() { char a; a = 'c'; char a; return 0; }";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
@@ -47,7 +64,7 @@ TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionError)
 
 TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionValid)
 {
-    const std::string input = "int main() { char a; a = 'c'; { char a; a = 'b'; } }";
+    const std::string input = "int main() { char a; a = 'c'; { char a; a = 'b'; } return 0; }";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
@@ -98,7 +115,7 @@ TEST(AnalyzerTest, AnalyzerFunctionAndVariableDeclarationsWithSameNameError2)
 
 TEST(AnalyzerTest, AnalyzerFunctionDeclaredInsideAnotherFunctionError)
 {
-    const std::string input = "int func() { int func2(); }";
+    const std::string input = "int func() { int func2(); } return 0;";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
