@@ -260,11 +260,57 @@ namespace cmm
         // Cases to check:
         // 1. void with optional 'return;' statement. Error if return statement exists and is non-void.
         // 2. non-void with optional return statement -> warning
-        // 3. non-void with return statement that does not match or is not promotable -> warning.
+        // 3. non-void with return statement that does not match or is not promotable or is not truncatable -> warning.
 
         if (node.getDatatype() != EnumCType::VOID)
         {
-            // TODO: Implement
+            // Case #2
+            if (returnStatementPtr == nullptr)
+            {
+                std::ostringstream builder;
+                builder << "Missing return statement in non-void function '" << node.getName() << "'";
+                reporter.warn(builder.str(), blockNode.getLocation());
+            }
+
+            else if (returnStatementPtr->getDatatype().value() != node.getDatatype())
+            {
+                const auto optReturnType = returnStatementPtr->getDatatype();
+
+                // Case #3 promotable
+                if (canPromote(*optReturnType, node.getDatatype()))
+                {
+                    const char* toTypeStr = toString(node.getDatatype());
+                    std::ostringstream builder;
+                    builder << "Return type mismatch. Expected '" << toTypeStr
+                            << "', but found '" << toString(*optReturnType)
+                            << "'. This will be promoted to '" << toTypeStr << '\'';
+                    reporter.warn(builder.str(), returnStatementPtr->getLocation());
+
+                    // TODO: perform promotion
+                }
+
+                else if (canTruncate(*optReturnType, node.getDatatype()))
+                {
+                    const char* toTypeStr = toString(node.getDatatype());
+                    std::ostringstream builder;
+                    builder << "Return type mismatch. Expected '" << toTypeStr
+                            << "', but found '" << toString(*optReturnType)
+                            << "'. This will be truncated to '" << toTypeStr << '\'';
+                    reporter.warn(builder.str(), returnStatementPtr->getLocation());
+
+                    // TODO: perform truncation
+                }
+
+                // Case #3 not promotable
+                else
+                {
+                    const char* toTypeStr = toString(node.getDatatype());
+                    std::ostringstream builder;
+                    builder << "Return type mismatch. Expected '" << toTypeStr
+                            << "', but found '" << toString(*optReturnType);
+                    reporter.error(builder.str(), returnStatementPtr->getLocation());
+                }
+            }
         }
 
         // void function returns a non-void value case #1.

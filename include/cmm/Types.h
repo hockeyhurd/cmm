@@ -250,6 +250,7 @@ namespace cmm
     };
 
     bool canPromote(const EnumCType from, const EnumCType to);
+    bool canTruncate(const EnumCType from, const EnumCType to);
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
