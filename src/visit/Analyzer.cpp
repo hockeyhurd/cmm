@@ -129,7 +129,7 @@ namespace cmm
         {
             std::ostringstream builder;
             builder << "Could not find a declaration or definition for function '"
-                    << funcName << "'.";
+                    << funcName << "'";
             reporter.error(builder.str(), node.getLocation());
         }
 
@@ -254,6 +254,26 @@ namespace cmm
 
         localityStack.pop();
         scope.pop();
+
+        auto* returnStatementPtr = node.getReturnStatement();
+
+        // Cases to check:
+        // 1. void with optional 'return;' statement. Error if return statement exists and is non-void.
+        // 2. non-void with optional return statement -> warning
+        // 3. non-void with return statement that does not match or is not promotable -> warning.
+
+        if (node.getDatatype() != EnumCType::VOID)
+        {
+            // TODO: Implement
+        }
+
+        // void function returns a non-void value case #1.
+        else if (returnStatementPtr != nullptr && returnStatementPtr->getDatatype() != EnumCType::VOID)
+        {
+            std::ostringstream builder;
+            builder << "Function '" << node.getName() << "' should not return a non-void value";
+            reporter.error(builder.str(), returnStatementPtr->getLocation());
+        }
 
         return VisitorResult();
     }

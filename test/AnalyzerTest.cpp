@@ -147,6 +147,40 @@ TEST(AnalyzerTest, AnalyzerFunctionDefinedInsideAnotherFunctionError)
     reporter.reset();
 }
 
+TEST(AnalyzerTest, AnalyzerFunctionCallAnUndeclaredFunctionError)
+{
+    const std::string input = "int main() { func2(); return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+
+    reporter.reset();
+}
+
+TEST(AnalyzerTest, AnalyzerVoidFunctionReturnsNonVoidTypeError)
+{
+    const std::string input = "void func() { return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+
+    reporter.reset();
+}
+
 s32 main(s32 argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

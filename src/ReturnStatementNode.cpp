@@ -35,6 +35,11 @@ namespace cmm
         return expression.get();
     }
 
+    std::optional<EnumCType> ReturnStatementNode::getDatatype() const CMM_NOEXCEPT
+    {
+        return hasExpression() ? std::make_optional(expression->getDatatype()) : std::nullopt;
+    }
+
     std::string ReturnStatementNode::toString() const /* override */
     {
         return "ReturnStatementNode";

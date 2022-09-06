@@ -85,6 +85,13 @@ namespace cmm
         ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
+         * Gets the underlying EnumCType from the Expression (if non-nullptr).
+         *
+         * @return optional EnumCType of the underlying expression.
+         */
+        std::optional<EnumCType> getDatatype() const CMM_NOEXCEPT;
+
+        /**
          * Gets the returned expression.
          *
          * @return const pointer to ExpressionNode in the returned expression.

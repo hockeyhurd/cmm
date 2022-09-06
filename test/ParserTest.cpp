@@ -1373,6 +1373,9 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_FALSE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleStatementInBlock)
@@ -1413,6 +1416,9 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
 
     ++iter;
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_FALSE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleStatementInBlock)
@@ -1469,6 +1475,9 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
 
     ++iter;
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_FALSE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSingleParam)
@@ -1630,6 +1639,10 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 1);
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithSingleParamButNoName)
@@ -1659,8 +1672,13 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 1);
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
+// @@@ fix
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithSingleParamAndReturnStatement)
 {
     const std::string input = "int x(int y) { return 42; }";
@@ -1694,6 +1712,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto* returnStatementPtr = static_cast<const ReturnStatementNode*>(statementPtr.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
+    ASSERT_EQ(returnStatementPtr->getDatatype(), EnumCType::INT32);
 
     const auto* expressionPtr = returnStatementPtr->getExpression();
     ASSERT_NE(expressionPtr, nullptr);
@@ -1705,6 +1724,9 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     ++iter;
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 1);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithTwoParams)
@@ -1734,6 +1756,10 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 2);
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithTwoParamsButNoNames)
@@ -1763,6 +1789,10 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 2);
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithMultipleParams)
@@ -1792,6 +1822,10 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 3);
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithMultipleParamsButNoNames)
@@ -1821,6 +1855,10 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto iter = blockNode.cbegin();
     ASSERT_EQ(iter, blockNode.cend());
+
+    ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
+    ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 3);
+    ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)
@@ -2559,6 +2597,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithNoExpression)
 
     const auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_FALSE(returnStatementPtr->hasExpression());
+    ASSERT_EQ(returnStatementPtr->getDatatype(), std::nullopt);
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_EQ(expression, nullptr);
@@ -2580,6 +2619,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithIntExpression)
 
     auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
+    ASSERT_EQ(returnStatementPtr->getDatatype(), EnumCType::INT32);
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_NE(expression, nullptr);
@@ -2606,6 +2646,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithBoolExpression)
 
     auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
+    ASSERT_EQ(returnStatementPtr->getDatatype(), EnumCType::BOOL);
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_NE(expression, nullptr);

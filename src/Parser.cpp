@@ -65,6 +65,7 @@ namespace cmm
     static std::unique_ptr<StatementNode> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ReturnStatementNode> parseReturnStatementStrict(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseWhileStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage);
@@ -315,6 +316,12 @@ namespace cmm
 
     /* static */
     std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        return parseReturnStatementStrict(lexer, errorMessage);
+    }
+
+    /* static */
+    std::unique_ptr<ReturnStatementNode> parseReturnStatementStrict(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
@@ -812,7 +819,8 @@ namespace cmm
             // Function definition
             if (optionalBlockStatement.has_value())
             {
-                return std::make_unique<FunctionDefinitionStatementNode>(type->getLocation(), *type, std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
+                return std::make_unique<FunctionDefinitionStatementNode>(type->getLocation(), *type,
+                    std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
             }
 
             // Function declaration
