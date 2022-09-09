@@ -123,6 +123,12 @@ namespace cmm
     }
 
     /* virtual */
+    void UnaryOpNode::setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT
+    {
+        this->expression = std::move(expression);
+    }
+
+    /* virtual */
     VisitorResult UnaryOpNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

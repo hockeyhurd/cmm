@@ -117,6 +117,13 @@ namespace cmm
          */
         virtual const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
+        /**
+         * Overrides the ExpressionNode with a new value.
+         *
+         * @param expression the ExpressionNode to replace.
+         */
+        virtual void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+
         virtual VisitorResult accept(Visitor* visitor) override;
         virtual std::string toString() const override;
 

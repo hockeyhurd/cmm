@@ -87,6 +87,7 @@ namespace cmm
         bool hasExpression() const CMM_NOEXCEPT override;
         ExpressionNode* getExpression() CMM_NOEXCEPT override;
         const ExpressionNode* getExpression() const CMM_NOEXCEPT override;
+        void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT override;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;

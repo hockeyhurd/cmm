@@ -43,6 +43,16 @@ namespace cmm
         return &variable;
     }
 
+    void AddressOfNode::setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT /* override */
+    {
+        // Do nothing unless it's a VariableNode
+        if (expression->getType() == NodeType::VARIABLE)
+        {
+            auto* variableNodePtr = static_cast<VariableNode*>(expression.get());
+            variable = std::move(*variableNodePtr);
+        }
+    }
+
     VisitorResult AddressOfNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

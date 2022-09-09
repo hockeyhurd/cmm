@@ -57,6 +57,7 @@ namespace cmm
     static bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch);
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
+    [[maybe_unused]]
     static bool testExpectChar(Lexer& lexer, std::string* errorMessage, const char ch);
 
     static TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage);
@@ -890,16 +891,46 @@ namespace cmm
 
             if (nodeType == NodeType::ADDRESS_OF)
             {
-                const char* theErrorMessage = "cannot take the address of a function call.";
+                const char* theErrorMessage = "cannot take the address of a function call";
 
                 if (canWriteErrorMessage(errorMessage))
                 {
                     *errorMessage = theErrorMessage;
                 }
 
-                reporter.error(theErrorMessage, lexer.getLocation());
+                reporter.error(theErrorMessage, derefOrVariablePtr->getLocation());
                 lexer.restore(snapshot);
                 return nullptr;
+            }
+
+            else if (nodeType == NodeType::UNARY_OP)
+            {
+                auto* unaryOpPtr = static_cast<UnaryOpNode*>(derefOrVariablePtr.get());
+                const auto unaryOpType = unaryOpPtr->getOpType();
+
+                if (unaryOpType != EnumUnaryOpType::NEGATIVE && unaryOpType != EnumUnaryOpType::POSITIVE)
+                {
+                    const char* theErrorMessage = "invalid unary operator for a function call";
+
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = theErrorMessage;
+                    }
+
+                    reporter.error(theErrorMessage, unaryOpPtr->getLocation());
+                    lexer.restore(snapshot);
+                    return nullptr;
+                }
+
+                else
+                {
+                    const auto* variablePtr = static_cast<VariableNode*>(unaryOpPtr->getExpression());
+                    auto funcName = variablePtr->getName();
+
+                    std::unique_ptr<ExpressionNode> funcCallPtr = std::make_unique<FunctionCallNode>(derefOrVariablePtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
+                    unaryOpPtr->setExpression(std::move(funcCallPtr));
+                    return derefOrVariablePtr;
+                }
             }
 
             else if (nodeType == NodeType::DEREF)
@@ -1190,14 +1221,56 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseDerefOrUnaryOpOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
+        [[maybe_unused]]
+        static Reporter& reporter = Reporter::instance();
+
         const auto snapshot = lexer.snap();
-        const bool foundAddressOfOp = testExpectChar(lexer, errorMessage, CHAR_AMPERSAND);
+        Location unaryOpLocation;
+        auto token = newToken();
+
+        std::optional<EnumUnaryOpType> optionalEnumUnaryOpType;
+
+        if (lexer.nextToken(token, errorMessage, &unaryOpLocation) && (token.isCharSymbol() || token.isStringSymbol()))
+        {
+            optionalEnumUnaryOpType = getOpType(token);
+
+            // No EnumUnaryOpType present, restore.
+            if (!optionalEnumUnaryOpType.has_value())
+            {
+                lexer.restore(snapshot);
+            }
+        }
+
+        // No EnumUnaryOpType present, restore.
+        else
+        {
+            lexer.restore(snapshot);
+        }
+
         auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
         auto optionalVariable = parseVariableNode(lexer, errorMessage);
 
         if (!optionalVariable.has_value())
         {
             lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        if (optionalEnumUnaryOpType.has_value())
+        {
+            if (*optionalEnumUnaryOpType == EnumUnaryOpType::ADDRESS_OF)
+            {
+                return std::make_unique<AddressOfNode>(unaryOpLocation, std::move(*optionalVariable));
+            }
+
+            else
+            {
+                return std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalEnumUnaryOpType, std::make_unique<VariableNode>(std::move(*optionalVariable)));
+            }
+
+            std::ostringstream builder;
+            builder << "Unexpected parse state at " << __FILE__ << ": " << __LINE__;
+            reporter.bug(builder.str(), unaryOpLocation, true);
             return nullptr;
         }
 
@@ -1213,13 +1286,6 @@ namespace cmm
             }
 
             return result;
-        }
-
-        // '&x' case: ??
-        // Unary op case:
-        else if (foundAddressOfOp)
-        {
-            return std::make_unique<AddressOfNode>(optionalVariable->getLocation(), std::move(*optionalVariable));
         }
 
         auto variablePtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
