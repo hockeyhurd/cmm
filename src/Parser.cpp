@@ -7,8 +7,9 @@
 
 // Our includes
 #include <cmm/Parser.h>
-#include <cmm/ParserPredictor.h>
+#include <cmm/Keyword.h>
 #include <cmm/NodeList.h>
+#include <cmm/ParserPredictor.h>
 #include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
@@ -453,13 +454,13 @@ namespace cmm
         if (predictor.empty())
         {
             auto token = newToken();
-            token.setStringSymbol("return");
+            token.setStringSymbol(Keyword::RETURN.getName());
             predictor.registerFunction(token, parseReturnStatement);
 
-            token.setStringSymbol("if");
+            token.setStringSymbol(Keyword::IF.getName());
             predictor.registerFunction(token, parseIfElseStatement);
 
-            token.setStringSymbol("while");
+            token.setStringSymbol(Keyword::WHILE.getName());
             predictor.registerFunction(token, parseWhileStatement);
 
             token.setCharSymbol(CHAR_LCURLY_BRACKET);
@@ -471,6 +472,12 @@ namespace cmm
             };
 
             predictor.registerFunction(token, parseBlockStatementWrapper);
+
+            Keyword::registerPrimitiveKeywordsByName([&](const std::string& keywordName)
+                    {
+                        token.setStringSymbol(keywordName);
+                        predictor.registerFunction(token, parseDeclarationStatement);
+                    });
         }
 
         auto tokenLookahead = newToken();
@@ -488,29 +495,7 @@ namespace cmm
 
         // TODO: See if we can get this in the predictor as well.  Leaving for now...
         const auto snapshot = lexer.snap();
-        std::unique_ptr<StatementNode> node(nullptr);
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseDeclarationStatement(lexer, errorMessage);
-        }
-
-        else
-        {
-            return node;
-        }
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseExpressionStatement(lexer, errorMessage);
-        }
-
-        else
-        {
-            return node;
-        }
+        std::unique_ptr<StatementNode> node = parseExpressionStatement(lexer, errorMessage);
 
         if (node == nullptr)
         {

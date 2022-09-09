@@ -177,12 +177,5 @@ namespace cmm
     {
         this->valueString = valueString;
     }
-
-#if 0
-    CType::CType(const std::size_t length) CMM_NOEXCEPT : length(length)
-    {
-        this->valueStruct
-    }
-#endif
 }
 
