@@ -149,9 +149,68 @@ namespace cmm
     const f32 f32_e = 2.71828182845904523536F;
     const f64 f64_e = 2.71828182845904523536;
 
-    enum class EnumCType
+    enum class EnumLocality : u16
     {
-        NULL_T = 0, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
+        GLOBAL = 0, INTERNAL, LOCAL, PARAMETER
+    };
+
+    constexpr const char* toString(const EnumLocality locality)
+    {
+        switch (locality)
+        {
+        case EnumLocality::GLOBAL:
+            return "GLOBAL";
+        case EnumLocality::INTERNAL:
+            return "INTERNAL";
+        case EnumLocality::LOCAL:
+            return "LOCAL";
+        case EnumLocality::PARAMETER:
+            return "PARAMETER";
+        default:
+            return "UNKNOWN";
+        }
+
+        return nullptr;
+    }
+
+    enum class EnumLRValue : u16
+    {
+        UNKNOWN = 0, LVALUE, RVALUE
+    };
+
+    constexpr const char* toString(const EnumLRValue valueType)
+    {
+        switch (valueType)
+        {
+        case EnumLRValue::LVALUE:
+            return "LVALUE";
+        case EnumLRValue::RVALUE:
+            return "RVALUE";
+        case EnumLRValue::UNKNOWN:
+        default:
+            return "UNKNOWN";
+        }
+
+        return nullptr;
+    }
+
+    // Note: modifier 'extern' is implicit, so we don't include that here regardles
+    // if the modifier is explicitly used.
+    enum EnumModifier : u16
+    {
+        NO_MOD = 0, STATIC = 1, CONST_POINTER = 2, CONST_VALUE = 4, ALL_VALUES = 7
+    };
+
+    constexpr bool isValidModifier(const u16 value)
+    {
+        constexpr u16 invAllValues = ~EnumModifier::ALL_VALUES;
+
+        return (value & invAllValues) == 0;
+    }
+
+    enum class EnumCType : u16
+    {
+        NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
         DOUBLE, STRING, STRUCT
     };
 
@@ -190,6 +249,8 @@ namespace cmm
         // CType(const std::size_t length);
     };
 
+    bool canPromote(const EnumCType from, const EnumCType to);
+    bool canTruncate(const EnumCType from, const EnumCType to);
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
@@ -199,6 +260,8 @@ namespace cmm
         {
         case EnumCType::NULL_T:
             return "NULL";
+        case EnumCType::VOID:
+            return "void";
         case EnumCType::VOID_PTR:
             return "void*";
         case EnumCType::BOOL:

@@ -6,8 +6,8 @@
  */
 
 // Our includes
-#include <cmm/Dump.h>
 #include <cmm/NodeList.h>
+#include <cmm/visit/Dump.h>
 
 // std includes
 #include <algorithm>
@@ -97,6 +97,31 @@ namespace cmm
         printIndentation();
         std::cout << "}\n";
         decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(CastNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        else
+        {
+            std::cout << "NULL\n";
+        }
+
+        decreaseIntentation();
+        printNewLine();
 
         return VisitorResult();
     }
@@ -293,12 +318,15 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getValueType()) << ": ";
+        std::cout << toString(node.getDatatype()) << ": ";
 
-        switch (node.getValueType())
+        switch (node.getDatatype())
         {
         case EnumCType::NULL_T:
             std::cout << "NULL";
+            break;
+        case EnumCType::VOID:
+            std::cout << "void";
             break;
         case EnumCType::VOID_PTR:
             std::cout << "void*";

@@ -29,9 +29,10 @@ namespace cmm
         /**
          * Constructor with a value.
          *
+         * @param location the location of this node.
          * @param value the value used as an argument.
          */
-        ArgNode(std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT;
+        ArgNode(const Location& location, std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT;
 
         /**
          * Copy constructor

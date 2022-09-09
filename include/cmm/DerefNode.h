@@ -26,9 +26,10 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param expr the expression to be dereferenced.
          */
-        explicit DerefNode(std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT;
+        DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

@@ -33,9 +33,10 @@ namespace cmm
         return std::nullopt;
     }
 
-    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::unique_ptr<ExpressionNode>&& left,
+    BinOpNode::BinOpNode(const Location& location, const EnumBinOpNodeType type,
+                         std::unique_ptr<ExpressionNode>&& left,
                          std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::BIN_OP), type(type), left(std::move(left)), right(std::move(right))
+        ExpressionNode(NodeType::BIN_OP, location), type(type), left(std::move(left)), right(std::move(right))
     {
     }
 

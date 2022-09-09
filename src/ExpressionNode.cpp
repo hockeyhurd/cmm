@@ -12,8 +12,26 @@
 namespace cmm
 {
 
-    ExpressionNode::ExpressionNode(const NodeType type) CMM_NOEXCEPT : Node(type)
+    ExpressionNode::ExpressionNode(const NodeType type, const Location& location) CMM_NOEXCEPT :
+        Node(type, location), datatype(EnumCType::VOID)
     {
+    }
+
+    ExpressionNode::ExpressionNode(const NodeType type, const Location& location, const EnumCType datatype) CMM_NOEXCEPT :
+        Node(type, location), datatype(datatype)
+    {
+    }
+
+    /* virtual */
+    EnumCType ExpressionNode::getDatatype() const CMM_NOEXCEPT
+    {
+        return datatype;
+    }
+
+    /* virtual */
+    void  ExpressionNode::setDatatype(const EnumCType datatype) CMM_NOEXCEPT
+    {
+        this->datatype = datatype;
     }
 
     /* virtual */

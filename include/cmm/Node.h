@@ -12,7 +12,8 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Visitor.h>
+#include <cmm/Location.h>
+#include <cmm/visit/Visitor.h>
 
 // std includes
 #include <memory>
@@ -23,7 +24,7 @@ namespace cmm
     // TODO: Consider moving to a seperate file
     enum class NodeType
     {
-        UNKNOWN = 0, ADDRESS_OF, ARG, COMPILATION_UNIT, BIN_OP, BLOCK, DEREF,
+        UNKNOWN = 0, ADDRESS_OF, ARG, CAST, COMPILATION_UNIT, BIN_OP, BLOCK, DEREF,
         FUNCTION_CALL, FUNCTION_DECLARATION_STATEMENT, FUNCTION_DEFINITION_STATEMENT,
         EXPRESSION_STATEMENT, EXPRESSION, IF_ELSE_STATEMENT, PARAMETER, PAREN_EXPRESSION,
         LITTERAL, RETURN_STATEMENT, TRANSLATION_UNIT, VARIABLE, VARIABLE_DECLARATION_STATEMENT,
@@ -37,7 +38,7 @@ namespace cmm
         /**
          * Default constructor that can only be constructed by a derived type.
          */
-        Node(const NodeType type) CMM_NOEXCEPT;
+        Node(const NodeType type, const Location& location) CMM_NOEXCEPT;
 
     public:
 
@@ -78,6 +79,20 @@ namespace cmm
         virtual NodeType getType() const CMM_NOEXCEPT;
 
         /**
+         * Get the location of this node.
+         *
+         * @return Location.
+         */
+        virtual Location& getLocation() CMM_NOEXCEPT;
+
+        /**
+         * Get the location of this node.
+         *
+         * @return Location.
+         */
+        virtual const Location& getLocation() const CMM_NOEXCEPT;
+
+        /**
          * Generic and templated function needed for visitor pattern.
          */
         virtual VisitorResult accept(Visitor* visitor) = 0;
@@ -94,6 +109,9 @@ namespace cmm
 
         // The type of this Node
         NodeType type;
+
+        // The Location of this Node.
+        Location location;
     };
 }
 

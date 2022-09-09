@@ -6,8 +6,8 @@
  */
 
 // Our includes
-#include <cmm/Visitor.h>
 #include <cmm/NodeList.h>
+#include <cmm/visit/Visitor.h>
 
 namespace cmm
 {

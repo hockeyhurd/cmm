@@ -33,5 +33,21 @@ namespace cmm
         static Reporter inst;
         return inst;
     }
+
+    s32 Reporter::getErrorCount() const CMM_NOEXCEPT
+    {
+        return errors;
+    }
+
+    s32 Reporter::getWarningCount() const CMM_NOEXCEPT
+    {
+        return warnings;
+    }
+
+    void Reporter::reset()
+    {
+        errors = 0;
+        warnings = 0;
+    }
 }
 

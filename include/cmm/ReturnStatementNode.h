@@ -28,15 +28,18 @@ namespace cmm
 
         /**
          * Default constructor without a defined expression to return.
+         *
+         * @param location the location of this node.
          */
-        ReturnStatementNode() CMM_NOEXCEPT;
+        explicit ReturnStatementNode(const Location& location) CMM_NOEXCEPT;
 
         /**
          * Constructor with a defined expression to return.
          *
+         * @param location the location of this node.
          * @param expression the returned expression.
          */
-        ReturnStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        ReturnStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -80,6 +83,13 @@ namespace cmm
          * @return pointer to ExpressionNode in the returned expression.
          */
         ExpressionNode* getExpression() CMM_NOEXCEPT;
+
+        /**
+         * Gets the underlying EnumCType from the Expression (if non-nullptr).
+         *
+         * @return optional EnumCType of the underlying expression.
+         */
+        std::optional<EnumCType> getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Gets the returned expression.

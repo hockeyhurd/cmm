@@ -35,23 +35,25 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param block the block of the function.
          * @param params the parameter list.
          */
-        FunctionDefinitionStatementNode(TypeNode type, const std::string& funcName,
-            BlockNode&& block, ParamList&& params = ParamList());
+        FunctionDefinitionStatementNode(const Location& location, TypeNode type,
+            const std::string& funcName, BlockNode&& block, ParamList&& params = ParamList());
 
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param block the block of the function.
          * @param params the parameter list.
          */
-        FunctionDefinitionStatementNode(TypeNode type, std::string&& funcName,
+        FunctionDefinitionStatementNode(const Location& location, TypeNode type, std::string&& funcName,
             BlockNode&& block, ParamList&& params = ParamList()) CMM_NOEXCEPT;
 
         /**
@@ -135,6 +137,20 @@ namespace cmm
         const BlockNode& getBlock() const CMM_NOEXCEPT;
 
         /**
+         * Gets whether the param list exists/is non-zero.
+         *
+         * @return bool.
+         */
+        bool hasParams() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the number of parameters.
+         *
+         * @return std::size_t.
+         */
+        std::size_t paramCount() const CMM_NOEXCEPT;
+
+        /**
          * Parameter list iterator from the beginning.
          *
          * @return ParamListIter.
@@ -162,6 +178,20 @@ namespace cmm
          */
         const ParamListConseIter cend() const CMM_NOEXCEPT;
 
+        /**
+         * Gets the ReturnStatementNode.
+         *
+         * @return pointer to the optional ReturnStatementNode (nullptr if doesn't exist).
+         */
+        ReturnStatementNode* getReturnStatement() CMM_NOEXCEPT;
+
+        /**
+         * Gets the ReturnStatementNode.
+         *
+         * @return const pointer to the optional ReturnStatementNode (nullptr if doesn't exist).
+         */
+        const ReturnStatementNode* getReturnStatement() const CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override
         {
             return visitor->visit(*this);
@@ -171,10 +201,25 @@ namespace cmm
 
     private:
 
+        // The return type of the function.
         TypeNode type;
+
+        // The name of the function.
         std::string funcName;
+
+        // The main block of the function body.
         BlockNode block;
+
+        // The optional parameter list.
         ParamList params;
+
+        // A pointer for caching a pointer to the return statement node.
+        // Mutable so our possibly const getters can modify this value.
+        mutable ReturnStatementNode* returnStatementPtr;
+
+        // So our getters don't try to check multiple times.
+        // Mutable so our possibly const getters can modify this value.
+        mutable bool returnStatementPtrChecked;
     };
 }
 

@@ -48,6 +48,11 @@ jobs:
           ${CMAKE_CXX_COMPILER} -v --version
         shell: bash
 
+      - name: Install GMP
+        run: |
+          sudo apt-get update && sudo apt-get install -y libgmp-dev libgmpxx4ldbl
+        shell: bash
+
       - name: Install gtest manually
         run: |
           sudo apt-get update && sudo apt-get install -y libgtest-dev llvm-dev libc++-dev libc++abi-dev && \

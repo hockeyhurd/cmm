@@ -530,6 +530,7 @@ TEST(LexerTest, LexFunctionSnakeCaseEmptyArgs)
 
 TEST(LexerTest, LexComment)
 {
+    const f64 eps   = 0.000001;
     const f64 value = 3.14195;
     const std::string input = " // Hello, world!\n 3.14195 ";
     Lexer lexer(input);
@@ -537,7 +538,7 @@ TEST(LexerTest, LexComment)
 
     ASSERT_TRUE(lexer.nextToken(token));
     ASSERT_EQ(token.getType(), TokenType::DOUBLE);
-    ASSERT_EQ(token.asDouble(), value);
+    ASSERT_NEAR(token.asDouble(), value, eps);
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 

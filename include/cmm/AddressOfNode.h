@@ -27,9 +27,10 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param variable the variable to get the address of.
          */
-        explicit AddressOfNode(VariableNode&& variable) CMM_NOEXCEPT;
+        AddressOfNode(const Location& location, VariableNode&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

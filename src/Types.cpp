@@ -10,6 +10,8 @@
 
 // std includes
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace cmm
 {
@@ -18,9 +20,9 @@ namespace cmm
 
     static void initCTypeMap()
     {
-        /*ctypeMap = { {"NULL", EnumCType::NULL_T}, {"bool", EnumCType::BOOL}, {"char", EnumCType::CHAR},
-            {"short", EnumCType::INT16}, {"int", EnumCType::INT32}, {"long", EnumCType::INT64}, {"float", EnumCType::FLOAT}, {"double", EnumCType::DOUBLE} };*/
         ctypeMap.emplace("NULL", EnumCType::NULL_T);
+        ctypeMap.emplace("void", EnumCType::VOID);
+        ctypeMap.emplace("void*", EnumCType::VOID_PTR);
         ctypeMap.emplace("bool", EnumCType::BOOL);
         ctypeMap.emplace("char", EnumCType::CHAR);
         ctypeMap.emplace("short", EnumCType::INT16);
@@ -28,6 +30,81 @@ namespace cmm
         ctypeMap.emplace("long", EnumCType::INT64);
         ctypeMap.emplace("float", EnumCType::FLOAT);
         ctypeMap.emplace("double", EnumCType::DOUBLE);
+        ctypeMap.emplace("struct", EnumCType::STRUCT);
+    }
+
+    static bool promoOrTruncateLookup(const EnumCType from, const EnumCType to, std::unordered_map<EnumCType, std::unordered_set<EnumCType>>& theMap)
+    {
+        const auto firstFindResult = theMap.find(from);
+
+        if (firstFindResult == theMap.cend())
+        {
+            return false;
+        }
+
+        const auto& set = firstFindResult->second;
+        const auto secondFindResult = set.find(to);
+
+        return secondFindResult != set.cend();
+    }
+
+    bool canPromote(const EnumCType from, const EnumCType to)
+    {
+        static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> promoMap;
+
+        // One time map init
+        if (promoMap.empty())
+        {
+            {
+                auto& set = promoMap[EnumCType::CHAR];
+                set.emplace(EnumCType::CHAR);
+                set.emplace(EnumCType::INT8);
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT8];
+                set.emplace(EnumCType::CHAR);
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT16];
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT32];
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+            }
+
+            {
+                auto& set = promoMap[EnumCType::INT64];
+                set.emplace(EnumCType::INT64);
+            }
+        }
+
+        return promoOrTruncateLookup(from, to, promoMap);
+    }
+
+    bool canTruncate(const EnumCType from, const EnumCType to)
+    {
+        static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> truncateMap;
+
+        // One time map init
+        if (truncateMap.empty())
+        {
+            // TODO: Fill in
+        }
+
+        return promoOrTruncateLookup(from, to, truncateMap);
     }
 
     bool isCType(const std::string& str) CMM_NOEXCEPT
@@ -100,12 +177,5 @@ namespace cmm
     {
         this->valueString = valueString;
     }
-
-#if 0
-    CType::CType(const std::size_t length) CMM_NOEXCEPT : length(length)
-    {
-        this->valueStruct
-    }
-#endif
 }
 

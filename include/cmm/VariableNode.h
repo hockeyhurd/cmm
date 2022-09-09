@@ -26,17 +26,18 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param name the std::string name of the variable.
-         * @param derefCount the number of dereferences.
          */
-        explicit VariableNode(const std::string& name);
+        VariableNode(const Location& location, const std::string& name);
 
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param name the std::string name of the variable.
          */
-        explicit VariableNode(std::string&& name) CMM_NOEXCEPT;
+        VariableNode(const Location& location, std::string&& name) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

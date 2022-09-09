@@ -29,10 +29,12 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param conditional the conditional ExpressionNode.
          * @param statement the loop's block statement.
          */
-        WhileStatementNode(std::unique_ptr<ExpressionNode>&& conditional, std::unique_ptr<StatementNode>&& statement) CMM_NOEXCEPT;
+        WhileStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& conditional,
+            std::unique_ptr<StatementNode>&& statement) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

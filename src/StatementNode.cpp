@@ -9,7 +9,7 @@
 
 namespace cmm
 {
-    StatementNode::StatementNode(const NodeType type) CMM_NOEXCEPT : Node(type)
+    StatementNode::StatementNode(const NodeType type, const Location& location) CMM_NOEXCEPT : Node(type, location)
     {
     }
 

@@ -56,7 +56,7 @@ namespace cmm
          */
         bool completedOrWhitespaceOnly() CMM_NOEXCEPT;
 
-        bool nextToken(Token& token, std::string* errorMessage = nullptr);
+        bool nextToken(Token& token, std::string* errorMessage = nullptr, Location* pLocation = nullptr);
         bool peekNextToken(Token& token);
 
         void restore(const Snapshot& snap) CMM_NOEXCEPT;
@@ -66,7 +66,7 @@ namespace cmm
         void consumeWhitespace();
         char nextChar() CMM_NOEXCEPT;
         char peekNextChar() const CMM_NOEXCEPT;
-        bool nextTokenInternal(Token& token, std::string* errorMessage = nullptr);
+        bool nextTokenInternal(Token& token, std::string* errorMessage = nullptr, Location* pLocation = nullptr);
 
         /**
          * Checks whether the passed character is a alhpabetic or not.

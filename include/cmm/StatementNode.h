@@ -24,8 +24,9 @@ namespace cmm
          * Default constructor.
          *
          * @param type the NodeType to pass to the parent Node class.
+         * @param location the location of this node.
          */
-        StatementNode(const NodeType type) CMM_NOEXCEPT;
+        StatementNode(const NodeType type, const Location& location) CMM_NOEXCEPT;
 
     public:
 

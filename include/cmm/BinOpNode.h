@@ -37,9 +37,13 @@ namespace cmm
         /**
          * Default constructor with binary op type.
          *
+         * @param location the location of this node.
          * @param type the EnumBinOpNodeType.
+         * @param left the left ExpressionNode.
+         * @param right the right ExpressionNode.
          */
-        BinOpNode(const EnumBinOpNodeType type, std::unique_ptr<ExpressionNode>&& left,
+        BinOpNode(const Location& location, const EnumBinOpNodeType type,
+                  std::unique_ptr<ExpressionNode>&& left,
                   std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT;
 
         /**

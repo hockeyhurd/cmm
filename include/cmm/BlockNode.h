@@ -24,6 +24,7 @@ namespace cmm
     class BlockNode : public StatementNode
     {
     public:
+
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
         using size_type = StatementList::size_type;
         using StatementListIter = StatementList::iterator;
@@ -32,16 +33,12 @@ namespace cmm
     public:
 
         /**
-         * Default constructor
-         */
-        BlockNode();
-
-        /**
          * Constructor with initializing statement list.
          *
+         * @param location the location of this node.
          * @param statements StatementList.
          */
-        BlockNode(StatementList&& statements) CMM_NOEXCEPT;
+        BlockNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT;
 
         /**
          * Copy constructor
