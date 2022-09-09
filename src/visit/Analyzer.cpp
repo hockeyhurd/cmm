@@ -105,6 +105,17 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(CastNode& node)
+    {
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(CompilationUnitNode& node)
     {
         auto result = node.getRoot().accept(this);

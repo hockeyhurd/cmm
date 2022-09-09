@@ -101,6 +101,31 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(CastNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        else
+        {
+            std::cout << "NULL\n";
+        }
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(CompilationUnitNode& node)
     {
         printIndentation();

@@ -28,7 +28,6 @@ namespace cmm
          *
          * @param location the location of this node.
          * @param name the std::string name of the variable.
-         * @param derefCount the number of dereferences.
          */
         VariableNode(const Location& location, const std::string& name);
 

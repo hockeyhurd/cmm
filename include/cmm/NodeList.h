@@ -14,6 +14,7 @@
 #include <cmm/ArgNode.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/BlockNode.h>
+#include <cmm/CastNode.h>
 #include <cmm/CompilationUnitNode.h>
 #include <cmm/DerefNode.h>
 #include <cmm/FunctionCallNode.h>
