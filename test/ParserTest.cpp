@@ -972,6 +972,39 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(iter, rightFunctionCallPtr->cend());
 }
 
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaNegativeVar)
+{
+    const std::string input = "a = -b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    // auto* rightUnaryExpressionPtr = static_cast<UnaryExpressionNode*>(rootAssignPtr->getRight());
+    // auto& rightVariable = rightUnaryExpressionPtr->getVariable();
+    // ASSERT_EQ(rightVariable.getName(), "b");
+}
+
 TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOf)
 {
     const std::string input = "a = &b;";

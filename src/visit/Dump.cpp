@@ -452,6 +452,26 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(UnaryOpNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << "UnaryOpType: " << toString(node.getOpType());
+        printNewLine();
+
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(VariableNode& node)
     {
         printIndentation();

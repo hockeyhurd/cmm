@@ -111,6 +111,7 @@ namespace cmm
         virtual VisitorResult visit(ReturnStatementNode& node) = 0;
         virtual VisitorResult visit(TranslationUnitNode& node) = 0;
         virtual VisitorResult visit(TypeNode& node) = 0;
+        virtual VisitorResult visit(UnaryOpNode& node) = 0;
         virtual VisitorResult visit(VariableNode& node) = 0;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(WhileStatementNode& node) = 0;

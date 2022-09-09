@@ -87,7 +87,7 @@ namespace cmm
 
     // Terminal nodes:
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<ExpressionNode> parseAddressOfOrDerefOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseDerefOrUnaryOpOrVariableNode(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage);
@@ -872,7 +872,7 @@ namespace cmm
         static auto& reporter = Reporter::instance();
 
         auto snapshot = lexer.snap();
-        auto derefOrVariablePtr = parseAddressOfOrDerefOrVariableNode(lexer, errorMessage);
+        auto derefOrVariablePtr = parseDerefOrUnaryOpOrVariableNode(lexer, errorMessage);
 
         // Did not get a name of the function, early exit.
         if (!derefOrVariablePtr)
@@ -1188,7 +1188,7 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<ExpressionNode> parseAddressOfOrDerefOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseDerefOrUnaryOpOrVariableNode(Lexer& lexer, std::string* errorMessage)
     {
         const auto snapshot = lexer.snap();
         const bool foundAddressOfOp = testExpectChar(lexer, errorMessage, CHAR_AMPERSAND);
@@ -1215,7 +1215,8 @@ namespace cmm
             return result;
         }
 
-        // '&x' case:
+        // '&x' case: ??
+        // Unary op case:
         else if (foundAddressOfOp)
         {
             return std::make_unique<AddressOfNode>(optionalVariable->getLocation(), std::move(*optionalVariable));

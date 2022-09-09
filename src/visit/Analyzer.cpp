@@ -523,6 +523,17 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(UnaryOpNode& node)
+    {
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(VariableNode& node)
     {
         const auto& varName = node.getName();
