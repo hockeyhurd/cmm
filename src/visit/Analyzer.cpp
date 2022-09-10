@@ -31,8 +31,21 @@ namespace cmm
 
     VisitorResult Analyzer::visit(AddressOfNode& node)
     {
-        auto& variable = node.getVariable();
-        variable.accept(this);
+        auto* variablePtr = node.getExpression();
+
+        if (variablePtr == nullptr)
+        {
+            reporter.bug("variablePtr is a nullptr", node.getLocation(), true);
+        }
+
+        else if (variablePtr->getType() != NodeType::VARIABLE)
+        {
+            const char* message = "Expected a variable expression prior to attempting to take the address of it";
+            reporter.error(message, node.getLocation());
+            return VisitorResult();
+        }
+
+        variablePtr->accept(this);
 
         return VisitorResult();
     }

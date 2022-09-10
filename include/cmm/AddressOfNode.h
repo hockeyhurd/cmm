@@ -20,7 +20,7 @@
 
 namespace cmm
 {
-    class AddressOfNode : public UnaryOpNode
+    class [[deprecated("use UnaryOpNode instead")]] AddressOfNode : public UnaryOpNode
     {
     public:
 
@@ -84,18 +84,10 @@ namespace cmm
          */
         NodeType getRootType() const CMM_NOEXCEPT;
 
-        bool hasExpression() const CMM_NOEXCEPT override;
-        ExpressionNode* getExpression() CMM_NOEXCEPT override;
-        const ExpressionNode* getExpression() const CMM_NOEXCEPT override;
         void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT override;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
-
-    private:
-
-        // The variable whose address is requested.
-        VariableNode variable;
     };
 }
 

@@ -129,6 +129,12 @@ namespace cmm
     }
 
     /* virtual */
+    std::optional<NodeType> UnaryOpNode::getExpressionNodeType() const CMM_NOEXCEPT
+    {
+        return hasExpression() ? std::make_optional(expression->getType()) : std::nullopt;
+    }
+
+    /* virtual */
     VisitorResult UnaryOpNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

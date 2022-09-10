@@ -124,6 +124,13 @@ namespace cmm
          */
         virtual void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
+        /**
+         * Gets the NodeType of the wrapped ExpressionNode if it's a non-nullptr, else std::nullopt.
+         *
+         * @return std::optional<NodeType>
+         */
+        virtual std::optional<NodeType> getExpressionNodeType() const CMM_NOEXCEPT;
+
         virtual VisitorResult accept(Visitor* visitor) override;
         virtual std::string toString() const override;
 

@@ -32,8 +32,8 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
-        auto& variable = node.getVariable();
-        variable.accept(this);
+        auto* variablePtr = node.getExpression();
+        variablePtr->accept(this);
 
         decreaseIntentation();
         printNewLine();
