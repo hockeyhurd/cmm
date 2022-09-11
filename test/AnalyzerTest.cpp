@@ -181,6 +181,28 @@ TEST(AnalyzerTest, AnalyzerVoidFunctionReturnsNonVoidTypeError)
     reporter.reset();
 }
 
+TEST(AnalyzerTest, AnalyzerVarAssignmentViaAddressOfIntError)
+{
+    const std::string input = "a = &42;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(AnalyzerTest, AnalyzerVarDerefAssignmentViaAddressOfFuncCausesError)
+{
+    const std::string input = "**a = &b();";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

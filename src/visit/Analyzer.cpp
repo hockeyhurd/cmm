@@ -542,6 +542,13 @@ namespace cmm
         {
             auto* expression = node.getExpression();
             expression->accept(this);
+
+            if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            {
+                const char* message = "Expected a variable expression prior to attempting to take the address of it";
+                reporter.error(message, node.getLocation());
+                return VisitorResult();
+            }
         }
 
         return VisitorResult();

@@ -1178,6 +1178,17 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOfFuncCausesError)
     ASSERT_EQ(compUnitPtr, nullptr);
 }
 
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOfIntError)
+{
+    const std::string input = "a = &42;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeVarDerefAssignmentViaAddressOfFuncCausesError)
 {
     const std::string input = "**a = &b();";
