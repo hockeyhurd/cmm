@@ -1409,6 +1409,80 @@ TEST(ParserTest, ParseCompilationNodeVarDoublePointerAssignmentViaDoublePointer)
     ASSERT_EQ(rightVariablePtr->getName(), "b");
 }
 
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixIncrementB)
+{
+    const std::string input = "a = ++b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
+    ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
+    ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::INCREMENT);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::VARIABLE);
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixDecrementB)
+{
+    const std::string input = "a = --b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
+    ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
+    ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::DECREMENT);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::VARIABLE);
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
 TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 {
     const std::string input = "int x;";
@@ -3049,6 +3123,28 @@ TEST(ParserTest, ParseCompilationNodeMultipleStatements)
 
     ++statementIter;
     ASSERT_EQ(statementIter, translationUnit.end());
+}
+
+TEST(ParserTest, ParseCompilationNodeUnaryIncrement)
+{
+    const std::string input = "++x;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::UNARY_OP);
+
+    auto* unaryOpPtr = static_cast<UnaryOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(unaryOpPtr->getOpType(), EnumUnaryOpType::INCREMENT);
 }
 
 s32 main(s32 argc, char* argv[])

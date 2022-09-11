@@ -183,24 +183,33 @@ TEST(AnalyzerTest, AnalyzerVoidFunctionReturnsNonVoidTypeError)
 
 TEST(AnalyzerTest, AnalyzerVarAssignmentViaAddressOfIntError)
 {
-    const std::string input = "a = &42;";
+    const std::string input = "int* a; a = &42;";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
 
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
+
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+    reporter.reset();
 }
 
-TEST(AnalyzerTest, AnalyzerVarDerefAssignmentViaAddressOfFuncCausesError)
+// TODO: Disable until we refactor EnumCTypes to be more robust.
+TEST(AnalyzerTest, DISABLED_AnalyzerVarDerefAssignmentViaIncrement)
 {
-    const std::string input = "**a = &b();";
+    const std::string input = "int* a; int b; b = 42; a = b;";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
 
-    ASSERT_FALSE(errorMessage.empty());
-    ASSERT_EQ(compUnitPtr, nullptr);
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+    reporter.reset();
 }
 
 s32 main(s32 argc, char* argv[])

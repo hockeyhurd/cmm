@@ -316,9 +316,25 @@ namespace cmm
                 const char lookaheadChar = peekNextChar();
 
                 if (isWhitespace(lookaheadChar) ||
-                    (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
+                   (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
                 {
-                    token.setCharSymbol(currentChar);
+                    if (currentChar == CHAR_PLUS && lookaheadChar == CHAR_PLUS)
+                    {
+                        nextChar();
+                        token.setStringSymbol("++");
+                    }
+
+                    else if (currentChar == CHAR_MINUS && lookaheadChar == CHAR_MINUS)
+                    {
+                        nextChar();
+                        token.setStringSymbol("--");
+                    }
+
+                    else
+                    {
+                        token.setCharSymbol(currentChar);
+                    }
+
                     return true;
                 }
             }
