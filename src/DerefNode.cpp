@@ -15,6 +15,11 @@ namespace cmm
     {
     }
 
+    bool DerefNode::hasExpression() const CMM_NOEXCEPT
+    {
+        return expr != nullptr;
+    }
+
     ExpressionNode* DerefNode::getExpression() CMM_NOEXCEPT
     {
         return expr.get();

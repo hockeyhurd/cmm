@@ -12,7 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/ExpressionNode.h>
+#include <cmm/UnaryOpNode.h>
 #include <cmm/VariableNode.h>
 
 // std includes
@@ -20,7 +20,7 @@
 
 namespace cmm
 {
-    class AddressOfNode : public ExpressionNode
+    class [[deprecated("use UnaryOpNode instead")]] AddressOfNode : public UnaryOpNode
     {
     public:
 
@@ -84,13 +84,10 @@ namespace cmm
          */
         NodeType getRootType() const CMM_NOEXCEPT;
 
+        void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT override;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
-
-    private:
-
-        // The variable whose address is requested.
-        VariableNode variable;
     };
 }
 

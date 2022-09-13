@@ -33,6 +33,7 @@ namespace cmm
     class StatementNode;
     class TranslationUnitNode;
     class TypeNode;
+    class UnaryOpNode;
     class VariableNode;
     class VariableDeclarationStatementNode;
     class WhileStatementNode;

@@ -36,3 +36,6 @@ x64
 doc
 cppcheck.xml
 
+# Misc. notes
+notes.txt
+

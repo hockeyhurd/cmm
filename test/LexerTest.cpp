@@ -352,6 +352,32 @@ TEST(LexerTest, LexSymbolPlus)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexSymbolPlusPlus)
+{
+    const std::string input = " ++ ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asStringSymbol(), "++");
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexSymbolMineMinus)
+{
+    const std::string input = " -- ";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asStringSymbol(), "--");
+    ASSERT_FALSE(lexer.nextToken(token));
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 TEST(LexerTest, LexSymbolPlusWithInvalidEError)
 {
     const std::string input = " +e";
