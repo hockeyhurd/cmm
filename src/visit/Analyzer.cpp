@@ -31,8 +31,21 @@ namespace cmm
 
     VisitorResult Analyzer::visit(AddressOfNode& node)
     {
-        auto& variable = node.getVariable();
-        variable.accept(this);
+        auto* variablePtr = node.getExpression();
+
+        if (variablePtr == nullptr)
+        {
+            reporter.bug("variablePtr is a nullptr", node.getLocation(), true);
+        }
+
+        else if (variablePtr->getType() != NodeType::VARIABLE)
+        {
+            const char* message = "Expected a variable expression prior to attempting to take the address of it";
+            reporter.error(message, node.getLocation());
+            return VisitorResult();
+        }
+
+        variablePtr->accept(this);
 
         return VisitorResult();
     }
@@ -519,6 +532,23 @@ namespace cmm
         // TODO: What to do here??
         [[maybe_unused]]
         const auto datatype = node.getDatatype();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Analyzer::visit(UnaryOpNode& node)
+    {
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+
+            if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            {
+                const char* message = "Expected a variable expression prior to attempting to take the address of it";
+                reporter.error(message, node.getLocation());
+            }
+        }
 
         return VisitorResult();
     }

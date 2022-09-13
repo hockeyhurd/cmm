@@ -32,8 +32,8 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
-        auto& variable = node.getVariable();
-        variable.accept(this);
+        auto* variablePtr = node.getExpression();
+        variablePtr->accept(this);
 
         decreaseIntentation();
         printNewLine();
@@ -446,6 +446,36 @@ namespace cmm
         increaseIntentation();
         printIndentation();
         std::cout << toString(node.getDatatype());
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(UnaryOpNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << "UnaryOpType: " << toString(node.getOpType());
+        printNewLine();
+
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        else
+        {
+            printIndentation();
+            std::cout << "<empty>";
+            printNewLine();
+        }
+
         decreaseIntentation();
         printNewLine();
 
