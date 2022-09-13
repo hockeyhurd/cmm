@@ -214,7 +214,7 @@ namespace cmm
         DOUBLE, STRING, STRUCT
     };
 
-    struct CType
+    struct CTypeValue
     {
         std::size_t length;
 
@@ -235,18 +235,18 @@ namespace cmm
             // char  valueStruct[0];
         };
 
-        CType(void* valueVoidPtr) CMM_NOEXCEPT;
-        CType(const bool valueBool) CMM_NOEXCEPT;
-        CType(const char valueChar) CMM_NOEXCEPT;
-        CType(const s8 valueS8) CMM_NOEXCEPT;
-        CType(const s16 valueS16) CMM_NOEXCEPT;
-        CType(const s32 valueS32) CMM_NOEXCEPT;
-        CType(const s64 valueS64) CMM_NOEXCEPT;
-        CType(const f32 valueF32) CMM_NOEXCEPT;
-        CType(const f64 valueF64) CMM_NOEXCEPT;
-        CType(char* valueString) CMM_NOEXCEPT;
+        CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
+        CTypeValue(const bool valueBool) CMM_NOEXCEPT;
+        CTypeValue(const char valueChar) CMM_NOEXCEPT;
+        CTypeValue(const s8 valueS8) CMM_NOEXCEPT;
+        CTypeValue(const s16 valueS16) CMM_NOEXCEPT;
+        CTypeValue(const s32 valueS32) CMM_NOEXCEPT;
+        CTypeValue(const s64 valueS64) CMM_NOEXCEPT;
+        CTypeValue(const f32 valueF32) CMM_NOEXCEPT;
+        CTypeValue(const f64 valueF64) CMM_NOEXCEPT;
+        CTypeValue(char* valueString) CMM_NOEXCEPT;
         // TODO: revisit structs
-        // CType(const std::size_t length);
+        // CTypeValue(const std::size_t length);
     };
 
     bool canPromote(const EnumCType from, const EnumCType to);

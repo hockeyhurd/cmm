@@ -68,7 +68,7 @@ namespace cmm
     {
     }
 
-    // NOTE: Safe const_cast because this is a litteral and CType doesn't care what kind of char* it actually is.
+    // NOTE: Safe const_cast because this is a litteral and CTypeValue doesn't care what kind of char* it actually is.
     LitteralNode::LitteralNode(const Location& location, const char* value) CMM_NOEXCEPT :
         ExpressionNode(NodeType::LITTERAL, location, EnumCType::STRING),
         value(const_cast<char*>(value))
@@ -84,7 +84,7 @@ namespace cmm
         }
     }
 
-    CType LitteralNode::getValue() const CMM_NOEXCEPT
+    CTypeValue LitteralNode::getValue() const CMM_NOEXCEPT
     {
         return value;
     }

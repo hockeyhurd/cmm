@@ -131,9 +131,9 @@ namespace cmm
         /**
          * Get the underly value.
          *
-         * @return CType.
+         * @return CTypeValue.
          */
-        CType getValue() const CMM_NOEXCEPT;
+        CTypeValue getValue() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override
         {
@@ -144,7 +144,7 @@ namespace cmm
 
     private:
 
-        CType value;
+        CTypeValue value;
     };
 }
 
