@@ -547,7 +547,6 @@ namespace cmm
             {
                 const char* message = "Expected a variable expression prior to attempting to take the address of it";
                 reporter.error(message, node.getLocation());
-                return VisitorResult();
             }
         }
 

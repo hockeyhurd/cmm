@@ -463,8 +463,18 @@ namespace cmm
         std::cout << "UnaryOpType: " << toString(node.getOpType());
         printNewLine();
 
-        auto* expression = node.getExpression();
-        expression->accept(this);
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        else
+        {
+            printIndentation();
+            std::cout << "<empty>";
+            printNewLine();
+        }
 
         decreaseIntentation();
         printNewLine();
