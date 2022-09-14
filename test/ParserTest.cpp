@@ -40,7 +40,7 @@ TEST(ParserTest, ParseCompilationNodeBoolTrue)
     ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
-    ASSERT_EQ(boolPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_TRUE(boolPtr->getValue().valueBool);
 }
 
@@ -63,7 +63,7 @@ TEST(ParserTest, ParseCompilationNodeBoolFalse)
     ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
-    ASSERT_EQ(boolPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_FALSE(boolPtr->getValue().valueBool);
 }
 
@@ -86,7 +86,7 @@ TEST(ParserTest, ParseCompilationNodeNullFalse)
     ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
-    ASSERT_EQ(boolPtr->getDatatype(), EnumCType::NULL_T);
+    ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::NULL_T);
     ASSERT_EQ(boolPtr->getValue().valueVoidPtr, nullptr);
 }
 
@@ -109,7 +109,7 @@ TEST(ParserTest, ParseCompilationNodeInt)
     ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
 
     auto* rootIntPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
-    ASSERT_EQ(rootIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rootIntPtr->getValue().valueS32, 32);
 }
 
@@ -139,11 +139,11 @@ TEST(ParserTest, ParseCompilationNodeIntSum2)
     ASSERT_EQ(rootSumPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rootSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 10);
 
     auto* rightIntPtr = static_cast<LitteralNode*>(rootSumPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 32);
 }
 
@@ -173,7 +173,7 @@ TEST(ParserTest, ParseCompilationNodeIntSum3)
     ASSERT_EQ(rootSumPtr->getRight()->getType(), NodeType::BIN_OP);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rootSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 10);
 
     auto* rightSumPtr = static_cast<BinOpNode*>(rootSumPtr->getRight());
@@ -184,11 +184,11 @@ TEST(ParserTest, ParseCompilationNodeIntSum3)
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::LITTERAL);
 
     leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 31);
 
     auto* rightIntPtr = static_cast<LitteralNode*>(rightSumPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 1);
 }
 
@@ -218,11 +218,11 @@ TEST(ParserTest, ParseCompilationNodeFloatSubtract2)
     ASSERT_EQ(rootSubPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* leftFloatPtr = static_cast<LitteralNode*>(rootSubPtr->getLeft());
-    ASSERT_EQ(leftFloatPtr->getDatatype(), EnumCType::FLOAT);
+    ASSERT_EQ(leftFloatPtr->getDatatype().type, EnumCType::FLOAT);
     ASSERT_EQ(leftFloatPtr->getValue().valueF32, 10.0F);
 
     auto* rightFloatPtr = static_cast<LitteralNode*>(rootSubPtr->getRight());
-    ASSERT_EQ(rightFloatPtr->getDatatype(), EnumCType::FLOAT);
+    ASSERT_EQ(rightFloatPtr->getDatatype().type, EnumCType::FLOAT);
     ASSERT_EQ(rightFloatPtr->getValue().valueF32, 32.0F);
 }
 
@@ -252,11 +252,11 @@ TEST(ParserTest, ParseCompilationNodeIntMultiply2)
     ASSERT_EQ(rootMultPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rootMultPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 123);
 
     auto* rightIntPtr = static_cast<LitteralNode*>(rootMultPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 456789);
 }
 
@@ -286,11 +286,11 @@ TEST(ParserTest, ParseCompilationNodeFloatDivide2)
     ASSERT_EQ(rootDivPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* leftDoublePtr = static_cast<LitteralNode*>(rootDivPtr->getLeft());
-    ASSERT_EQ(leftDoublePtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftDoublePtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftDoublePtr->getValue().valueF64, 123.0);
 
     auto* rightDoublePtr = static_cast<LitteralNode*>(rootDivPtr->getRight());
-    ASSERT_EQ(rightDoublePtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(rightDoublePtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(rightDoublePtr->getValue().valueF64, 456789.0);
 }
 
@@ -323,7 +323,7 @@ TEST(ParserTest, ParseCompilationNodeIntAssignment)
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightIntPtr = static_cast<LitteralNode*>(rootAssignPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 10);
 }
 
@@ -360,7 +360,7 @@ TEST(ParserTest, ParseCompilationNodeIntAssignmentViaPointer)
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightIntPtr = static_cast<LitteralNode*>(rootAssignPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 10);
 }
 
@@ -400,11 +400,11 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightIntPtr = static_cast<LitteralNode*>(rightSumPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(rightIntPtr->getValue().valueF64, 32.0);
 }
 
@@ -448,11 +448,11 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToParenAddExpression)
     ASSERT_EQ(sumExpressionPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(sumExpressionPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(leftIntPtr->getValue().valueS32, 10);
 
     auto* rightIntPtr = static_cast<LitteralNode*>(sumExpressionPtr->getRight());
-    ASSERT_EQ(rightIntPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rightIntPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(rightIntPtr->getValue().valueS32, 32);
 }
 
@@ -507,11 +507,11 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToNestedParenAddExpression)
     ASSERT_EQ(nestedBinOpPtr->getRight()->getType(), NodeType::LITTERAL);
 
     auto* nestedLeftIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getLeft());
-    ASSERT_EQ(nestedLeftIntPtr ->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(nestedLeftIntPtr ->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(nestedLeftIntPtr ->getValue().valueS32, 32);
 
     auto* nestedRightIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getRight());
-    ASSERT_EQ(nestedRightIntPtr ->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(nestedRightIntPtr ->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(nestedRightIntPtr ->getValue().valueS32, 1);
 }
 
@@ -551,7 +551,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -599,7 +599,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -657,7 +657,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -673,7 +673,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(litteralNodePtr->getValue().valueS32, 42);
 
     ++iter;
@@ -716,7 +716,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -732,7 +732,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::CHAR);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
     ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'c');
 
     ++iter;
@@ -775,7 +775,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -791,7 +791,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(litteralNodePtr->getValue().valueF64, 2.5);
 
     ++iter;
@@ -834,7 +834,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -850,7 +850,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_EQ(litteralNodePtr->getValue().valueBool, true);
 
     ++iter;
@@ -893,7 +893,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -909,7 +909,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::NULL_T);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
     ASSERT_EQ(litteralNodePtr->getValue().valueVoidPtr, nullptr);
 
     ++iter;
@@ -952,7 +952,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightSumPtr->getRight());
@@ -968,7 +968,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::STRING);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
     ASSERT_EQ(std::string(litteralNodePtr->getValue().valueString), "Hello, world!");
 
     ++iter;
@@ -1011,7 +1011,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::UNARY_OP);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
-    ASSERT_EQ(leftIntPtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(leftIntPtr->getValue().valueF64, 123.0);
 
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rightSumPtr->getRight());
@@ -1499,8 +1499,9 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
     ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
-    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 0);
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::INT32);
+    ASSERT_EQ(datatype.pointers, 0);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1522,8 +1523,9 @@ TEST(ParserTest, ParseCompilationNodeIntPointerDeclarationStatement)
     ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
-    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 1);
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::INT32);
+    ASSERT_EQ(datatype.pointers, 1);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1545,8 +1547,9 @@ TEST(ParserTest, ParseCompilationNodeIntDoublePointerDeclarationStatement)
     ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
-    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 2);
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::INT32);
+    ASSERT_EQ(datatype.pointers, 2);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1568,8 +1571,9 @@ TEST(ParserTest, ParseCompilationNodeIntQuadPointerDeclarationStatement)
     ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
-    ASSERT_EQ(rootDeclarationStatementPtr->getDimensions(), 4);
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::INT32);
+    ASSERT_EQ(datatype.pointers, 4);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1591,7 +1595,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1613,7 +1617,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1646,7 +1650,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, funcName);
@@ -1662,7 +1666,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
     ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
     const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
-    ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+    ASSERT_EQ(varDeclPtr->getDatatype().type, EnumCType::FLOAT);
     ASSERT_EQ(varDeclPtr->getName(), varName);
 
     ++iter;
@@ -1690,7 +1694,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, funcName);
@@ -1708,7 +1712,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
         ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
         const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
-        ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::FLOAT);
+        ASSERT_EQ(varDeclPtr->getDatatype().type, EnumCType::FLOAT);
         ASSERT_EQ(varDeclPtr->getName(), var1Name);
     }
 
@@ -1720,7 +1724,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
         ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
 
         const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
-        ASSERT_EQ(varDeclPtr->getDatatype(), EnumCType::CHAR);
+        ASSERT_EQ(varDeclPtr->getDatatype().type, EnumCType::CHAR);
         ASSERT_EQ(varDeclPtr->getName(), var2Name);
     }
 
@@ -1747,7 +1751,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSinglePa
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1769,7 +1773,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSinglePa
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1791,7 +1795,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithTwoParam
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1813,7 +1817,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithTwoParam
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1835,7 +1839,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithMultiple
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1857,7 +1861,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithMultiple
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1879,7 +1883,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1912,7 +1916,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1946,7 +1950,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -1963,14 +1967,14 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto* returnStatementPtr = static_cast<const ReturnStatementNode*>(statementPtr.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
-    ASSERT_EQ(returnStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(returnStatementPtr->getDatatype()->type, EnumCType::INT32);
 
     const auto* expressionPtr = returnStatementPtr->getExpression();
     ASSERT_NE(expressionPtr, nullptr);
     ASSERT_EQ(expressionPtr->getType(), NodeType::LITTERAL);
 
     const auto* intLitteralPtr = static_cast<const LitteralNode*>(expressionPtr);
-    ASSERT_EQ(intLitteralPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(intLitteralPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(intLitteralPtr->getValue().valueS32, 42);
 
     ++iter;
@@ -1996,7 +2000,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -2029,7 +2033,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -2062,7 +2066,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -2095,7 +2099,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
-    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDefinitionStatementPtr->getName();
     ASSERT_EQ(outName, name);
@@ -2201,7 +2205,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleBoolArg)
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_EQ(litteralNodePtr->getValue().valueBool, false);
 
     ++argListIter;
@@ -2237,7 +2241,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleCharArg)
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::CHAR);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
     ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'A');
 
     ++argListIter;
@@ -2273,7 +2277,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleDoubleArg)
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::DOUBLE);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(litteralNodePtr->getValue().valueF64, 2.5);
 
     ++argListIter;
@@ -2309,7 +2313,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleIntArg)
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(litteralNodePtr->getValue().valueS32, 42);
 
     ++argListIter;
@@ -2345,7 +2349,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleNullArg)
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::NULL_T);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
 
     ++argListIter;
     ASSERT_EQ(argListIter, functionCallPtr->cend());
@@ -2380,7 +2384,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleStringArg)
     ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::STRING);
+    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
     ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "Hello, world!", 16), 0);
 
     ++argListIter;
@@ -2466,7 +2470,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::BOOL);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
         ASSERT_EQ(litteralNodePtr->getValue().valueBool, false);
     }
 
@@ -2479,7 +2483,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::BOOL);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
         ASSERT_EQ(litteralNodePtr->getValue().valueBool, true);
     }
 
@@ -2517,7 +2521,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::CHAR);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
         ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'A');
     }
 
@@ -2530,7 +2534,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::CHAR);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
         ASSERT_EQ(litteralNodePtr->getValue().valueChar, 'B');
     }
 
@@ -2570,7 +2574,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::DOUBLE);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
         ASSERT_NEAR(litteralNodePtr->getValue().valueF64, 123.45, eps);
     }
 
@@ -2583,7 +2587,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::DOUBLE);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
         ASSERT_NEAR(litteralNodePtr->getValue().valueF64, -100.001, eps);
     }
 
@@ -2621,7 +2625,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::INT32);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
         ASSERT_EQ(litteralNodePtr->getValue().valueS32, 42);
     }
 
@@ -2634,7 +2638,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::INT32);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
         ASSERT_EQ(litteralNodePtr->getValue().valueS32, -1);
     }
 
@@ -2672,7 +2676,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::NULL_T);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
     }
 
     ++argListIter;
@@ -2684,7 +2688,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::NULL_T);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
     }
 
     ++argListIter;
@@ -2721,7 +2725,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::STRING);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
         ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "Hello, world!", 16), 0);
     }
 
@@ -2734,7 +2738,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
         ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype(), EnumCType::STRING);
+        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
         ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "My name is... the REAL SLIM SHADY!!", 48), 0);
     }
 
@@ -2765,7 +2769,7 @@ TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
     ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::LITTERAL);
 
     auto* intPtr = static_cast<LitteralNode*>(parenExpressionPtr->getExpression());
-    ASSERT_EQ(intPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(intPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(intPtr->getValue().valueS32, 42);
 }
 
@@ -2848,7 +2852,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithNoExpression)
 
     const auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_FALSE(returnStatementPtr->hasExpression());
-    ASSERT_EQ(returnStatementPtr->getDatatype(), std::nullopt);
+    ASSERT_EQ(returnStatementPtr->getDatatype(), nullptr);
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_EQ(expression, nullptr);
@@ -2870,14 +2874,14 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithIntExpression)
 
     auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
-    ASSERT_EQ(returnStatementPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(returnStatementPtr->getDatatype()->type, EnumCType::INT32);
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_NE(expression, nullptr);
     ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
 
     const auto* intLitteralPtr = static_cast<const LitteralNode*>(expression);
-    ASSERT_EQ(intLitteralPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(intLitteralPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(intLitteralPtr->getValue().valueS32, 42);
 }
 
@@ -2897,14 +2901,14 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithBoolExpression)
 
     auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
-    ASSERT_EQ(returnStatementPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(returnStatementPtr->getDatatype()->type, EnumCType::BOOL);
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_NE(expression, nullptr);
     ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
 
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(expression);
-    ASSERT_EQ(boolLitteralPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolLitteralPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
 }
 
@@ -2928,7 +2932,7 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndNoElse)
     ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
 
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
-    ASSERT_EQ(boolLitteralPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolLitteralPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
 
     ASSERT_FALSE(ifElseStatementPtr->hasElseStatement());
@@ -2954,7 +2958,7 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElse)
     ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
 
     const auto* intLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
-    ASSERT_EQ(intLitteralPtr->getDatatype(), EnumCType::INT32);
+    ASSERT_EQ(intLitteralPtr->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(intLitteralPtr->getValue().valueS32, 1);
 
     ASSERT_FALSE(ifElseStatementPtr->hasElseStatement());
@@ -2980,7 +2984,7 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndElseWit
     ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
 
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
-    ASSERT_EQ(boolLitteralPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolLitteralPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_EQ(boolLitteralPtr->getValue().valueBool, true);
 
     ASSERT_TRUE(ifElseStatementPtr->hasElseStatement());
@@ -3006,7 +3010,7 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElseWithBloc
     ASSERT_EQ(ifConditonalExpression->getType(), NodeType::LITTERAL);
 
     const auto* charLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
-    ASSERT_EQ(charLitteralPtr->getDatatype(), EnumCType::CHAR);
+    ASSERT_EQ(charLitteralPtr->getDatatype().type, EnumCType::CHAR);
     ASSERT_EQ(charLitteralPtr->getValue().valueChar, 'c');
 
     ASSERT_TRUE(ifElseStatementPtr->hasElseStatement());
@@ -3032,7 +3036,7 @@ TEST(ParserTest, ParseCompilationNodeWhileStatementWithEmptyBlockNode)
     ASSERT_EQ(conditionalPtr->getType(), NodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(conditionalPtr);
-    ASSERT_EQ(boolPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_TRUE(boolPtr->getValue().valueBool);
 
     auto* statementPtr = whileStatementPtr->getStatement();
@@ -3065,7 +3069,7 @@ TEST(ParserTest, ParseCompilationNodeWhileStatementWithBlockNode)
     ASSERT_EQ(conditionalPtr->getType(), NodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(conditionalPtr);
-    ASSERT_EQ(boolPtr->getDatatype(), EnumCType::BOOL);
+    ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
     ASSERT_TRUE(boolPtr->getValue().valueBool);
 
     auto* statementPtr = whileStatementPtr->getStatement();
@@ -3104,7 +3108,7 @@ TEST(ParserTest, ParseCompilationNodeMultipleStatements)
         ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
 
         auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
-        ASSERT_EQ(boolPtr->getDatatype(), EnumCType::BOOL);
+        ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
         ASSERT_TRUE(boolPtr->getValue().valueBool);
     }
 
@@ -3117,7 +3121,7 @@ TEST(ParserTest, ParseCompilationNodeMultipleStatements)
         ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
 
         auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
-        ASSERT_EQ(boolPtr->getDatatype(), EnumCType::BOOL);
+        ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
         ASSERT_FALSE(boolPtr->getValue().valueBool);
     }
 

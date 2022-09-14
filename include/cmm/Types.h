@@ -214,6 +214,17 @@ namespace cmm
         DOUBLE, STRING, STRUCT
     };
 
+    struct CType
+    {
+        EnumCType type;
+        u16 pointers;
+
+        explicit CType(const EnumCType type, const u16 pointers = 0) CMM_NOEXCEPT;
+
+        bool operator== (const CType& other) const CMM_NOEXCEPT;
+        bool operator!= (const CType& other) const CMM_NOEXCEPT;
+    };
+
     struct CTypeValue
     {
         std::size_t length;
@@ -235,22 +246,22 @@ namespace cmm
             // char  valueStruct[0];
         };
 
-        CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
-        CTypeValue(const bool valueBool) CMM_NOEXCEPT;
-        CTypeValue(const char valueChar) CMM_NOEXCEPT;
-        CTypeValue(const s8 valueS8) CMM_NOEXCEPT;
-        CTypeValue(const s16 valueS16) CMM_NOEXCEPT;
-        CTypeValue(const s32 valueS32) CMM_NOEXCEPT;
-        CTypeValue(const s64 valueS64) CMM_NOEXCEPT;
-        CTypeValue(const f32 valueF32) CMM_NOEXCEPT;
-        CTypeValue(const f64 valueF64) CMM_NOEXCEPT;
-        CTypeValue(char* valueString) CMM_NOEXCEPT;
+        explicit CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
+        explicit CTypeValue(const bool valueBool) CMM_NOEXCEPT;
+        explicit CTypeValue(const char valueChar) CMM_NOEXCEPT;
+        explicit CTypeValue(const s8 valueS8) CMM_NOEXCEPT;
+        explicit CTypeValue(const s16 valueS16) CMM_NOEXCEPT;
+        explicit CTypeValue(const s32 valueS32) CMM_NOEXCEPT;
+        explicit CTypeValue(const s64 valueS64) CMM_NOEXCEPT;
+        explicit CTypeValue(const f32 valueF32) CMM_NOEXCEPT;
+        explicit CTypeValue(const f64 valueF64) CMM_NOEXCEPT;
+        explicit CTypeValue(char* valueString) CMM_NOEXCEPT;
         // TODO: revisit structs
         // CTypeValue(const std::size_t length);
     };
 
-    bool canPromote(const EnumCType from, const EnumCType to);
-    bool canTruncate(const EnumCType from, const EnumCType to);
+    bool canPromote(const CType& from, const CType& to);
+    bool canTruncate(const CType& from, const CType& to);
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 

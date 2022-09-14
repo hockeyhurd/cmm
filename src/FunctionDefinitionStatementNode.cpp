@@ -35,7 +35,12 @@ namespace cmm
         return type;
     }
 
-    EnumCType FunctionDefinitionStatementNode::getDatatype() const CMM_NOEXCEPT
+    CType& FunctionDefinitionStatementNode::getDatatype() CMM_NOEXCEPT
+    {
+        return type.getDatatype();
+    }
+
+    const CType& FunctionDefinitionStatementNode::getDatatype() const CMM_NOEXCEPT
     {
         return type.getDatatype();
     }

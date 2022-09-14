@@ -21,6 +21,16 @@ namespace cmm
         std::cout << '[' << node.toString() << "]: ";
     }
 
+    // TODO: Move to a common file for re-use.
+    template<class T, class N>
+    static void printRepeat(const T& value, const N count)
+    {
+        for (N i = 0; i < count; ++i)
+        {
+            std::cout << value;
+        }
+    }
+
     Dump::Dump() CMM_NOEXCEPT : indent(0)
     {
     }
@@ -318,9 +328,10 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getDatatype()) << ": ";
+        const auto& datatype = node.getDatatype();
+        std::cout << toString(datatype.type) << ": ";
 
-        switch (node.getDatatype())
+        switch (datatype.type)
         {
         case EnumCType::NULL_T:
             std::cout << "NULL";
@@ -445,7 +456,9 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getDatatype());
+        const auto& datatype = node.getDatatype();
+        printRepeat('*', datatype.pointers);
+        std::cout << toString(datatype.type);
         decreaseIntentation();
         printNewLine();
 
@@ -554,10 +567,7 @@ namespace cmm
 
     void Dump::printIndentation() const
     {
-        for (s32 i = 0; i < indent; ++i)
-        {
-            std::cout << ' ';
-        }
+        printRepeat(' ', indent);
     }
 
     void Dump::printNewLine() const

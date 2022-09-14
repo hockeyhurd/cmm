@@ -9,75 +9,75 @@
 
 namespace cmm
 {
-    LitteralNode::LitteralNode(const Location& location) CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL, location, EnumCType::NULL_T),
+    LitteralNode::LitteralNode(const Location& location) CMM_NOEXCEPT : ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::NULL_T)),
         value((void*) nullptr)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, void* value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::VOID_PTR),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::VOID_PTR)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const bool value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::BOOL),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::BOOL)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const char value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::CHAR),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::CHAR)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const s8 value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::INT8),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::INT8)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const s16 value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::INT16),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::INT16)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const s32 value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::INT32),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::INT32)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const s64 value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::INT64),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::INT64)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const f32 value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::FLOAT),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::FLOAT)),
         value(value)
     {
     }
 
     LitteralNode::LitteralNode(const Location& location, const f64 value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::DOUBLE),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::DOUBLE)),
         value(value)
     {
     }
 
     // NOTE: Safe const_cast because this is a litteral and CTypeValue doesn't care what kind of char* it actually is.
     LitteralNode::LitteralNode(const Location& location, const char* value) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::LITTERAL, location, EnumCType::STRING),
+        ExpressionNode(NodeType::LITTERAL, location, CType(EnumCType::STRING)),
         value(const_cast<char*>(value))
     {
     }
 
     LitteralNode::~LitteralNode()
     {
-        if (datatype == EnumCType::STRING && value.valueString != nullptr)
+        if (datatype.type == EnumCType::STRING && value.valueString != nullptr)
         {
             delete[] value.valueString;
             value.valueString = nullptr;

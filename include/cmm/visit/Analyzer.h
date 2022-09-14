@@ -94,8 +94,6 @@ namespace cmm
 
     private:
 
-        static EnumCType deduceType(ExpressionNode* expression);
-
         /**
          * Validates that function already exists or does not requiring updating the internal map.
          *

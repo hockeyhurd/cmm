@@ -10,12 +10,17 @@
 
 namespace cmm
 {
-    VariableContext::VariableContext(const EnumCType type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT :
+    VariableContext::VariableContext(const CType& type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT :
         type(type), locality(locality), modifiers(modifiers)
     {
     }
 
-    EnumCType VariableContext::getType() const CMM_NOEXCEPT
+    CType& VariableContext::getType() CMM_NOEXCEPT
+    {
+        return type;
+    }
+
+    const CType& VariableContext::getType() const CMM_NOEXCEPT
     {
         return type;
     }

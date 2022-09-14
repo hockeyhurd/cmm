@@ -1337,11 +1337,11 @@ namespace cmm
 
                 if (optionalDimensionCount.has_value())
                 {
-                    return std::make_optional<TypeNode>(location, enumType.value(), *optionalDimensionCount);
+                    return std::make_optional<TypeNode>(location, CType(enumType.value(), *optionalDimensionCount));
                 }
 
                 // else
-                return std::make_optional<TypeNode>(location, enumType.value());
+                return std::make_optional<TypeNode>(location, CType(enumType.value()));
             }
         }
 

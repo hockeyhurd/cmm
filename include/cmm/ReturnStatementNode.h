@@ -17,7 +17,6 @@
 
 // std includes
 #include <memory>
-#include <optional>
 #include <string>
 
 namespace cmm
@@ -85,11 +84,11 @@ namespace cmm
         ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
-         * Gets the underlying EnumCType from the Expression (if non-nullptr).
+         * Gets the underlying CType from the Expression (if non-nullptr).
          *
-         * @return optional EnumCType of the underlying expression.
+         * @return pointer to optional CType of the underlying expression.
          */
-        std::optional<EnumCType> getDatatype() const CMM_NOEXCEPT;
+        CType* getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Gets the returned expression.

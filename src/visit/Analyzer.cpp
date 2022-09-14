@@ -24,6 +24,16 @@ namespace cmm
         return std::numeric_limits<T>::lowest() <= value && value <= std::numeric_limits<T>::max();
     }
 
+    // TODO: Move to a common file for re-use.
+    template<class T, class N>
+    static void printRepeat(const T& value, const N count)
+    {
+        for (N i = 0; i < count; ++i)
+        {
+            std::cout << value;
+        }
+    }
+
     Analyzer::Analyzer() CMM_NOEXCEPT
     {
         localityStack.push(EnumLocality::GLOBAL);
@@ -78,25 +88,30 @@ namespace cmm
         auto* rightNode = node.getRight();
         auto rightNodeResult = rightNode->accept(this);
 
-        auto leftType = deduceType(leftNode);
-        auto rightType = deduceType(rightNode);
+        auto& leftType = leftNode->getDatatype();
+        auto& rightType = rightNode->getDatatype();
 
         if (leftType != rightType)
         {
             if (canPromote(leftType, rightType))
             {
                 std::ostringstream builder;
-                builder << "Type mismatch between " << toString(leftType)
-                        << " and " << toString(rightType)
-                        << " but is promotable.";
+                builder << "Type mismatch between " << toString(leftType.type);
+                printRepeat('*', leftType.pointers);
+                builder << " and " << toString(rightType.type);
+                printRepeat('*', rightType.pointers);
+                builder << " but is promotable.";
                 reporter.warn(builder.str(), node.getLocation());
             }
 
             else
             {
                 std::ostringstream builder;
-                builder << "Type mismatch between " << toString(leftType)
-                        << " and " << toString(rightType);
+                builder << "Type mismatch between " << toString(leftType.type);
+                printRepeat('*', leftType.pointers);
+                builder << " and ";
+                printRepeat('*', rightType.pointers);
+                builder << toString(rightType.type);
                 reporter.error(builder.str(), node.getLocation());
             }
         }
@@ -286,39 +301,44 @@ namespace cmm
         // 2. non-void with optional return statement -> warning
         // 3. non-void with return statement that does not match or is not promotable or is not truncatable -> warning.
 
-        if (node.getDatatype() != EnumCType::VOID)
+        auto& datatype = node.getDatatype();
+
+        if (datatype.type != EnumCType::VOID)
         {
             // Case #2
-            if (returnStatementPtr == nullptr)
+            if (returnStatementPtr == nullptr || !returnStatementPtr->hasExpression())
             {
                 std::ostringstream builder;
                 builder << "Missing return statement in non-void function '" << node.getName() << "'";
                 reporter.warn(builder.str(), blockNode.getLocation());
             }
 
-            else if (returnStatementPtr->getDatatype().value() != node.getDatatype())
+            // const auto* returnType = returnStatementPtr->getDatatype();
+
+            // if (*returnType != datatype)
+            else if (*returnStatementPtr->getDatatype() != datatype)
             {
-                const auto optReturnType = returnStatementPtr->getDatatype();
+                const auto* returnType = returnStatementPtr->getDatatype();
 
                 // Case #3 promotable
-                if (canPromote(*optReturnType, node.getDatatype()))
+                if (canPromote(*returnType, datatype))
                 {
-                    const char* toTypeStr = toString(node.getDatatype());
+                    const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
                     builder << "Return type mismatch. Expected '" << toTypeStr
-                            << "', but found '" << toString(*optReturnType)
+                            << "', but found '" << toString(returnType->type)
                             << "'. This will be promoted to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
                     // TODO: perform promotion
                 }
 
-                else if (canTruncate(*optReturnType, node.getDatatype()))
+                else if (canTruncate(*returnType, node.getDatatype()))
                 {
-                    const char* toTypeStr = toString(node.getDatatype());
+                    const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
                     builder << "Return type mismatch. Expected '" << toTypeStr
-                            << "', but found '" << toString(*optReturnType)
+                            << "', but found '" << toString(returnType->type)
                             << "'. This will be truncated to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
@@ -328,17 +348,17 @@ namespace cmm
                 // Case #3 not promotable
                 else
                 {
-                    const char* toTypeStr = toString(node.getDatatype());
+                    const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
                     builder << "Return type mismatch. Expected '" << toTypeStr
-                            << "', but found '" << toString(*optReturnType);
+                            << "', but found '" << toString(returnType->type);
                     reporter.error(builder.str(), returnStatementPtr->getLocation());
                 }
             }
         }
 
         // void function returns a non-void value case #1.
-        else if (returnStatementPtr != nullptr && returnStatementPtr->getDatatype() != EnumCType::VOID)
+        else if (returnStatementPtr != nullptr && returnStatementPtr->getDatatype()->type != EnumCType::VOID)
         {
             std::ostringstream builder;
             builder << "Function '" << node.getName() << "' should not return a non-void value";
@@ -375,7 +395,7 @@ namespace cmm
 
     VisitorResult Analyzer::visit(LitteralNode& node)
     {
-        switch (node.getDatatype())
+        switch (node.getDatatype().type)
         {
         case EnumCType::NULL_T:
             break;
@@ -617,12 +637,6 @@ namespace cmm
         statement->accept(this);
 
         return VisitorResult();
-    }
-
-    /* static */
-    EnumCType Analyzer::deduceType(ExpressionNode* expression)
-    {
-        return expression->getDatatype();
     }
 
     bool Analyzer::validateFunction(const std::string& name, const Analyzer::EnumFuncState state)

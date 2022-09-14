@@ -78,7 +78,7 @@ namespace cmm
         /**
          * Get the type of this binary op node.
          *
-         * @return EnumCType.
+         * @return EnumBinOpNodeType.
          */
         EnumBinOpNodeType getTypeof() const CMM_NOEXCEPT;
 
