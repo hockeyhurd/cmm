@@ -5,7 +5,9 @@
  * @version 2022-06-22
  */
 
+// Our includes
 #include <cmm/BinOpNode.h>
+#include <cmm/CastNode.h>
 #include <cmm/Token.h>
 
 namespace cmm
@@ -63,6 +65,13 @@ namespace cmm
     const ExpressionNode* BinOpNode::getRight() const CMM_NOEXCEPT
     {
         return right.get();
+    }
+
+    void BinOpNode::castRight(const CType& newType)
+    {
+        const auto location = right->getLocation();
+        auto tempRight = std::move(right);
+        right = std::make_unique<CastNode>(location, newType, std::move(tempRight));
     }
 
     std::string BinOpNode::toString() const /* override */

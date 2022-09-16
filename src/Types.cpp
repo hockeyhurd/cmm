@@ -33,24 +33,30 @@ namespace cmm
         ctypeMap.emplace("struct", EnumCType::STRUCT);
     }
 
-    static bool promoOrTruncateLookup(const CType& from, const CType& to, std::unordered_map<EnumCType, std::unordered_set<EnumCType>>& theMap)
+    static std::optional<CType> promoOrTruncateLookup(const CType& from, const CType& to, std::unordered_map<EnumCType, std::unordered_set<EnumCType>>& theMap)
     {
         if (from.pointers != to.pointers)
         {
-            return false;
+            return std::nullopt;
         }
 
         const auto firstFindResult = theMap.find(from.type);
 
         if (firstFindResult == theMap.cend())
         {
-            return false;
+            return std::nullopt;
         }
 
         const auto& set = firstFindResult->second;
         const auto secondFindResult = set.find(to.type);
 
-        return secondFindResult != set.cend();
+        if (secondFindResult != set.cend())
+        {
+            return std::make_optional<CType>(to);
+        }
+
+        // else {}
+        return std::nullopt;
     }
 
     CType::CType(const EnumCType type, const u16 pointers) CMM_NOEXCEPT : type(type), pointers(pointers)
@@ -67,7 +73,7 @@ namespace cmm
         return !(*this == other);
     }
 
-    bool canPromote(const CType& from, const CType& to)
+    std::optional<CType> canPromote(const CType& from, const CType& to)
     {
         static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> promoMap;
 
@@ -113,7 +119,7 @@ namespace cmm
         return promoOrTruncateLookup(from, to, promoMap);
     }
 
-    bool canTruncate(const CType& from, const CType& to)
+    std::optional<CType> canTruncate(const CType& from, const CType& to)
     {
         static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> truncateMap;
 

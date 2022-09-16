@@ -110,6 +110,13 @@ namespace cmm
          */
         const ExpressionNode* getRight() const CMM_NOEXCEPT;
 
+        /**
+         * Attempts to cast the right ExpressionNode.
+         *
+         * @param newType the type of the sub-expression.
+         */
+        void castRight(const CType& newType);
+
         VisitorResult accept(Visitor* visitor) override
         {
             return visitor->visit(*this);

@@ -260,8 +260,8 @@ namespace cmm
         // CTypeValue(const std::size_t length);
     };
 
-    bool canPromote(const CType& from, const CType& to);
-    bool canTruncate(const CType& from, const CType& to);
+    std::optional<CType> canPromote(const CType& from, const CType& to);
+    std::optional<CType> canTruncate(const CType& from, const CType& to);
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 

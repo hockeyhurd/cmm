@@ -93,7 +93,9 @@ namespace cmm
 
         if (leftType != rightType)
         {
-            if (canPromote(leftType, rightType))
+            const auto optPromotedType = canPromote(leftType, rightType);
+
+            if (optPromotedType.has_value())
             {
                 std::ostringstream builder;
                 builder << "Type mismatch between " << toString(leftType.type);
@@ -102,6 +104,8 @@ namespace cmm
                 printRepeat('*', rightType.pointers);
                 builder << " but is promotable.";
                 reporter.warn(builder.str(), node.getLocation());
+
+                node.castRight(*optPromotedType);
             }
 
             else
@@ -319,9 +323,10 @@ namespace cmm
             else if (*returnStatementPtr->getDatatype() != datatype)
             {
                 const auto* returnType = returnStatementPtr->getDatatype();
+                auto optCastType = canPromote(*returnType, datatype);
 
                 // Case #3 promotable
-                if (canPromote(*returnType, datatype))
+                if (optCastType.has_value())
                 {
                     const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
@@ -330,10 +335,11 @@ namespace cmm
                             << "'. This will be promoted to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
-                    // TODO: perform promotion
+                    // TODO: @@@ test
+                    returnStatementPtr->cast(*optCastType);
                 }
 
-                else if (canTruncate(*returnType, node.getDatatype()))
+                else if ((optCastType = canTruncate(*returnType, node.getDatatype())).has_value())
                 {
                     const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
@@ -342,7 +348,8 @@ namespace cmm
                             << "'. This will be truncated to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
-                    // TODO: perform truncation
+                    // TODO: @@@ test
+                    returnStatementPtr->cast(*optCastType);
                 }
 
                 // Case #3 not promotable

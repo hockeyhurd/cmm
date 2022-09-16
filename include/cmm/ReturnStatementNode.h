@@ -84,6 +84,13 @@ namespace cmm
         ExpressionNode* getExpression() CMM_NOEXCEPT;
 
         /**
+         * Gets the returned expression.
+         *
+         * @return const pointer to ExpressionNode in the returned expression.
+         */
+        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
+
+        /**
          * Gets the underlying CType from the Expression (if non-nullptr).
          *
          * @return pointer to optional CType of the underlying expression.
@@ -91,11 +98,11 @@ namespace cmm
         CType* getDatatype() const CMM_NOEXCEPT;
 
         /**
-         * Gets the returned expression.
+         * Attempts to cast the right ExpressionNode.
          *
-         * @return const pointer to ExpressionNode in the returned expression.
+         * @param newType the type of the sub-expression.
          */
-        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
+        void cast(const CType& newType);
 
         VisitorResult accept(Visitor* visitor) override
         {

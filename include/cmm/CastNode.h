@@ -35,7 +35,7 @@ namespace cmm
          * @param location the location of this node.
          * @param expression the expression to be casted.
          */
-        CastNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        CastNode(const Location& location, const CType& newType, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -67,6 +67,20 @@ namespace cmm
         CastNode& operator= (CastNode&&) CMM_NOEXCEPT = default;
 
         /**
+         * Get the cast's type.
+         *
+         * @return CType reference.
+         */
+        CType& getCastType() CMM_NOEXCEPT;
+
+        /**
+         * Get the cast's type.
+         *
+         * @return CType const reference.
+         */
+        const CType& getCastType() const CMM_NOEXCEPT;
+
+        /**
          * Gets whether this cast node has ExpressionNode it's trying to cast or not.
          *
          * @return bool.
@@ -91,6 +105,9 @@ namespace cmm
         std::string toString() const override;
 
     private:
+
+        // The new type of the sub-expression.
+        CType newType;
 
         // The expression we are casting.
         std::unique_ptr<ExpressionNode> expression;
