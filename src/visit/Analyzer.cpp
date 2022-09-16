@@ -93,9 +93,9 @@ namespace cmm
 
         if (leftType != rightType)
         {
-            const auto optPromotedType = canPromote(leftType, rightType);
+            auto optCastType = canPromote(rightType, leftType);
 
-            if (optPromotedType.has_value())
+            if (optCastType.has_value())
             {
                 std::ostringstream builder;
                 builder << "Type mismatch between " << toString(leftType.type);
@@ -105,7 +105,7 @@ namespace cmm
                 builder << " but is promotable.";
                 reporter.warn(builder.str(), node.getLocation());
 
-                node.castRight(*optPromotedType);
+                node.castRight(*optCastType);
             }
 
             else
@@ -317,9 +317,6 @@ namespace cmm
                 reporter.warn(builder.str(), blockNode.getLocation());
             }
 
-            // const auto* returnType = returnStatementPtr->getDatatype();
-
-            // if (*returnType != datatype)
             else if (*returnStatementPtr->getDatatype() != datatype)
             {
                 const auto* returnType = returnStatementPtr->getDatatype();
@@ -335,7 +332,6 @@ namespace cmm
                             << "'. This will be promoted to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
-                    // TODO: @@@ test
                     returnStatementPtr->cast(*optCastType);
                 }
 
@@ -348,7 +344,7 @@ namespace cmm
                             << "'. This will be truncated to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
-                    // TODO: @@@ test
+                    // TODO: Can't be tested until CastNodes are added to the parser.
                     returnStatementPtr->cast(*optCastType);
                 }
 
