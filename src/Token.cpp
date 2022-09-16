@@ -504,7 +504,7 @@ namespace cmm
         switch (token.getType())
         {
         case TokenType::BOOL:
-            result = *reinterpret_cast<const std::size_t*>(&token.value.b);
+            result = static_cast<std::size_t>(token.value.b);
             break;
         case TokenType::CHAR_SYMBOL:
         case TokenType::CHAR:
