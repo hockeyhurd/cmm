@@ -62,6 +62,13 @@ namespace cmm
         ExpressionStatementNode& operator= (ExpressionStatementNode&&) CMM_NOEXCEPT = default;
 
         /**
+         * Gets whether this cast node has ExpressionNode it's trying to cast or not.
+         *
+         * @return bool.
+         */
+        bool hasExpression() const CMM_NOEXCEPT;
+
+        /**
          * Gets the variable.
          *
          * @return ExpressionNode.

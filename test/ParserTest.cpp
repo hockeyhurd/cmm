@@ -2844,6 +2844,57 @@ TEST(ParserTest, ParseCompilationNodeWithCastNode)
 
     ASSERT_TRUE(errorMessage.empty());
     ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    const auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_TRUE(expressionStatement->hasExpression());
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::CAST);
+
+    const auto* castNode = static_cast<const CastNode*>(expressionStatement->getExpression());
+    ASSERT_TRUE(castNode->hasExpression());
+    ASSERT_NE(castNode->getExpression(), nullptr);
+    ASSERT_EQ(castNode->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(castNode->getCastType().type, EnumCType::INT32);
+    ASSERT_EQ(castNode->getCastType().pointers, 0);
+
+    const auto* variableNode = static_cast<const VariableNode*>(castNode->getExpression());
+    ASSERT_EQ(variableNode->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeWithCastNodeWrapperInParenNode)
+{
+    const std::string input = "((int) b);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    const auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_TRUE(expressionStatement->hasExpression());
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+
+    const auto* parenExpr = static_cast<const ParenExpressionNode*>(expressionStatement->getExpression());
+    ASSERT_TRUE(parenExpr->hasExpression());
+    ASSERT_EQ(parenExpr->getExpression()->getType(), NodeType::CAST);
+
+    const auto* castNode = static_cast<const CastNode*>(parenExpr->getExpression());
+    ASSERT_TRUE(castNode->hasExpression());
+    ASSERT_NE(castNode->getExpression(), nullptr);
+    ASSERT_EQ(castNode->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(castNode->getCastType().type, EnumCType::INT32);
+    ASSERT_EQ(castNode->getCastType().pointers, 0);
+
+    const auto* variableNode = static_cast<const VariableNode*>(castNode->getExpression());
+    ASSERT_EQ(variableNode->getName(), "b");
 }
 
 TEST(ParserTest, ParseCompilationNodeReturnStatementWithNoExpression)

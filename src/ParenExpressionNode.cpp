@@ -15,6 +15,11 @@ namespace cmm
     {
     }
 
+    bool ParenExpressionNode::hasExpression() const CMM_NOEXCEPT
+    {
+        return expression != nullptr;
+    }
+
     ExpressionNode* ParenExpressionNode::getExpression() CMM_NOEXCEPT
     {
         return expression.get();
