@@ -1044,7 +1044,6 @@ namespace cmm
         Location startLocation;
         bool lexResult = lexer.nextToken(token, errorMessage, &startLocation);
 
-        // TODO: @@@ figure this shit out
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
         {
             lexer.restore(snapshot);
@@ -1385,7 +1384,6 @@ namespace cmm
         return expression;
 #else
         // Check to see if this expression is being dereferenced (i.e. '**x').
-        // TODO: @@@ don't pass nullptr here for the Location.
         auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
         auto optionalVariable = parseVariableNode(lexer, errorMessage);
 
@@ -1465,12 +1463,12 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                // TODO: @@@ don't pass nullptr here for the Locaiton.
-                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+                Location dimLocation;
+                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, &dimLocation);
 
                 if (optionalDimensionCount.has_value())
                 {
-                    return std::make_optional<TypeNode>(location, CType(enumType.value(), *optionalDimensionCount));
+                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount));
                 }
 
                 // else

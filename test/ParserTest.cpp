@@ -1933,7 +1933,6 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
-// @@@ fix
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithSingleParamAndReturnStatement)
 {
     const std::string input = "int x(int y) { return 42; }";
