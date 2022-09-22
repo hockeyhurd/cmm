@@ -469,7 +469,7 @@ namespace cmm
 
             token.setCharSymbol(CHAR_LCURLY_BRACKET);
 
-            static const auto parseBlockStatementWrapper = [] (Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
+            static const auto parseBlockStatementWrapper = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
             {
                 auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
                 return optionalBlockNode.has_value() ? std::make_unique<BlockNode>(std::move(*optionalBlockNode)) : nullptr;
@@ -859,7 +859,15 @@ namespace cmm
         {
             auto token = newToken();
             token.setCharSymbol(CHAR_LPAREN);
-            predictor.registerFunction(token, parseParenExpression);
+
+            // TODO: This is very naive, but it works.  Maybe we can come up with something better later.
+            static const auto parenPredictor = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<ExpressionNode>
+            {
+                auto expr = parseCastExpression(lexer, errorMessage);
+                return expr != nullptr ? std::move(expr) : parseParenExpression(lexer, errorMessage);
+            };
+
+            predictor.registerFunction(token, parenPredictor);
         }
 
         auto tokenLookahead = newToken();
@@ -900,15 +908,15 @@ namespace cmm
         static auto& reporter = Reporter::instance();
 
         auto snapshot = lexer.snap();
-        auto unaryOrCastOrDerefOrVarExprPtr = parseUnaryExpression(lexer, errorMessage);
 
         // TODO: Try to use ParserPredictor somehow here.
+        auto unaryOrCastOrDerefOrVarExprPtr = parseUnaryExpression(lexer, errorMessage);
+
         // Did not get a name of the function, early exit.
         if (!unaryOrCastOrDerefOrVarExprPtr)
         {
             lexer.restore(snapshot);
-            // return nullptr;
-            // unaryOrCastOrDerefOrVarExprPtr = parseCastExpression(lexer, errorMessage);
+            unaryOrCastOrDerefOrVarExprPtr = parseCastExpression(lexer, errorMessage);
 
             // Try parse a cast expression
             if (!unaryOrCastOrDerefOrVarExprPtr)
@@ -992,8 +1000,7 @@ namespace cmm
 
             else if (nodeType == NodeType::CAST)
             {
-                auto* unaryOpPtr = static_cast<CastNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
-                // TODO: @@@ implement
+                return unaryOrCastOrDerefOrVarExprPtr;
             }
 
             else if (nodeType == NodeType::DEREF)
@@ -1032,7 +1039,59 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage)
     {
-        return nullptr;
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        Location startLocation;
+        bool lexResult = lexer.nextToken(token, errorMessage, &startLocation);
+
+        // TODO: @@@ figure this shit out
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect some type:
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+        auto optionalTypeNode = parseTypeNode(lexer, errorMessage);
+
+        // Make sure our cast has a type!
+        if (!optionalTypeNode.has_value())
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect closing paren:
+        lexResult = lexer.nextToken(token, errorMessage, nullptr);
+
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect expression being casted:
+        const auto tempLocation = lexer.snap().getLocation();
+        auto exprToCast = parseExpression(lexer, errorMessage);
+
+        if (exprToCast == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream builder;
+                builder << "Expected an expression to cast at ("
+                        << tempLocation.getLine() << ", " << tempLocation.getPosition()
+                        << ").";
+                *errorMessage = builder.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto castExpr = std::make_unique<CastNode>(startLocation, optionalTypeNode->getDatatype(), std::move(exprToCast));
+        return castExpr;
     }
 
     /* static */

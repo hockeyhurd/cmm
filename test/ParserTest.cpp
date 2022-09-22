@@ -2836,6 +2836,17 @@ TEST(ParserTest, ParseCompilationNodeMultipleMissingMultipleClosingParen)
     ASSERT_EQ(compUnitPtr, nullptr);
 }
 
+TEST(ParserTest, ParseCompilationNodeWithCastNode)
+{
+    const std::string input = "(int) b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeReturnStatementWithNoExpression)
 {
     const std::string input = "return;";
