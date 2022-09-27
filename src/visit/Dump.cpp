@@ -21,16 +21,6 @@ namespace cmm
         std::cout << '[' << node.toString() << "]: ";
     }
 
-    // TODO: Move to a common file for re-use.
-    template<class T, class N>
-    static void printRepeat(const T& value, const N count)
-    {
-        for (N i = 0; i < count; ++i)
-        {
-            std::cout << value;
-        }
-    }
-
     Dump::Dump() CMM_NOEXCEPT : indent(0)
     {
     }
@@ -457,7 +447,7 @@ namespace cmm
         increaseIntentation();
         printIndentation();
         const auto& datatype = node.getDatatype();
-        printRepeat('*', datatype.pointers);
+        printRepeat(std::cout, '*', datatype.pointers);
         std::cout << toString(datatype.type);
         decreaseIntentation();
         printNewLine();
@@ -567,7 +557,7 @@ namespace cmm
 
     void Dump::printIndentation() const
     {
-        printRepeat(' ', indent);
+        printRepeat(std::cout, ' ', indent);
     }
 
     void Dump::printNewLine() const

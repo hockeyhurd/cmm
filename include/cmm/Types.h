@@ -302,6 +302,22 @@ namespace cmm
         return "Unknown type";
     }
 
+    template<class Stream, class T, class N>
+    void printRepeat(Stream& stream, const T& value, const N count)
+    {
+        for (N i = 0; i < count; ++i)
+        {
+            stream << value;
+        }
+    }
+
+    template<class Stream>
+    void printType(Stream& stream, const CType& type)
+    {
+        stream << toString(type.type);
+        printRepeat(stream, '*', type.pointers);
+    }
+
 }
 
 #endif //!CMM_TYPES_H

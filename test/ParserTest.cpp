@@ -2864,6 +2864,40 @@ TEST(ParserTest, ParseCompilationNodeWithCastNode)
     ASSERT_EQ(variableNode->getName(), "b");
 }
 
+TEST(ParserTest, ParseCompilationNodeWithDoubleCastNode)
+{
+    const std::string input = "(double) (int) b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+
+    const auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_TRUE(expressionStatement->hasExpression());
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::CAST);
+
+    const auto* castNode = static_cast<const CastNode*>(expressionStatement->getExpression());
+    ASSERT_TRUE(castNode->hasExpression());
+    ASSERT_NE(castNode->getExpression(), nullptr);
+    ASSERT_EQ(castNode->getExpression()->getType(), NodeType::CAST);
+    ASSERT_EQ(castNode->getCastType().type, EnumCType::DOUBLE);
+    ASSERT_EQ(castNode->getCastType().pointers, 0);
+
+    const auto* secondCastNode = static_cast<const CastNode*>(castNode->getExpression());
+    ASSERT_EQ(secondCastNode->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(secondCastNode->getCastType().type, EnumCType::INT32);
+    ASSERT_EQ(secondCastNode->getCastType().pointers, 0);
+
+    const auto* variableNode = static_cast<const VariableNode*>(secondCastNode->getExpression());
+    ASSERT_EQ(variableNode->getName(), "b");
+}
+
 TEST(ParserTest, ParseCompilationNodeWithCastNodeWrapperInParenNode)
 {
     const std::string input = "((int) b);";

@@ -24,16 +24,6 @@ namespace cmm
         return std::numeric_limits<T>::lowest() <= value && value <= std::numeric_limits<T>::max();
     }
 
-    // TODO: Move to a common file for re-use.
-    template<class T, class N>
-    static void printRepeat(const T& value, const N count)
-    {
-        for (N i = 0; i < count; ++i)
-        {
-            std::cout << value;
-        }
-    }
-
     Analyzer::Analyzer() CMM_NOEXCEPT
     {
         localityStack.push(EnumLocality::GLOBAL);
@@ -88,21 +78,22 @@ namespace cmm
         auto* rightNode = node.getRight();
         auto rightNodeResult = rightNode->accept(this);
 
-        auto& leftType = leftNode->getDatatype();
-        auto& rightType = rightNode->getDatatype();
+        const auto& leftType = leftNode->getDatatype();
+        const auto& rightType = rightNode->getDatatype();
 
         if (leftType != rightType)
         {
+            // Note: canPromote(fromType, toType)
             auto optCastType = canPromote(rightType, leftType);
 
             if (optCastType.has_value())
             {
                 std::ostringstream builder;
-                builder << "Type mismatch between " << toString(leftType.type);
-                printRepeat('*', leftType.pointers);
-                builder << " and " << toString(rightType.type);
-                printRepeat('*', rightType.pointers);
-                builder << " but is promotable.";
+                builder << "Type mismatch between '";
+                printType(builder, leftType);
+                builder << "' and '";
+                printType(builder, rightType);
+                builder << "', but is promotable.";
                 reporter.warn(builder.str(), node.getLocation());
 
                 node.castRight(*optCastType);
@@ -111,11 +102,11 @@ namespace cmm
             else
             {
                 std::ostringstream builder;
-                builder << "Type mismatch between " << toString(leftType.type);
-                printRepeat('*', leftType.pointers);
-                builder << " and ";
-                printRepeat('*', rightType.pointers);
-                builder << toString(rightType.type);
+                builder << "Type mismatch between '";
+                printType(builder, leftType);
+                builder << "' and '";
+                printType(builder, rightType);
+                builder << '\'';
                 reporter.error(builder.str(), node.getLocation());
             }
         }
@@ -139,10 +130,62 @@ namespace cmm
 
     VisitorResult Analyzer::visit(CastNode& node)
     {
-        if (node.hasExpression())
+        if (!node.hasExpression())
         {
-            auto* expression = node.getExpression();
-            expression->accept(this);
+            reporter.bug("Expected expression after cast", node.getLocation(), true);
+            return VisitorResult();
+        }
+
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        const auto& from = node.getDatatype();
+        const auto& to = expression->getDatatype();
+
+        if (from.pointers == 0 && from.pointers == to.pointers)
+        {
+            if (canPromote(from, to))
+            {
+                // Note: Intentionally do nothing (no need to warn).
+            }
+
+            else if (canTruncate(from, to))
+            {
+                // TODO: Consider conditionally reporting this, such as if the user
+                // passes a '-Wall' like flag.
+                std::ostringstream builder;
+                builder << "Attempting to downcast types from '";
+                printType(builder, from);
+                builder << "' to '";
+                printType(builder, to);
+                builder << '\'';
+
+                reporter.warn(builder.str(), node.getLocation());
+            }
+        }
+
+        else if (from.pointers == to.pointers)
+        {
+            std::ostringstream builder;
+            builder << "Attempting to pointer cast from '";
+            printType(builder, from);
+            builder << "' to '";
+            printType(builder, to);
+            builder << '\'';
+
+            reporter.warn(builder.str(), node.getLocation());
+        }
+
+        else
+        {
+            std::ostringstream builder;
+            builder << "Cannot cast expression from '";
+            printType(builder, from);
+            builder << "' to '";
+            printType(builder, to);
+            builder << "' where arithmetic or pointer is expected";
+
+            reporter.error(builder.str(), node.getLocation());
         }
 
         return VisitorResult();
