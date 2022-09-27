@@ -2857,8 +2857,8 @@ TEST(ParserTest, ParseCompilationNodeWithCastNode)
     ASSERT_TRUE(castNode->hasExpression());
     ASSERT_NE(castNode->getExpression(), nullptr);
     ASSERT_EQ(castNode->getExpression()->getType(), NodeType::VARIABLE);
-    ASSERT_EQ(castNode->getCastType().type, EnumCType::INT32);
-    ASSERT_EQ(castNode->getCastType().pointers, 0);
+    ASSERT_EQ(castNode->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(castNode->getDatatype().pointers, 0);
 
     const auto* variableNode = static_cast<const VariableNode*>(castNode->getExpression());
     ASSERT_EQ(variableNode->getName(), "b");
@@ -2886,13 +2886,13 @@ TEST(ParserTest, ParseCompilationNodeWithDoubleCastNode)
     ASSERT_TRUE(castNode->hasExpression());
     ASSERT_NE(castNode->getExpression(), nullptr);
     ASSERT_EQ(castNode->getExpression()->getType(), NodeType::CAST);
-    ASSERT_EQ(castNode->getCastType().type, EnumCType::DOUBLE);
-    ASSERT_EQ(castNode->getCastType().pointers, 0);
+    ASSERT_EQ(castNode->getDatatype().type, EnumCType::DOUBLE);
+    ASSERT_EQ(castNode->getDatatype().pointers, 0);
 
     const auto* secondCastNode = static_cast<const CastNode*>(castNode->getExpression());
     ASSERT_EQ(secondCastNode->getExpression()->getType(), NodeType::VARIABLE);
-    ASSERT_EQ(secondCastNode->getCastType().type, EnumCType::INT32);
-    ASSERT_EQ(secondCastNode->getCastType().pointers, 0);
+    ASSERT_EQ(secondCastNode->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(secondCastNode->getDatatype().pointers, 0);
 
     const auto* variableNode = static_cast<const VariableNode*>(secondCastNode->getExpression());
     ASSERT_EQ(variableNode->getName(), "b");
@@ -2924,8 +2924,8 @@ TEST(ParserTest, ParseCompilationNodeWithCastNodeWrapperInParenNode)
     ASSERT_TRUE(castNode->hasExpression());
     ASSERT_NE(castNode->getExpression(), nullptr);
     ASSERT_EQ(castNode->getExpression()->getType(), NodeType::VARIABLE);
-    ASSERT_EQ(castNode->getCastType().type, EnumCType::INT32);
-    ASSERT_EQ(castNode->getCastType().pointers, 0);
+    ASSERT_EQ(castNode->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(castNode->getDatatype().pointers, 0);
 
     const auto* variableNode = static_cast<const VariableNode*>(castNode->getExpression());
     ASSERT_EQ(variableNode->getName(), "b");

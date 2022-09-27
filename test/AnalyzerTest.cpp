@@ -247,8 +247,7 @@ TEST(AnalyzerTest, AnalyzerVarAssignmentViaAddressOfIntError)
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
-// TODO: Disable until we refactor EnumCTypes to be more robust.
-TEST(AnalyzerTest, DISABLED_AnalyzerVarDerefAssignmentViaIncrement)
+TEST(AnalyzerTest, AnalyzerVarDerefAssignmentViaIncrement)
 {
     reporter.reset();
 
@@ -263,6 +262,24 @@ TEST(AnalyzerTest, DISABLED_AnalyzerVarDerefAssignmentViaIncrement)
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerDowncastLongToIntWarning)
+{
+    reporter.reset();
+
+    const std::string input = "long x; x = 42; int y; y = (int) x;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    // ASSERT_EQ(reporter.getErrorCount(), 1);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
 }
 
 s32 main(s32 argc, char* argv[])

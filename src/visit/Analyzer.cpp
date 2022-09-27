@@ -166,6 +166,8 @@ namespace cmm
 
         else if (from.pointers == to.pointers)
         {
+            // TODO: Consider conditionally reporting this, such as if the user
+            // passes a '-Wall' like flag.
             std::ostringstream builder;
             builder << "Attempting to pointer cast from '";
             printType(builder, from);
