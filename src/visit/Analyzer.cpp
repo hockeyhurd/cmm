@@ -86,6 +86,7 @@ namespace cmm
             // Note: canPromote(fromType, toType)
             auto optCastType = canPromote(rightType, leftType);
 
+            // Promote warn
             if (optCastType.has_value())
             {
                 std::ostringstream builder;
@@ -93,12 +94,35 @@ namespace cmm
                 printType(builder, leftType);
                 builder << "' and '";
                 printType(builder, rightType);
-                builder << "', but is promotable.";
+                builder << "', but is promotable";
                 reporter.warn(builder.str(), node.getLocation());
 
                 node.castRight(*optCastType);
             }
 
+            // See if it's void pointer magic
+            else if ((leftType.type == EnumCType::VOID && leftType.pointers > 0 && rightType.pointers > 0) ||
+                     (rightType.type == EnumCType::VOID && rightType.pointers > 0 && leftType.pointers > 0))
+            {
+                // Do nothing, assign anything to void* that is a pointer itself, is apparently valid...
+                node.castRight(leftType);
+            }
+
+            // Type mismatch, but both are non-void pointers -> warning
+            else if (leftType.pointers > 0 && rightType.pointers > 0)
+            {
+                std::ostringstream builder;
+                builder << "Base type mismatch between '";
+                printType(builder, leftType);
+                builder << "' and '";
+                printType(builder, rightType);
+                builder << "', but is pointer compatible";
+                reporter.warn(builder.str(), node.getLocation());
+
+                node.castRight(*optCastType);
+            }
+
+            // "Catch all" -> error
             else
             {
                 std::ostringstream builder;
@@ -611,10 +635,21 @@ namespace cmm
             auto* expression = node.getExpression();
             expression->accept(this);
 
-            if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF)
             {
-                const char* message = "Expected a variable expression prior to attempting to take the address of it";
-                reporter.error(message, node.getLocation());
+                if (expression->getType() != NodeType::VARIABLE)
+                {
+                    const char* message = "Expected a variable expression prior to attempting to take the address of it";
+                    reporter.error(message, node.getLocation());
+                }
+
+                else
+                {
+                    CType newType = expression->getDatatype();
+                    ++newType.pointers;
+                    node.setDatatype(newType);
+                }
             }
         }
 

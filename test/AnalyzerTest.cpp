@@ -25,6 +25,7 @@ TEST(AnalyzerTest, AnalyzerExpressionNotAssignableError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -42,6 +43,7 @@ TEST(AnalyzerTest, AnalyzerCharAssignIntError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -60,6 +62,7 @@ TEST(AnalyzerTest, AnalyzerIntAssignCharWarning)
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
 TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionError)
@@ -76,6 +79,7 @@ TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -93,6 +97,7 @@ TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionValid)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
@@ -110,6 +115,7 @@ TEST(AnalyzerTest, AnalyzerFunctionAndVariableDeclarationsWithSameNameError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -127,6 +133,7 @@ TEST(AnalyzerTest, AnalyzerFunctionAndVariableDeclarationsWithSameNameError2)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -134,7 +141,7 @@ TEST(AnalyzerTest, AnalyzerFunctionDeclaredInsideAnotherFunctionError)
 {
     reporter.reset();
 
-    const std::string input = "int func() { int func2(); } return 0;";
+    const std::string input = "int func() { int func2(); return 0; }";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
@@ -144,6 +151,7 @@ TEST(AnalyzerTest, AnalyzerFunctionDeclaredInsideAnotherFunctionError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -161,6 +169,7 @@ TEST(AnalyzerTest, AnalyzerFunctionDefinedInsideAnotherFunctionError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -178,6 +187,7 @@ TEST(AnalyzerTest, AnalyzerFunctionCallAnUndeclaredFunctionError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -195,6 +205,7 @@ TEST(AnalyzerTest, AnalyzerVoidFunctionReturnsNonVoidTypeError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -213,6 +224,7 @@ TEST(AnalyzerTest, AnalyzerIntFunctionReturnsCharWarning)
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
 TEST(AnalyzerTest, AnalyzerCharFunctionReturnsIntError)
@@ -229,6 +241,7 @@ TEST(AnalyzerTest, AnalyzerCharFunctionReturnsIntError)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -244,6 +257,7 @@ TEST(AnalyzerTest, AnalyzerVarAssignmentViaAddressOfIntError)
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
 
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
@@ -261,10 +275,11 @@ TEST(AnalyzerTest, AnalyzerVarDerefAssignmentViaIncrement)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
-TEST(AnalyzerTest, AnalyzerDowncastLongToIntWarning)
+TEST(AnalyzerTest, AnalyzerExplicitDowncastLongToIntWarning)
 {
     reporter.reset();
 
@@ -278,8 +293,153 @@ TEST(AnalyzerTest, AnalyzerDowncastLongToIntWarning)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
-    // ASSERT_EQ(reporter.getErrorCount(), 1);
     ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerExplicitDowncastIntToLongNoWarning)
+{
+    reporter.reset();
+
+    // Weird code, but perfectly valid.
+    const std::string input = "int x; x = 42; long y; y = (long) x;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastVoidPtrAssignDoubleWarning)
+{
+    reporter.reset();
+
+    const std::string input = "double d; d = 42.0; void* ptr; ptr = d;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastVoidPtrAssignDoublePointerValid)
+{
+    reporter.reset();
+
+    const std::string input = "double d; d = 42.0; void* ptr; ptr = &d;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastDoublePointerAssignVoidPtrValid)
+{
+    reporter.reset();
+
+    const std::string input = "double x; void* ptr; ptr = &x; double* xPtr; xPtr = ptr;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastDoubleAssignVoidPtrError)
+{
+    reporter.reset();
+
+    const std::string input = "double x; void* ptr; ptr = &x; double xPtr; xPtr = ptr;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastIntPtrAssignFloatPtrWarning)
+{
+    reporter.reset();
+
+    const std::string input = "float x; x = 42.0F; int* ptr; ptr = &x;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastVoidPtrAssignDoubleVoidPtrValid)
+{
+    reporter.reset();
+
+    const std::string input = "void* ptr; void** ptrPtr; ptr = ptrPtr;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastDoubleVoidPtrAssignVoidPtrValid)
+{
+    reporter.reset();
+
+    const std::string input = "void* ptr; void** ptrPtr; ptrPtr = ptr;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
 s32 main(s32 argc, char* argv[])
