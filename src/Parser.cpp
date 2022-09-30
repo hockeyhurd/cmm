@@ -1061,6 +1061,12 @@ namespace cmm
             return nullptr;
         }
 
+        if (optionalDimensionCount.has_value())
+        {
+            auto& theType = optionalTypeNode->getDatatype();
+            theType.pointers = *optionalDimensionCount;
+        }
+
         // Expect closing paren:
         lexResult = lexer.nextToken(token, errorMessage, nullptr);
 
