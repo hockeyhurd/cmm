@@ -22,10 +22,10 @@ jobs:
           #- {runs_on: macos-12, name: "macOS Clang", CC: clang, CXX: clang++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
           # TODO: Disable support libc++.  For now, this is just a complete pain in the ass with multiple seperate issues...
           # - {runs_on: ubuntu-latest, name: "Clang libc++", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libstdc++", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libstdc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
-          - {runs_on: ubuntu-latest, name: "GCC Debug", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "GCC Release", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "Clang libstdc++", CC: clang, CXX: clang++, CFLAGS: "-g -O0 -Wall -Wextra -pedantic -stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "Clang libstdc++ Release", CC: clang, CXX: clang++, CFLAGS: "-O3 -Wall -Wextra -pedantic -stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "GCC Debug", CC: gcc, CXX: g++, CFLAGS: "-g -O0 -Wall -Wextra -pedantic", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "GCC Release", CC: gcc, CXX: g++, CFLAGS: "-O3 -Wall -Wextra -pedantic", CMAKE_BUILD_TYPE: "Release"}
           # TODO: Disable Windows builds for now until new changes are resolved.
           #- {runs_on: windows-latest, name: "MSVC", CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
           #- {runs_on: windows-latest, name: "MSVC Release", CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
