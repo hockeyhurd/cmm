@@ -58,6 +58,13 @@ namespace cmm
         ParenExpressionNode& operator= (ParenExpressionNode&&) CMM_NOEXCEPT = default;
 
         /**
+         * Gets whether this cast node has ExpressionNode it's trying to cast or not.
+         *
+         * @return bool.
+         */
+        bool hasExpression() const CMM_NOEXCEPT;
+
+        /**
          * Gets the ExpressionNode.
          *
          * @return ExpressionNode pointer.

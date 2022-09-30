@@ -33,22 +33,47 @@ namespace cmm
         ctypeMap.emplace("struct", EnumCType::STRUCT);
     }
 
-    static bool promoOrTruncateLookup(const EnumCType from, const EnumCType to, std::unordered_map<EnumCType, std::unordered_set<EnumCType>>& theMap)
+    static std::optional<CType> promoOrTruncateLookup(const CType& from, const CType& to, std::unordered_map<EnumCType, std::unordered_set<EnumCType>>& theMap)
     {
-        const auto firstFindResult = theMap.find(from);
+        if (from.pointers != to.pointers)
+        {
+            return std::nullopt;
+        }
+
+        const auto firstFindResult = theMap.find(from.type);
 
         if (firstFindResult == theMap.cend())
         {
-            return false;
+            return std::nullopt;
         }
 
         const auto& set = firstFindResult->second;
-        const auto secondFindResult = set.find(to);
+        const auto secondFindResult = set.find(to.type);
 
-        return secondFindResult != set.cend();
+        if (secondFindResult != set.cend())
+        {
+            return std::make_optional<CType>(to);
+        }
+
+        // else {}
+        return std::nullopt;
     }
 
-    bool canPromote(const EnumCType from, const EnumCType to)
+    CType::CType(const EnumCType type, const u16 pointers) CMM_NOEXCEPT : type(type), pointers(pointers)
+    {
+    }
+
+    bool CType::operator== (const CType& other) const CMM_NOEXCEPT
+    {
+        return type == other.type && pointers == other.pointers;
+    }
+
+    bool CType::operator!= (const CType& other) const CMM_NOEXCEPT
+    {
+        return !(*this == other);
+    }
+
+    std::optional<CType> canPromote(const CType& from, const CType& to)
     {
         static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> promoMap;
 
@@ -94,7 +119,7 @@ namespace cmm
         return promoOrTruncateLookup(from, to, promoMap);
     }
 
-    bool canTruncate(const EnumCType from, const EnumCType to)
+    std::optional<CType> canTruncate(const CType& from, const CType& to)
     {
         static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> truncateMap;
 
@@ -128,52 +153,52 @@ namespace cmm
         return findResult != ctypeMap.cend() ? std::make_optional(findResult->second) : std::nullopt;
     }
 
-    CType::CType(void* valueVoidPtr) CMM_NOEXCEPT : length(sizeof(valueVoidPtr))
+    CTypeValue::CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT : length(sizeof(valueVoidPtr))
     {
         this->valueVoidPtr = valueVoidPtr;
     }
 
-    CType::CType(const bool valueBool) CMM_NOEXCEPT : length(sizeof(valueBool))
+    CTypeValue::CTypeValue(const bool valueBool) CMM_NOEXCEPT : length(sizeof(valueBool))
     {
         this->valueBool = valueBool;
     }
 
-    CType::CType(const char valueChar) CMM_NOEXCEPT : length(sizeof(valueChar))
+    CTypeValue::CTypeValue(const char valueChar) CMM_NOEXCEPT : length(sizeof(valueChar))
     {
         this->valueChar = valueChar;
     }
 
-    CType::CType(const s8 valueS8) CMM_NOEXCEPT : length(sizeof(valueS8))
+    CTypeValue::CTypeValue(const s8 valueS8) CMM_NOEXCEPT : length(sizeof(valueS8))
     {
         this->valueS8 = valueS8;
     }
 
-    CType::CType(const s16 valueS16) CMM_NOEXCEPT : length(sizeof(valueS16))
+    CTypeValue::CTypeValue(const s16 valueS16) CMM_NOEXCEPT : length(sizeof(valueS16))
     {
         this->valueS16 = valueS16;
     }
 
-    CType::CType(const s32 valueS32) CMM_NOEXCEPT : length(sizeof(valueS32))
+    CTypeValue::CTypeValue(const s32 valueS32) CMM_NOEXCEPT : length(sizeof(valueS32))
     {
         this->valueS32 = valueS32;
     }
 
-    CType::CType(const s64 valueS64) CMM_NOEXCEPT : length(sizeof(valueS64))
+    CTypeValue::CTypeValue(const s64 valueS64) CMM_NOEXCEPT : length(sizeof(valueS64))
     {
         this->valueS64 = valueS64;
     }
 
-    CType::CType(const f32 valueF32) CMM_NOEXCEPT : length(sizeof(valueF32))
+    CTypeValue::CTypeValue(const f32 valueF32) CMM_NOEXCEPT : length(sizeof(valueF32))
     {
         this->valueF32 = valueF32;
     }
 
-    CType::CType(const f64 valueF64) CMM_NOEXCEPT : length(sizeof(valueF64))
+    CTypeValue::CTypeValue(const f64 valueF64) CMM_NOEXCEPT : length(sizeof(valueF64))
     {
         this->valueF64 = valueF64;
     }
 
-    CType::CType(char* valueString) CMM_NOEXCEPT : length(sizeof(valueString))
+    CTypeValue::CTypeValue(char* valueString) CMM_NOEXCEPT : length(sizeof(valueString))
     {
         this->valueString = valueString;
     }

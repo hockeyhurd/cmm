@@ -77,11 +77,13 @@ namespace cmm
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
-    static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage);
+    static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location); // TODO: Make location not optional?
+    static std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr);
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -467,7 +469,7 @@ namespace cmm
 
             token.setCharSymbol(CHAR_LCURLY_BRACKET);
 
-            static const auto parseBlockStatementWrapper = [] (Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
+            static const auto parseBlockStatementWrapper = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
             {
                 auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
                 return optionalBlockNode.has_value() ? std::make_unique<BlockNode>(std::move(*optionalBlockNode)) : nullptr;
@@ -613,7 +615,7 @@ namespace cmm
     }
 
     /* static */
-    std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage)
+    std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location)
     {
         auto snapshot = lexer.snap();
         auto token = newToken();
@@ -625,16 +627,40 @@ namespace cmm
             return std::nullopt;
         }
 
+        Location* tempLocation = nullptr;
         u32 count = 0;
 
         while (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_ASTERISK)
         {
-            lexer.nextToken(token, errorMessage);
+            if (tempLocation == nullptr)
+            {
+                tempLocation = location;
+                lexer.nextToken(token, errorMessage, tempLocation);
+            }
+
+            else
+            {
+                lexer.nextToken(token, errorMessage);
+            }
+
             ++count;
             result = lexer.peekNextToken(token);
         }
 
         return std::make_optional(count);
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr)
+    {
+        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr));
+
+        for (u32 i = 1; i < count; ++i)
+        {
+            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
+        }
+
+        return result;
     }
 
     /* static */
@@ -833,7 +859,15 @@ namespace cmm
         {
             auto token = newToken();
             token.setCharSymbol(CHAR_LPAREN);
-            predictor.registerFunction(token, parseParenExpression);
+
+            // TODO: This is very naive, but it works.  Maybe we can come up with something better later.
+            static const auto parenPredictor = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<ExpressionNode>
+            {
+                auto expr = parseCastExpression(lexer, errorMessage);
+                return expr != nullptr ? std::move(expr) : parseParenExpression(lexer, errorMessage);
+            };
+
+            predictor.registerFunction(token, parenPredictor);
         }
 
         auto tokenLookahead = newToken();
@@ -874,13 +908,43 @@ namespace cmm
         static auto& reporter = Reporter::instance();
 
         auto snapshot = lexer.snap();
-        auto unaryExpressionPtr = parseUnaryExpression(lexer, errorMessage);
+
+        // TODO: Try to use ParserPredictor somehow here.
+        auto unaryOrCastOrDerefOrVarExprPtr = parseUnaryExpression(lexer, errorMessage);
 
         // Did not get a name of the function, early exit.
-        if (!unaryExpressionPtr)
+        if (!unaryOrCastOrDerefOrVarExprPtr)
         {
             lexer.restore(snapshot);
-            return nullptr;
+            unaryOrCastOrDerefOrVarExprPtr = parseCastExpression(lexer, errorMessage);
+
+            // Try parse a cast expression
+            if (!unaryOrCastOrDerefOrVarExprPtr)
+            {
+                lexer.restore(snapshot);
+                Location ptrLocation;
+                auto optionalPtrInderection = parsePointerInderectionCount(lexer, errorMessage, &ptrLocation);
+                auto optionalVariable = parseVariableNode(lexer, errorMessage);
+
+                if (!optionalVariable.has_value())
+                {
+                    lexer.restore(snapshot);
+                    return nullptr;
+                }
+
+                // DerefNode
+                else if (optionalPtrInderection.has_value())
+                {
+                    auto varPtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
+                    unaryOrCastOrDerefOrVarExprPtr = buildDerefNode(*optionalPtrInderection, std::move(varPtr));
+                }
+
+                // Normal variable
+                else
+                {
+                    unaryOrCastOrDerefOrVarExprPtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
+                }
+            }
         }
 
         auto optionalArgList = parseFunctionCallArgs(lexer, errorMessage);
@@ -888,7 +952,7 @@ namespace cmm
         // Has args
         if (optionalArgList.has_value())
         {
-            auto nodeType = unaryExpressionPtr->getType();
+            auto nodeType = unaryOrCastOrDerefOrVarExprPtr->getType();
 
             if (nodeType == NodeType::ADDRESS_OF)
             {
@@ -899,14 +963,14 @@ namespace cmm
                     *errorMessage = theErrorMessage;
                 }
 
-                reporter.error(theErrorMessage, unaryExpressionPtr->getLocation());
+                reporter.error(theErrorMessage, unaryOrCastOrDerefOrVarExprPtr->getLocation());
                 lexer.restore(snapshot);
                 return nullptr;
             }
 
             else if (nodeType == NodeType::UNARY_OP)
             {
-                auto* unaryOpPtr = static_cast<UnaryOpNode*>(unaryExpressionPtr.get());
+                auto* unaryOpPtr = static_cast<UnaryOpNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 const auto unaryOpType = unaryOpPtr->getOpType();
 
                 if (unaryOpType != EnumUnaryOpType::NEGATIVE && unaryOpType != EnumUnaryOpType::POSITIVE)
@@ -928,24 +992,29 @@ namespace cmm
                     const auto* variablePtr = static_cast<VariableNode*>(unaryOpPtr->getExpression());
                     auto funcName = variablePtr->getName();
 
-                    std::unique_ptr<ExpressionNode> funcCallPtr = std::make_unique<FunctionCallNode>(unaryExpressionPtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
+                    std::unique_ptr<ExpressionNode> funcCallPtr = std::make_unique<FunctionCallNode>(unaryOrCastOrDerefOrVarExprPtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
                     unaryOpPtr->setExpression(std::move(funcCallPtr));
-                    return unaryExpressionPtr;
+                    return unaryOrCastOrDerefOrVarExprPtr;
                 }
+            }
+
+            else if (nodeType == NodeType::CAST)
+            {
+                return unaryOrCastOrDerefOrVarExprPtr;
             }
 
             else if (nodeType == NodeType::DEREF)
             {
-                const auto* derefPtr = static_cast<DerefNode*>(unaryExpressionPtr.get());
+                const auto* derefPtr = static_cast<DerefNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 nodeType = derefPtr->getRootType();
             }
 
             if (nodeType == NodeType::VARIABLE)
             {
-                auto* variablePtr = static_cast<VariableNode*>(unaryExpressionPtr.get());
+                auto* variablePtr = static_cast<VariableNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 auto funcName = variablePtr->getName();
 
-                return std::make_unique<FunctionCallNode>(unaryExpressionPtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
+                return std::make_unique<FunctionCallNode>(unaryOrCastOrDerefOrVarExprPtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
             }
 
             // else
@@ -960,11 +1029,68 @@ namespace cmm
         // No args present, normal variable regardless if there is a DerefNode on it or not.
         else
         {
-            return unaryExpressionPtr;
+            return unaryOrCastOrDerefOrVarExprPtr;
         }
 
         // Should be unreachable...
         return nullptr;
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        Location startLocation;
+        bool lexResult = lexer.nextToken(token, errorMessage, &startLocation);
+
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect some type:
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+        auto optionalTypeNode = parseTypeNode(lexer, errorMessage);
+
+        // Make sure our cast has a type!
+        if (!optionalTypeNode.has_value())
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect closing paren:
+        lexResult = lexer.nextToken(token, errorMessage, nullptr);
+
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect expression being casted:
+        const auto tempLocation = lexer.snap().getLocation();
+        auto exprToCast = parseExpression(lexer, errorMessage);
+
+        if (exprToCast == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream builder;
+                builder << "Expected an expression to cast at ("
+                        << tempLocation.getLine() << ", " << tempLocation.getPosition()
+                        << ").";
+                *errorMessage = builder.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto castExpr = std::make_unique<CastNode>(startLocation, optionalTypeNode->getDatatype(), std::move(exprToCast));
+        return castExpr;
     }
 
     /* static */
@@ -1240,6 +1366,8 @@ namespace cmm
             {
                 // Token was a successfully lex'd symbol that is a char or string symbol, but is NOT a unary operator.  Do nothing and continue...
                 lexer.restore(snapshot);
+                // TODO: test
+                return nullptr;
             }
         }
 
@@ -1247,10 +1375,16 @@ namespace cmm
         else
         {
             lexer.restore(snapshot);
+            // TODO: test
+            return nullptr;
         }
 
+#if 0
+        auto expression = parseExpression(lexer, errorMessage);
+        return expression;
+#else
         // Check to see if this expression is being dereferenced (i.e. '**x').
-        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
         auto optionalVariable = parseVariableNode(lexer, errorMessage);
 
         // Not a VariableNode, bail out of this parse.
@@ -1261,7 +1395,7 @@ namespace cmm
         }
 
         // Note: there are a few cases to consider.  We should consider postfix
-        // case as well, but we'll leave this for future implementation.
+        // case as well, but we'll leave this for future implementation (TODO).
         // Also, any incompatibilities must be left for the Analyzer to verify
         // this expression is valid or not.
         // 1. *--X
@@ -1274,12 +1408,7 @@ namespace cmm
         // DerefNode '*x' case:
         if (optionalDimensionCount.has_value())
         {
-            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
-
-            for (u32 i = 1; i < *optionalDimensionCount; ++i)
-            {
-                result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
-            }
+            result = buildDerefNode(*optionalDimensionCount, std::move(result));
         }
 
         // If there was a unary op involved, wrap whatever the current working expression is with a unary op node.
@@ -1289,6 +1418,7 @@ namespace cmm
         }
 
         return result;
+#endif
     }
 
     /* static */
@@ -1333,15 +1463,16 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+                Location dimLocation;
+                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, &dimLocation);
 
                 if (optionalDimensionCount.has_value())
                 {
-                    return std::make_optional<TypeNode>(location, enumType.value(), *optionalDimensionCount);
+                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount));
                 }
 
                 // else
-                return std::make_optional<TypeNode>(location, enumType.value());
+                return std::make_optional<TypeNode>(location, CType(enumType.value()));
             }
         }
 

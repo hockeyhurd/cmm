@@ -216,6 +216,17 @@ namespace cmm
 
     struct CType
     {
+        EnumCType type;
+        u16 pointers;
+
+        explicit CType(const EnumCType type, const u16 pointers = 0) CMM_NOEXCEPT;
+
+        bool operator== (const CType& other) const CMM_NOEXCEPT;
+        bool operator!= (const CType& other) const CMM_NOEXCEPT;
+    };
+
+    struct CTypeValue
+    {
         std::size_t length;
 
         union
@@ -235,22 +246,22 @@ namespace cmm
             // char  valueStruct[0];
         };
 
-        CType(void* valueVoidPtr) CMM_NOEXCEPT;
-        CType(const bool valueBool) CMM_NOEXCEPT;
-        CType(const char valueChar) CMM_NOEXCEPT;
-        CType(const s8 valueS8) CMM_NOEXCEPT;
-        CType(const s16 valueS16) CMM_NOEXCEPT;
-        CType(const s32 valueS32) CMM_NOEXCEPT;
-        CType(const s64 valueS64) CMM_NOEXCEPT;
-        CType(const f32 valueF32) CMM_NOEXCEPT;
-        CType(const f64 valueF64) CMM_NOEXCEPT;
-        CType(char* valueString) CMM_NOEXCEPT;
+        explicit CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
+        explicit CTypeValue(const bool valueBool) CMM_NOEXCEPT;
+        explicit CTypeValue(const char valueChar) CMM_NOEXCEPT;
+        explicit CTypeValue(const s8 valueS8) CMM_NOEXCEPT;
+        explicit CTypeValue(const s16 valueS16) CMM_NOEXCEPT;
+        explicit CTypeValue(const s32 valueS32) CMM_NOEXCEPT;
+        explicit CTypeValue(const s64 valueS64) CMM_NOEXCEPT;
+        explicit CTypeValue(const f32 valueF32) CMM_NOEXCEPT;
+        explicit CTypeValue(const f64 valueF64) CMM_NOEXCEPT;
+        explicit CTypeValue(char* valueString) CMM_NOEXCEPT;
         // TODO: revisit structs
-        // CType(const std::size_t length);
+        // CTypeValue(const std::size_t length);
     };
 
-    bool canPromote(const EnumCType from, const EnumCType to);
-    bool canTruncate(const EnumCType from, const EnumCType to);
+    std::optional<CType> canPromote(const CType& from, const CType& to);
+    std::optional<CType> canTruncate(const CType& from, const CType& to);
     bool isCType(const std::string& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
@@ -289,6 +300,22 @@ namespace cmm
         }
 
         return "Unknown type";
+    }
+
+    template<class Stream, class T, class N>
+    void printRepeat(Stream& stream, const T& value, const N count)
+    {
+        for (N i = 0; i < count; ++i)
+        {
+            stream << value;
+        }
+    }
+
+    template<class Stream>
+    void printType(Stream& stream, const CType& type)
+    {
+        stream << toString(type.type);
+        printRepeat(stream, '*', type.pointers);
     }
 
 }

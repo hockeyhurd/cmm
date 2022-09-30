@@ -318,9 +318,10 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getDatatype()) << ": ";
+        const auto& datatype = node.getDatatype();
+        std::cout << toString(datatype.type) << ": ";
 
-        switch (node.getDatatype())
+        switch (datatype.type)
         {
         case EnumCType::NULL_T:
             std::cout << "NULL";
@@ -445,7 +446,9 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getDatatype());
+        const auto& datatype = node.getDatatype();
+        printRepeat(std::cout, '*', datatype.pointers);
+        std::cout << toString(datatype.type);
         decreaseIntentation();
         printNewLine();
 
@@ -554,10 +557,7 @@ namespace cmm
 
     void Dump::printIndentation() const
     {
-        for (s32 i = 0; i < indent; ++i)
-        {
-            std::cout << ' ';
-        }
+        printRepeat(std::cout, ' ', indent);
     }
 
     void Dump::printNewLine() const

@@ -104,7 +104,14 @@ namespace cmm
          *
          * @return TypeNode.
          */
-        EnumCType getDatatype() const CMM_NOEXCEPT;
+        CType& getDatatype() CMM_NOEXCEPT;
+
+        /**
+         * Gets the datatype.
+         *
+         * @return TypeNode.
+         */
+        const CType& getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Gets the variable.

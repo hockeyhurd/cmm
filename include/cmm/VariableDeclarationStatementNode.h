@@ -83,12 +83,14 @@ namespace cmm
          *
          * @return TypeNode.
          */
-        EnumCType getDatatype() const CMM_NOEXCEPT;
+        CType& getDatatype() CMM_NOEXCEPT;
 
         /**
-         * The number of pointer inderection.
+         * Gets the datatype.
+         *
+         * @return TypeNode.
          */
-        u32 getDimensions() const CMM_NOEXCEPT;
+        const CType& getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Gets the variable.

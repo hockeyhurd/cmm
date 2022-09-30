@@ -78,7 +78,7 @@ namespace cmm
         /**
          * Get the type of this binary op node.
          *
-         * @return EnumCType.
+         * @return EnumBinOpNodeType.
          */
         EnumBinOpNodeType getTypeof() const CMM_NOEXCEPT;
 
@@ -109,6 +109,13 @@ namespace cmm
          * @return const ExpressionNode pointer.
          */
         const ExpressionNode* getRight() const CMM_NOEXCEPT;
+
+        /**
+         * Attempts to cast the right ExpressionNode.
+         *
+         * @param newType the type of the sub-expression.
+         */
+        void castRight(const CType& newType);
 
         VisitorResult accept(Visitor* visitor) override
         {

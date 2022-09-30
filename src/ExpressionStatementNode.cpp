@@ -16,6 +16,11 @@ namespace cmm
     {
     }
 
+    bool ExpressionStatementNode::hasExpression() const CMM_NOEXCEPT
+    {
+        return expression != nullptr;
+    }
+
     ExpressionNode* ExpressionStatementNode::getExpression() CMM_NOEXCEPT
     {
         return expression.get();

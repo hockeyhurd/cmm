@@ -25,14 +25,14 @@ namespace cmm
         return type;
     }
 
-    EnumCType VariableDeclarationStatementNode::getDatatype() const CMM_NOEXCEPT
+    CType& VariableDeclarationStatementNode::getDatatype() CMM_NOEXCEPT
     {
         return type.getDatatype();
     }
 
-    u32 VariableDeclarationStatementNode::getDimensions() const CMM_NOEXCEPT
+    const CType& VariableDeclarationStatementNode::getDatatype() const CMM_NOEXCEPT
     {
-        return type.getDimensions();
+        return type.getDatatype();
     }
 
     std::string& VariableDeclarationStatementNode::getName() CMM_NOEXCEPT

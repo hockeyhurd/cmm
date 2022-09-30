@@ -35,7 +35,7 @@ namespace cmm
          * @param location the location of this node.
          * @param expression the expression to be casted.
          */
-        CastNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        CastNode(const Location& location, const CType& newType, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

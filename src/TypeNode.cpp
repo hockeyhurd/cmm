@@ -9,24 +9,19 @@
 
 namespace cmm
 {
-    TypeNode::TypeNode(const Location& location, const EnumCType type) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE, location), type(type), pointerInderectionCount(0)
+    TypeNode::TypeNode(const Location& location, const CType& type) CMM_NOEXCEPT :
+        Node(NodeType::VARIABLE, location), type(type)
     {
     }
 
-    TypeNode::TypeNode(const Location& location, const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE, location), type(type), pointerInderectionCount(pointerInderectionCount)
-    {
-    }
-
-    EnumCType TypeNode::getDatatype() const CMM_NOEXCEPT
+    CType& TypeNode::getDatatype() CMM_NOEXCEPT
     {
         return type;
     }
 
-    u32 TypeNode::getDimensions() const CMM_NOEXCEPT
+    const CType& TypeNode::getDatatype() const CMM_NOEXCEPT
     {
-        return pointerInderectionCount;
+        return type;
     }
 
     VisitorResult TypeNode::accept(Visitor* visitor) /* override */

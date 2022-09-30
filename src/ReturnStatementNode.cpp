@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/ReturnStatementNode.h>
+#include <cmm/CastNode.h>
 
 namespace cmm
 {
@@ -35,9 +36,19 @@ namespace cmm
         return expression.get();
     }
 
-    std::optional<EnumCType> ReturnStatementNode::getDatatype() const CMM_NOEXCEPT
+    CType* ReturnStatementNode::getDatatype() const CMM_NOEXCEPT
     {
-        return hasExpression() ? std::make_optional(expression->getDatatype()) : std::nullopt;
+        return hasExpression() ? &expression->getDatatype() : nullptr;
+    }
+
+    void ReturnStatementNode::cast(const CType& newType)
+    {
+        if (hasExpression())
+        {
+            const auto location = expression->getLocation();
+            auto tempExpression = std::move(expression);
+            expression = std::make_unique<CastNode>(location, newType, std::move(tempExpression));
+        }
     }
 
     std::string ReturnStatementNode::toString() const /* override */

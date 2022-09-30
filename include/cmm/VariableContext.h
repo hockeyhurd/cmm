@@ -22,11 +22,11 @@ namespace cmm
         /**
          * Constructor.
          *
-         * @param type the EnumCType of the variable.
+         * @param type the CType of the variable.
          * @param locality the spacial location of the variable.
          * @param modifiers the modifiers used on the variable.
          */
-        VariableContext(const EnumCType type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT;
+        VariableContext(const CType& type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -58,11 +58,18 @@ namespace cmm
         VariableContext& operator= (VariableContext&&) CMM_NOEXCEPT = default;
 
         /**
-         * Gets the EnumCType of this variable.
+         * Gets the CType of this variable.
          *
-         * @return EnumCType.
+         * @return CType.
          */
-        EnumCType getType() const CMM_NOEXCEPT;
+        CType& getType() CMM_NOEXCEPT;
+
+        /**
+         * Gets the CType of this variable.
+         *
+         * @return CType.
+         */
+        const CType& getType() const CMM_NOEXCEPT;
 
         /**
          * Gets the EnumLocality of this variable.
@@ -81,7 +88,7 @@ namespace cmm
     private:
 
         // The type of the variable.
-        EnumCType type;
+        CType type;
 
         // The spacial location of the variable.
         EnumLocality locality;

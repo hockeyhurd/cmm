@@ -31,7 +31,7 @@ namespace cmm
         /**
          * Default constructor.
          */
-        ExpressionNode(const NodeType type, const Location& location, const EnumCType datatype) CMM_NOEXCEPT;
+        ExpressionNode(const NodeType type, const Location& location, const CType& datatype) CMM_NOEXCEPT;
 
     public:
 
@@ -65,26 +65,33 @@ namespace cmm
         ExpressionNode& operator= (ExpressionNode&&) CMM_NOEXCEPT = default;
 
         /**
-         * Gets the underlying EnumCType.
+         * Gets the underlying CType.
          *
-         * @return EnumCType.
+         * @return CType.
          */
-        virtual EnumCType getDatatype() const CMM_NOEXCEPT;
+        virtual CType& getDatatype() CMM_NOEXCEPT;
+
+        /**
+         * Gets the underlying CType.
+         *
+         * @return CType.
+         */
+        virtual const CType& getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Sets the DataType since it may be 'lazy loaded'.
          *
          * @param type the DataType to set.
          */
-        virtual void setDatatype(const EnumCType datatype) CMM_NOEXCEPT;
+        virtual void setDatatype(const CType& datatype) CMM_NOEXCEPT;
 
         virtual VisitorResult accept(Visitor* visitor) override = 0;
         virtual std::string toString() const override;
 
     protected:
 
-        // The underlying EnumCType.
-        EnumCType datatype;
+        // The underlying CType.
+        CType datatype;
 
     };
 }

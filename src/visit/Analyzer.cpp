@@ -78,25 +78,59 @@ namespace cmm
         auto* rightNode = node.getRight();
         auto rightNodeResult = rightNode->accept(this);
 
-        auto leftType = deduceType(leftNode);
-        auto rightType = deduceType(rightNode);
+        const auto& leftType = leftNode->getDatatype();
+        const auto& rightType = rightNode->getDatatype();
 
         if (leftType != rightType)
         {
-            if (canPromote(leftType, rightType))
+            // Note: canPromote(fromType, toType)
+            auto optCastType = canPromote(rightType, leftType);
+
+            // Promote warn
+            if (optCastType.has_value())
             {
                 std::ostringstream builder;
-                builder << "Type mismatch between " << toString(leftType)
-                        << " and " << toString(rightType)
-                        << " but is promotable.";
+                builder << "Type mismatch between '";
+                printType(builder, leftType);
+                builder << "' and '";
+                printType(builder, rightType);
+                builder << "', but is promotable";
                 reporter.warn(builder.str(), node.getLocation());
+
+                node.castRight(*optCastType);
             }
 
+            // See if it's void pointer magic
+            else if ((leftType.type == EnumCType::VOID && leftType.pointers > 0 && rightType.pointers > 0) ||
+                     (rightType.type == EnumCType::VOID && rightType.pointers > 0 && leftType.pointers > 0))
+            {
+                // Do nothing, assign anything to void* that is a pointer itself, is apparently valid...
+                node.castRight(leftType);
+            }
+
+            // Type mismatch, but both are non-void pointers -> warning
+            else if (leftType.pointers > 0 && rightType.pointers > 0)
+            {
+                std::ostringstream builder;
+                builder << "Base type mismatch between '";
+                printType(builder, leftType);
+                builder << "' and '";
+                printType(builder, rightType);
+                builder << "', but is pointer compatible";
+                reporter.warn(builder.str(), node.getLocation());
+
+                node.castRight(*optCastType);
+            }
+
+            // "Catch all" -> error
             else
             {
                 std::ostringstream builder;
-                builder << "Type mismatch between " << toString(leftType)
-                        << " and " << toString(rightType);
+                builder << "Type mismatch between '";
+                printType(builder, leftType);
+                builder << "' and '";
+                printType(builder, rightType);
+                builder << '\'';
                 reporter.error(builder.str(), node.getLocation());
             }
         }
@@ -120,10 +154,64 @@ namespace cmm
 
     VisitorResult Analyzer::visit(CastNode& node)
     {
-        if (node.hasExpression())
+        if (!node.hasExpression())
         {
-            auto* expression = node.getExpression();
-            expression->accept(this);
+            reporter.bug("Expected expression after cast", node.getLocation(), true);
+            return VisitorResult();
+        }
+
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        const auto& from = node.getDatatype();
+        const auto& to = expression->getDatatype();
+
+        if (from.pointers == 0 && from.pointers == to.pointers)
+        {
+            if (canPromote(from, to))
+            {
+                // Note: Intentionally do nothing (no need to warn).
+            }
+
+            else if (canTruncate(from, to))
+            {
+                // TODO: Consider conditionally reporting this, such as if the user
+                // passes a '-Wall' like flag.
+                std::ostringstream builder;
+                builder << "Attempting to downcast types from '";
+                printType(builder, from);
+                builder << "' to '";
+                printType(builder, to);
+                builder << '\'';
+
+                reporter.warn(builder.str(), node.getLocation());
+            }
+        }
+
+        else if (from.pointers == to.pointers)
+        {
+            // TODO: Consider conditionally reporting this, such as if the user
+            // passes a '-Wall' like flag.
+            std::ostringstream builder;
+            builder << "Attempting to pointer cast from '";
+            printType(builder, from);
+            builder << "' to '";
+            printType(builder, to);
+            builder << '\'';
+
+            reporter.warn(builder.str(), node.getLocation());
+        }
+
+        else
+        {
+            std::ostringstream builder;
+            builder << "Cannot cast expression from '";
+            printType(builder, from);
+            builder << "' to '";
+            printType(builder, to);
+            builder << "' where arithmetic or pointer is expected";
+
+            reporter.error(builder.str(), node.getLocation());
         }
 
         return VisitorResult();
@@ -286,59 +374,63 @@ namespace cmm
         // 2. non-void with optional return statement -> warning
         // 3. non-void with return statement that does not match or is not promotable or is not truncatable -> warning.
 
-        if (node.getDatatype() != EnumCType::VOID)
+        auto& datatype = node.getDatatype();
+
+        if (datatype.type != EnumCType::VOID)
         {
             // Case #2
-            if (returnStatementPtr == nullptr)
+            if (returnStatementPtr == nullptr || !returnStatementPtr->hasExpression())
             {
                 std::ostringstream builder;
                 builder << "Missing return statement in non-void function '" << node.getName() << "'";
                 reporter.warn(builder.str(), blockNode.getLocation());
             }
 
-            else if (returnStatementPtr->getDatatype().value() != node.getDatatype())
+            else if (*returnStatementPtr->getDatatype() != datatype)
             {
-                const auto optReturnType = returnStatementPtr->getDatatype();
+                const auto* returnType = returnStatementPtr->getDatatype();
+                auto optCastType = canPromote(*returnType, datatype);
 
                 // Case #3 promotable
-                if (canPromote(*optReturnType, node.getDatatype()))
+                if (optCastType.has_value())
                 {
-                    const char* toTypeStr = toString(node.getDatatype());
+                    const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
                     builder << "Return type mismatch. Expected '" << toTypeStr
-                            << "', but found '" << toString(*optReturnType)
+                            << "', but found '" << toString(returnType->type)
                             << "'. This will be promoted to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
-                    // TODO: perform promotion
+                    returnStatementPtr->cast(*optCastType);
                 }
 
-                else if (canTruncate(*optReturnType, node.getDatatype()))
+                else if ((optCastType = canTruncate(*returnType, node.getDatatype())).has_value())
                 {
-                    const char* toTypeStr = toString(node.getDatatype());
+                    const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
                     builder << "Return type mismatch. Expected '" << toTypeStr
-                            << "', but found '" << toString(*optReturnType)
+                            << "', but found '" << toString(returnType->type)
                             << "'. This will be truncated to '" << toTypeStr << '\'';
                     reporter.warn(builder.str(), returnStatementPtr->getLocation());
 
-                    // TODO: perform truncation
+                    // TODO: Can't be tested until CastNodes are added to the parser.
+                    returnStatementPtr->cast(*optCastType);
                 }
 
                 // Case #3 not promotable
                 else
                 {
-                    const char* toTypeStr = toString(node.getDatatype());
+                    const char* toTypeStr = toString(node.getDatatype().type);
                     std::ostringstream builder;
                     builder << "Return type mismatch. Expected '" << toTypeStr
-                            << "', but found '" << toString(*optReturnType);
+                            << "', but found '" << toString(returnType->type);
                     reporter.error(builder.str(), returnStatementPtr->getLocation());
                 }
             }
         }
 
         // void function returns a non-void value case #1.
-        else if (returnStatementPtr != nullptr && returnStatementPtr->getDatatype() != EnumCType::VOID)
+        else if (returnStatementPtr != nullptr && returnStatementPtr->getDatatype()->type != EnumCType::VOID)
         {
             std::ostringstream builder;
             builder << "Function '" << node.getName() << "' should not return a non-void value";
@@ -375,7 +467,7 @@ namespace cmm
 
     VisitorResult Analyzer::visit(LitteralNode& node)
     {
-        switch (node.getDatatype())
+        switch (node.getDatatype().type)
         {
         case EnumCType::NULL_T:
             break;
@@ -543,10 +635,21 @@ namespace cmm
             auto* expression = node.getExpression();
             expression->accept(this);
 
-            if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF)
             {
-                const char* message = "Expected a variable expression prior to attempting to take the address of it";
-                reporter.error(message, node.getLocation());
+                if (expression->getType() != NodeType::VARIABLE)
+                {
+                    const char* message = "Expected a variable expression prior to attempting to take the address of it";
+                    reporter.error(message, node.getLocation());
+                }
+
+                else
+                {
+                    CType newType = expression->getDatatype();
+                    ++newType.pointers;
+                    node.setDatatype(newType);
+                }
             }
         }
 
@@ -617,12 +720,6 @@ namespace cmm
         statement->accept(this);
 
         return VisitorResult();
-    }
-
-    /* static */
-    EnumCType Analyzer::deduceType(ExpressionNode* expression)
-    {
-        return expression->getDatatype();
     }
 
     bool Analyzer::validateFunction(const std::string& name, const Analyzer::EnumFuncState state)
