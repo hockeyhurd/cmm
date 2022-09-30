@@ -245,6 +245,42 @@ TEST(AnalyzerTest, AnalyzerCharFunctionReturnsIntError)
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
+TEST(AnalyzerTest, AnalyzerVarDoubleAssignmentViaIntValid)
+{
+    reporter.reset();
+
+    const std::string input = "int x; int y; x = y = 42;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerVarQuadAssignmentViaIntValid)
+{
+    reporter.reset();
+
+    const std::string input = "int a; int b; int c; int d; a = b = c = d = 42;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
 TEST(AnalyzerTest, AnalyzerVarAssignmentViaAddressOfIntError)
 {
     reporter.reset();

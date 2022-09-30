@@ -75,6 +75,10 @@ namespace cmm
             return VisitorResult();
         }
 
+        // Establish the Node's datatype by it's left node.
+        const auto& leftType = leftNode->getDatatype();
+        node.setDatatype(leftType);
+
         auto* rightNode = node.getRight();
         auto rightNodeResult = rightNode->accept(this);
 
