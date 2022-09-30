@@ -82,7 +82,6 @@ namespace cmm
         auto* rightNode = node.getRight();
         auto rightNodeResult = rightNode->accept(this);
 
-        const auto& leftType = leftNode->getDatatype();
         const auto& rightType = rightNode->getDatatype();
 
         if (leftType != rightType)
