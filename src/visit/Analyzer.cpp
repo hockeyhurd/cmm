@@ -67,8 +67,9 @@ namespace cmm
 
         auto* leftNode = node.getLeft();
         auto leftNodeResult = leftNode->accept(this);
+        const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
 
-        if (node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT && leftNode->getType() != NodeType::VARIABLE)
+        if (isAssignment && leftNode->getType() != NodeType::VARIABLE)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -87,7 +88,31 @@ namespace cmm
         if (leftType != rightType)
         {
             // Note: canPromote(fromType, toType)
-            auto optCastType = canPromote(rightType, leftType);
+            // if assignment the rightType must be able to promote to the variable,
+            // otherwise we can try both options ex. 1+2.0F fails promotion,
+            // when it's valid promotion.
+            std::optional<CType> optCastType = std::nullopt;
+            bool castRight = false;
+
+            if (isAssignment)
+            {
+                optCastType = canPromote(rightType, leftType);
+                castRight = true;
+            }
+
+            else
+            {
+                // Try left to right first (ex. 1+2.0F).
+                optCastType = canPromote(leftType, rightType);
+                castRight = false;
+
+                // Failed, try the reverse instead (ex. 1.0F+2).
+                if (!optCastType.has_value())
+                {
+                    optCastType = canPromote(rightType, leftType);
+                    castRight = true;
+                }
+            }
 
             // Promote warn
             if (optCastType.has_value())
@@ -97,13 +122,23 @@ namespace cmm
                 printType(builder, leftType);
                 builder << "' and '";
                 printType(builder, rightType);
-                builder << "', but is promotable";
+                builder << "', but is promotable to ";
+                printType(builder, *optCastType);
                 reporter.warn(builder.str(), node.getLocation());
 
-                node.castRight(*optCastType);
+                if (castRight)
+                {
+                    node.castRight(*optCastType);
+                }
+
+                else
+                {
+                    node.castLeft(*optCastType);
+                }
             }
 
             // See if it's void pointer magic
+            // TODO: This may fail if this isn't assignment.
             else if ((leftType.type == EnumCType::VOID && leftType.pointers > 0 && rightType.pointers > 0) ||
                      (rightType.type == EnumCType::VOID && rightType.pointers > 0 && leftType.pointers > 0))
             {
@@ -112,7 +147,7 @@ namespace cmm
             }
 
             // Type mismatch, but both are non-void pointers -> warning
-            else if (leftType.pointers > 0 && rightType.pointers > 0)
+            else if (isAssignment && leftType.pointers > 0 && rightType.pointers > 0)
             {
                 std::ostringstream builder;
                 builder << "Base type mismatch between '";
@@ -122,7 +157,7 @@ namespace cmm
                 builder << "', but is pointer compatible";
                 reporter.warn(builder.str(), node.getLocation());
 
-                node.castRight(*optCastType);
+                node.castRight(leftType);
             }
 
             // "Catch all" -> error

@@ -111,6 +111,13 @@ namespace cmm
         const ExpressionNode* getRight() const CMM_NOEXCEPT;
 
         /**
+         * Attempts to cast the left ExpressionNode.
+         *
+         * @param newType the type of the sub-expression.
+         */
+        void castLeft(const CType& newType);
+
+        /**
          * Attempts to cast the right ExpressionNode.
          *
          * @param newType the type of the sub-expression.

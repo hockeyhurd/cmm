@@ -67,6 +67,13 @@ namespace cmm
         return right.get();
     }
 
+    void BinOpNode::castLeft(const CType& newType)
+    {
+        const auto location = left->getLocation();
+        auto tempLeft = std::move(left);
+        left = std::make_unique<CastNode>(location, newType, std::move(tempLeft));
+    }
+
     void BinOpNode::castRight(const CType& newType)
     {
         const auto location = right->getLocation();
