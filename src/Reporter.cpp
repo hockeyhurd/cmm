@@ -10,20 +10,23 @@
 
 namespace cmm
 {
-    Reporter::Reporter() CMM_NOEXCEPT : errors(0), warnings(0)
+    Reporter::Reporter() CMM_NOEXCEPT : errors(0), warnings(0), canPrint(true)
     {
     }
 
     Reporter::~Reporter()
     {
-        if (errors > 0)
+        if (canPrint)
         {
-            std::cout << errors << " errors during compilation\n";
-        }
+            if (errors > 0)
+            {
+                std::cout << errors << " errors during compilation\n";
+            }
 
-        if (warnings > 0)
-        {
-            std::cout << warnings << " warnings during compilation\n";
+            if (warnings > 0)
+            {
+                std::cout << warnings << " warnings during compilation\n";
+            }
         }
     }
 
@@ -42,6 +45,11 @@ namespace cmm
     s32 Reporter::getWarningCount() const CMM_NOEXCEPT
     {
         return warnings;
+    }
+
+    void Reporter::setEnablePrint(const bool enable) CMM_NOEXCEPT
+    {
+        this->canPrint = enable;
     }
 
     void Reporter::reset()
