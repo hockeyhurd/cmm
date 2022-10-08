@@ -176,6 +176,18 @@ namespace cmm
             }
         }
 
+        else if (leftType.pointers > 0 && rightType.pointers > 0)
+        {
+            std::ostringstream builder;
+            builder << "Invalid operands to binary expression between '";
+            printType(builder, leftType);
+            builder << "' and '";
+            printType(builder, rightType);
+            builder << "'";
+
+            reporter.error(builder.str(), node.getLocation());
+        }
+
         return VisitorResult();
     }
 
