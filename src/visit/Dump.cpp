@@ -25,6 +25,8 @@ namespace cmm
     {
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
     VisitorResult Dump::visit(AddressOfNode& node)
     {
         printIndentation();
@@ -40,6 +42,7 @@ namespace cmm
 
         return VisitorResult();
     }
+#pragma GCC diagnostic pop
 
     VisitorResult Dump::visit(ArgNode& node)
     {

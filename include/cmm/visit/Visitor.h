@@ -93,7 +93,10 @@ namespace cmm
          */
         Visitor& operator= (Visitor&&) CMM_NOEXCEPT = delete;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
         virtual VisitorResult visit(AddressOfNode& node) = 0;
+#pragma GCC diagnostic pop
         virtual VisitorResult visit(ArgNode& node) = 0;
         virtual VisitorResult visit(BinOpNode& node) = 0;
         virtual VisitorResult visit(BlockNode& node) = 0;

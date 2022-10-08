@@ -29,6 +29,8 @@ namespace cmm
         localityStack.push(EnumLocality::GLOBAL);
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
     VisitorResult Analyzer::visit(AddressOfNode& node)
     {
         auto* variablePtr = node.getExpression();
@@ -49,6 +51,7 @@ namespace cmm
 
         return VisitorResult();
     }
+#pragma GCC diagnostic pop
 
     VisitorResult Analyzer::visit(ArgNode& node)
     {
