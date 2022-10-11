@@ -69,7 +69,10 @@ namespace cmm
          */
         Analyzer& operator= (Analyzer&&) CMM_NOEXCEPT = delete;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
         virtual VisitorResult visit(AddressOfNode& node) override;
+#pragma GCC diagnostic pop
         virtual VisitorResult visit(ArgNode& node) override;
         virtual VisitorResult visit(BinOpNode& node) override;
         virtual VisitorResult visit(BlockNode& node) override;

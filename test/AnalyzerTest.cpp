@@ -478,8 +478,81 @@ TEST(AnalyzerTest, AnalyzerImplicitCastDoubleVoidPtrAssignVoidPtrValid)
     ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
+TEST(AnalyzerTest, AnalyzerImplicitCastIntAddFloatWarning)
+{
+    reporter.reset();
+
+    const std::string input = "1 + 2.0F;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastFloatAddIntWarning)
+{
+    reporter.reset();
+
+    const std::string input = "1.0F + 2;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastIntPointerAddIntWarning)
+{
+    reporter.reset();
+
+    const std::string input = "int x; x = 5; int* xPtr; xPtr = &x; int* result; result = xPtr + 5;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerImplicitCastIntPointerAddIntPointerError)
+{
+    reporter.reset();
+
+    const std::string input = "int x; x = 5; int y; y = 10; int* xPtr; xPtr = &x; int* yPtr; yPtr = &y; int* result; result = xPtr + yPtr;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
 s32 main(s32 argc, char* argv[])
 {
+    reporter.setEnablePrint(false);
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

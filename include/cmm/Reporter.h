@@ -77,6 +77,15 @@ namespace cmm
         s32 getWarningCount() const CMM_NOEXCEPT;
 
         /**
+         * Sets whether the reporter actually prints something to std::cout.
+         * This is helpful for disabling in unit tests where we only care
+         * about error, warn, etc. counts.
+         *
+         * @param enable flag whether to enable/disable printing.
+         */
+        void setEnablePrint(const bool enable) CMM_NOEXCEPT;
+
+        /**
          * Reports a bug in the compiler.
          *
          * @param msg the templated error message to provide.
@@ -85,7 +94,10 @@ namespace cmm
         template<class T>
         void bug(const T& msg, const Location& location, const bool fatal)
         {
-            std::cout << "bug: " << msg << " at " << location << std::endl;
+            if (canPrint)
+            {
+                std::cout << "bug: " << msg << " at " << location << std::endl;
+            }
 
             if (fatal)
             {
@@ -102,7 +114,11 @@ namespace cmm
         template<class T>
         void error(const T& msg, const Location& location)
         {
-            std::cout << "error: " << msg << " at " << location << std::endl;
+            if (canPrint)
+            {
+                std::cout << "error: " << msg << " at " << location << std::endl;
+            }
+
             ++errors;
         }
 
@@ -115,7 +131,11 @@ namespace cmm
         template<class T>
         void warn(const T& msg, const Location& location)
         {
-            std::cout << "warning: " << msg << " at " << location << std::endl;
+            if (canPrint)
+            {
+                std::cout << "warning: " << msg << " at " << location << std::endl;
+            }
+
             ++warnings;
         }
 
@@ -131,6 +151,9 @@ namespace cmm
 
         // The count of warnings.
         s32 warnings;
+
+        // Flag for enabling/disabling printing.
+        bool canPrint;
     };
 }
 

@@ -87,6 +87,8 @@ namespace cmm
                 set.emplace(EnumCType::INT16);
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
+                set.emplace(EnumCType::FLOAT);
+                set.emplace(EnumCType::DOUBLE);
             }
 
             {
@@ -95,6 +97,8 @@ namespace cmm
                 set.emplace(EnumCType::INT16);
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
+                set.emplace(EnumCType::FLOAT);
+                set.emplace(EnumCType::DOUBLE);
             }
 
             {
@@ -102,17 +106,23 @@ namespace cmm
                 set.emplace(EnumCType::INT16);
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
+                set.emplace(EnumCType::FLOAT);
+                set.emplace(EnumCType::DOUBLE);
             }
 
             {
                 auto& set = promoMap[EnumCType::INT32];
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
+                set.emplace(EnumCType::FLOAT);
+                set.emplace(EnumCType::DOUBLE);
             }
 
             {
                 auto& set = promoMap[EnumCType::INT64];
                 set.emplace(EnumCType::INT64);
+                set.emplace(EnumCType::FLOAT);
+                set.emplace(EnumCType::DOUBLE);
             }
         }
 

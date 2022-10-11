@@ -1115,15 +1115,6 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaDerferencedNegativeVariable
 
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
-
-    // auto& translationUnit = compUnitPtr->getRoot();
-    // auto& firstStatement = *translationUnit.begin();
-    // ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
-
-    // auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
-    // ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    // ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
-
     ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
@@ -1176,6 +1167,7 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOfFuncCausesError)
 
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
+    ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
 TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOfIntError)
@@ -1187,6 +1179,7 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOfIntError)
 
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
+    ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
 TEST(ParserTest, ParseCompilationNodeVarDerefAssignmentViaAddressOfFuncCausesError)
@@ -1198,6 +1191,7 @@ TEST(ParserTest, ParseCompilationNodeVarDerefAssignmentViaAddressOfFuncCausesErr
 
     ASSERT_FALSE(errorMessage.empty());
     ASSERT_EQ(compUnitPtr, nullptr);
+    ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
 TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPointer)
@@ -3248,6 +3242,7 @@ TEST(ParserTest, ParseCompilationNodeUnaryIncrement)
 
 s32 main(s32 argc, char* argv[])
 {
+    reporter.setEnablePrint(false);
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
