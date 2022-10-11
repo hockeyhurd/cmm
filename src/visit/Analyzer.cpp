@@ -141,7 +141,6 @@ namespace cmm
             }
 
             // See if it's void pointer magic
-            // TODO: This may fail if this isn't assignment.
             else if ((leftType.type == EnumCType::VOID && leftType.pointers > 0 && rightType.pointers > 0) ||
                      (rightType.type == EnumCType::VOID && rightType.pointers > 0 && leftType.pointers > 0))
             {
@@ -674,9 +673,11 @@ namespace cmm
 
     VisitorResult Analyzer::visit(TypeNode& node)
     {
-        // TODO: What to do here??
+        // Note: Parser should have verified the type, however with some structs
+        // or typedefs, it may not have been able to fully verify and deferred to here.
+        // TODO: Update this logic once we get there.
         [[maybe_unused]]
-        const auto datatype = node.getDatatype();
+        const auto& datatype = node.getDatatype();
 
         return VisitorResult();
     }
