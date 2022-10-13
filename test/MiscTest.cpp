@@ -1,4 +1,5 @@
 #include <cmm/Types.h>
+#include <cmm/StructTable.h>
 
 #include <gtest/gtest.h>
 
@@ -58,6 +59,28 @@ TEST(MiscTest, TypePromoDoubleCHARError)
 
     const auto optResult = canPromote(from, to);
     ASSERT_FALSE(optResult.has_value());
+}
+
+TEST(MiscTest, StructTableAddAndCheck)
+{
+    const std::string name = "A";
+    StructTable table;
+
+    ASSERT_TRUE(table.empty());
+    ASSERT_EQ(table.size(), 0);
+    ASSERT_FALSE(table.has(name));
+
+    table.addOrUpdate(name, EnumSymState::DECLARED);
+    ASSERT_FALSE(table.empty());
+    ASSERT_EQ(table.size(), 1);
+    ASSERT_TRUE(table.has(name));
+    ASSERT_EQ(table.get(name).value(), EnumSymState::DECLARED);
+
+    table.addOrUpdate(name, EnumSymState::DEFINED);
+    ASSERT_FALSE(table.empty());
+    ASSERT_EQ(table.size(), 1);
+    ASSERT_TRUE(table.has(name));
+    ASSERT_EQ(table.get(name).value(), EnumSymState::DEFINED);
 }
 
 s32 main(s32 argc, char* argv[])

@@ -320,18 +320,18 @@ namespace cmm
 
         const auto& funcName = node.getName();
 
-        if (!validateFunction(funcName, EnumFuncState::DECLARED))
+        if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
             const auto previousState = functionTable[funcName];
             std::ostringstream builder;
 
-            if (previousState == EnumFuncState::DECLARED)
+            if (previousState == EnumSymState::DECLARED)
             {
                 builder << "Function '" << funcName << "' was already previously declared and does not need to be declared here as well.";
                 reporter.warn(builder.str(), node.getLocation());
             }
 
-            else if (previousState == EnumFuncState::DEFINED)
+            else if (previousState == EnumSymState::DEFINED)
             {
                 builder << "Function '" << funcName << "' was already previously defined and does not need to be declared here as well.";
                 reporter.warn(builder.str(), node.getLocation());
@@ -339,7 +339,7 @@ namespace cmm
 
             else
             {
-                reporter.bug("Unknown EnumFuncState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDeclarationStatementNode&))", node.getLocation(), false);
+                reporter.bug("Unknown EnumSymState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDeclarationStatementNode&))", node.getLocation(), false);
             }
         }
 
@@ -353,7 +353,7 @@ namespace cmm
 
         else
         {
-            functionTable[funcName] = EnumFuncState::DECLARED;
+            functionTable[funcName] = EnumSymState::DECLARED;
         }
 
         for (auto& paramNode : node)
@@ -381,12 +381,12 @@ namespace cmm
 
         const auto& funcName = node.getName();
 
-        if (!validateFunction(funcName, EnumFuncState::DECLARED))
+        if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
             const auto previousState = functionTable[funcName];
             std::ostringstream builder;
 
-            if (previousState == EnumFuncState::DEFINED)
+            if (previousState == EnumSymState::DEFINED)
             {
                 builder << "Function '" << funcName << "' was already previously defined and does not need to be defined here as well (multiple definitions).";
                 reporter.error(builder.str(), node.getLocation());
@@ -394,13 +394,13 @@ namespace cmm
 
             else
             {
-                reporter.bug("Unknown EnumFuncState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDefinitionStatementNode&))", node.getLocation(), false);
+                reporter.bug("Unknown EnumSymState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDefinitionStatementNode&))", node.getLocation(), false);
             }
         }
 
         else
         {
-            functionTable[funcName] = EnumFuncState::DEFINED;
+            functionTable[funcName] = EnumSymState::DEFINED;
         }
 
         localityStack.push(EnumLocality::PARAMETER);
@@ -776,7 +776,7 @@ namespace cmm
         return VisitorResult();
     }
 
-    bool Analyzer::validateFunction(const std::string& name, const Analyzer::EnumFuncState state)
+    bool Analyzer::validateFunction(const std::string& name, const EnumSymState state)
     {
         const auto findResult = functionTable.find(name);
 
@@ -786,7 +786,7 @@ namespace cmm
         }
 
         const auto currentState = findResult->second;
-        const bool invResult = currentState == state || (currentState == EnumFuncState::DEFINED && state == EnumFuncState::DECLARED);
+        const bool invResult = currentState == state || (currentState == EnumSymState::DEFINED && state == EnumSymState::DECLARED);
         return !invResult;
     }
 }

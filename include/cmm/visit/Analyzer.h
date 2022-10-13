@@ -30,13 +30,6 @@ namespace cmm
 
     class Analyzer : public Visitor
     {
-    private:
-
-        enum class EnumFuncState
-        {
-            DECLARED = 0, DEFINED
-        };
-
     public:
 
         /**
@@ -104,7 +97,7 @@ namespace cmm
          * @param state the state to be updated (Note: does not actually update the table).
          * @return bool.
          */
-        bool validateFunction(const std::string& name, const EnumFuncState state);
+        bool validateFunction(const std::string& name, const EnumSymState state);
 
     private:
 
@@ -118,7 +111,7 @@ namespace cmm
         ScopeManager scope;
 
         // A map for keeping track of functions available.
-        std::unordered_map<std::string, EnumFuncState> functionTable;
+        std::unordered_map<std::string, EnumSymState> functionTable;
 
         // For tracking current locality.
         std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;
