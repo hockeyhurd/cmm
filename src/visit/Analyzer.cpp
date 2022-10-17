@@ -69,6 +69,8 @@ namespace cmm
         // I guess we'll just need to re-visit this when we get to code generation.
 
         auto* leftNode = node.getLeft();
+
+        [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
 
@@ -84,6 +86,8 @@ namespace cmm
         node.setDatatype(leftType);
 
         auto* rightNode = node.getRight();
+
+        [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
 
         const auto& rightType = rightNode->getDatatype();
@@ -94,7 +98,7 @@ namespace cmm
             // if assignment the rightType must be able to promote to the variable,
             // otherwise we can try both options ex. 1+2.0F fails promotion,
             // when it's valid promotion.
-            std::optional<CType> optCastType = std::nullopt;
+            std::optional<CType> optCastType;
             bool castRight = false;
 
             if (isAssignment)
