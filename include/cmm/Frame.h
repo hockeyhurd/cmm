@@ -169,6 +169,14 @@ namespace cmm
 
     private:
 
+        /**
+         * Common find function.
+         *
+         * @param map reference to Map to lookup.
+         * @param name std::string name of variable, struct, or union.
+         * @param allowParent bool flag whether can use parent frame to do lookup.
+         * @return pointer to the context T if found, else nullptr.
+         */
         template<class T, class Map>
         T* commonFind(Map& map, const std::string& name, const bool allowParent)
         {
@@ -188,6 +196,14 @@ namespace cmm
             return nullptr;
         }
 
+        /**
+         * Common find function.
+         *
+         * @param map const reference to Map to lookup.
+         * @param name std::string name of variable, struct, or union.
+         * @param allowParent bool flag whether can use parent frame to do lookup.
+         * @return const pointer to the context T if found, else nullptr.
+         */
         template<class T, class Map>
         const T* commonFind(const Map& map, const std::string& name, const bool allowParent) const
         {
