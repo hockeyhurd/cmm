@@ -12,6 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/StructOrUnionContext.h>
 #include <cmm/VariableContext.h>
 
 // std includes
@@ -24,9 +25,8 @@ namespace cmm
     {
     public:
 
+        using StructOrUnionMap = std::unordered_map<std::string, StructOrUnionContext>;
         using VarMap = std::unordered_map<std::string, VariableContext>;
-        using iterator = VarMap::iterator;
-        using const_iterator = VarMap::const_iterator;
 
     public:
 
@@ -72,6 +72,22 @@ namespace cmm
         Frame& operator= (Frame&&) CMM_NOEXCEPT = default;
 
         /**
+         * Adds the struct or union to the frame.
+         *
+         * @param name the name of the struct or union to add.
+         * @param context the context of the struct or union.
+         */
+        void add(const std::string& name, const StructOrUnionContext& context);
+
+        /**
+         * Adds the struct or union to the frame.
+         *
+         * @param name the name of the struct or union to add.
+         * @param context the context of the struct or union.
+         */
+        void add(std::string&& name, const StructOrUnionContext& context);
+
+        /**
          * Adds the variable to the frame.
          *
          * @param variable the variable to add.
@@ -88,12 +104,44 @@ namespace cmm
         void add(std::string&& variable, const VariableContext& context);
 
         /**
+         * Attempts to lookup the struct or union type in the current frame (only).
+         *
+         * @param name the name of the struct or union to lookup.
+         * @return pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        StructOrUnionContext* findStructOrUnion(const std::string& name);
+
+        /**
+         * Attempts to lookup the struct or union type in the current frame (only).
+         *
+         * @param name the name of the struct or union to lookup.
+         * @return const pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        const StructOrUnionContext* findStructOrUnion(const std::string& name) const;
+
+        /**
+         * Attempts to lookup the struct or union type in the frame or parent frame (if applicable).
+         *
+         * @param name the struct or union type to lookup.
+         * @return pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        StructOrUnionContext* findAnyStructOrUnion(const std::string& name);
+
+        /**
+         * Attempts to lookup the struct or union type in the frame or parent frame (if applicable).
+         *
+         * @param name the struct or union type to lookup.
+         * @return const pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        const StructOrUnionContext* findAnyStructOrUnion(const std::string& name) const;
+
+        /**
          * Attempts to lookup the variable in the current frame (only).
          *
          * @param variable the variable to lookup.
          * @return pointer to the VariableContext if found, else nullptr.
          */
-        VariableContext* find(const std::string& variable);
+        VariableContext* findVariable(const std::string& variable);
 
         /**
          * Attempts to lookup the variable in the frame (only).
@@ -101,7 +149,7 @@ namespace cmm
          * @param variable the variable to lookup.
          * @return const pointer to the VariableContext if found, else nullptr.
          */
-        const VariableContext* find(const std::string& variable) const;
+        const VariableContext* findVariable(const std::string& variable) const;
 
         /**
          * Attempts to lookup the variable in the frame or parent frame (if applicable).
@@ -109,7 +157,7 @@ namespace cmm
          * @param variable the variable to lookup.
          * @return pointer to the VariableContext if found, else nullptr.
          */
-        VariableContext* findAny(const std::string& variable);
+        VariableContext* findAnyVariable(const std::string& variable);
 
         /**
          * Attempts to lookup the variable in the frame or parent frame (if applicable).
@@ -117,48 +165,55 @@ namespace cmm
          * @param variable the variable to lookup.
          * @return const pointer to the VariableContext if found, else nullptr.
          */
-        const VariableContext* findAny(const std::string& variable) const;
-
-        /**
-         * The beginning of the frame.
-         */
-        iterator begin() CMM_NOEXCEPT;
-
-        /**
-         * The beginning of the frame.
-         */
-        const_iterator cbegin() const CMM_NOEXCEPT;
-
-        /**
-         * The end of the frame.
-         */
-        iterator end() CMM_NOEXCEPT;
-
-        /**
-         * The end of the frame.
-         */
-        const_iterator cend() const CMM_NOEXCEPT;
+        const VariableContext* findAnyVariable(const std::string& variable) const;
 
     private:
 
-        /**
-         * Common find function.
-         *
-         * @return pointer to the VariableContext if found, else nullptr.
-         */
-        VariableContext* commonFind(const std::string& variable, const bool allowParent);
+        template<class T, class Map>
+        T* commonFind(Map& map, const std::string& name, const bool allowParent)
+        {
+            const auto findResult = map.find(name);
 
-        /**
-         * Common find function.
-         *
-         * @return const pointer to the VariableContext if found, else nullptr.
-         */
-        const VariableContext* commonFind(const std::string& variable, const bool allowParent) const;
+            if (findResult != map.cend())
+            {
+                return &findResult->second;
+            }
+
+            // See if we can check the parent
+            else if (parent != nullptr && allowParent)
+            {
+                return parent->commonFind<T, Map>(map, name, allowParent);
+            }
+
+            return nullptr;
+        }
+
+        template<class T, class Map>
+        const T* commonFind(const Map& map, const std::string& name, const bool allowParent) const
+        {
+            const auto findResult = map.find(name);
+
+            if (findResult != map.cend())
+            {
+                return &findResult->second;
+            }
+
+            // See if we can check the parent
+            else if (parent != nullptr && allowParent)
+            {
+                return parent->commonFind<T, Map>(map, name, allowParent);
+            }
+
+            return nullptr;
+        }
 
     private:
 
         // The parent frame.
         Frame* parent;
+
+        // The structs and/or unions in the current frame.
+        StructOrUnionMap structsAndUnions;
 
         // The variables in the current frame.
         VarMap variables;

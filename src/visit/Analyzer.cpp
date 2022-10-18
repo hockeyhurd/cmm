@@ -348,7 +348,7 @@ namespace cmm
         }
 
         // If in global scope, we must make sure there is NOT a variable with the same name (i.e. redefinition error).
-        else if (scope.find(node.getName()) != nullptr)
+        else if (scope.findVariable(node.getName()) != nullptr)
         {
             std::ostringstream builder;
             builder << "Function '" << node.getName() << "' matches a variable definition";
@@ -717,7 +717,7 @@ namespace cmm
     VisitorResult Analyzer::visit(VariableNode& node)
     {
         const auto& varName = node.getName();
-        const auto* varContext = scope.findAny(varName);
+        const auto* varContext = scope.findAnyVariable(varName);
 
         if (varContext == nullptr)
         {
@@ -745,7 +745,7 @@ namespace cmm
         // of reference and not a parent, since this would be allowed.
         // Also, if we are in global scope, we must check this isn't a function too.
 
-        auto* lookupContext = scope.find(node.getName());
+        auto* lookupContext = scope.findVariable(node.getName());
 
         if (lookupContext != nullptr)
         {

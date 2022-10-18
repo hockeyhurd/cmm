@@ -87,6 +87,22 @@ namespace cmm
         // Convenience functions to call directly into the top Frame:
 
         /**
+         * Adds the struct or union to the frame.
+         *
+         * @param name the name of the struct or union to add.
+         * @param context the context of the struct or union.
+         */
+        void add(const std::string& name, const StructOrUnionContext& context);
+
+        /**
+         * Adds the struct or union to the frame.
+         *
+         * @param name the name of the struct or union to add.
+         * @param context the context of the struct or union.
+         */
+        void add(std::string&& name, const StructOrUnionContext& context);
+
+        /**
          * Adds the variable to the frame.
          *
          * @param variable the variable to add.
@@ -103,12 +119,44 @@ namespace cmm
         void add(std::string&& variable, const VariableContext& context);
 
         /**
+         * Attempts to lookup the struct or union type in the current frame (only).
+         *
+         * @param name the name of the struct or union to lookup.
+         * @return pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        StructOrUnionContext* findStructOrUnion(const std::string& name);
+
+        /**
+         * Attempts to lookup the struct or union type in the current frame (only).
+         *
+         * @param name the name of the struct or union to lookup.
+         * @return const pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        const StructOrUnionContext* findStructOrUnion(const std::string& name) const;
+
+        /**
+         * Attempts to lookup the struct or union type in the frame or parent frame (if applicable).
+         *
+         * @param name the struct or union type to lookup.
+         * @return pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        StructOrUnionContext* findAnyStructOrUnion(const std::string& name);
+
+        /**
+         * Attempts to lookup the struct or union type in the frame or parent frame (if applicable).
+         *
+         * @param name the struct or union type to lookup.
+         * @return const pointer to the StructOrUnionContext if found, else nullptr.
+         */
+        const StructOrUnionContext* findAnyStructOrUnion(const std::string& name) const;
+
+        /**
          * Attempts to lookup the variable in the frame (only).
          *
          * @param variable the variable to lookup.
          * @return pointer to the VariableContext if found, else nullptr.
          */
-        VariableContext* find(const std::string& variable);
+        VariableContext* findVariable(const std::string& variable);
 
         /**
          * Attempts to lookup the variable in the frame (only).
@@ -116,7 +164,7 @@ namespace cmm
          * @param variable the variable to lookup.
          * @return const pointer to the VariableContext if found, else nullptr.
          */
-        const VariableContext* find(const std::string& variable) const;
+        const VariableContext* findVariable(const std::string& variable) const;
 
         /**
          * Attempts to lookup the variable in the frame or parent frame (if applicable).
@@ -124,7 +172,7 @@ namespace cmm
          * @param variable the variable to lookup.
          * @return pointer to the VariableContext if found, else nullptr.
          */
-        VariableContext* findAny(const std::string& variable);
+        VariableContext* findAnyVariable(const std::string& variable);
 
         /**
          * Attempts to lookup the variable in the frame or parent frame (if applicable).
@@ -132,7 +180,7 @@ namespace cmm
          * @param variable the variable to lookup.
          * @return const pointer to the VariableContext if found, else nullptr.
          */
-        const VariableContext* findAny(const std::string& variable) const;
+        const VariableContext* findAnyVariable(const std::string& variable) const;
 
         // End of convenience functions section.
 

@@ -6,7 +6,7 @@
  */
 
 // Our includes
-#include <cmm/ScopeManager.h>
+#include <cmm/Frame.h>
 
 namespace cmm
 {
@@ -16,6 +16,16 @@ namespace cmm
 
     Frame::Frame(Frame* parent) CMM_NOEXCEPT : parent(parent)
     {
+    }
+
+    void Frame::add(const std::string& name, const StructOrUnionContext& context)
+    {
+        structsAndUnions.emplace(name, context);
+    }
+
+    void Frame::add(std::string&& name, const StructOrUnionContext& context)
+    {
+        structsAndUnions.emplace(std::move(name), context);
     }
 
     void Frame::add(const std::string& variable, const VariableContext& context)
@@ -28,80 +38,44 @@ namespace cmm
         variables.emplace(std::move(variable), context);
     }
 
-    VariableContext* Frame::find(const std::string& variable)
+    StructOrUnionContext* Frame::findStructOrUnion(const std::string& name)
     {
-        return commonFind(variable, false);
+        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, false);
     }
 
-    const VariableContext* Frame::find(const std::string& variable) const
+    const StructOrUnionContext* Frame::findStructOrUnion(const std::string& name) const
     {
-        return commonFind(variable, false);
+        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, false);
     }
 
-    VariableContext* Frame::findAny(const std::string& variable)
+    StructOrUnionContext* Frame::findAnyStructOrUnion(const std::string& name)
     {
-        return commonFind(variable, true);
+        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, true);
     }
 
-    const VariableContext* Frame::findAny(const std::string& variable) const
+    const StructOrUnionContext* Frame::findAnyStructOrUnion(const std::string& name) const
     {
-        return commonFind(variable, true);
+        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, true);
     }
 
-    Frame::iterator Frame::begin() CMM_NOEXCEPT
+    VariableContext* Frame::findVariable(const std::string& variable)
     {
-        return variables.begin();
+        return commonFind<VariableContext, VarMap>(variables, variable, false);
     }
 
-    Frame::const_iterator Frame::cbegin() const CMM_NOEXCEPT
+    const VariableContext* Frame::findVariable(const std::string& variable) const
     {
-        return variables.cbegin();
+        return commonFind<VariableContext, VarMap>(variables, variable, false);
     }
 
-    Frame::iterator Frame::end() CMM_NOEXCEPT
+    VariableContext* Frame::findAnyVariable(const std::string& variable)
     {
-        return variables.end();
+        return commonFind<VariableContext, VarMap>(variables, variable, true);
     }
 
-    Frame::const_iterator Frame::cend() const CMM_NOEXCEPT
+    const VariableContext* Frame::findAnyVariable(const std::string& variable) const
     {
-        return variables.cend();
-    }
-
-    VariableContext* Frame::commonFind(const std::string& variable, const bool allowParent)
-    {
-        const auto findResult = variables.find(variable);
-
-        if (findResult != variables.cend())
-        {
-            return &findResult->second;
-        }
-
-        // See if we can check the parent
-        else if (parent != nullptr && allowParent)
-        {
-            return parent->commonFind(variable, allowParent);
-        }
-
-        return nullptr;
-    }
-
-    const VariableContext* Frame::commonFind(const std::string& variable, const bool allowParent) const
-    {
-        const auto findResult = variables.find(variable);
-
-        if (findResult != variables.cend())
-        {
-            return &findResult->second;
-        }
-
-        // See if we can check the parent
-        else if (parent != nullptr && allowParent)
-        {
-            return parent->commonFind(variable, allowParent);
-        }
-
-        return nullptr;
+        return commonFind<VariableContext, VarMap>(variables, variable, true);
     }
 }
 

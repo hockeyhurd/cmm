@@ -52,6 +52,18 @@ namespace cmm
         }
     }
 
+    void ScopeManager::add(const std::string& name, const StructOrUnionContext& context)
+    {
+        auto& frame = getCurrentFrame();
+        frame.add(name, context);
+    }
+
+    void ScopeManager::add(std::string&& name, const StructOrUnionContext& context)
+    {
+        auto& frame = getCurrentFrame();
+        frame.add(std::move(name), context);
+    }
+
     void ScopeManager::add(const std::string& variable, const VariableContext& context)
     {
         auto& frame = getCurrentFrame();
@@ -64,28 +76,52 @@ namespace cmm
         frame.add(std::move(variable), context);
     }
 
-    VariableContext* ScopeManager::find(const std::string& variable)
+    StructOrUnionContext* ScopeManager::findStructOrUnion(const std::string& name)
     {
         auto& frame = getCurrentFrame();
-        return frame.find(variable);
+        return frame.findStructOrUnion(name);
     }
 
-    const VariableContext* ScopeManager::find(const std::string& variable) const
+    const StructOrUnionContext* ScopeManager::findStructOrUnion(const std::string& name) const
     {
         const auto& frame = getCurrentFrame();
-        return frame.find(variable);
+        return frame.findStructOrUnion(name);
     }
 
-    VariableContext* ScopeManager::findAny(const std::string& variable)
+    StructOrUnionContext* ScopeManager::findAnyStructOrUnion(const std::string& name)
     {
         auto& frame = getCurrentFrame();
-        return frame.findAny(variable);
+        return frame.findAnyStructOrUnion(name);
     }
 
-    const VariableContext* ScopeManager::findAny(const std::string& variable) const
+    const StructOrUnionContext* ScopeManager::findAnyStructOrUnion(const std::string& name) const
     {
         const auto& frame = getCurrentFrame();
-        return frame.findAny(variable);
+        return frame.findAnyStructOrUnion(name);
+    }
+
+    VariableContext* ScopeManager::findVariable(const std::string& variable)
+    {
+        auto& frame = getCurrentFrame();
+        return frame.findVariable(variable);
+    }
+
+    const VariableContext* ScopeManager::findVariable(const std::string& variable) const
+    {
+        const auto& frame = getCurrentFrame();
+        return frame.findVariable(variable);
+    }
+
+    VariableContext* ScopeManager::findAnyVariable(const std::string& variable)
+    {
+        auto& frame = getCurrentFrame();
+        return frame.findAnyVariable(variable);
+    }
+
+    const VariableContext* ScopeManager::findAnyVariable(const std::string& variable) const
+    {
+        const auto& frame = getCurrentFrame();
+        return frame.findAnyVariable(variable);
     }
 }
 
