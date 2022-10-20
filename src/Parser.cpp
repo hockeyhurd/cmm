@@ -812,13 +812,27 @@ namespace cmm
             return nullptr;
         }
 
-        snapshot = lexer.snap();
-        auto variableNameOpt = parseVariableNode(lexer, errorMessage);
+        // If it is a struct, we need to get the name of the struct.
+        const bool wasStructType = type->getDatatype().type == EnumCType::STRUCT;
+        auto optVariableName = parseVariableNode(lexer, errorMessage);
 
-        if (!variableNameOpt.has_value())
+        if (!optVariableName.has_value())
         {
-            lexer.restore(snapshot);
-            return nullptr;
+            // No variable name.  If it was a struct, then it was a forward declaration.
+            if (wasStructType)
+            {
+                const auto startLoc = type->getLocation();
+                return expectSemicolon(lexer, errorMessage) ?
+                       std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type)) :
+                       nullptr;
+            }
+
+            // Bad parse, bail out
+            else
+            {
+                lexer.restore(snapshot);
+                return nullptr;
+            }
         }
 
         // Lookahead to see if this is a function declaration or definition before
@@ -833,20 +847,20 @@ namespace cmm
             if (optionalBlockStatement.has_value())
             {
                 return std::make_unique<FunctionDefinitionStatementNode>(type->getLocation(), *type,
-                    std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
+                        optVariableName->getName(), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
             }
 
             // Function declaration
             else
             {
                 return expectSemicolon(lexer, errorMessage) ?
-                    std::make_unique<FunctionDeclarationStatementNode>(type->getLocation(), *type, std::move(variableNameOpt->getName()), std::move(*optionalFunctionArgs)) :
+                    std::make_unique<FunctionDeclarationStatementNode>(type->getLocation(), *type, optVariableName->getName(), std::move(*optionalFunctionArgs)) :
                     nullptr;
             }
         }
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<VariableDeclarationStatementNode>(type->getLocation(), *type, std::move(*variableNameOpt)) :
+               std::make_unique<VariableDeclarationStatementNode>(type->getLocation(), *type, std::move(*optVariableName)) :
                nullptr;
     }
 
@@ -1454,7 +1468,7 @@ namespace cmm
 
         // For saving the starting token.
         Location location;
-        const bool lexResult = lexer.nextToken(token, errorMessage, &location);
+        bool lexResult = lexer.nextToken(token, errorMessage, &location);
 
         if (!lexResult || !token.isStringSymbol())
         {
@@ -1469,6 +1483,28 @@ namespace cmm
 
             if (enumType.has_value())
             {
+                const bool wasStruct = *enumType == EnumCType::STRUCT;
+                std::optional<std::string> structName;
+
+                // If it was a struct, we need to get the name of the struct.
+                if (wasStruct)
+                {
+                    Location structNameLoc;
+                    lexResult = lexer.nextToken(token, errorMessage, &structNameLoc);
+
+                    if (!lexResult || !token.isStringSymbol())
+                    {
+                        if (canWriteErrorMessage(errorMessage))
+                        {
+                            *errorMessage = "Failed to get the name of the struct being parsed";
+                        }
+
+                        return std::nullopt;
+                    }
+
+                    structName = std::make_optional(token.asStringSymbol());
+                }
+
                 Location dimLocation;
                 auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, &dimLocation);
 
@@ -1478,7 +1514,7 @@ namespace cmm
                 }
 
                 // else
-                return std::make_optional<TypeNode>(location, CType(enumType.value()));
+                return std::make_optional<TypeNode>(location, CType(enumType.value(), optionalDimensionCount.has_value() ? *optionalDimensionCount : 0, std::move(structName)));
             }
         }
 

@@ -27,7 +27,7 @@ namespace cmm
         UNKNOWN = 0, ADDRESS_OF, ARG, CAST, COMPILATION_UNIT, BIN_OP, BLOCK, DEREF,
         FUNCTION_CALL, FUNCTION_DECLARATION_STATEMENT, FUNCTION_DEFINITION_STATEMENT,
         EXPRESSION_STATEMENT, EXPRESSION, IF_ELSE_STATEMENT, PARAMETER, PAREN_EXPRESSION,
-        LITTERAL, RETURN_STATEMENT, TRANSLATION_UNIT, UNARY_OP,
+        LITTERAL, RETURN_STATEMENT, STRUCT_FWD_DECLARATION, TRANSLATION_UNIT, UNARY_OP,
         VARIABLE, VARIABLE_DECLARATION_STATEMENT,
         WHILE_STATEMENT
     };
@@ -78,6 +78,13 @@ namespace cmm
          * @return NodeType.
          */
         virtual NodeType getType() const CMM_NOEXCEPT;
+
+        /**
+         * Set the type of this node.
+         *
+         * @param type NodeType.
+         */
+        virtual void setType(const NodeType type) CMM_NOEXCEPT;
 
         /**
          * Get the location of this node.

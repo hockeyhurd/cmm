@@ -1573,6 +1573,84 @@ TEST(ParserTest, ParseCompilationNodeIntQuadPointerDeclarationStatement)
     ASSERT_EQ(outName, name);
 }
 
+TEST(ParserTest, ParseCompilationNodeStructForwardDeclarationStatement)
+{
+    const std::string input = "struct Vec2;";
+    const std::string name = "Vec2";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::STRUCT_FWD_DECLARATION);
+
+    auto* structFwdDeclPtr = static_cast<StructFwdDeclarationStatementNode*>(firstStatement.get());
+    const auto& datatype = structFwdDeclPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::STRUCT);
+    ASSERT_EQ(datatype.pointers, 0);
+    ASSERT_TRUE(datatype.optStructName.has_value());
+    ASSERT_EQ(datatype.optStructName.value(), name);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructDeclarationStatement)
+{
+    const std::string input = "struct Vec2 x;";
+    const std::string structName = "Vec2";
+    const std::string varName = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::STRUCT);
+    ASSERT_EQ(datatype.pointers, 0);
+    ASSERT_TRUE(datatype.optStructName.has_value());
+    ASSERT_EQ(datatype.optStructName.value(), structName);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, varName);
+}
+
+// TODO: Fix in next commit.
+TEST(ParserTest, DISABLED_ParseCompilationNodeDoublePointerToStructDeclarationStatement)
+{
+    const std::string input = "struct Vec2** x;";
+    const std::string structName = "Vec2";
+    const std::string varName = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::STRUCT);
+    ASSERT_EQ(datatype.pointers, 2);
+    ASSERT_TRUE(datatype.optStructName.has_value());
+    ASSERT_EQ(datatype.optStructName.value(), structName);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, varName);
+}
+
 TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
 {
     const std::string input = "int x();";

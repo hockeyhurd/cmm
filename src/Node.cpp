@@ -21,6 +21,12 @@ namespace cmm
     }
 
     /* virtual */
+    void Node::setType(const NodeType type) CMM_NOEXCEPT
+    {
+        this->type = type;
+    }
+
+    /* virtual */
     Location& Node::getLocation() CMM_NOEXCEPT
     {
         return location;

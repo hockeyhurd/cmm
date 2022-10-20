@@ -19,11 +19,11 @@ namespace cmm
     class CastNode;
     class CompilationUnitNode;
     class DerefNode;
+    class ExpressionNode;
+    class ExpressionStatementNode;
     class FunctionCallNode;
     class FunctionDeclarationStatementNode;
     class FunctionDefinitionStatementNode;
-    class ExpressionNode;
-    class ExpressionStatementNode;
     class IfElseStatementNode;
     class LitteralNode;
     class Node;
@@ -31,11 +31,12 @@ namespace cmm
     class ParenExpressionNode;
     class ReturnStatementNode;
     class StatementNode;
+    class StructFwdDeclarationStatementNode;
     class TranslationUnitNode;
     class TypeNode;
     class UnaryOpNode;
-    class VariableNode;
     class VariableDeclarationStatementNode;
+    class VariableNode;
     class WhileStatementNode;
 }
 

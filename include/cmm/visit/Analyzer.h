@@ -14,6 +14,7 @@
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
 #include <cmm/ScopeManager.h>
+#include <cmm/StructTable.h>
 #include <cmm/VariableContext.h>
 #include <cmm/visit/Visitor.h>
 
@@ -72,20 +73,21 @@ namespace cmm
         virtual VisitorResult visit(CastNode& node) override;
         virtual VisitorResult visit(CompilationUnitNode& node) override;
         virtual VisitorResult visit(DerefNode& node) override;
+        virtual VisitorResult visit(ExpressionStatementNode& node) override;
         virtual VisitorResult visit(FunctionCallNode& node) override;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) override;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) override;
-        virtual VisitorResult visit(ExpressionStatementNode& node) override;
         virtual VisitorResult visit(IfElseStatementNode& node) override;
         virtual VisitorResult visit(LitteralNode& node) override;
         virtual VisitorResult visit(ParameterNode& node) override;
         virtual VisitorResult visit(ParenExpressionNode& node) override;
         virtual VisitorResult visit(ReturnStatementNode& node) override;
+        virtual VisitorResult visit(StructFwdDeclarationStatementNode& node) override;
         virtual VisitorResult visit(TranslationUnitNode& node) override;
         virtual VisitorResult visit(TypeNode& node) override;
         virtual VisitorResult visit(UnaryOpNode& node) override;
-        virtual VisitorResult visit(VariableNode& node) override;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) override;
+        virtual VisitorResult visit(VariableNode& node) override;
         virtual VisitorResult visit(WhileStatementNode& node) override;
 
     private:
@@ -101,9 +103,6 @@ namespace cmm
 
     private:
 
-        // TODO: When we get to structs, we will need some sort of
-        // table for tracking this...
-
         // Our reporter for reporting things.
         static Reporter& reporter;
 
@@ -112,6 +111,9 @@ namespace cmm
 
         // A map for keeping track of functions available.
         std::unordered_map<std::string, EnumSymState> functionTable;
+
+        // The table for tracking structs.
+        StructTable structTable;
 
         // For tracking current locality.
         std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;

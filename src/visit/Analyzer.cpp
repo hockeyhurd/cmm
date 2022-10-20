@@ -656,6 +656,32 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(StructFwdDeclarationStatementNode& node)
+    {
+        const auto currentLocality = localityStack.top();
+        // TODO: support static?
+        const auto modifier = EnumModifier::NO_MOD;
+        const StructOrUnionContext context(currentLocality, modifier);
+        const auto& structName = node.getName();
+        const auto optStructState = structTable.get(structName);
+
+        // TODO @@@: Add a unit test?
+        if (optStructState.has_value())
+        {
+            std::ostringstream builder;
+            builder << "struct " << structName << " is already previously declared or defined";
+            reporter.warn(builder.str(), node.getLocation());
+        }
+
+        if (!optStructState.has_value())
+        {
+            structTable.addOrUpdate(structName, EnumSymState::DECLARED);
+            scope.add(structName, context);
+        }
+
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(TranslationUnitNode& node)
     {
         for (auto& statement : node)

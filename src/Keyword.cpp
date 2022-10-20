@@ -35,6 +35,8 @@ namespace cmm
     /* static */
     const Keyword Keyword::SHORT("short", true);
     /* static */
+    const Keyword Keyword::STRUCT("struct", true);
+    /* static */
     const Keyword Keyword::VOID("void", true);
     /* static */
     const Keyword Keyword::WHILE("while", false);
@@ -114,6 +116,7 @@ namespace cmm
             addKeyword(&Keyword::LONG);
             // addKeyword("register", false);
             addKeyword(&Keyword::RETURN);
+            addKeyword(&Keyword::STRUCT);
             addKeyword(&Keyword::SHORT);
             // addKeyword("signed", false);
             // addKeyword("sizeof", false);

@@ -24,7 +24,7 @@ set(SOURCE_FILES src/AddressOfNode.cpp src/ArgNode.cpp src/BinOpNode.cpp src/Blo
     src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/ParenExpressionNode.cpp
     src/Parser.cpp src/ParserPredictor.cpp
     src/Reporter.cpp src/ReturnStatementNode.cpp src/Snapshot.cpp src/StatementNode.cpp src/StringView.cpp
-    src/ScopeManager.cpp src/StructTable.cpp src/StructOrUnionContext.cpp src/Token.cpp
+    src/ScopeManager.cpp src/StructTable.cpp src/StructFwdDeclarationStatementNode.cpp src/StructOrUnionContext.cpp src/Token.cpp
     src/TranslationUnitNode.cpp src/Types.cpp src/TypeNode.cpp src/UnaryOpNode.cpp
     src/VariableContext.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp src/WhileStatementNode.cpp
     src/visit/Analyzer.cpp src/visit/Dump.cpp src/visit/Visitor.cpp)
