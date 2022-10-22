@@ -19,10 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          # TODO: Disable macos builds for now until new changes are resolved.
-          #- {runs_on: macos-12, name: "macOS Clang", CC: clang, CXX: clang++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libc++", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libstdc++", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "Clang libc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "Clang libc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "Clang libstdc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
           - {runs_on: ubuntu-latest, name: "Clang libstdc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
           - {runs_on: ubuntu-latest, name: "GCC Debug", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
           - {runs_on: ubuntu-latest, name: "GCC Release", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
