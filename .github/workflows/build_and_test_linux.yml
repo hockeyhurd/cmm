@@ -47,9 +47,14 @@ jobs:
           ${CMAKE_CXX_COMPILER} -v --version
         shell: bash
 
+      - name: Install GMP
+        run: |
+          sudo apt update && sudo apt install -y libgmp-dev libgmpxx4ldbl
+        shell: bash
+
       - name: Install gtest manually
         run: |
-          sudo apt-get update && sudo apt-get install -y libgtest-dev llvm-dev libc++-dev libc++abi-dev && \
+          sudo apt update && sudo apt install -y libgtest-dev llvm-dev libc++-dev libc++abi-dev && \
           cd /usr/src/gtest && sudo cmake CMakeLists.txt && sudo make && \
           sudo cp lib/*.a /usr/lib && sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a && \
           sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
