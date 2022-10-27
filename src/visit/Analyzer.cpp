@@ -665,7 +665,6 @@ namespace cmm
         const auto& structName = node.getName();
         const auto optStructState = structTable.get(structName);
 
-        // TODO @@@: Add a unit test?
         if (optStructState.has_value() && *optStructState == EnumSymState::DEFINED)
         {
             std::ostringstream builder;
@@ -673,7 +672,7 @@ namespace cmm
             reporter.error(builder.str(), node.getLocation());
         }
 
-        if (!optStructState.has_value())
+        else if (!optStructState.has_value())
         {
             structTable.addOrUpdate(structName, EnumSymState::DEFINED);
             scope.add(structName, context);
@@ -691,7 +690,6 @@ namespace cmm
         const auto& structName = node.getName();
         const auto optStructState = structTable.get(structName);
 
-        // TODO @@@: Add a unit test?
         if (optStructState.has_value())
         {
             std::ostringstream builder;
@@ -699,7 +697,7 @@ namespace cmm
             reporter.warn(builder.str(), node.getLocation());
         }
 
-        if (!optStructState.has_value())
+        else if (!optStructState.has_value())
         {
             structTable.addOrUpdate(structName, EnumSymState::DECLARED);
             scope.add(structName, context);

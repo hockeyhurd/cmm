@@ -112,7 +112,6 @@ namespace cmm
 
         if (lexer.completedOrWhitespaceOnly())
         {
-            // TODO: Add debug logging??
             return nullptr;
         }
 

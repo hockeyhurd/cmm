@@ -249,8 +249,6 @@ namespace cmm
             f64   valueF64;
             // TODO: Consider making this const
             char*  valueString;
-            // TODO: revisit structs
-            // char  valueStruct[0];
         };
 
         explicit CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
@@ -263,8 +261,6 @@ namespace cmm
         explicit CTypeValue(const f32 valueF32) CMM_NOEXCEPT;
         explicit CTypeValue(const f64 valueF64) CMM_NOEXCEPT;
         explicit CTypeValue(char* valueString) CMM_NOEXCEPT;
-        // TODO: revisit structs
-        // CTypeValue(const std::size_t length);
     };
 
     std::optional<CType> canPromote(const CType& from, const CType& to);
