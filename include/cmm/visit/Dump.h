@@ -70,6 +70,7 @@ namespace cmm
         virtual VisitorResult visit(ParameterNode& node) override;
         virtual VisitorResult visit(ParenExpressionNode& node) override;
         virtual VisitorResult visit(ReturnStatementNode& node) override;
+        virtual VisitorResult visit(StructDefinitionStatementNode& node) override;
         virtual VisitorResult visit(StructFwdDeclarationStatementNode& node) override;
         virtual VisitorResult visit(TranslationUnitNode& node) override;
         virtual VisitorResult visit(TypeNode& node) override;

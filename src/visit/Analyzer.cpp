@@ -656,6 +656,32 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(StructDefinitionStatementNode& node)
+    {
+        const auto currentLocality = localityStack.top();
+        // TODO: support static?
+        const auto modifier = EnumModifier::NO_MOD;
+        const StructOrUnionContext context(currentLocality, modifier);
+        const auto& structName = node.getName();
+        const auto optStructState = structTable.get(structName);
+
+        // TODO @@@: Add a unit test?
+        if (optStructState.has_value() && *optStructState == EnumSymState::DEFINED)
+        {
+            std::ostringstream builder;
+            builder << "struct " << structName << " is already previously defined. This violates the multiple definition rule";
+            reporter.error(builder.str(), node.getLocation());
+        }
+
+        if (!optStructState.has_value())
+        {
+            structTable.addOrUpdate(structName, EnumSymState::DEFINED);
+            scope.add(structName, context);
+        }
+
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(StructFwdDeclarationStatementNode& node)
     {
         const auto currentLocality = localityStack.top();

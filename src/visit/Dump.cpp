@@ -439,6 +439,27 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(StructDefinitionStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        printIndentation();
+        std::cout << "Name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "Fields:";
+        printNewLine();
+
+        increaseIntentation();
+        node.getBlockNode().accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(StructFwdDeclarationStatementNode& node)
     {
         printIndentation();

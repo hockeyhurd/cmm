@@ -1651,6 +1651,69 @@ TEST(ParserTest, DISABLED_ParseCompilationNodeDoublePointerToStructDeclarationSt
     ASSERT_EQ(outName, varName);
 }
 
+TEST(ParserTest, ParseCompilationNodeStructEmptyDefinitionStatement)
+{
+    const std::string input = "struct A {};";
+    const std::string name = "A";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::STRUCT_DEFINITION);
+
+    auto* rootDeclarationStatementPtr = static_cast<StructDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getName(), name);
+    ASSERT_TRUE(rootDeclarationStatementPtr->empty());
+    ASSERT_EQ(rootDeclarationStatementPtr->size(), 0);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructDefinitionStatementWithSingleIntField)
+{
+    const std::string input = "struct A { int x; };";
+    const std::string name = "A";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::STRUCT_DEFINITION);
+
+    auto* rootDeclarationStatementPtr = static_cast<StructDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getName(), name);
+    ASSERT_FALSE(rootDeclarationStatementPtr->empty());
+    ASSERT_EQ(rootDeclarationStatementPtr->size(), 1);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructDefinitionStatementWithThreeDoubleFields)
+{
+    const std::string input = "struct Vec3 { double x; double y; double z; };";
+    const std::string name = "Vec3";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), NodeType::STRUCT_DEFINITION);
+
+    auto* rootDeclarationStatementPtr = static_cast<StructDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getName(), name);
+    ASSERT_FALSE(rootDeclarationStatementPtr->empty());
+    ASSERT_EQ(rootDeclarationStatementPtr->size(), 3);
+}
+
 TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
 {
     const std::string input = "int x();";

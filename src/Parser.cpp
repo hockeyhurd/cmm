@@ -75,6 +75,8 @@ namespace cmm
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
+    static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<NodeType>>& validNodeTypes);
+    static std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
     static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location); // TODO: Make location not optional?
@@ -164,6 +166,12 @@ namespace cmm
     /* static */
     std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage)
     {
+        return parseBlockStatement(lexer, errorMessage, std::nullopt);
+    }
+
+    /* static */
+    std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<NodeType>>& validNodeTypes)
+    {
         auto snapshot = lexer.snap();
         auto token = newToken();
         bool result = lexer.peekNextToken(token);
@@ -190,7 +198,18 @@ namespace cmm
 
             if (currentStatement != nullptr)
             {
-                statements.push_back(std::unique_ptr<StatementNode>(static_cast<StatementNode*>(currentStatement.release())));
+                // Check if there are restrictions and if there are, make sure the types match.
+                if (validNodeTypes == std::nullopt || validNodeTypes->find(currentStatement->getType()) != validNodeTypes->end())
+                {
+                    statements.push_back(std::unique_ptr<StatementNode>(static_cast<StatementNode*>(currentStatement.release())));
+                }
+
+                // Invalid, bail out as invalid
+                else
+                {
+                    lexer.restore(snapshot);
+                    return std::nullopt;
+                }
             }
 
             else
@@ -211,6 +230,14 @@ namespace cmm
         lexer.nextToken(token, errorMessage);
 
         return std::make_optional<BlockNode>(location, std::move(statements));
+    }
+
+    /* static */
+    std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        static std::unordered_set<NodeType> validNodeTypes = { NodeType::VARIABLE_DECLARATION_STATEMENT, NodeType::STRUCT_DEFINITION };
+        static auto opt = std::make_optional(validNodeTypes);
+        return parseBlockStatement(lexer, errorMessage, opt);
     }
 
     /* static */
@@ -818,13 +845,39 @@ namespace cmm
 
         if (!optVariableName.has_value())
         {
-            // No variable name.  If it was a struct, then it was a forward declaration.
+            // No variable name.  If it was a struct, then it was a forward declaration
+            // or struct definition.
             if (wasStructType)
             {
                 const auto startLoc = type->getLocation();
-                return expectSemicolon(lexer, errorMessage) ?
-                       std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type)) :
-                       nullptr;
+                snapshot = lexer.snap();
+                auto token = newToken();
+                const bool lexerResult = lexer.peekNextToken(token);
+
+                if (!lexerResult || !token.isCharSymbol())
+                {
+                    lexer.restore(snapshot);
+                    return nullptr;
+                }
+
+                // Struct forward declaration
+                if (token.asCharSymbol() == CHAR_SEMI_COLON)
+                {
+                    // Consume the token
+                    lexer.nextToken(token, errorMessage);
+                    return std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type));
+                }
+
+                // Struct definition
+                else if (token.asCharSymbol() == CHAR_LCURLY_BRACKET)
+                {
+                    auto blockNode = parseStructBlockStatement(lexer, errorMessage);
+                    return expectSemicolon(lexer, errorMessage) ?
+                           std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optStructName, std::move(*blockNode)) :
+                           nullptr;
+                }
+
+                return nullptr;
             }
 
             // Bad parse, bail out

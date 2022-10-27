@@ -29,6 +29,7 @@
 #include <cmm/ParenExpressionNode.h>
 #include <cmm/ReturnStatementNode.h>
 #include <cmm/StatementNode.h>
+#include <cmm/StructDefinitionStatementNode.h>
 #include <cmm/StructFwdDeclarationStatementNode.h>
 #include <cmm/TranslationUnitNode.h>
 #include <cmm/TypeNode.h>

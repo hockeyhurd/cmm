@@ -31,6 +31,7 @@ namespace cmm
     class ParenExpressionNode;
     class ReturnStatementNode;
     class StatementNode;
+    class StructDefinitionStatementNode;
     class StructFwdDeclarationStatementNode;
     class TranslationUnitNode;
     class TypeNode;
