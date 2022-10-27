@@ -1736,6 +1736,19 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
     ASSERT_EQ(outName, name);
 }
 
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementEmptyBlockWithStructDefinitionParmeterError)
+{
+    reporter.reset();
+
+    const std::string input = "int func(struct A {}; a);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
 {
     const std::string input = "int x() {}";
@@ -2248,6 +2261,19 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_TRUE(rootDefinitionStatementPtr->hasParams());
     ASSERT_EQ(rootDefinitionStatementPtr->paramCount(), 3);
     ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithStructDefinitionParmeterError)
+{
+    reporter.reset();
+
+    const std::string input = "int func(struct A {}; a) {}";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)

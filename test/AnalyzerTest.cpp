@@ -245,6 +245,24 @@ TEST(AnalyzerTest, AnalyzerCharFunctionReturnsIntError)
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
+TEST(AnalyzerTest, AnalyzerFunctionContainsParametersWithSameNameError)
+{
+    reporter.reset();
+
+    const std::string input = "int func(int x, int x) { return 42; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
 TEST(AnalyzerTest, AnalyzerVarDoubleAssignmentViaIntValid)
 {
     reporter.reset();

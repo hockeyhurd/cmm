@@ -729,6 +729,34 @@ namespace cmm
                     {
                         // This could be 'func(int)' or 'func(int x)', so we check if the variable was parsed or not.
                         auto typeOpt = parseTypeNode(lexer, errorMessage);
+
+                        result = lexer.peekNextToken(token);
+
+                        // We expect a variable or comma.  Bail out if it's anything else.
+                        if (!result || (!token.isStringSymbol() && !token.isCharSymbol()) || (token.isCharSymbol() && token.asCharSymbol() != CHAR_COMMA && token.asCharSymbol() != CHAR_RPAREN))
+                        {
+                            if (canWriteErrorMessage(errorMessage))
+                            {
+                                std::ostringstream builder;
+                                builder << "Expected a ',' or ')', but found ";
+
+                                if (token.isCharSymbol())
+                                {
+                                    builder << "char '" << token.asCharSymbol() << "'";
+                                }
+
+                                // Must be a string symbol
+                                else
+                                {
+                                    builder << "symbol '" << token.asStringSymbol() << "'";
+                                }
+
+                                *errorMessage = builder.str();
+                            }
+
+                            return std::nullopt;
+                        }
+
                         auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
 
                         // This is the 'func(int x)' case.

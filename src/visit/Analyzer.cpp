@@ -630,11 +630,26 @@ namespace cmm
 
         if (optionalVariableNode.has_value())
         {
+            const auto& name = optionalVariableNode->getName();
             const auto currentLocality = localityStack.top();
             VariableContext context(typeNode.getDatatype(), currentLocality, EnumModifier::NO_MOD);
-            scope.add(optionalVariableNode->getName(), context);
+            auto* findVariable = scope.findVariable(name);
 
-            optionalVariableNode->accept(this);
+            if (findVariable != nullptr)
+            {
+                std::ostringstream builder;
+                builder << "Variable '" << name << "' of type ";
+                printType(builder, typeNode.getDatatype());
+                builder << " was already used as a parameter";
+
+                reporter.error(builder.str(), node.getLocation());
+            }
+
+            else
+            {
+                scope.add(name, context);
+                optionalVariableNode->accept(this);
+            }
         }
 
         return VisitorResult();
