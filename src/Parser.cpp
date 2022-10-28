@@ -1479,10 +1479,6 @@ namespace cmm
             return nullptr;
         }
 
-#if 0
-        auto expression = parseExpression(lexer, errorMessage);
-        return expression;
-#else
         // Check to see if this expression is being dereferenced (i.e. '**x').
         auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
         auto optionalVariable = parseVariableNode(lexer, errorMessage);
@@ -1518,7 +1514,6 @@ namespace cmm
         }
 
         return result;
-#endif
     }
 
     /* static */
