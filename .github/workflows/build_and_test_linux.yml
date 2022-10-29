@@ -12,20 +12,19 @@ on:
       - 'main'
       - 'dev'
 
+
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
         toolchain:
-          # TODO: Disable macos builds for now until new changes are resolved.
-          #- {runs_on: macos-12, name: "macOS Clang", CC: clang, CXX: clang++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
-          # TODO: Disable support libc++.  For now, this is just a complete pain in the ass with multiple seperate issues...
-          # - {runs_on: ubuntu-latest, name: "Clang libc++", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libstdc++", CC: clang, CXX: clang++, CFLAGS: "-g -O0 -Wall -Wextra -pedantic -stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libstdc++ Release", CC: clang, CXX: clang++, CFLAGS: "-O3 -Wall -Wextra -pedantic -stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
-          - {runs_on: ubuntu-latest, name: "GCC Debug", CC: gcc, CXX: g++, CFLAGS: "-g -O0 -Wall -Wextra -pedantic", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "GCC Release", CC: gcc, CXX: g++, CFLAGS: "-O3 -Wall -Wextra -pedantic", CMAKE_BUILD_TYPE: "Release"}
+          #- {runs_on: ubuntu-latest, name: "Clang libc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu", CMAKE_BUILD_TYPE: "Debug"}
+          #- {runs_on: ubuntu-latest, name: "Clang libc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "Clang libstdc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "Clang libstdc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
+          - {runs_on: ubuntu-latest, name: "GCC Debug", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: ubuntu-latest, name: "GCC Release", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
           # TODO: Disable Windows builds for now until new changes are resolved.
           #- {runs_on: windows-latest, name: "MSVC", CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
           #- {runs_on: windows-latest, name: "MSVC Release", CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
@@ -50,27 +49,34 @@ jobs:
 
       - name: Install GMP
         run: |
-          sudo apt-get update && sudo apt-get install -y libgmp-dev libgmpxx4ldbl
+          sudo apt update && sudo apt install -y libgmp-dev libgmpxx4ldbl
         shell: bash
 
       - name: Install gtest manually
         run: |
-          sudo apt-get update && sudo apt-get install -y libgtest-dev llvm-dev libc++-dev libc++abi-dev && \
+          sudo apt update && sudo apt install -y libgtest-dev llvm-dev libc++-dev libc++abi-dev && \
           cd /usr/src/gtest && sudo cmake CMakeLists.txt && sudo make && \
           sudo cp lib/*.a /usr/lib && sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a && \
           sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
         shell: bash
 
       - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: cmake -B ${{github.workspace}}/build -DCMAKE_C_COMPILER="${CMAKE_C_COMPILER}" -DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}" -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"
 
       - name: Build
+        # Build your program with the given configuration
         run: cd ${{github.workspace}}/build && make -j 2 all
 
       - name: Build Tests
+        # Build your program with the given configuration
         run: cd ${{github.workspace}}/build && make -j 2 tests
 
       - name: Test
+        # working-directory: ${{github.workspace}}/build
+        # Execute tests defined by the CMake configuration.  
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: bash unitTest.sh
         shell: bash
 
