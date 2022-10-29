@@ -19,8 +19,8 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - {runs_on: ubuntu-latest, name: "Clang libc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu", CMAKE_BUILD_TYPE: "Debug"}
-          - {runs_on: ubuntu-latest, name: "Clang libc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu", CMAKE_BUILD_TYPE: "Release"}
+          #- {runs_on: ubuntu-latest, name: "Clang libc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu", CMAKE_BUILD_TYPE: "Debug"}
+          #- {runs_on: ubuntu-latest, name: "Clang libc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu", CMAKE_BUILD_TYPE: "Release"}
           - {runs_on: ubuntu-latest, name: "Clang libstdc++ Debug", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Debug"}
           - {runs_on: ubuntu-latest, name: "Clang libstdc++ Release", CC: clang, CXX: clang++, CFLAGS: "-stdlib=libstdc++", CMAKE_BUILD_TYPE: "Release"}
           - {runs_on: ubuntu-latest, name: "GCC Debug", CC: gcc, CXX: g++, CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
