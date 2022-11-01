@@ -319,8 +319,8 @@ namespace cmm
             return nullptr;
         }
 
-        auto* rawStatement = static_cast<StatementNode*>(statement.release());
-        std::unique_ptr<StatementNode> ifStatementPtr(rawStatement);
+        auto* rawIfStatement = static_cast<StatementNode*>(statement.release());
+        std::unique_ptr<StatementNode> ifStatementPtr(rawIfStatement);
 
         // Lookahead to see if we have an 'else' part.
         const auto elseSnapshot = lexer.snap();
@@ -331,8 +331,8 @@ namespace cmm
         {
             statement = parseStatement(lexer, errorMessage);
 
-            auto* rawStatement = static_cast<StatementNode*>(statement.release());
-            std::unique_ptr<StatementNode> elseStatementPtr(rawStatement);
+            auto* rawElseStatement = static_cast<StatementNode*>(statement.release());
+            std::unique_ptr<StatementNode> elseStatementPtr(rawElseStatement);
             return std::make_unique<IfElseStatementNode>(location, std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
         }
 
@@ -538,24 +538,22 @@ namespace cmm
     /* static */
     std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage)
     {
-        std::vector<std::unique_ptr<StatementNode>> results;
-        bool parsedAtLeastOne = false;
+        auto statement = parseStatement(lexer, errorMessage);
 
-        do
+        if (statement == nullptr)
         {
-            auto statement = parseStatement(lexer, errorMessage);
-
-            if (statement == nullptr)
-            {
-                break;
-            }
-
-            results.push_back(std::move(statement));
-            parsedAtLeastOne = true;
+            return std::nullopt;
         }
-        while (true);
 
-        return parsedAtLeastOne ? std::make_optional(std::move(results)) : std::nullopt;
+        std::vector<std::unique_ptr<StatementNode>> results;
+
+        while (statement != nullptr)
+        {
+            results.emplace_back(std::move(statement));
+            statement = parseStatement(lexer, errorMessage);
+        }
+
+        return std::make_optional(std::move(results));
     }
 
     /* static */

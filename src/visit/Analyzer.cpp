@@ -712,7 +712,7 @@ namespace cmm
             reporter.warn(builder.str(), node.getLocation());
         }
 
-        else if (!optStructState.has_value())
+        else
         {
             structTable.addOrUpdate(structName, EnumSymState::DECLARED);
             scope.add(structName, context);
