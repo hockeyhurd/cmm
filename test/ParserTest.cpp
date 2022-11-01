@@ -1623,8 +1623,7 @@ TEST(ParserTest, ParseCompilationNodeStructDeclarationStatement)
     ASSERT_EQ(outName, varName);
 }
 
-// TODO: Fix in next commit.
-TEST(ParserTest, DISABLED_ParseCompilationNodeDoublePointerToStructDeclarationStatement)
+TEST(ParserTest, ParseCompilationNodeDoublePointerToStructDeclarationStatement)
 {
     const std::string input = "struct Vec2** x;";
     const std::string structName = "Vec2";

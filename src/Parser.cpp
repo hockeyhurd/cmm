@@ -1585,11 +1585,11 @@ namespace cmm
 
                 if (optionalDimensionCount.has_value())
                 {
-                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount));
+                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount, std::move(structName)));
                 }
 
                 // else
-                return std::make_optional<TypeNode>(location, CType(enumType.value(), optionalDimensionCount.has_value() ? *optionalDimensionCount : 0, std::move(structName)));
+                return std::make_optional<TypeNode>(location, CType(enumType.value(), 0, std::move(structName)));
             }
         }
 

@@ -11,7 +11,7 @@ namespace cmm
 {
     VariableDeclarationStatementNode::VariableDeclarationStatementNode(const Location& location, TypeNode type,
         VariableNode&& variable) CMM_NOEXCEPT :
-        StatementNode(NodeType::VARIABLE_DECLARATION_STATEMENT, location), type(type), variable(std::move(variable))
+        StatementNode(NodeType::VARIABLE_DECLARATION_STATEMENT, location), type(std::move(type)), variable(std::move(variable))
     {
     }
 
