@@ -857,6 +857,7 @@ namespace cmm
     /* static */
     std::unique_ptr<StatementNode> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
     {
+        static auto& reporter = Reporter::instance();
         auto snapshot = lexer.snap();
         auto type = parseTypeNode(lexer, errorMessage);
 
@@ -876,32 +877,49 @@ namespace cmm
             // or struct definition.
             if (wasStructType)
             {
-                const auto startLoc = type->getLocation();
-                snapshot = lexer.snap();
-                auto token = newToken();
-                const bool lexerResult = lexer.peekNextToken(token);
-
-                if (!lexerResult || !token.isCharSymbol())
+                // Struct forward declarations or defintions must not contain any '*'.
+                if (type->getDatatype().pointers == 0)
                 {
-                    lexer.restore(snapshot);
-                    return nullptr;
+                    const auto startLoc = type->getLocation();
+                    snapshot = lexer.snap();
+                    auto token = newToken();
+                    const bool lexerResult = lexer.peekNextToken(token);
+
+                    if (!lexerResult || !token.isCharSymbol())
+                    {
+                        lexer.restore(snapshot);
+                        return nullptr;
+                    }
+
+                    // Struct forward declaration
+                    if (token.asCharSymbol() == CHAR_SEMI_COLON)
+                    {
+                        // Consume the token
+                        lexer.nextToken(token, errorMessage);
+                        return std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type));
+                    }
+
+                    // Struct definition
+                    else if (token.asCharSymbol() == CHAR_LCURLY_BRACKET)
+                    {
+                        auto blockNode = parseStructBlockStatement(lexer, errorMessage);
+                        return expectSemicolon(lexer, errorMessage) ?
+                            std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optStructName, std::move(*blockNode)) :
+                            nullptr;
+                    }
                 }
 
-                // Struct forward declaration
-                if (token.asCharSymbol() == CHAR_SEMI_COLON)
+                else
                 {
-                    // Consume the token
-                    lexer.nextToken(token, errorMessage);
-                    return std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type));
-                }
+                    std::ostringstream builder;
+                    builder << "Expected qualified identifier ';' to complete a forward declaration or '{' to indicate the start of a struct definition for struct "
+                            << type->getDatatype().optStructName.value();
+                    reporter.error(builder.str(), type->getLocation());
 
-                // Struct definition
-                else if (token.asCharSymbol() == CHAR_LCURLY_BRACKET)
-                {
-                    auto blockNode = parseStructBlockStatement(lexer, errorMessage);
-                    return expectSemicolon(lexer, errorMessage) ?
-                           std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optStructName, std::move(*blockNode)) :
-                           nullptr;
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = builder.str();
+                    }
                 }
 
                 return nullptr;

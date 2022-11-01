@@ -1650,6 +1650,17 @@ TEST(ParserTest, ParseCompilationNodeDoublePointerToStructDeclarationStatement)
     ASSERT_EQ(outName, varName);
 }
 
+TEST(ParserTest, ParseCompilationNodeDoublePointerToStructDeclarationStatementError)
+{
+    const std::string input = "struct Vec2**;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeStructEmptyDefinitionStatement)
 {
     const std::string input = "struct A {};";
