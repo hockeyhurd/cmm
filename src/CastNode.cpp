@@ -11,7 +11,7 @@
 namespace cmm
 {
     CastNode::CastNode(const Location& location, const CType& newType, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::CAST, location, newType), expression(std::move(expression))
+        ExpressionNode(EnumNodeType::CAST, location, newType), expression(std::move(expression))
     {
     }
 

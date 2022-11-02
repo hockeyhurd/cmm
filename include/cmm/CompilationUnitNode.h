@@ -83,9 +83,9 @@ namespace cmm
          * Gets the Root node.  This is needed for unit testing (at least for now).
          * TODO: Consider a better approach and/or re-using our visitor pattern etc.
          *
-         * @return NodeType.
+         * @return EnumNodeType.
          */
-        NodeType getRootType() const CMM_NOEXCEPT;
+        EnumNodeType getRootType() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
 

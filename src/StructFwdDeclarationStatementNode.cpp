@@ -10,7 +10,7 @@
 namespace cmm
 {
     StructFwdDeclarationStatementNode::StructFwdDeclarationStatementNode(const Location& location, TypeNode&& type) CMM_NOEXCEPT :
-        StatementNode(NodeType::STRUCT_FWD_DECLARATION, location), type(type)
+        StatementNode(EnumNodeType::STRUCT_FWD_DECLARATION, location), type(type)
     {
     }
 

@@ -40,7 +40,7 @@ namespace cmm
             reporter.bug("variablePtr is a nullptr", node.getLocation(), true);
         }
 
-        else if (variablePtr->getType() != NodeType::VARIABLE)
+        else if (variablePtr->getType() != EnumNodeType::VARIABLE)
         {
             const char* message = "Expected a variable expression prior to attempting to take the address of it";
             reporter.error(message, node.getLocation());
@@ -74,7 +74,7 @@ namespace cmm
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
 
-        if (isAssignment && leftNode->getType() != NodeType::VARIABLE)
+        if (isAssignment && leftNode->getType() != EnumNodeType::VARIABLE)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -758,10 +758,10 @@ namespace cmm
             auto* expression = node.getExpression();
             expression->accept(this);
 
-            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != EnumNodeType::VARIABLE)
             if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF)
             {
-                if (expression->getType() != NodeType::VARIABLE)
+                if (expression->getType() != EnumNodeType::VARIABLE)
                 {
                     const char* message = "Expected a variable expression prior to attempting to take the address of it";
                     reporter.error(message, node.getLocation());

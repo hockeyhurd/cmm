@@ -11,13 +11,13 @@
 
 namespace cmm
 {
-    CompilationUnitNode::CompilationUnitNode() CMM_NOEXCEPT : Node(NodeType::COMPILATION_UNIT, Location()),
+    CompilationUnitNode::CompilationUnitNode() CMM_NOEXCEPT : Node(EnumNodeType::COMPILATION_UNIT, Location()),
         root()
     {
     }
 
     CompilationUnitNode::CompilationUnitNode(TranslationUnitNode&& translationUnit) CMM_NOEXCEPT :
-        Node(NodeType::COMPILATION_UNIT, translationUnit.getLocation()), root(std::move(translationUnit))
+        Node(EnumNodeType::COMPILATION_UNIT, translationUnit.getLocation()), root(std::move(translationUnit))
     {
     }
 
@@ -31,7 +31,7 @@ namespace cmm
         return root;
     }
 
-    NodeType CompilationUnitNode::getRootType() const CMM_NOEXCEPT
+    EnumNodeType CompilationUnitNode::getRootType() const CMM_NOEXCEPT
     {
         return root.getType();
     }

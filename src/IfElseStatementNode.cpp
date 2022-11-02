@@ -12,7 +12,7 @@
 namespace cmm
 {
     IfElseStatementNode::IfElseStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& ifConditionalExpression,
-        std::unique_ptr<StatementNode>&& ifStatement) CMM_NOEXCEPT : StatementNode(NodeType::IF_ELSE_STATEMENT, location),
+        std::unique_ptr<StatementNode>&& ifStatement) CMM_NOEXCEPT : StatementNode(EnumNodeType::IF_ELSE_STATEMENT, location),
         ifConditionalExpression(std::move(ifConditionalExpression)), ifStatement(std::move(ifStatement)),
         elseStatement(nullptr)
     {
@@ -20,7 +20,7 @@ namespace cmm
 
     IfElseStatementNode::IfElseStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& ifConditionalExpression,
         std::unique_ptr<StatementNode>&& ifStatement, std::unique_ptr<StatementNode>&& elseStatement) CMM_NOEXCEPT :
-        StatementNode(NodeType::IF_ELSE_STATEMENT, location), ifConditionalExpression(std::move(ifConditionalExpression)),
+        StatementNode(EnumNodeType::IF_ELSE_STATEMENT, location), ifConditionalExpression(std::move(ifConditionalExpression)),
         ifStatement(std::move(ifStatement)), elseStatement(std::move(elseStatement))
     {
     }

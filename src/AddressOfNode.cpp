@@ -12,14 +12,14 @@
 namespace cmm
 {
     AddressOfNode::AddressOfNode(const Location& location, VariableNode&& variable) CMM_NOEXCEPT :
-        UnaryOpNode(NodeType::ADDRESS_OF, location, EnumUnaryOpType::ADDRESS_OF, nullptr)
+        UnaryOpNode(EnumNodeType::ADDRESS_OF, location, EnumUnaryOpType::ADDRESS_OF, nullptr)
     {
     }
 
     void AddressOfNode::setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT /* override */
     {
         // Do nothing unless it's a VariableNode
-        if (expression->getType() == NodeType::VARIABLE)
+        if (expression->getType() == EnumNodeType::VARIABLE)
         {
             UnaryOpNode::setExpression(std::move(expression));
         }

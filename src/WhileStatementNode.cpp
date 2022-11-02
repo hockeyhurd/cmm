@@ -12,7 +12,7 @@
 namespace cmm
 {
     WhileStatementNode::WhileStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& conditional,
-        std::unique_ptr<StatementNode>&& statement) CMM_NOEXCEPT : StatementNode(NodeType::WHILE_STATEMENT, location),
+        std::unique_ptr<StatementNode>&& statement) CMM_NOEXCEPT : StatementNode(EnumNodeType::WHILE_STATEMENT, location),
         conditional(std::move(conditional)), statement(std::move(statement))
     {
     }

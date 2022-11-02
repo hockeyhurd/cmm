@@ -10,18 +10,18 @@
 namespace cmm
 {
 
-    Node::Node(const NodeType type, const Location& location) CMM_NOEXCEPT : type(type), location(location)
+    Node::Node(const EnumNodeType type, const Location& location) CMM_NOEXCEPT : type(type), location(location)
     {
     }
 
     /* virtual */
-    NodeType Node::getType() const CMM_NOEXCEPT
+    EnumNodeType Node::getType() const CMM_NOEXCEPT
     {
         return type;
     }
 
     /* virtual */
-    void Node::setType(const NodeType type) CMM_NOEXCEPT
+    void Node::setType(const EnumNodeType type) CMM_NOEXCEPT
     {
         this->type = type;
     }

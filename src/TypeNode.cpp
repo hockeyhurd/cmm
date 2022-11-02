@@ -12,7 +12,7 @@ namespace cmm
     // For now we assume it's a variable and the parser will override
     // by using setNodeType later??
     TypeNode::TypeNode(const Location& location, const CType& type) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE, location), type(type)
+        Node(EnumNodeType::VARIABLE, location), type(type)
     {
     }
 

@@ -80,9 +80,9 @@ namespace cmm
          * This is needed because there could be several other AddressOfNodes before
          * we get to say a VariableNode.
          *
-         * @return underlying NodeType of wrapped ExpressionNode.
+         * @return underlying EnumNodeType of wrapped ExpressionNode.
          */
-        NodeType getRootType() const CMM_NOEXCEPT;
+        EnumNodeType getRootType() const CMM_NOEXCEPT;
 
         void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT override;
 

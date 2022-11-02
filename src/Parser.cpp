@@ -75,7 +75,7 @@ namespace cmm
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
-    static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<NodeType>>& validNodeTypes);
+    static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes);
     static std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
@@ -169,7 +169,7 @@ namespace cmm
     }
 
     /* static */
-    std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<NodeType>>& validNodeTypes)
+    std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes)
     {
         auto snapshot = lexer.snap();
         auto token = newToken();
@@ -234,7 +234,7 @@ namespace cmm
     /* static */
     std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage)
     {
-        static std::unordered_set<NodeType> validNodeTypes = { NodeType::VARIABLE_DECLARATION_STATEMENT, NodeType::STRUCT_DEFINITION };
+        static std::unordered_set<EnumNodeType> validNodeTypes = { EnumNodeType::VARIABLE_DECLARATION_STATEMENT, EnumNodeType::STRUCT_DEFINITION };
         static auto opt = std::make_optional(validNodeTypes);
         return parseBlockStatement(lexer, errorMessage, opt);
     }
@@ -1064,7 +1064,7 @@ namespace cmm
         {
             auto nodeType = unaryOrCastOrDerefOrVarExprPtr->getType();
 
-            if (nodeType == NodeType::ADDRESS_OF)
+            if (nodeType == EnumNodeType::ADDRESS_OF)
             {
                 const char* theErrorMessage = "cannot take the address of a function call";
 
@@ -1078,7 +1078,7 @@ namespace cmm
                 return nullptr;
             }
 
-            else if (nodeType == NodeType::UNARY_OP)
+            else if (nodeType == EnumNodeType::UNARY_OP)
             {
                 auto* unaryOpPtr = static_cast<UnaryOpNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 const auto unaryOpType = unaryOpPtr->getOpType();
@@ -1108,18 +1108,18 @@ namespace cmm
                 }
             }
 
-            else if (nodeType == NodeType::CAST)
+            else if (nodeType == EnumNodeType::CAST)
             {
                 return unaryOrCastOrDerefOrVarExprPtr;
             }
 
-            else if (nodeType == NodeType::DEREF)
+            else if (nodeType == EnumNodeType::DEREF)
             {
                 const auto* derefPtr = static_cast<DerefNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 nodeType = derefPtr->getRootType();
             }
 
-            if (nodeType == NodeType::VARIABLE)
+            if (nodeType == EnumNodeType::VARIABLE)
             {
                 auto* variablePtr = static_cast<VariableNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 auto funcName = variablePtr->getName();
@@ -1129,7 +1129,7 @@ namespace cmm
 
             // else
             std::ostringstream builder;
-            builder << "Un-expected NodeType of " << *reinterpret_cast<int*>(&nodeType);
+            builder << "Un-expected EnumNodeType of " << *reinterpret_cast<int*>(&nodeType);
             unimplementedAbort(builder.str());
 
             // Not reachable

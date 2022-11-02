@@ -11,7 +11,7 @@ namespace cmm
 {
 
     ParenExpressionNode::ParenExpressionNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::PAREN_EXPRESSION, location), expression(std::move(expression))
+        ExpressionNode(EnumNodeType::PAREN_EXPRESSION, location), expression(std::move(expression))
     {
     }
 

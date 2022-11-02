@@ -86,9 +86,9 @@ namespace cmm
          * This is needed because there could be several other DerefNodes before
          * we get to say a VariableNode.
          *
-         * @return underlying NodeType of wrapped ExpressionNode.
+         * @return underlying EnumNodeType of wrapped ExpressionNode.
          */
-        NodeType getRootType() const CMM_NOEXCEPT;
+        EnumNodeType getRootType() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
@@ -98,8 +98,8 @@ namespace cmm
         // The expression to be dereferenced.
         std::unique_ptr<ExpressionNode> expr;
 
-        // Cached root NodeType.
-        mutable NodeType rootType;
+        // Cached root EnumNodeType.
+        mutable EnumNodeType rootType;
     };
 }
 

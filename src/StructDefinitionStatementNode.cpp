@@ -10,7 +10,7 @@
 namespace cmm
 {
     StructDefinitionStatementNode::StructDefinitionStatementNode(const Location& location, const std::string& name, BlockNode&& blockNode) :
-        StatementNode(NodeType::STRUCT_DEFINITION, location), name(name), blockNode(std::move(blockNode))
+        StatementNode(EnumNodeType::STRUCT_DEFINITION, location), name(name), blockNode(std::move(blockNode))
     {
     }
 

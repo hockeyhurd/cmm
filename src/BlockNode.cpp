@@ -11,7 +11,7 @@
 namespace cmm
 {
     BlockNode::BlockNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT :
-        StatementNode(NodeType::BLOCK, location), statements(std::move(statements))
+        StatementNode(EnumNodeType::BLOCK, location), statements(std::move(statements))
     {
     }
 
