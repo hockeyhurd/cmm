@@ -570,7 +570,7 @@ namespace cmm
             Location location;
 
             // Capture the token
-            result = lexer.nextToken(token, errorMessage, &location);
+            lexer.nextToken(token, errorMessage, &location);
 
             // Lookahead to the next token
             result = lexer.peekNextToken(token);
@@ -607,7 +607,7 @@ namespace cmm
                     if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
                     {
                         // Consume the comma
-                        result = lexer.nextToken(token, errorMessage);
+                        lexer.nextToken(token, errorMessage);
 
                         // Now do the peek ahead again for the next iteration.
                         result = lexer.peekNextToken(token);
@@ -797,7 +797,7 @@ namespace cmm
                     if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
                     {
                         // Consume the comma
-                        result = lexer.nextToken(token, errorMessage);
+                        lexer.nextToken(token, errorMessage);
 
                         // Now do the peek ahead again for the next iteration.
                         result = lexer.peekNextToken(token);
@@ -1276,12 +1276,12 @@ namespace cmm
                 if (locationPtr == nullptr)
                 {
                     locationPtr = &location;
-                    lexResult = lexer.nextToken(token, errorMessage, locationPtr);
+                    lexer.nextToken(token, errorMessage, locationPtr);
                 }
 
                 else
                 {
-                    lexResult = lexer.nextToken(token, errorMessage);
+                    lexer.nextToken(token, errorMessage);
                 }
             }
 
@@ -1346,7 +1346,7 @@ namespace cmm
             left = std::make_unique<BinOpNode>(left->getLocation(), actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
-            lexResult = lexer.peekNextToken(token);
+            lexer.peekNextToken(token);
         }
 
         return left;
@@ -1396,7 +1396,7 @@ namespace cmm
             left = std::make_unique<BinOpNode>(left->getLocation(), EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
-            lexResult = lexer.peekNextToken(token);
+            lexer.peekNextToken(token);
         }
 
         return left;
