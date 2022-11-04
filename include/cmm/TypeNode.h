@@ -31,7 +31,7 @@ namespace cmm
         /**
          * Copy constructor.
          */
-        TypeNode(const TypeNode&) CMM_NOEXCEPT = default;
+        TypeNode(const TypeNode&) = default;
 
         /**
          * Move constructor.
