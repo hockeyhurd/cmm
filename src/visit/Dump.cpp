@@ -21,6 +21,18 @@ namespace cmm
         std::cout << '[' << node.toString() << "]: ";
     }
 
+    static void printDatatype(const CType& type)
+    {
+        std::cout << toString(type.type);
+
+        if (type.type == EnumCType::STRUCT)
+        {
+            std::cout << type.optStructName.value();
+        }
+
+        printRepeat(std::cout, '*', type.pointers);
+    }
+
     Dump::Dump() CMM_NOEXCEPT : indent(0)
     {
     }
@@ -427,6 +439,40 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(StructDefinitionStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        printIndentation();
+        std::cout << "Name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "Fields:";
+        printNewLine();
+
+        increaseIntentation();
+        node.getBlockNode().accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(StructFwdDeclarationStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printDatatype(node.getDatatype());
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(TranslationUnitNode& node)
     {
         printIndentation();
@@ -450,8 +496,8 @@ namespace cmm
         increaseIntentation();
         printIndentation();
         const auto& datatype = node.getDatatype();
-        printRepeat(std::cout, '*', datatype.pointers);
         std::cout << toString(datatype.type);
+        printRepeat(std::cout, '*', datatype.pointers);
         decreaseIntentation();
         printNewLine();
 

@@ -10,12 +10,12 @@
 namespace cmm
 {
     VariableNode::VariableNode(const Location& location, const std::string& name) :
-        ExpressionNode(NodeType::VARIABLE, location), name(name)
+        ExpressionNode(EnumNodeType::VARIABLE, location), name(name)
     {
     }
 
     VariableNode::VariableNode(const Location& location, std::string&& name) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::VARIABLE, location), name(std::move(name))
+        ExpressionNode(EnumNodeType::VARIABLE, location), name(std::move(name))
     {
     }
 

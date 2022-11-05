@@ -133,6 +133,7 @@ namespace cmm
         static const Keyword LONG;
         static const Keyword RETURN;
         static const Keyword SHORT;
+        static const Keyword STRUCT;
         static const Keyword VOID;
         static const Keyword WHILE;
 

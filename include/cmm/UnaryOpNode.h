@@ -40,12 +40,12 @@ namespace cmm
         /**
          * Constructor.
          *
-         * @param type the NodeType of this node.
+         * @param type the EnumNodeType of this node.
          * @param location the location of this node.
          * @param opType the unary op type of this node.
          * @param expression the expression to be casted.
          */
-        UnaryOpNode(const NodeType type, const Location& location, const EnumUnaryOpType opType,
+        UnaryOpNode(const EnumNodeType type, const Location& location, const EnumUnaryOpType opType,
             std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
     public:
@@ -125,11 +125,11 @@ namespace cmm
         virtual void setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
-         * Gets the NodeType of the wrapped ExpressionNode if it's a non-nullptr, else std::nullopt.
+         * Gets the EnumNodeType of the wrapped ExpressionNode if it's a non-nullptr, else std::nullopt.
          *
-         * @return std::optional<NodeType>
+         * @return std::optional<EnumNodeType>
          */
-        virtual std::optional<NodeType> getExpressionNodeType() const CMM_NOEXCEPT;
+        virtual std::optional<EnumNodeType> getExpressionNodeType() const CMM_NOEXCEPT;
 
         virtual VisitorResult accept(Visitor* visitor) override;
         virtual std::string toString() const override;

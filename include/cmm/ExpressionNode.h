@@ -26,12 +26,12 @@ namespace cmm
         /**
          * Default constructor.
          */
-        ExpressionNode(const NodeType type, const Location& location) CMM_NOEXCEPT;
+        ExpressionNode(const EnumNodeType type, const Location& location) CMM_NOEXCEPT;
 
         /**
          * Default constructor.
          */
-        ExpressionNode(const NodeType type, const Location& location, const CType& datatype) CMM_NOEXCEPT;
+        ExpressionNode(const EnumNodeType type, const Location& location, const CType& datatype) CMM_NOEXCEPT;
 
     public:
 

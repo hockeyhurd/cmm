@@ -11,14 +11,14 @@ namespace cmm
 {
     FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(const Location& location, TypeNode type,
         const std::string& funcName, ParamList&& params) :
-        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT, location), type(type), funcName(funcName),
+        StatementNode(EnumNodeType::FUNCTION_DECLARATION_STATEMENT, location), type(type), funcName(funcName),
         params(std::move(params))
     {
     }
 
     FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(const Location& location, TypeNode type,
         std::string&& funcName, ParamList&& params) CMM_NOEXCEPT :
-        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT, location), type(type), funcName(std::move(funcName)),
+        StatementNode(EnumNodeType::FUNCTION_DECLARATION_STATEMENT, location), type(type), funcName(std::move(funcName)),
         params(std::move(params))
     {
     }

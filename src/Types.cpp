@@ -59,7 +59,8 @@ namespace cmm
         return std::nullopt;
     }
 
-    CType::CType(const EnumCType type, const u16 pointers) CMM_NOEXCEPT : type(type), pointers(pointers)
+    CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string> optStructName) CMM_NOEXCEPT :
+        type(type), pointers(pointers), optStructName(optStructName)
     {
     }
 
@@ -124,6 +125,11 @@ namespace cmm
                 set.emplace(EnumCType::FLOAT);
                 set.emplace(EnumCType::DOUBLE);
             }
+
+            {
+                auto& set = promoMap[EnumCType::FLOAT];
+                set.emplace(EnumCType::DOUBLE);
+            }
         }
 
         return promoOrTruncateLookup(from, to, promoMap);
@@ -131,11 +137,13 @@ namespace cmm
 
     std::optional<CType> canTruncate(const CType& from, const CType& to)
     {
+        static bool init = false;
         static std::unordered_map<EnumCType, std::unordered_set<EnumCType>> truncateMap;
 
         // One time map init
-        if (truncateMap.empty())
+        if (!init && truncateMap.empty())
         {
+            init = true;
             // TODO: Fill in
         }
 

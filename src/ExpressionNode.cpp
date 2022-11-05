@@ -12,12 +12,12 @@
 namespace cmm
 {
 
-    ExpressionNode::ExpressionNode(const NodeType type, const Location& location) CMM_NOEXCEPT :
+    ExpressionNode::ExpressionNode(const EnumNodeType type, const Location& location) CMM_NOEXCEPT :
         Node(type, location), datatype(EnumCType::VOID)
     {
     }
 
-    ExpressionNode::ExpressionNode(const NodeType type, const Location& location, const CType& datatype) CMM_NOEXCEPT :
+    ExpressionNode::ExpressionNode(const EnumNodeType type, const Location& location, const CType& datatype) CMM_NOEXCEPT :
         Node(type, location), datatype(datatype)
     {
     }

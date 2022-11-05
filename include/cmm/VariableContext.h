@@ -31,7 +31,7 @@ namespace cmm
         /**
          * Copy constructor.
          */
-        VariableContext(const VariableContext&) CMM_NOEXCEPT = default;
+        VariableContext(const VariableContext&) = default;
 
         /**
          * Move constructor.

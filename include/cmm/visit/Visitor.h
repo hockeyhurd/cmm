@@ -103,20 +103,22 @@ namespace cmm
         virtual VisitorResult visit(CastNode& node) = 0;
         virtual VisitorResult visit(CompilationUnitNode& node) = 0;
         virtual VisitorResult visit(DerefNode& node) = 0;
+        virtual VisitorResult visit(ExpressionStatementNode& node) = 0;
         virtual VisitorResult visit(FunctionCallNode& node) = 0;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) = 0;
-        virtual VisitorResult visit(ExpressionStatementNode& node) = 0;
         virtual VisitorResult visit(IfElseStatementNode& node) = 0;
         virtual VisitorResult visit(LitteralNode& node) = 0;
         virtual VisitorResult visit(ParameterNode& node) = 0;
         virtual VisitorResult visit(ParenExpressionNode& node) = 0;
         virtual VisitorResult visit(ReturnStatementNode& node) = 0;
+        virtual VisitorResult visit(StructDefinitionStatementNode& node) = 0;
+        virtual VisitorResult visit(StructFwdDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(TranslationUnitNode& node) = 0;
         virtual VisitorResult visit(TypeNode& node) = 0;
         virtual VisitorResult visit(UnaryOpNode& node) = 0;
-        virtual VisitorResult visit(VariableNode& node) = 0;
         virtual VisitorResult visit(VariableDeclarationStatementNode& node) = 0;
+        virtual VisitorResult visit(VariableNode& node) = 0;
         virtual VisitorResult visit(WhileStatementNode& node) = 0;
 
     protected:

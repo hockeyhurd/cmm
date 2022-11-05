@@ -33,11 +33,11 @@ TEST(ParserTest, ParseCompilationNodeBoolTrue)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
     ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
@@ -56,11 +56,11 @@ TEST(ParserTest, ParseCompilationNodeBoolFalse)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
     ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
@@ -79,11 +79,11 @@ TEST(ParserTest, ParseCompilationNodeNullFalse)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
     ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::NULL_T);
@@ -102,11 +102,11 @@ TEST(ParserTest, ParseCompilationNodeInt)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::LITTERAL);
 
     auto* rootIntPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootIntPtr->getDatatype().type, EnumCType::INT32);
@@ -125,18 +125,18 @@ TEST(ParserTest, ParseCompilationNodeIntSum2)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rootSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rootSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootSumPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootSumPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rootSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
@@ -159,18 +159,18 @@ TEST(ParserTest, ParseCompilationNodeIntSum3)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rootSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rootSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rootSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
@@ -179,9 +179,9 @@ TEST(ParserTest, ParseCompilationNodeIntSum3)
     auto* rightSumPtr = static_cast<BinOpNode*>(rootSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
@@ -204,18 +204,18 @@ TEST(ParserTest, ParseCompilationNodeFloatSubtract2)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootSubPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootSubPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
     ASSERT_NE(rootSubPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootSubPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootSubPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rootSubPtr->getRight(), nullptr);
-    ASSERT_EQ(rootSubPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootSubPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftFloatPtr = static_cast<LitteralNode*>(rootSubPtr->getLeft());
     ASSERT_EQ(leftFloatPtr->getDatatype().type, EnumCType::FLOAT);
@@ -238,18 +238,18 @@ TEST(ParserTest, ParseCompilationNodeIntMultiply2)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootMultPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootMultPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
     ASSERT_NE(rootMultPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootMultPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootMultPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rootMultPtr->getRight(), nullptr);
-    ASSERT_EQ(rootMultPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootMultPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rootMultPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
@@ -272,18 +272,18 @@ TEST(ParserTest, ParseCompilationNodeFloatDivide2)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootDivPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootDivPtr->getTypeof(), EnumBinOpNodeType::DIVIDE);
     ASSERT_NE(rootDivPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootDivPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootDivPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rootDivPtr->getRight(), nullptr);
-    ASSERT_EQ(rootDivPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootDivPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftDoublePtr = static_cast<LitteralNode*>(rootDivPtr->getLeft());
     ASSERT_EQ(leftDoublePtr->getDatatype().type, EnumCType::DOUBLE);
@@ -306,18 +306,18 @@ TEST(ParserTest, ParseCompilationNodeIntAssignment)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -339,22 +339,22 @@ TEST(ParserTest, ParseCompilationNodeIntAssignmentViaPointer)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::DEREF);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getLeft());
     ASSERT_NE(leftDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(leftDerefPtr->getExpression());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -376,18 +376,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -395,9 +395,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumAndAssignment)
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -420,32 +420,32 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToParenAddExpression)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndParenSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndParenSumPtr ->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndParenSumPtr ->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndParenSumPtr ->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndParenSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightParenPtr = static_cast<ParenExpressionNode*>(rootAssignAndParenSumPtr->getRight());
     ASSERT_NE(rightParenPtr->getExpression(), nullptr);
-    ASSERT_EQ(rightParenPtr->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rightParenPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* sumExpressionPtr = static_cast<BinOpNode*>(rightParenPtr->getExpression());
     ASSERT_EQ(sumExpressionPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(sumExpressionPtr->getLeft(), nullptr);
-    ASSERT_EQ(sumExpressionPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(sumExpressionPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(sumExpressionPtr->getRight(), nullptr);
-    ASSERT_EQ(sumExpressionPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(sumExpressionPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(sumExpressionPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::INT32);
@@ -468,43 +468,43 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToNestedParenAddExpression)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndParenSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndParenSumPtr ->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndParenSumPtr ->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndParenSumPtr ->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndParenSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightParenPtr = static_cast<ParenExpressionNode*>(rootAssignAndParenSumPtr->getRight());
     ASSERT_NE(rightParenPtr->getExpression(), nullptr);
-    ASSERT_EQ(rightParenPtr->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rightParenPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* firstBinOpPtr = static_cast<BinOpNode*>(rightParenPtr->getExpression());
     ASSERT_EQ(firstBinOpPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(firstBinOpPtr->getLeft(), nullptr);
-    ASSERT_EQ(firstBinOpPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(firstBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(firstBinOpPtr->getRight(), nullptr);
-    ASSERT_EQ(firstBinOpPtr->getRight()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(firstBinOpPtr->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     auto* nestedParenExpressionPtr = static_cast<ParenExpressionNode*>(firstBinOpPtr->getRight());
     ASSERT_NE(nestedParenExpressionPtr->getExpression(), nullptr);
-    ASSERT_EQ(nestedParenExpressionPtr->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(nestedParenExpressionPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* nestedBinOpPtr = static_cast<BinOpNode*>(nestedParenExpressionPtr->getExpression());
     ASSERT_EQ(nestedBinOpPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
     ASSERT_NE(nestedBinOpPtr->getLeft(), nullptr);
-    ASSERT_EQ(nestedBinOpPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(nestedBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(nestedBinOpPtr->getRight(), nullptr);
-    ASSERT_EQ(nestedBinOpPtr->getRight()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(nestedBinOpPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* nestedLeftIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getLeft());
     ASSERT_EQ(nestedLeftIntPtr ->getDatatype().type, EnumCType::INT32);
@@ -527,18 +527,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -546,9 +546,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -575,18 +575,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -594,9 +594,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -612,7 +612,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::VARIABLE);
 
     const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
     ASSERT_EQ(variableNodePtr->getName(), "x");
@@ -633,18 +633,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -652,9 +652,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -670,7 +670,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
@@ -692,18 +692,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -711,9 +711,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -729,7 +729,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
@@ -751,18 +751,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -770,9 +770,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -788,7 +788,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
@@ -810,18 +810,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -829,9 +829,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -847,7 +847,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
@@ -869,18 +869,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -888,9 +888,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -906,7 +906,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
@@ -928,18 +928,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -947,9 +947,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -965,7 +965,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
 
     const auto* expressionNodePtr = iter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
@@ -987,18 +987,18 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignAndSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignAndSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignAndSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignAndSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(rootAssignAndSumPtr->getRight()->getType(), EnumNodeType::BIN_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1006,9 +1006,9 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     auto* rightSumPtr = static_cast<BinOpNode*>(rootAssignAndSumPtr->getRight());
     ASSERT_EQ(rightSumPtr->getTypeof(), EnumBinOpNodeType::ADD);
     ASSERT_NE(rightSumPtr->getLeft(), nullptr);
-    ASSERT_EQ(rightSumPtr->getLeft()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(rightSumPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
     ASSERT_NE(rightSumPtr->getRight(), nullptr);
-    ASSERT_EQ(rightSumPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rightSumPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftIntPtr = static_cast<LitteralNode*>(rightSumPtr->getLeft());
     ASSERT_EQ(leftIntPtr->getDatatype().type, EnumCType::DOUBLE);
@@ -1017,7 +1017,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgs
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rightSumPtr->getRight());
     ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::POSITIVE);
     ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
-    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* rightFunctionCallPtr = static_cast<FunctionCallNode*>(rightUnaryOpPtr->getExpression());
     ASSERT_EQ(rightFunctionCallPtr->getName(), "func");
@@ -1040,18 +1040,18 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaNegativeVar)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1059,7 +1059,7 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaNegativeVar)
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::NEGATIVE);
     ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
-    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1077,18 +1077,18 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaNegativeDerferencedVariable
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1096,11 +1096,11 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaNegativeDerferencedVariable
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::NEGATIVE);
     ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
-    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::DEREF);
 
     auto* rightDerefPtr = static_cast<DerefNode*>(rightUnaryOpPtr->getExpression());
     ASSERT_TRUE(rightDerefPtr->hasExpression());
-    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightDerefPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1130,18 +1130,18 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOf)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1149,10 +1149,10 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaAddressOf)
     auto* rightAddressOfPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_TRUE(rightAddressOfPtr->hasExpression());
     ASSERT_EQ(rightAddressOfPtr->getOpType(), EnumUnaryOpType::ADDRESS_OF);
-    ASSERT_EQ(rightAddressOfPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightAddressOfPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightAddressOfExpression = rightAddressOfPtr->getExpression();
-    ASSERT_EQ(rightAddressOfExpression->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightAddressOfExpression->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightAddressOfPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1206,25 +1206,25 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPointer)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::DEREF);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getRight());
     ASSERT_NE(rightDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightDerefPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1242,22 +1242,22 @@ TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaAddressOf)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::DEREF);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getLeft());
     ASSERT_NE(leftDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(leftDerefPtr->getExpression());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1265,7 +1265,7 @@ TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaAddressOf)
     auto* rightAddressOfPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_TRUE(rightAddressOfPtr->hasExpression());
     ASSERT_EQ(rightAddressOfPtr->getOpType(), EnumUnaryOpType::ADDRESS_OF);
-    ASSERT_EQ(rightAddressOfPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightAddressOfPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightAddressOfPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1283,29 +1283,29 @@ TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaPointer)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::DEREF);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::DEREF);
 
     auto* leftDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getLeft());
     ASSERT_NE(leftDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(leftDerefPtr->getExpression());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getRight());
     ASSERT_NE(rightDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightDerefPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1323,33 +1323,33 @@ TEST(ParserTest, ParseCompilationNodeVarPointerAssignmentViaDoublePointer)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::DEREF);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::DEREF);
 
     auto* leftDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getLeft());
     ASSERT_NE(leftDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(leftDerefPtr->getExpression());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getRight());
     ASSERT_NE(rightDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), EnumNodeType::DEREF);
 
     auto* rightDerefPtr2 = static_cast<DerefNode*>(rightDerefPtr->getExpression());
     ASSERT_NE(rightDerefPtr2->getExpression(), nullptr);
-    ASSERT_EQ(rightDerefPtr2->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightDerefPtr2->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightDerefPtr2->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1367,37 +1367,37 @@ TEST(ParserTest, ParseCompilationNodeVarDoublePointerAssignmentViaDoublePointer)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::DEREF);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::DEREF);
 
     auto* leftDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getLeft());
     ASSERT_NE(leftDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), NodeType::DEREF);
+    ASSERT_EQ(leftDerefPtr->getExpression()->getType(), EnumNodeType::DEREF);
 
     auto* leftDerefPtr2 = static_cast<DerefNode*>(leftDerefPtr->getExpression());
     ASSERT_NE(leftDerefPtr2->getExpression(), nullptr);
-    ASSERT_EQ(leftDerefPtr2->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(leftDerefPtr2->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(leftDerefPtr2->getExpression());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
 
     auto* rightDerefPtr = static_cast<DerefNode*>(rootAssignPtr->getRight());
     ASSERT_NE(rightDerefPtr->getExpression(), nullptr);
-    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), NodeType::DEREF);
+    ASSERT_EQ(rightDerefPtr->getExpression()->getType(), EnumNodeType::DEREF);
 
     auto* rightDerefPtr2 = static_cast<DerefNode*>(rightDerefPtr->getExpression());
     ASSERT_NE(rightDerefPtr2->getExpression(), nullptr);
-    ASSERT_EQ(rightDerefPtr2->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightDerefPtr2->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightDerefPtr2->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1415,18 +1415,18 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixIncrementB)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1434,7 +1434,7 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixIncrementB)
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
     ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::INCREMENT);
-    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1452,18 +1452,18 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixDecrementB)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::BIN_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
     ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
     ASSERT_NE(rootAssignPtr->getRight(), nullptr);
-    ASSERT_EQ(rootAssignPtr->getRight()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -1471,7 +1471,7 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixDecrementB)
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
     ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::DECREMENT);
-    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
     ASSERT_EQ(rightVariablePtr->getName(), "b");
@@ -1490,7 +1490,7 @@ TEST(ParserTest, ParseCompilationNodeIntDeclarationStatement)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
     const auto& datatype = rootDeclarationStatementPtr->getDatatype();
@@ -1514,7 +1514,7 @@ TEST(ParserTest, ParseCompilationNodeIntPointerDeclarationStatement)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
     const auto& datatype = rootDeclarationStatementPtr->getDatatype();
@@ -1538,7 +1538,7 @@ TEST(ParserTest, ParseCompilationNodeIntDoublePointerDeclarationStatement)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
     const auto& datatype = rootDeclarationStatementPtr->getDatatype();
@@ -1562,7 +1562,7 @@ TEST(ParserTest, ParseCompilationNodeIntQuadPointerDeclarationStatement)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
     const auto& datatype = rootDeclarationStatementPtr->getDatatype();
@@ -1571,6 +1571,157 @@ TEST(ParserTest, ParseCompilationNodeIntQuadPointerDeclarationStatement)
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructForwardDeclarationStatement)
+{
+    const std::string input = "struct Vec2;";
+    const std::string name = "Vec2";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::STRUCT_FWD_DECLARATION);
+
+    auto* structFwdDeclPtr = static_cast<StructFwdDeclarationStatementNode*>(firstStatement.get());
+    const auto& datatype = structFwdDeclPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::STRUCT);
+    ASSERT_EQ(datatype.pointers, 0);
+    ASSERT_TRUE(datatype.optStructName.has_value());
+    ASSERT_EQ(datatype.optStructName.value(), name);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructDeclarationStatement)
+{
+    const std::string input = "struct Vec2 x;";
+    const std::string structName = "Vec2";
+    const std::string varName = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::STRUCT);
+    ASSERT_EQ(datatype.pointers, 0);
+    ASSERT_TRUE(datatype.optStructName.has_value());
+    ASSERT_EQ(datatype.optStructName.value(), structName);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, varName);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoublePointerToStructDeclarationStatement)
+{
+    const std::string input = "struct Vec2** x;";
+    const std::string structName = "Vec2";
+    const std::string varName = "x";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
+
+    auto* rootDeclarationStatementPtr = static_cast<VariableDeclarationStatementNode*>(firstStatement.get());
+    const auto& datatype = rootDeclarationStatementPtr->getDatatype();
+    ASSERT_EQ(datatype.type, EnumCType::STRUCT);
+    ASSERT_EQ(datatype.pointers, 2);
+    ASSERT_TRUE(datatype.optStructName.has_value());
+    ASSERT_EQ(datatype.optStructName.value(), structName);
+
+    const auto& outName = rootDeclarationStatementPtr->getName();
+    ASSERT_EQ(outName, varName);
+}
+
+TEST(ParserTest, ParseCompilationNodeDoublePointerToStructDeclarationStatementError)
+{
+    const std::string input = "struct Vec2**;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructEmptyDefinitionStatement)
+{
+    const std::string input = "struct A {};";
+    const std::string name = "A";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::STRUCT_DEFINITION);
+
+    auto* rootDeclarationStatementPtr = static_cast<StructDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getName(), name);
+    ASSERT_TRUE(rootDeclarationStatementPtr->empty());
+    ASSERT_EQ(rootDeclarationStatementPtr->size(), 0);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructDefinitionStatementWithSingleIntField)
+{
+    const std::string input = "struct A { int x; };";
+    const std::string name = "A";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::STRUCT_DEFINITION);
+
+    auto* rootDeclarationStatementPtr = static_cast<StructDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getName(), name);
+    ASSERT_FALSE(rootDeclarationStatementPtr->empty());
+    ASSERT_EQ(rootDeclarationStatementPtr->size(), 1);
+}
+
+TEST(ParserTest, ParseCompilationNodeStructDefinitionStatementWithThreeDoubleFields)
+{
+    const std::string input = "struct Vec3 { double x; double y; double z; };";
+    const std::string name = "Vec3";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::STRUCT_DEFINITION);
+
+    auto* rootDeclarationStatementPtr = static_cast<StructDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_EQ(rootDeclarationStatementPtr->getName(), name);
+    ASSERT_FALSE(rootDeclarationStatementPtr->empty());
+    ASSERT_EQ(rootDeclarationStatementPtr->size(), 3);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
@@ -1586,13 +1737,26 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatement)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, name);
+}
+
+TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementEmptyBlockWithStructDefinitionParmeterError)
+{
+    reporter.reset();
+
+    const std::string input = "int func(struct A {}; a);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
 }
 
 TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
@@ -1608,7 +1772,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlock)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1641,7 +1805,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1657,7 +1821,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithSingleSta
     ASSERT_NE(iter, blockNode.cend());
 
     const auto& declPtr = *iter;
-    ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+    ASSERT_EQ(declPtr->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
     const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
     ASSERT_EQ(varDeclPtr->getDatatype().type, EnumCType::FLOAT);
@@ -1685,7 +1849,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1703,7 +1867,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
         ASSERT_NE(iter, blockNode.cend());
 
         const auto& declPtr = *iter;
-        ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+        ASSERT_EQ(declPtr->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
         const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
         ASSERT_EQ(varDeclPtr->getDatatype().type, EnumCType::FLOAT);
@@ -1715,7 +1879,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementWithDoubleSta
 
     {
         const auto& declPtr = *iter;
-        ASSERT_EQ(declPtr->getType(), NodeType::VARIABLE_DECLARATION_STATEMENT);
+        ASSERT_EQ(declPtr->getType(), EnumNodeType::VARIABLE_DECLARATION_STATEMENT);
 
         const auto* varDeclPtr = static_cast<VariableDeclarationStatementNode*>(iter->get());
         ASSERT_EQ(varDeclPtr->getDatatype().type, EnumCType::CHAR);
@@ -1742,7 +1906,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSinglePa
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1764,7 +1928,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithSinglePa
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1786,7 +1950,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithTwoParam
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1808,7 +1972,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithTwoParam
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1830,7 +1994,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithMultiple
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1852,7 +2016,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDeclarationStatementWithMultiple
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DECLARATION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DECLARATION_STATEMENT);
 
     auto* rootDeclarationStatementPtr = static_cast<FunctionDeclarationStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDeclarationStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1874,7 +2038,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1907,7 +2071,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1940,7 +2104,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -1956,7 +2120,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_NE(iter, blockNode.cend());
 
     const auto& statementPtr = *iter;
-    ASSERT_EQ(statementPtr->getType(), NodeType::RETURN_STATEMENT);
+    ASSERT_EQ(statementPtr->getType(), EnumNodeType::RETURN_STATEMENT);
 
     const auto* returnStatementPtr = static_cast<const ReturnStatementNode*>(statementPtr.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
@@ -1964,7 +2128,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     const auto* expressionPtr = returnStatementPtr->getExpression();
     ASSERT_NE(expressionPtr, nullptr);
-    ASSERT_EQ(expressionPtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionPtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* intLitteralPtr = static_cast<const LitteralNode*>(expressionPtr);
     ASSERT_EQ(intLitteralPtr->getDatatype().type, EnumCType::INT32);
@@ -1990,7 +2154,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -2023,7 +2187,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -2056,7 +2220,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -2089,7 +2253,7 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::FUNCTION_DEFINITION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::FUNCTION_DEFINITION_STATEMENT);
 
     auto* rootDefinitionStatementPtr = static_cast<FunctionDefinitionStatementNode*>(firstStatement.get());
     ASSERT_EQ(rootDefinitionStatementPtr->getDatatype().type, EnumCType::INT32);
@@ -2109,6 +2273,19 @@ TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWit
     ASSERT_EQ(rootDefinitionStatementPtr->getReturnStatement(), nullptr);
 }
 
+TEST(ParserTest, ParseCompilationNodeIntFunctionDefinitionStatementEmptyBlockWithStructDefinitionParmeterError)
+{
+    reporter.reset();
+
+    const std::string input = "int func(struct A {}; a) {}";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)
 {
     const std::string input = "func();";
@@ -2121,11 +2298,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementNoArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2146,11 +2323,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleVariableArg
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2160,7 +2337,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleVariableArg
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::VARIABLE);
 
     const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
     ASSERT_EQ(variableNodePtr->getName(), "x");
@@ -2181,11 +2358,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleBoolArg)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2195,7 +2372,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleBoolArg)
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
@@ -2217,11 +2394,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleCharArg)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2231,7 +2408,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleCharArg)
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
@@ -2253,11 +2430,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleDoubleArg)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2267,7 +2444,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleDoubleArg)
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
@@ -2289,11 +2466,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleIntArg)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2303,7 +2480,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleIntArg)
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
@@ -2325,11 +2502,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleNullArg)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2339,7 +2516,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleNullArg)
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
@@ -2360,11 +2537,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleStringArg)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2374,7 +2551,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleStringArg)
 
     const auto* expressionNodePtr = argListIter->getExpression();
     ASSERT_NE(expressionNodePtr, nullptr);
-    ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
     ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
@@ -2396,11 +2573,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoVariablesArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2411,7 +2588,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoVariablesArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::VARIABLE);
 
         const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
         ASSERT_EQ(variableNodePtr->getName(), "x");
@@ -2423,7 +2600,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoVariablesArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::VARIABLE);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::VARIABLE);
 
         const auto* variableNodePtr = static_cast<const VariableNode*>(expressionNodePtr);
         ASSERT_EQ(variableNodePtr->getName(), "y");
@@ -2445,11 +2622,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2460,7 +2637,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
@@ -2473,7 +2650,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoBoolArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::BOOL);
@@ -2496,11 +2673,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2511,7 +2688,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
@@ -2524,7 +2701,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoCharArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::CHAR);
@@ -2547,11 +2724,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2564,7 +2741,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
@@ -2577,7 +2754,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoDoubleArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::DOUBLE);
@@ -2600,11 +2777,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2615,7 +2792,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
@@ -2628,7 +2805,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoIntArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::INT32);
@@ -2651,11 +2828,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2666,7 +2843,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
@@ -2678,7 +2855,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoNullArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::NULL_T);
@@ -2700,11 +2877,11 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::FUNCTION_CALL);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::FUNCTION_CALL);
 
     auto* functionCallPtr = static_cast<FunctionCallNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(functionCallPtr, nullptr);
@@ -2715,7 +2892,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
@@ -2728,7 +2905,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
     {
         const auto* expressionNodePtr = argListIter->getExpression();
         ASSERT_NE(expressionNodePtr, nullptr);
-        ASSERT_EQ(expressionNodePtr->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
         ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
@@ -2751,15 +2928,15 @@ TEST(ParserTest, ParseCompilationNodeSingleParenWrappedIntLitteral)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     auto* parenExpressionPtr = static_cast<ParenExpressionNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(parenExpressionPtr->getExpression(), nullptr);
-    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), EnumNodeType::LITTERAL);
 
     auto* intPtr = static_cast<LitteralNode*>(parenExpressionPtr->getExpression());
     ASSERT_EQ(intPtr->getDatatype().type, EnumCType::INT32);
@@ -2778,19 +2955,19 @@ TEST(ParserTest, ParseCompilationNodeMultipleParenWrappedVariable)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* rootExpressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(rootExpressionStatementPtr->getExpression(), nullptr);
-    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(rootExpressionStatementPtr->getExpression()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     auto* parenExpressionPtr = static_cast<ParenExpressionNode*>(rootExpressionStatementPtr->getExpression());
     ASSERT_NE(parenExpressionPtr->getExpression(), nullptr);
-    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     parenExpressionPtr = static_cast<ParenExpressionNode*>(parenExpressionPtr->getExpression());
     ASSERT_NE(parenExpressionPtr->getExpression(), nullptr);
-    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(parenExpressionPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto variableNodePtr = static_cast<VariableNode*>(parenExpressionPtr->getExpression());
     ASSERT_EQ(variableNodePtr->getName(), "x");
@@ -2841,16 +3018,16 @@ TEST(ParserTest, ParseCompilationNodeWithCastNode)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     const auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_TRUE(expressionStatement->hasExpression());
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::CAST);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::CAST);
 
     const auto* castNode = static_cast<const CastNode*>(expressionStatement->getExpression());
     ASSERT_TRUE(castNode->hasExpression());
     ASSERT_NE(castNode->getExpression(), nullptr);
-    ASSERT_EQ(castNode->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(castNode->getExpression()->getType(), EnumNodeType::VARIABLE);
     ASSERT_EQ(castNode->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(castNode->getDatatype().pointers, 0);
 
@@ -2870,21 +3047,21 @@ TEST(ParserTest, ParseCompilationNodeWithDoubleCastNode)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     const auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_TRUE(expressionStatement->hasExpression());
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::CAST);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::CAST);
 
     const auto* castNode = static_cast<const CastNode*>(expressionStatement->getExpression());
     ASSERT_TRUE(castNode->hasExpression());
     ASSERT_NE(castNode->getExpression(), nullptr);
-    ASSERT_EQ(castNode->getExpression()->getType(), NodeType::CAST);
+    ASSERT_EQ(castNode->getExpression()->getType(), EnumNodeType::CAST);
     ASSERT_EQ(castNode->getDatatype().type, EnumCType::DOUBLE);
     ASSERT_EQ(castNode->getDatatype().pointers, 0);
 
     const auto* secondCastNode = static_cast<const CastNode*>(castNode->getExpression());
-    ASSERT_EQ(secondCastNode->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(secondCastNode->getExpression()->getType(), EnumNodeType::VARIABLE);
     ASSERT_EQ(secondCastNode->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(secondCastNode->getDatatype().pointers, 0);
 
@@ -2904,20 +3081,20 @@ TEST(ParserTest, ParseCompilationNodeWithCastNodeWrapperInParenNode)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     const auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_TRUE(expressionStatement->hasExpression());
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     const auto* parenExpr = static_cast<const ParenExpressionNode*>(expressionStatement->getExpression());
     ASSERT_TRUE(parenExpr->hasExpression());
-    ASSERT_EQ(parenExpr->getExpression()->getType(), NodeType::CAST);
+    ASSERT_EQ(parenExpr->getExpression()->getType(), EnumNodeType::CAST);
 
     const auto* castNode = static_cast<const CastNode*>(parenExpr->getExpression());
     ASSERT_TRUE(castNode->hasExpression());
     ASSERT_NE(castNode->getExpression(), nullptr);
-    ASSERT_EQ(castNode->getExpression()->getType(), NodeType::VARIABLE);
+    ASSERT_EQ(castNode->getExpression()->getType(), EnumNodeType::VARIABLE);
     ASSERT_EQ(castNode->getDatatype().type, EnumCType::INT32);
     ASSERT_EQ(castNode->getDatatype().pointers, 0);
 
@@ -2937,7 +3114,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithNoExpression)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::RETURN_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::RETURN_STATEMENT);
 
     const auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_FALSE(returnStatementPtr->hasExpression());
@@ -2959,7 +3136,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithIntExpression)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::RETURN_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::RETURN_STATEMENT);
 
     auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
@@ -2967,7 +3144,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithIntExpression)
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_NE(expression, nullptr);
-    ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expression->getType(), EnumNodeType::LITTERAL);
 
     const auto* intLitteralPtr = static_cast<const LitteralNode*>(expression);
     ASSERT_EQ(intLitteralPtr->getDatatype().type, EnumCType::INT32);
@@ -2986,7 +3163,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithBoolExpression)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::RETURN_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::RETURN_STATEMENT);
 
     auto* returnStatementPtr = static_cast<ReturnStatementNode*>(firstStatement.get());
     ASSERT_TRUE(returnStatementPtr->hasExpression());
@@ -2994,7 +3171,7 @@ TEST(ParserTest, ParseCompilationNodeReturnStatementWithBoolExpression)
 
     const auto* expression = returnStatementPtr->getExpression();
     ASSERT_NE(expression, nullptr);
-    ASSERT_EQ(expression->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(expression->getType(), EnumNodeType::LITTERAL);
 
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(expression);
     ASSERT_EQ(boolLitteralPtr->getDatatype().type, EnumCType::BOOL);
@@ -3013,12 +3190,12 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndNoElse)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::IF_ELSE_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::IF_ELSE_STATEMENT);
 
     auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(firstStatement.get());
     const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
     ASSERT_NE(ifConditonalExpression , nullptr);
-    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(ifConditonalExpression ->getType(), EnumNodeType::LITTERAL);
 
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
     ASSERT_EQ(boolLitteralPtr->getDatatype().type, EnumCType::BOOL);
@@ -3039,12 +3216,12 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElse)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::IF_ELSE_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::IF_ELSE_STATEMENT);
 
     auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(firstStatement.get());
     const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
     ASSERT_NE(ifConditonalExpression , nullptr);
-    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(ifConditonalExpression ->getType(), EnumNodeType::LITTERAL);
 
     const auto* intLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
     ASSERT_EQ(intLitteralPtr->getDatatype().type, EnumCType::INT32);
@@ -3065,12 +3242,12 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithEmptyBlockNodeAndElseWit
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::IF_ELSE_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::IF_ELSE_STATEMENT);
 
     auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(firstStatement.get());
     const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
     ASSERT_NE(ifConditonalExpression , nullptr);
-    ASSERT_EQ(ifConditonalExpression ->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(ifConditonalExpression ->getType(), EnumNodeType::LITTERAL);
 
     const auto* boolLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
     ASSERT_EQ(boolLitteralPtr->getDatatype().type, EnumCType::BOOL);
@@ -3091,12 +3268,12 @@ TEST(ParserTest, ParseCompilationNodeIfElseStatementWithBlockNodeAndElseWithBloc
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::IF_ELSE_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::IF_ELSE_STATEMENT);
 
     auto* ifElseStatementPtr = static_cast<IfElseStatementNode*>(firstStatement.get());
     const auto* ifConditonalExpression = ifElseStatementPtr->getIfConditional();
     ASSERT_NE(ifConditonalExpression, nullptr);
-    ASSERT_EQ(ifConditonalExpression->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(ifConditonalExpression->getType(), EnumNodeType::LITTERAL);
 
     const auto* charLitteralPtr = static_cast<const LitteralNode*>(ifConditonalExpression);
     ASSERT_EQ(charLitteralPtr->getDatatype().type, EnumCType::CHAR);
@@ -3117,12 +3294,12 @@ TEST(ParserTest, ParseCompilationNodeWhileStatementWithEmptyBlockNode)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::WHILE_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::WHILE_STATEMENT);
 
     auto* whileStatementPtr = static_cast<WhileStatementNode*>(firstStatement.get());
     auto* conditionalPtr = whileStatementPtr->getConditional();
     ASSERT_NE(conditionalPtr, nullptr);
-    ASSERT_EQ(conditionalPtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(conditionalPtr->getType(), EnumNodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(conditionalPtr);
     ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
@@ -3130,7 +3307,7 @@ TEST(ParserTest, ParseCompilationNodeWhileStatementWithEmptyBlockNode)
 
     auto* statementPtr = whileStatementPtr->getStatement();
     ASSERT_NE(statementPtr, nullptr);
-    ASSERT_EQ(statementPtr->getType(), NodeType::BLOCK);
+    ASSERT_EQ(statementPtr->getType(), EnumNodeType::BLOCK);
 
     auto* blockNodePtr = static_cast<BlockNode*>(statementPtr);
     ASSERT_TRUE(blockNodePtr->empty());
@@ -3150,12 +3327,12 @@ TEST(ParserTest, ParseCompilationNodeWhileStatementWithBlockNode)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::WHILE_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::WHILE_STATEMENT);
 
     auto* whileStatementPtr = static_cast<WhileStatementNode*>(firstStatement.get());
     auto* conditionalPtr = whileStatementPtr->getConditional();
     ASSERT_NE(conditionalPtr, nullptr);
-    ASSERT_EQ(conditionalPtr->getType(), NodeType::LITTERAL);
+    ASSERT_EQ(conditionalPtr->getType(), EnumNodeType::LITTERAL);
 
     auto* boolPtr = static_cast<LitteralNode*>(conditionalPtr);
     ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
@@ -3163,7 +3340,7 @@ TEST(ParserTest, ParseCompilationNodeWhileStatementWithBlockNode)
 
     auto* statementPtr = whileStatementPtr->getStatement();
     ASSERT_NE(statementPtr, nullptr);
-    ASSERT_EQ(statementPtr->getType(), NodeType::BLOCK);
+    ASSERT_EQ(statementPtr->getType(), EnumNodeType::BLOCK);
 
     auto* blockNodePtr = static_cast<BlockNode*>(statementPtr);
     ASSERT_FALSE(blockNodePtr->empty());
@@ -3189,12 +3366,12 @@ TEST(ParserTest, ParseCompilationNodeMultipleStatements)
     auto& translationUnit = compUnitPtr->getRoot();
     auto statementIter = translationUnit.begin();
     ASSERT_NE(statementIter, translationUnit.end());
-    ASSERT_EQ((*statementIter)->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ((*statementIter)->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     {
         auto* expressionStatement  = static_cast<ExpressionStatementNode*>(statementIter->get());
         ASSERT_NE(expressionStatement->getExpression(), nullptr);
-        ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::LITTERAL);
 
         auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
         ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
@@ -3207,7 +3384,7 @@ TEST(ParserTest, ParseCompilationNodeMultipleStatements)
     {
         auto* expressionStatement  = static_cast<ExpressionStatementNode*>(statementIter->get());
         ASSERT_NE(expressionStatement->getExpression(), nullptr);
-        ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::LITTERAL);
+        ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::LITTERAL);
 
         auto* boolPtr = static_cast<LitteralNode*>(expressionStatement->getExpression());
         ASSERT_EQ(boolPtr->getDatatype().type, EnumCType::BOOL);
@@ -3230,11 +3407,11 @@ TEST(ParserTest, ParseCompilationNodeUnaryIncrement)
 
     auto& translationUnit = compUnitPtr->getRoot();
     auto& firstStatement = *translationUnit.begin();
-    ASSERT_EQ(firstStatement->getType(), NodeType::EXPRESSION_STATEMENT);
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
 
     auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
     ASSERT_NE(expressionStatement->getExpression(), nullptr);
-    ASSERT_EQ(expressionStatement->getExpression()->getType(), NodeType::UNARY_OP);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::UNARY_OP);
 
     auto* unaryOpPtr = static_cast<UnaryOpNode*>(expressionStatement->getExpression());
     ASSERT_EQ(unaryOpPtr->getOpType(), EnumUnaryOpType::INCREMENT);

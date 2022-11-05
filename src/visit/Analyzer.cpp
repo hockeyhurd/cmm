@@ -40,7 +40,7 @@ namespace cmm
             reporter.bug("variablePtr is a nullptr", node.getLocation(), true);
         }
 
-        else if (variablePtr->getType() != NodeType::VARIABLE)
+        else if (variablePtr->getType() != EnumNodeType::VARIABLE)
         {
             const char* message = "Expected a variable expression prior to attempting to take the address of it";
             reporter.error(message, node.getLocation());
@@ -69,10 +69,12 @@ namespace cmm
         // I guess we'll just need to re-visit this when we get to code generation.
 
         auto* leftNode = node.getLeft();
+
+        [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
 
-        if (isAssignment && leftNode->getType() != NodeType::VARIABLE)
+        if (isAssignment && leftNode->getType() != EnumNodeType::VARIABLE)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -84,6 +86,8 @@ namespace cmm
         node.setDatatype(leftType);
 
         auto* rightNode = node.getRight();
+
+        [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
 
         const auto& rightType = rightNode->getDatatype();
@@ -94,7 +98,7 @@ namespace cmm
             // if assignment the rightType must be able to promote to the variable,
             // otherwise we can try both options ex. 1+2.0F fails promotion,
             // when it's valid promotion.
-            std::optional<CType> optCastType = std::nullopt;
+            std::optional<CType> optCastType;
             bool castRight = false;
 
             if (isAssignment)
@@ -320,18 +324,18 @@ namespace cmm
 
         const auto& funcName = node.getName();
 
-        if (!validateFunction(funcName, EnumFuncState::DECLARED))
+        if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
             const auto previousState = functionTable[funcName];
             std::ostringstream builder;
 
-            if (previousState == EnumFuncState::DECLARED)
+            if (previousState == EnumSymState::DECLARED)
             {
                 builder << "Function '" << funcName << "' was already previously declared and does not need to be declared here as well.";
                 reporter.warn(builder.str(), node.getLocation());
             }
 
-            else if (previousState == EnumFuncState::DEFINED)
+            else if (previousState == EnumSymState::DEFINED)
             {
                 builder << "Function '" << funcName << "' was already previously defined and does not need to be declared here as well.";
                 reporter.warn(builder.str(), node.getLocation());
@@ -339,12 +343,12 @@ namespace cmm
 
             else
             {
-                reporter.bug("Unknown EnumFuncState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDeclarationStatementNode&))", node.getLocation(), false);
+                reporter.bug("Unknown EnumSymState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDeclarationStatementNode&))", node.getLocation(), false);
             }
         }
 
         // If in global scope, we must make sure there is NOT a variable with the same name (i.e. redefinition error).
-        else if (scope.find(node.getName()) != nullptr)
+        else if (scope.findVariable(node.getName()) != nullptr)
         {
             std::ostringstream builder;
             builder << "Function '" << node.getName() << "' matches a variable definition";
@@ -353,7 +357,7 @@ namespace cmm
 
         else
         {
-            functionTable[funcName] = EnumFuncState::DECLARED;
+            functionTable[funcName] = EnumSymState::DECLARED;
         }
 
         for (auto& paramNode : node)
@@ -381,12 +385,12 @@ namespace cmm
 
         const auto& funcName = node.getName();
 
-        if (!validateFunction(funcName, EnumFuncState::DECLARED))
+        if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
             const auto previousState = functionTable[funcName];
             std::ostringstream builder;
 
-            if (previousState == EnumFuncState::DEFINED)
+            if (previousState == EnumSymState::DEFINED)
             {
                 builder << "Function '" << funcName << "' was already previously defined and does not need to be defined here as well (multiple definitions).";
                 reporter.error(builder.str(), node.getLocation());
@@ -394,13 +398,13 @@ namespace cmm
 
             else
             {
-                reporter.bug("Unknown EnumFuncState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDefinitionStatementNode&))", node.getLocation(), false);
+                reporter.bug("Unknown EnumSymState will not be handled.  Is this an internal bug? (Analyzer::visit(FunctionDefinitionStatementNode&))", node.getLocation(), false);
             }
         }
 
         else
         {
-            functionTable[funcName] = EnumFuncState::DEFINED;
+            functionTable[funcName] = EnumSymState::DEFINED;
         }
 
         localityStack.push(EnumLocality::PARAMETER);
@@ -626,11 +630,26 @@ namespace cmm
 
         if (optionalVariableNode.has_value())
         {
+            const auto& name = optionalVariableNode->getName();
             const auto currentLocality = localityStack.top();
             VariableContext context(typeNode.getDatatype(), currentLocality, EnumModifier::NO_MOD);
-            scope.add(optionalVariableNode->getName(), context);
+            auto* findVariable = scope.findVariable(name);
 
-            optionalVariableNode->accept(this);
+            if (findVariable != nullptr)
+            {
+                std::ostringstream builder;
+                builder << "Variable '" << name << "' of type ";
+                printType(builder, typeNode.getDatatype());
+                builder << " was already used as a parameter";
+
+                reporter.error(builder.str(), node.getLocation());
+            }
+
+            else
+            {
+                scope.add(name, context);
+                optionalVariableNode->accept(this);
+            }
         }
 
         return VisitorResult();
@@ -648,6 +667,56 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         expression->accept(this);
+
+        return VisitorResult();
+    }
+
+    VisitorResult Analyzer::visit(StructDefinitionStatementNode& node)
+    {
+        const auto currentLocality = localityStack.top();
+        // TODO: support static?
+        const auto modifier = EnumModifier::NO_MOD;
+        const StructOrUnionContext context(currentLocality, modifier);
+        const auto& structName = node.getName();
+        const auto optStructState = structTable.get(structName);
+
+        if (optStructState.has_value() && *optStructState == EnumSymState::DEFINED)
+        {
+            std::ostringstream builder;
+            builder << "struct " << structName << " is already previously defined. This violates the multiple definition rule";
+            reporter.error(builder.str(), node.getLocation());
+        }
+
+        else if (!optStructState.has_value())
+        {
+            structTable.addOrUpdate(structName, EnumSymState::DEFINED);
+            scope.add(structName, context);
+        }
+
+        return VisitorResult();
+    }
+
+    VisitorResult Analyzer::visit(StructFwdDeclarationStatementNode& node)
+    {
+        const auto currentLocality = localityStack.top();
+        // TODO: support static?
+        const auto modifier = EnumModifier::NO_MOD;
+        const StructOrUnionContext context(currentLocality, modifier);
+        const auto& structName = node.getName();
+        const auto optStructState = structTable.get(structName);
+
+        if (optStructState.has_value())
+        {
+            std::ostringstream builder;
+            builder << "struct " << structName << " is already previously declared or defined";
+            reporter.warn(builder.str(), node.getLocation());
+        }
+
+        else
+        {
+            structTable.addOrUpdate(structName, EnumSymState::DECLARED);
+            scope.add(structName, context);
+        }
 
         return VisitorResult();
     }
@@ -689,10 +758,10 @@ namespace cmm
             auto* expression = node.getExpression();
             expression->accept(this);
 
-            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != NodeType::VARIABLE)
+            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != EnumNodeType::VARIABLE)
             if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF)
             {
-                if (expression->getType() != NodeType::VARIABLE)
+                if (expression->getType() != EnumNodeType::VARIABLE)
                 {
                     const char* message = "Expected a variable expression prior to attempting to take the address of it";
                     reporter.error(message, node.getLocation());
@@ -713,7 +782,7 @@ namespace cmm
     VisitorResult Analyzer::visit(VariableNode& node)
     {
         const auto& varName = node.getName();
-        const auto* varContext = scope.findAny(varName);
+        const auto* varContext = scope.findAnyVariable(varName);
 
         if (varContext == nullptr)
         {
@@ -741,7 +810,7 @@ namespace cmm
         // of reference and not a parent, since this would be allowed.
         // Also, if we are in global scope, we must check this isn't a function too.
 
-        auto* lookupContext = scope.find(node.getName());
+        auto* lookupContext = scope.findVariable(node.getName());
 
         if (lookupContext != nullptr)
         {
@@ -776,7 +845,7 @@ namespace cmm
         return VisitorResult();
     }
 
-    bool Analyzer::validateFunction(const std::string& name, const Analyzer::EnumFuncState state)
+    bool Analyzer::validateFunction(const std::string& name, const EnumSymState state)
     {
         const auto findResult = functionTable.find(name);
 
@@ -786,7 +855,7 @@ namespace cmm
         }
 
         const auto currentState = findResult->second;
-        const bool invResult = currentState == state || (currentState == EnumFuncState::DEFINED && state == EnumFuncState::DECLARED);
+        const bool invResult = currentState == state || (currentState == EnumSymState::DEFINED && state == EnumSymState::DECLARED);
         return !invResult;
     }
 }

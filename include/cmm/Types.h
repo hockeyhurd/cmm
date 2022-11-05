@@ -208,6 +208,11 @@ namespace cmm
         return (value & invAllValues) == 0;
     }
 
+    enum class EnumSymState
+    {
+        DECLARED = 0, DEFINED
+    };
+
     enum class EnumCType : u16
     {
         NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
@@ -218,8 +223,10 @@ namespace cmm
     {
         EnumCType type;
         u16 pointers;
+        std::optional<std::string> optStructName;
 
-        explicit CType(const EnumCType type, const u16 pointers = 0) CMM_NOEXCEPT;
+        explicit CType(const EnumCType type, const u16 pointers = 0,
+            std::optional<std::string> optStructName = std::nullopt) CMM_NOEXCEPT;
 
         bool operator== (const CType& other) const CMM_NOEXCEPT;
         bool operator!= (const CType& other) const CMM_NOEXCEPT;
@@ -242,8 +249,6 @@ namespace cmm
             f64   valueF64;
             // TODO: Consider making this const
             char*  valueString;
-            // TODO: revisit structs
-            // char  valueStruct[0];
         };
 
         explicit CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
@@ -256,8 +261,6 @@ namespace cmm
         explicit CTypeValue(const f32 valueF32) CMM_NOEXCEPT;
         explicit CTypeValue(const f64 valueF64) CMM_NOEXCEPT;
         explicit CTypeValue(char* valueString) CMM_NOEXCEPT;
-        // TODO: revisit structs
-        // CTypeValue(const std::size_t length);
     };
 
     std::optional<CType> canPromote(const CType& from, const CType& to);
