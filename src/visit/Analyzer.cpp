@@ -439,7 +439,7 @@ namespace cmm
             {
                 std::ostringstream builder;
                 builder << "Missing return statement in non-void function '" << node.getName() << "'";
-                reporter.warn(builder.str(), blockNode.getLocation());
+                reporter.warn(builder.str(), blockNode.getEndLocation());
             }
 
             else if (*returnStatementPtr->getDatatype() != datatype)
