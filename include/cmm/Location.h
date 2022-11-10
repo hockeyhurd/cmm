@@ -100,9 +100,47 @@ namespace cmm
         std::size_t line;
         std::size_t pos;
     };
+
+    struct LocationPair
+    {
+        Location begin;
+        Location end;
+
+        /**
+         * Constructor by copies.
+         *
+         * @param begin the starting Location.
+         * @param end the end Location.
+         */
+        LocationPair(const Location& begin, const Location& end) CMM_NOEXCEPT;
+
+        /**
+         * Constructor with moves.
+         *
+         * @param begin the starting Location.
+         * @param end the end Location.
+         */
+        LocationPair(Location&& begin, Location&& end) CMM_NOEXCEPT;
+
+        /**
+         * Default copy constructor.
+         */
+        LocationPair(const LocationPair&) CMM_NOEXCEPT = default;
+
+        /**
+         * Default move constructor.
+         */
+        LocationPair(LocationPair&&) CMM_NOEXCEPT = default;
+
+        /**
+         * Default destructor.
+         */
+        ~LocationPair() = default;
+    };
 }
 
 std::ostream& operator<< (std::ostream& os, const cmm::Location& location);
+std::ostream& operator<< (std::ostream& os, const cmm::LocationPair& pair);
 
 #endif //!HSON_LOCATION_H
 

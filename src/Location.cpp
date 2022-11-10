@@ -6,6 +6,8 @@
 
 namespace cmm
 {
+    // Location class starts here:
+
     Location::Location() CMM_NOEXCEPT : line(0), pos(0)
     {
     }
@@ -21,11 +23,31 @@ namespace cmm
 
         return os.str();
     }
+
+    // Location class ends here:
+
+    // LocationPair class starts here:
+
+    LocationPair::LocationPair(const Location& begin, const Location& end) CMM_NOEXCEPT : begin(begin), end(end)
+    {
+    }
+
+    LocationPair::LocationPair(Location&& begin, Location&& end) CMM_NOEXCEPT : begin(std::move(begin)), end(std::move(end))
+    {
+    }
+
+    // Location class ends here:
 }
 
 std::ostream& operator<< (std::ostream& os, const cmm::Location& location)
 {
     os << '(' << location.getLine() << ", " << location.getPosition() << ')';
+    return os;
+}
+
+std::ostream& operator<< (std::ostream& os, const cmm::LocationPair& pair)
+{
+    os << "{ Begin: " << pair.begin << ", End: " << pair.end << " }";
     return os;
 }
 
