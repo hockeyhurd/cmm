@@ -182,10 +182,10 @@ namespace cmm
         }
 
         // Save the location as the start of the BlockNode.
-        Location location;
+        Location beginLoc;
 
         // Consume token
-        lexer.nextToken(token, errorMessage, &location);
+        lexer.nextToken(token, errorMessage, &beginLoc);
 
         BlockNode::StatementList statements;
         statements.reserve(0x10);
@@ -225,10 +225,12 @@ namespace cmm
             return std::nullopt;
         }
 
-        // Consume token
-        lexer.nextToken(token, errorMessage);
+        Location endLoc;
 
-        return std::make_optional<BlockNode>(location, std::move(statements));
+        // Consume token
+        lexer.nextToken(token, errorMessage, &endLoc);
+
+        return std::make_optional<BlockNode>(beginLoc, endLoc, std::move(statements));
     }
 
     /* static */
