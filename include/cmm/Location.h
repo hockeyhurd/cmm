@@ -1,5 +1,7 @@
 /**
- * The JSON parser.
+ * Location: This class represents a Location in a file or std::string.
+ * LocationPair: This class represents a pair of Locations denoted by
+ *               'begin' and 'end'.
  *
  * @author hockeyhurd
  * @version 2022-05-06
