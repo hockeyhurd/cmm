@@ -170,7 +170,7 @@ namespace cmm
     private:
 
         /**
-         * Common find function.
+         * Common struct or union find function.
          *
          * @param map reference to Map to lookup.
          * @param name std::string name of variable, struct, or union.
@@ -178,7 +178,7 @@ namespace cmm
          * @return pointer to the context T if found, else nullptr.
          */
         template<class T, class Map>
-        T* commonFind(Map& map, const std::string& name, const bool allowParent)
+        T* commonFindStructOrUnion(Map& map, const std::string& name, const bool allowParent)
         {
             const auto findResult = map.find(name);
 
@@ -190,7 +190,61 @@ namespace cmm
             // See if we can check the parent
             else if (parent != nullptr && allowParent)
             {
-                return parent->commonFind<T, Map>(map, name, allowParent);
+                return parent->commonFindStructOrUnion<T, Map>(parent->structsAndUnions, name, allowParent);
+            }
+
+            return nullptr;
+        }
+
+        /**
+         * Common struct or union find function.
+         *
+         * @param map const reference to Map to lookup.
+         * @param name std::string name of variable, struct, or union.
+         * @param allowParent bool flag whether can use parent frame to do lookup.
+         * @return const pointer to the context T if found, else nullptr.
+         */
+        template<class T, class Map>
+        const T* commonFindStructOrUnion(const Map& map, const std::string& name, const bool allowParent) const
+        {
+            const auto findResult = map.find(name);
+
+            if (findResult != map.cend())
+            {
+                return &findResult->second;
+            }
+
+            // See if we can check the parent
+            else if (parent != nullptr && allowParent)
+            {
+                return parent->commonFindStructOrUnion<T, Map>(parent->structsAndUnions, name, allowParent);
+            }
+
+            return nullptr;
+        }
+
+        /**
+         * Common variable find function.
+         *
+         * @param map reference to Map to lookup.
+         * @param name std::string name of variable, struct, or union.
+         * @param allowParent bool flag whether can use parent frame to do lookup.
+         * @return pointer to the context T if found, else nullptr.
+         */
+        template<class T, class Map>
+        T* commonFindVariable(Map& map, const std::string& name, const bool allowParent)
+        {
+            const auto findResult = map.find(name);
+
+            if (findResult != map.cend())
+            {
+                return &findResult->second;
+            }
+
+            // See if we can check the parent
+            else if (parent != nullptr && allowParent)
+            {
+                return parent->commonFindVariable<T, Map>(parent->variables, name, allowParent);
             }
 
             return nullptr;
@@ -205,7 +259,7 @@ namespace cmm
          * @return const pointer to the context T if found, else nullptr.
          */
         template<class T, class Map>
-        const T* commonFind(const Map& map, const std::string& name, const bool allowParent) const
+        const T* commonFindVariable(const Map& map, const std::string& name, const bool allowParent) const
         {
             const auto findResult = map.find(name);
 
@@ -217,7 +271,7 @@ namespace cmm
             // See if we can check the parent
             else if (parent != nullptr && allowParent)
             {
-                return parent->commonFind<T, Map>(map, name, allowParent);
+                return parent->commonFindVariable<T, Map>(parent->variables, name, allowParent);
             }
 
             return nullptr;

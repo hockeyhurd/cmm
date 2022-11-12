@@ -17,30 +17,29 @@ namespace cmm
     ScopeManager::ScopeManager()
     {
         // We always push a frame at the beginning to handle global scope.
-        frames.emplace_back(Frame());
+        frames.emplace_back(std::make_unique<Frame>(nullptr));
     }
 
     Frame& ScopeManager::getCurrentFrame() CMM_NOEXCEPT
     {
-        return frames.back();
+        return *frames.back();
     }
 
     const Frame& ScopeManager::getCurrentFrame() const CMM_NOEXCEPT
     {
-        return frames.back();
+        return *frames.back();
     }
 
     void ScopeManager::push(const bool canSeeParent)
     {
         Frame* parent = nullptr;
 
-        if (canSeeParent)
+        if (canSeeParent && !frames.empty())
         {
-            auto& last = frames.back();
-            parent = std::addressof(last);
+            parent = frames.back().get();
         }
 
-        frames.emplace_back(parent);
+        frames.emplace_back(std::make_unique<Frame>(parent));
     }
 
     void ScopeManager::pop()

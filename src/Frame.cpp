@@ -40,42 +40,42 @@ namespace cmm
 
     StructOrUnionContext* Frame::findStructOrUnion(const std::string& name)
     {
-        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, false);
+        return commonFindStructOrUnion<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, false);
     }
 
     const StructOrUnionContext* Frame::findStructOrUnion(const std::string& name) const
     {
-        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, false);
+        return commonFindStructOrUnion<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, false);
     }
 
     StructOrUnionContext* Frame::findAnyStructOrUnion(const std::string& name)
     {
-        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, true);
+        return commonFindStructOrUnion<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, true);
     }
 
     const StructOrUnionContext* Frame::findAnyStructOrUnion(const std::string& name) const
     {
-        return commonFind<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, true);
+        return commonFindStructOrUnion<StructOrUnionContext, StructOrUnionMap>(structsAndUnions, name, true);
     }
 
     VariableContext* Frame::findVariable(const std::string& variable)
     {
-        return commonFind<VariableContext, VarMap>(variables, variable, false);
+        return commonFindVariable<VariableContext, VarMap>(variables, variable, false);
     }
 
     const VariableContext* Frame::findVariable(const std::string& variable) const
     {
-        return commonFind<VariableContext, VarMap>(variables, variable, false);
+        return commonFindVariable<VariableContext, VarMap>(variables, variable, false);
     }
 
     VariableContext* Frame::findAnyVariable(const std::string& variable)
     {
-        return commonFind<VariableContext, VarMap>(variables, variable, true);
+        return commonFindVariable<VariableContext, VarMap>(variables, variable, true);
     }
 
     const VariableContext* Frame::findAnyVariable(const std::string& variable) const
     {
-        return commonFind<VariableContext, VarMap>(variables, variable, true);
+        return commonFindVariable<VariableContext, VarMap>(variables, variable, true);
     }
 }
 

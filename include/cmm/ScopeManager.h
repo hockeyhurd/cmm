@@ -15,6 +15,7 @@
 #include <cmm/Frame.h>
 
 // std includes
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -187,7 +188,7 @@ namespace cmm
     private:
 
         // A vector of scope based frames.
-        std::vector<Frame> frames;
+        std::vector<std::unique_ptr<Frame>> frames;
     };
 }
 
