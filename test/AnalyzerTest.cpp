@@ -83,7 +83,7 @@ TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionError)
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
-TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionValid)
+TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionError2)
 {
     reporter.reset();
 
@@ -98,7 +98,7 @@ TEST(AnalyzerTest, AnalyzerMultipleVariableDeclarationDefinitionValid)
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getWarningCount(), 0);
-    ASSERT_EQ(reporter.getErrorCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
 TEST(AnalyzerTest, AnalyzerFunctionAndVariableDeclarationsWithSameNameError)
@@ -627,6 +627,24 @@ TEST(AnalyzerTest, AnalyzerMultipleStructDefinitionError)
     reporter.reset();
 
     const std::string input = "struct A {}; struct A {};";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerQuickTest)
+{
+    reporter.reset();
+
+    const std::string input = "int func(int x) { int x; x = 42; return x; }";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

@@ -810,7 +810,7 @@ namespace cmm
         // of reference and not a parent, since this would be allowed.
         // Also, if we are in global scope, we must check this isn't a function too.
 
-        auto* lookupContext = scope.findVariable(node.getName());
+        auto* lookupContext = scope.findAnyVariable(node.getName());
 
         if (lookupContext != nullptr)
         {
