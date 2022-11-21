@@ -98,6 +98,8 @@ namespace cmm
         {
             varNode = static_cast<VariableNode*>(leftNode);
             auto* varContext = scope.findAnyVariable(varNode->getName());
+            varContext->setDirtyBit(true);
+
             const EnumModifier modifiers = varContext->getModifiers();
 
             u16 asU16;
