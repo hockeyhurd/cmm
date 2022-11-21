@@ -64,6 +64,11 @@ namespace cmm
     {
     }
 
+    bool CType::isPointerType() const CMM_NOEXCEPT
+    {
+        return pointers > 0;
+    }
+
     bool CType::operator== (const CType& other) const CMM_NOEXCEPT
     {
         return type == other.type && pointers == other.pointers;

@@ -73,8 +73,9 @@ namespace cmm
         [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
+        const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
 
-        if (isAssignment && leftNode->getType() != EnumNodeType::VARIABLE)
+        if (isAssignment && !isLeftVariable)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -89,8 +90,32 @@ namespace cmm
 
         [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
-
         const auto& rightType = rightNode->getDatatype();
+
+        VariableNode* varNode = nullptr;
+
+        if (isAssignment && isLeftVariable)
+        {
+            varNode = static_cast<VariableNode*>(leftNode);
+            auto* varContext = scope.findAnyVariable(varNode->getName());
+            const EnumModifier modifiers = varContext->getModifiers();
+
+            u16 asU16;
+
+            if (varContext->getCType().isPointerType())
+            {
+                asU16 = static_cast<u16>(EnumModifier::CONST_POINTER);
+            }
+
+            else
+            {
+                asU16 = static_cast<u16>(EnumModifier::CONST_VALUE);
+            }
+
+            // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
+            asU16 = ~asU16;
+            varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
+        }
 
         if (leftType != rightType)
         {
@@ -792,7 +817,7 @@ namespace cmm
             return VisitorResult();
         }
 
-        node.setDatatype(varContext->getType());
+        node.setDatatype(varContext->getCType());
 
         return VisitorResult();
     }

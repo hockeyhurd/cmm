@@ -228,6 +228,8 @@ namespace cmm
         explicit CType(const EnumCType type, const u16 pointers = 0,
             std::optional<std::string> optStructName = std::nullopt) CMM_NOEXCEPT;
 
+        bool isPointerType() const CMM_NOEXCEPT;
+
         bool operator== (const CType& other) const CMM_NOEXCEPT;
         bool operator!= (const CType& other) const CMM_NOEXCEPT;
     };

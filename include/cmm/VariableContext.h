@@ -69,7 +69,7 @@ namespace cmm
          *
          * @return CType.
          */
-        const CType& getType() const CMM_NOEXCEPT;
+        const CType& getCType() const CMM_NOEXCEPT;
 
         /**
          * Gets the EnumLocality of this variable.
@@ -84,6 +84,13 @@ namespace cmm
          * @return EnumModifier.
          */
         EnumModifier getModifiers() const CMM_NOEXCEPT;
+
+        /**
+         * Sets the EnumModifier used with this variable.
+         *
+         * @param modifiers The new modifier value.
+         */
+        void setModifiers(const EnumModifier modifiers) CMM_NOEXCEPT;
 
     private:
 

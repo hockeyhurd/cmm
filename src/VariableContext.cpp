@@ -20,7 +20,7 @@ namespace cmm
         return type;
     }
 
-    const CType& VariableContext::getType() const CMM_NOEXCEPT
+    const CType& VariableContext::getCType() const CMM_NOEXCEPT
     {
         return type;
     }
@@ -33,6 +33,11 @@ namespace cmm
     EnumModifier VariableContext::getModifiers() const CMM_NOEXCEPT
     {
         return modifiers;
+    }
+
+    void VariableContext::setModifiers(const EnumModifier modifiers) CMM_NOEXCEPT
+    {
+        this->modifiers = modifiers;
     }
 }
 
