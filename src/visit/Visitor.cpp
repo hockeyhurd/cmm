@@ -22,7 +22,7 @@ namespace cmm
         result.node = node;
     }
 
-    VisitorResult::VisitorResult(std::string* str) CMM_NOEXCEPT : owned(true),
+    VisitorResult::VisitorResult(std::string* str, const bool owned) CMM_NOEXCEPT : owned(owned),
         resultType(EnumVisitorResultType::STRING)
     {
         result.str = str;

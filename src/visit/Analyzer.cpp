@@ -328,9 +328,9 @@ namespace cmm
             reporter.error(builder.str(), node.getLocation());
         }
 
-        for (auto& func : node)
+        for (auto& arg : node)
         {
-            func.accept(this);
+            arg.accept(this);
         }
 
         return VisitorResult();
@@ -451,6 +451,7 @@ namespace cmm
         scope.pop();
 
         auto* returnStatementPtr = node.getReturnStatement();
+        returnStatementPtr->accept(this);
 
         // Cases to check:
         // 1. void with optional 'return;' statement. Error if return statement exists and is non-void.

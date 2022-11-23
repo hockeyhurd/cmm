@@ -33,7 +33,7 @@ namespace cmm
 
         VisitorResult() CMM_NOEXCEPT;
         VisitorResult(Node* node, const bool owned) CMM_NOEXCEPT;
-        explicit VisitorResult(std::string* str) CMM_NOEXCEPT;
+        VisitorResult(std::string* str, const bool owned) CMM_NOEXCEPT;
 
         VisitorResult(const VisitorResult&) = delete;
         VisitorResult(VisitorResult&&) CMM_NOEXCEPT = default;

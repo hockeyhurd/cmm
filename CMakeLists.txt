@@ -27,7 +27,8 @@ set(SOURCE_FILES src/AddressOfNode.cpp src/ArgNode.cpp src/BinOpNode.cpp src/Blo
     src/ScopeManager.cpp src/StructDefinitionStatementNode.cpp src/StructFwdDeclarationStatementNode.cpp src/StructOrUnionContext.cpp src/StructTable.cpp src/Token.cpp
     src/TranslationUnitNode.cpp src/Types.cpp src/TypeNode.cpp src/UnaryOpNode.cpp
     src/VariableContext.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp src/WhileStatementNode.cpp
-    src/visit/Analyzer.cpp src/visit/Dump.cpp src/visit/Visitor.cpp)
+    src/platform/PlatformBase.cpp
+    src/visit/Analyzer.cpp src/visit/Dump.cpp src/visit/Encode.cpp src/visit/Visitor.cpp)
 
 # Set the path for our cmake modules.
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
