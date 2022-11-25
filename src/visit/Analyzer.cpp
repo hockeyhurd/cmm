@@ -68,6 +68,22 @@ namespace cmm
         // then re-write the sub/right expression as just another "RVALUE".
         // I guess we'll just need to re-visit this when we get to code generation.
 
+        auto* rightNode = node.getRight();
+
+        [[maybe_unused]]
+        auto rightNodeResult = rightNode->accept(this);
+        const auto& rightType = rightNode->getDatatype();
+
+        // If the right node is a variable, we need to add a DerefNode to wrap it.
+        if (rightNode->getType() == EnumNodeType::VARIABLE)
+        {
+            // Add DerefNode
+            node.derefNodeRight();
+
+            // Update our pointer to this new pointer.
+            rightNode = node.getRight();
+        }
+
         auto* leftNode = node.getLeft();
 
         [[maybe_unused]]
@@ -85,12 +101,6 @@ namespace cmm
         // Establish the Node's datatype by it's left node.
         const auto& leftType = leftNode->getDatatype();
         node.setDatatype(leftType);
-
-        auto* rightNode = node.getRight();
-
-        [[maybe_unused]]
-        auto rightNodeResult = rightNode->accept(this);
-        const auto& rightType = rightNode->getDatatype();
 
         VariableNode* varNode = nullptr;
 
@@ -117,6 +127,17 @@ namespace cmm
             // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
             asU16 = ~asU16;
             varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
+        }
+
+        // If the left node is a variable and this is NOT an assignmnet operation,
+        // we need to add a DerefNode to wrap it.
+        else if (!isAssignment && isLeftVariable)
+        {
+            // Add DerefNode
+            node.derefNodeLeft();
+
+            // Update our pointer to this new pointer.
+            leftNode = node.getLeft();
         }
 
         if (leftType != rightType)

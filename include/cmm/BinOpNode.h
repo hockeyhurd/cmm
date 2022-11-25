@@ -124,6 +124,20 @@ namespace cmm
          */
         void castRight(const CType& newType);
 
+        /**
+         * Adds a DerefNode to the left node.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void derefNodeLeft();
+
+        /**
+         * Adds a DerefNode to the right node.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void derefNodeRight();
+
         VisitorResult accept(Visitor* visitor) override
         {
             return visitor->visit(*this);

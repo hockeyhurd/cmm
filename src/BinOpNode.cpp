@@ -8,6 +8,7 @@
 // Our includes
 #include <cmm/BinOpNode.h>
 #include <cmm/CastNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/Token.h>
 
 namespace cmm
@@ -79,6 +80,20 @@ namespace cmm
         const auto location = right->getLocation();
         auto tempRight = std::move(right);
         right = std::make_unique<CastNode>(location, newType, std::move(tempRight));
+    }
+
+    void BinOpNode::derefNodeLeft()
+    {
+        const auto location = left->getLocation();
+        auto tempLeft = std::move(left);
+        left = std::make_unique<DerefNode>(location, std::move(tempLeft));
+    }
+
+    void BinOpNode::derefNodeRight()
+    {
+        const auto location = right->getLocation();
+        auto tempRight = std::move(right);
+        right = std::make_unique<DerefNode>(location, std::move(tempRight));
     }
 
     std::string BinOpNode::toString() const /* override */
