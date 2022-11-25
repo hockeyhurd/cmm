@@ -16,6 +16,9 @@
 #include <cmm/ScopeManager.h>
 #include <cmm/visit/Visitor.h>
 
+// std includes
+#include <ostream>
+
 namespace cmm
 {
     class PlatformBase;
@@ -30,8 +33,9 @@ namespace cmm
          *       exception is thrown.
          *
          * @param platform A pointer to the implementing platform.
+         * @param the output stream we are writing to.
          */
-        explicit Encode(PlatformBase* platform);
+        Encode(PlatformBase* platform, std::ostream& os);
 
         /**
          * Copy constructor
@@ -59,11 +63,28 @@ namespace cmm
         Encode& operator= (Encode&&) CMM_NOEXCEPT = delete;
 
         /**
+         * Get the stream we are writing to.
+         *
+         * @return reference to the std::ostringstream.
+         */
+        std::ostream& getOStream() CMM_NOEXCEPT;
+
+        /**
          * Gets a unique temp variable.
          *
          * @return std::string.
          */
         std::string getTemp() const;
+
+        /**
+         * Emits a newline.
+         */
+        void emitNewline() const CMM_NOEXCEPT;
+
+        /**
+         * Emits a single space.
+         */
+        void emitSpace() const CMM_NOEXCEPT;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated"
@@ -97,6 +118,9 @@ namespace cmm
 
         // A pointer to the current platform.
         PlatformBase* platform;
+
+        // The file we are writing to.
+        std::ostream& os;
 
         // In this context, ScopeManager will re-use variables
         // for all labels/asm tags.

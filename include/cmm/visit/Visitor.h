@@ -36,11 +36,15 @@ namespace cmm
         VisitorResult(std::string* str, const bool owned) CMM_NOEXCEPT;
 
         VisitorResult(const VisitorResult&) = delete;
-        VisitorResult(VisitorResult&&) CMM_NOEXCEPT = default;
+        VisitorResult(VisitorResult&& other) CMM_NOEXCEPT;
         ~VisitorResult();
 
         VisitorResult& operator= (const VisitorResult&) = delete;
-        VisitorResult& operator= (VisitorResult&&) CMM_NOEXCEPT = default;
+        VisitorResult& operator= (VisitorResult&& other) CMM_NOEXCEPT;
+
+    private:
+
+        void clean() CMM_NOEXCEPT;
 
     public:
 

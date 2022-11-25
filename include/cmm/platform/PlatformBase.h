@@ -98,26 +98,33 @@ namespace cmm
          */
         virtual std::string getFooter() const;
 
-        virtual std::optional<VisitorResult> emitBlockNodeStart(Encode* encoder);
-        virtual std::optional<VisitorResult> emitBlockNodeEnd(Encode* encoder);
+        virtual void emitBlockNodeStart(Encode* encoder) = 0;
+        virtual void emitBlockNodeEnd(Encode* encoder) = 0;
+        virtual void emitFunctionStart(Encode* encoder, const std::string& name) = 0;
+        virtual void emitFunctionEnd(Encode* encoder) = 0;
+
+        virtual std::string resolveDatatype(const CType& datatype) = 0;
 
         virtual std::optional<VisitorResult> emit(Encode* encoder, ArgNode& node, const VisitorResult& expr) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) = 0;
         // virtual std::optional<VisitorResult> emit(Encode* encoder, BlockNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, CastNode& node, const VisitorResult& expr) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, DerefNode& node, const VisitorResult& expr) = 0;
+#if 0
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionCallNode& node, const std::vector<VisitorResult>& params) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDeclarationStatementNode& node, const VisitorResult& type,
             const std::vector<VisitorResult>& params) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDefinitionStatementNode& node, const VisitorResult& type,
             const std::vector<VisitorResult>& params) = 0;
+#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
             const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) = 0;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const VisitorResult& litteral) = 0;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node, const VisitorResult& type,
             const std::optional<VisitorResult>& optExpr) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) = 0;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, ReturnStatementNode& node, const VisitorResult& expr) = 0;
+        // virtual std::optional<VisitorResult> emit(Encode* encoder, ReturnStatementNode& node, const VisitorResult& expr) = 0;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, ReturnStatementNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructDefinitionStatementNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructFwdDeclarationStatementNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, TypeNode& node) = 0;

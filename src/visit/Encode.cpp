@@ -15,7 +15,7 @@
 
 namespace cmm
 {
-    Encode::Encode(PlatformBase* platform) : platform(platform)
+    Encode::Encode(PlatformBase* platform, std::ostream& os) : platform(platform), os(os)
     {
         if (platform == nullptr)
         {
@@ -23,11 +23,38 @@ namespace cmm
         }
     }
 
+    std::ostream& Encode::getOStream() CMM_NOEXCEPT
+    {
+        return os;
+    }
+
     std::string Encode::getTemp() const
     {
         static std::size_t count = 0;
-        return std::to_string(count++);
+
+        std::string result = "%temp";
+        result += std::to_string(count++);
+
+        return result;
     }
+
+    void Encode::emitNewline() const CMM_NOEXCEPT
+    {
+        os << "\n";
+    }
+
+    void Encode::emitSpace() const CMM_NOEXCEPT
+    {
+        os << " ";
+    }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
+    VisitorResult Encode::visit(AddressOfNode& node)
+    {
+        return VisitorResult();
+    }
+#pragma GCC diagnostic pop
 
     VisitorResult Encode::visit(ArgNode& node)
     {
@@ -101,6 +128,8 @@ namespace cmm
 
     VisitorResult Encode::visit(FunctionCallNode& node)
     {
+        platform->emitFunctionStart(this, node.getName());
+
         std::vector<VisitorResult> results;
         results.reserve(node.size());
 
@@ -110,14 +139,21 @@ namespace cmm
             results.emplace_back(std::move(result));
         }
 
-        auto optVisitorResult = platform->emit(this, node, results);
-        return std::move(*optVisitorResult);
+        platform->emitFunctionEnd(this);
+        emitNewline();
+
+        // auto optVisitorResult = platform->emit(this, node, results);
+        // return std::move(*optVisitorResult);
+        return VisitorResult();
     }
 
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)
     {
         auto& typeNode = node.getTypeNode();
         auto typeNodeVisitorResult = typeNode.accept(this);
+
+        emitSpace();
+        platform->emitFunctionStart(this, node.getName());
 
         std::vector<VisitorResult> paramResults;
         paramResults.reserve(node.paramCount());
@@ -128,7 +164,8 @@ namespace cmm
             paramResults.emplace_back(std::move(result));
         }
 
-        platform->emit(this, node, typeNodeVisitorResult, paramResults);
+        platform->emitFunctionEnd(this);
+        emitNewline();
 
         return VisitorResult();
     }
@@ -140,6 +177,9 @@ namespace cmm
         auto& typeNode = node.getTypeNode();
         auto typeNodeVisitorResult = typeNode.accept(this);
 
+        emitSpace();
+        platform->emitFunctionStart(this, node.getName());
+
         std::vector<VisitorResult> paramResults;
         paramResults.reserve(node.paramCount());
 
@@ -149,7 +189,8 @@ namespace cmm
             paramResults.emplace_back(std::move(result));
         }
 
-        platform->emit(this, node, typeNodeVisitorResult, paramResults);
+        platform->emitFunctionEnd(this);
+        emitNewline();
         platform->emitBlockNodeStart(this);
 
         auto& blockNode = node.getBlock();
@@ -157,10 +198,11 @@ namespace cmm
 
         scope.pop();
 
-        auto* returnStatementPtr = node.getReturnStatement();
-        auto returnStatementVisitorResult = returnStatementPtr->accept(this);
-        platform->emit(this, *returnStatementPtr, returnStatementVisitorResult);
+        // auto* returnStatementPtr = node.getReturnStatement();
+        // auto returnStatementVisitorResult = returnStatementPtr->accept(this);
+        // platform->emit(this, *returnStatementPtr, returnStatementVisitorResult);
         platform->emitBlockNodeEnd(this);
+        emitNewline();
 
         return VisitorResult();
     }
@@ -195,37 +237,7 @@ namespace cmm
 
     VisitorResult Encode::visit(LitteralNode& node)
     {
-        switch (node.getDatatype().type)
-        {
-        case EnumCType::NULL_T:
-            break;
-        case EnumCType::VOID:
-            break;
-        case EnumCType::VOID_PTR:
-            break;
-        case EnumCType::STRING:
-            break;
-        case EnumCType::BOOL:
-            return VisitorResult(new std::string(node.getValue().valueBool ? "true" : "false"), true);
-        case EnumCType::CHAR:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueChar)), true);
-        case EnumCType::INT8:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueS8)), true);
-        case EnumCType::INT16:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueS16)), true);
-        case EnumCType::INT32:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueS32)), true);
-        case EnumCType::INT64:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueS64)), true);
-        case EnumCType::FLOAT:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueF32)), true);
-        case EnumCType::DOUBLE:
-            return VisitorResult(new std::string(std::to_string(node.getValue().valueF64)), true);
-        case EnumCType::STRUCT:
-            break;
-        default:
-            break;
-        }
+        platform->emit(this, node);
 
         return VisitorResult();
     }
@@ -260,11 +272,13 @@ namespace cmm
 
     VisitorResult Encode::visit(ReturnStatementNode& node)
     {
+        platform->emit(this, node);
+        emitSpace();
+
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
-        auto optVisitorResult = platform->emit(this, node, visitorResult);
 
-        return std::move(*optVisitorResult);
+        return VisitorResult();
     }
 
     VisitorResult Encode::visit(StructDefinitionStatementNode& node)
@@ -306,17 +320,27 @@ namespace cmm
 
     VisitorResult Encode::visit(VariableNode& node)
     {
+        // TODO: We don't just want to emit the variable because
+        // it may not be the 'latest'.
         auto optVisitorResult = platform->emit(this, node);
-        return std::move(*optVisitorResult);
+        // return optVisitorResult;
+        return VisitorResult();
     }
 
     VisitorResult Encode::visit(VariableDeclarationStatementNode& node)
     {
         auto& typeNode = node.getTypeNode();
         auto typeNodeVisitorResult = typeNode.accept(this);
-        auto optVisitorResult = platform->emit(this, node, typeNodeVisitorResult);
+        emitSpace();
+        // auto optVisitorResult = platform->emit(this, node, typeNodeVisitorResult);
 
-        return std::move(*optVisitorResult);
+        // return std::move(*optVisitorResult);
+        auto& variable = node.getVariable();
+        platform->emit(this, variable);
+        os << ";"; // TODO: move this somewhere else.
+        emitNewline();
+
+        return VisitorResult();
     }
 
     VisitorResult Encode::visit(WhileStatementNode& node)

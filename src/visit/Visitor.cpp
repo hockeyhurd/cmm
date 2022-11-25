@@ -28,24 +28,70 @@ namespace cmm
         result.str = str;
     }
 
-    VisitorResult::~VisitorResult()
+    VisitorResult::VisitorResult(VisitorResult&& other) CMM_NOEXCEPT : owned(other.owned),
+        resultType(other.resultType)
     {
-        if (owned)
+        switch (resultType)
         {
-            switch (resultType)
-            {
             case EnumVisitorResultType::NODE:
-                delete result.node;
-                result.node = nullptr;
+                result.node = other.result.node;
                 break;
             case EnumVisitorResultType::STRING:
-                delete result.str;
-                result.str = nullptr;
+                result.str = other.result.str;
                 break;
             default:
                 // No-op
                 break;
+        }
+
+        other.owned = false;
+    }
+
+    VisitorResult& VisitorResult::operator= (VisitorResult&& other) CMM_NOEXCEPT
+    {
+        clean();
+
+        switch (resultType)
+        {
+            case EnumVisitorResultType::NODE:
+                result.node = other.result.node;
+                break;
+            case EnumVisitorResultType::STRING:
+                result.str = other.result.str;
+                break;
+            default:
+                // No-op
+                break;
+        }
+
+        other.owned = false;
+        return *this;
+    }
+
+    VisitorResult::~VisitorResult()
+    {
+        clean();
+    }
+
+    void VisitorResult::clean() CMM_NOEXCEPT
+    {
+        switch (resultType)
+        {
+            case EnumVisitorResultType::NODE:
+            {
+                if (owned) delete result.node;
+                result.node = nullptr;
+                break;
             }
+            case EnumVisitorResultType::STRING:
+            {
+                if (owned) delete result.str;
+                result.str = nullptr;
+                break;
+            }
+            default:
+                // No-op
+                break;
         }
     }
 }

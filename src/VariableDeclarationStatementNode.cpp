@@ -45,6 +45,16 @@ namespace cmm
         return variable.getName();
     }
 
+    VariableNode& VariableDeclarationStatementNode::getVariable() CMM_NOEXCEPT
+    {
+        return variable;
+    }
+
+    const VariableNode& VariableDeclarationStatementNode::getVariable() const CMM_NOEXCEPT
+    {
+        return variable;
+    }
+
     VisitorResult VariableDeclarationStatementNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

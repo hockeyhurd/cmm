@@ -451,7 +451,6 @@ namespace cmm
         scope.pop();
 
         auto* returnStatementPtr = node.getReturnStatement();
-        returnStatementPtr->accept(this);
 
         // Cases to check:
         // 1. void with optional 'return;' statement. Error if return statement exists and is non-void.
