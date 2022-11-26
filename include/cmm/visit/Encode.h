@@ -116,11 +116,20 @@ namespace cmm
 
     private:
 
+        void incrementIndent(const s32 amount = 4) CMM_NOEXCEPT;
+        void decrementIndent(const s32 amount = -4) CMM_NOEXCEPT;
+        void printIndent() const;
+
+    private:
+
         // A pointer to the current platform.
         PlatformBase* platform;
 
         // The file we are writing to.
         std::ostream& os;
+
+        // The current indentation amount.
+        s32 indent;
 
         // In this context, ScopeManager will re-use variables
         // for all labels/asm tags.

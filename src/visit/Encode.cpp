@@ -15,7 +15,7 @@
 
 namespace cmm
 {
-    Encode::Encode(PlatformBase* platform, std::ostream& os) : platform(platform), os(os)
+    Encode::Encode(PlatformBase* platform, std::ostream& os) : platform(platform), os(os), indent(0)
     {
         if (platform == nullptr)
         {
@@ -41,6 +41,7 @@ namespace cmm
     void Encode::emitNewline() const CMM_NOEXCEPT
     {
         os << "\n";
+        printIndent();
     }
 
     void Encode::emitSpace() const CMM_NOEXCEPT
@@ -72,23 +73,24 @@ namespace cmm
         // then re-write the sub/right expression as just another "RVALUE".
         // I guess we'll just need to re-visit this when we get to code generation.
 
-        auto* leftNode = node.getLeft();
-        auto leftNodeResult = leftNode->accept(this);
-
-        // Establish the Node's datatype by it's left node.
-        const auto& leftType = leftNode->getDatatype();
-        node.setDatatype(leftType);
-
         auto* rightNode = node.getRight();
-        auto rightNodeResult = rightNode->accept(this);
+        const auto rightNodeResult = rightNode->accept(this);
+        emitNewline();
+
+        auto* leftNode = node.getLeft();
+        const auto leftNodeResult = leftNode->accept(this);
+        emitNewline();
 
         auto optVisitorResult = platform->emit(this, node, leftNodeResult, rightNodeResult);
+        emitNewline();
 
-        return std::move(*optVisitorResult);
+        return optVisitorResult.has_value() ? std::move(*optVisitorResult) : VisitorResult();
     }
 
     VisitorResult Encode::visit(BlockNode& node)
     {
+        incrementIndent();
+        emitNewline();
         scope.push(true);
 
         for (auto& statementPtr : node)
@@ -97,6 +99,7 @@ namespace cmm
         }
 
         scope.pop();
+        decrementIndent();
 
         return VisitorResult();
     }
@@ -120,6 +123,7 @@ namespace cmm
     VisitorResult Encode::visit(DerefNode& node)
     {
         auto* expression = node.getExpression();
+        [[maybe_unused]]
         auto visitorResult = expression->accept(this);
         auto optVisitorResult = platform->emit(this, node, visitorResult);
 
@@ -174,6 +178,9 @@ namespace cmm
     {
         scope.push(true);
 
+        platform->emit(this, node);
+        emitSpace();
+
         auto& typeNode = node.getTypeNode();
         auto typeNodeVisitorResult = typeNode.accept(this);
 
@@ -198,9 +205,6 @@ namespace cmm
 
         scope.pop();
 
-        // auto* returnStatementPtr = node.getReturnStatement();
-        // auto returnStatementVisitorResult = returnStatementPtr->accept(this);
-        // platform->emit(this, *returnStatementPtr, returnStatementVisitorResult);
         platform->emitBlockNodeEnd(this);
         emitNewline();
 
@@ -237,9 +241,9 @@ namespace cmm
 
     VisitorResult Encode::visit(LitteralNode& node)
     {
-        platform->emit(this, node);
+        auto result = platform->emit(this, node, true);
 
-        return VisitorResult();
+        return std::move(*result);
     }
 
     VisitorResult Encode::visit(ParameterNode& node)
@@ -272,11 +276,9 @@ namespace cmm
 
     VisitorResult Encode::visit(ReturnStatementNode& node)
     {
-        platform->emit(this, node);
-        emitSpace();
-
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
+        platform->emit(this, node, visitorResult);
 
         return VisitorResult();
     }
@@ -322,21 +324,22 @@ namespace cmm
     {
         // TODO: We don't just want to emit the variable because
         // it may not be the 'latest'.
-        auto optVisitorResult = platform->emit(this, node);
-        // return optVisitorResult;
-        return VisitorResult();
+        auto optVisitorResult = platform->emit(this, node, true);
+        return std::move(*optVisitorResult);
     }
 
     VisitorResult Encode::visit(VariableDeclarationStatementNode& node)
     {
+        auto& variable = node.getVariable();
+        platform->emit(this, variable, false);
+        emitSpace();
+
+        platform->emit(this, node);
+        emitSpace();
+
         auto& typeNode = node.getTypeNode();
         auto typeNodeVisitorResult = typeNode.accept(this);
-        emitSpace();
-        // auto optVisitorResult = platform->emit(this, node, typeNodeVisitorResult);
 
-        // return std::move(*optVisitorResult);
-        auto& variable = node.getVariable();
-        platform->emit(this, variable);
         os << ";"; // TODO: move this somewhere else.
         emitNewline();
 
@@ -353,6 +356,29 @@ namespace cmm
         platform->emit(this, node, condVisitorResult, statementVisitorResult);
 
         return VisitorResult();
+    }
+
+    void Encode::incrementIndent(const s32 amount) CMM_NOEXCEPT
+    {
+        indent += amount;
+    }
+
+    void Encode::decrementIndent(const s32 amount) CMM_NOEXCEPT
+    {
+        indent -= amount;
+
+        if (indent < 0)
+        {
+            indent = 0;
+        }
+    }
+
+    void Encode::printIndent() const
+    {
+        for (s32 i = 0; i < indent; ++i)
+        {
+            emitSpace();
+        }
     }
 }
 
