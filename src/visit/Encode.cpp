@@ -68,18 +68,11 @@ namespace cmm
 
     VisitorResult Encode::visit(BinOpNode& node)
     {
-        // TODO: How should we handle the case of: "x = y = 42;"??
-        // Ideally, we would like to treat the sub/right-expression as "normal",
-        // then re-write the sub/right expression as just another "RVALUE".
-        // I guess we'll just need to re-visit this when we get to code generation.
-
         auto* rightNode = node.getRight();
         const auto rightNodeResult = rightNode->accept(this);
-        // emitNewline();
 
         auto* leftNode = node.getLeft();
         const auto leftNodeResult = leftNode->accept(this);
-        emitNewline();
 
         auto optVisitorResult = platform->emit(this, node, leftNodeResult, rightNodeResult);
         emitNewline();
@@ -341,8 +334,6 @@ namespace cmm
 
         auto& typeNode = node.getTypeNode();
         auto typeNodeVisitorResult = typeNode.accept(this);
-
-        os << ";"; // TODO: move this somewhere else.
         emitNewline();
 
         return VisitorResult();
