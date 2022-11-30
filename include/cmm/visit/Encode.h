@@ -114,11 +114,12 @@ namespace cmm
         virtual VisitorResult visit(VariableNode& node) override;
         virtual VisitorResult visit(WhileStatementNode& node) override;
 
+        void printIndent() const;
+
     private:
 
         void incrementIndent(const s32 amount = 4) CMM_NOEXCEPT;
         void decrementIndent(const s32 amount = -4) CMM_NOEXCEPT;
-        void printIndent() const;
 
     private:
 

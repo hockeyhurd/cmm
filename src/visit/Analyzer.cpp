@@ -716,6 +716,11 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            node.deref();
+        }
+
         return VisitorResult();
     }
 

@@ -41,7 +41,7 @@ namespace cmm
     void Encode::emitNewline() const CMM_NOEXCEPT
     {
         os << "\n";
-        printIndent();
+        // printIndent();
     }
 
     void Encode::emitSpace() const CMM_NOEXCEPT
@@ -75,7 +75,7 @@ namespace cmm
 
         auto* rightNode = node.getRight();
         const auto rightNodeResult = rightNode->accept(this);
-        emitNewline();
+        // emitNewline();
 
         auto* leftNode = node.getLeft();
         const auto leftNodeResult = leftNode->accept(this);
@@ -126,6 +126,7 @@ namespace cmm
         [[maybe_unused]]
         auto visitorResult = expression->accept(this);
         auto optVisitorResult = platform->emit(this, node, visitorResult);
+        emitNewline();
 
         return std::move(*optVisitorResult);
     }
@@ -330,6 +331,7 @@ namespace cmm
 
     VisitorResult Encode::visit(VariableDeclarationStatementNode& node)
     {
+        printIndent();
         auto& variable = node.getVariable();
         platform->emit(this, variable, false);
         emitSpace();
@@ -358,6 +360,14 @@ namespace cmm
         return VisitorResult();
     }
 
+    void Encode::printIndent() const
+    {
+        for (s32 i = 0; i < indent; ++i)
+        {
+            emitSpace();
+        }
+    }
+
     void Encode::incrementIndent(const s32 amount) CMM_NOEXCEPT
     {
         indent += amount;
@@ -370,14 +380,6 @@ namespace cmm
         if (indent < 0)
         {
             indent = 0;
-        }
-    }
-
-    void Encode::printIndent() const
-    {
-        for (s32 i = 0; i < indent; ++i)
-        {
-            emitSpace();
         }
     }
 }

@@ -15,7 +15,7 @@ using namespace cmm;
 
 int main()
 {
-    std::string input = "int main() { int a; int b; b = 42; a = b; return 0; }";
+    std::string input = "int main() { int a; a = 10; int b; b = 32; int c; c = a + b; return c; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

@@ -104,6 +104,12 @@ namespace cmm
          */
         void cast(const CType& newType);
 
+        /**
+         * Adds a DerefNode to the return expression.
+         * Note: This assumes the caller has already performed checks.
+         */
+        void deref();
+
         VisitorResult accept(Visitor* visitor) override
         {
             return visitor->visit(*this);

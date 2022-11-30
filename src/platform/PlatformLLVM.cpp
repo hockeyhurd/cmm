@@ -105,10 +105,15 @@ namespace cmm
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) /* override */
     {
         auto outputVar = encoder->getTemp();
+        auto referenceDatatype = node.getRight()->getDatatype();
         auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
-        auto rightTypeStr = resolveDatatype(node.getRight()->getDatatype());
+        auto rightTypeStr = resolveDatatype(referenceDatatype);
+        const bool includeNSW = referenceDatatype.pointers == 0 && referenceDatatype.type != EnumCType::FLOAT && referenceDatatype.type != EnumCType::DOUBLE;
+
         auto& os = encoder->getOStream();
-        // os << outputVar << " = " << *left.result.str << " ";
+        encoder->printIndent();
+
+        std::string optResult;
 
         // ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE
         const EnumBinOpNodeType binOpType = node.getTypeof();
@@ -119,17 +124,24 @@ namespace cmm
             os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
             break;
         case EnumBinOpNodeType::ADD:
-            // os << "add " 
+            optResult = encoder->getTemp();
+            os << optResult << " = add " << (includeNSW ? "nsw " : "") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
             break;
         case EnumBinOpNodeType::SUBTRACT:
+            optResult = encoder->getTemp();
+            os << optResult << " = sub " << (includeNSW ? "nsw " : "") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
             break;
         case EnumBinOpNodeType::MULTIPLY:
+            optResult = encoder->getTemp();
+            os << optResult << " = mul " << (includeNSW ? "nsw " : "") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
             break;
         case EnumBinOpNodeType::DIVIDE:
+            optResult = encoder->getTemp();
+            os << optResult << " = " << (includeNSW ? "sdiv nsw " : "div ") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
             break;
         }
 
-        return std::nullopt;
+        return optResult.empty() ? std::nullopt : std::make_optional<VisitorResult>(new std::string(std::move(optResult)), true);
     }
 
     /* virtual */
@@ -144,8 +156,8 @@ namespace cmm
         const auto& datatype = node.getDatatype();
         auto strType = resolveDatatype(datatype);
         auto temp = encoder->getTemp();
+        encoder->printIndent();
         auto& os = encoder->getOStream();
-
         os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
 
         return VisitorResult(new std::string(std::move(temp)), true);
@@ -258,6 +270,7 @@ namespace cmm
         std::string str = resolveDatatype(*node.getDatatype());
 
         auto& os = encoder->getOStream();
+        encoder->printIndent();
         os << "ret " << str << " " << *expr.result.str;
 
         return std::nullopt;
