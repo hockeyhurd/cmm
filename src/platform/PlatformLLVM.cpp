@@ -108,40 +108,68 @@ namespace cmm
         auto referenceDatatype = node.getRight()->getDatatype();
         auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
         auto rightTypeStr = resolveDatatype(referenceDatatype);
-        const bool includeNSW = referenceDatatype.pointers == 0 && referenceDatatype.type != EnumCType::FLOAT && referenceDatatype.type != EnumCType::DOUBLE;
+        const bool isFloatingPoint = referenceDatatype.pointers == 0 && (referenceDatatype.type == EnumCType::FLOAT || referenceDatatype.type == EnumCType::DOUBLE);
+
+        // TODO: When we support unsigned types, make this dynamic:
+        CMM_CONSTEXPR bool isSignedInt = false;
 
         auto& os = encoder->getOStream();
         encoder->printIndent();
 
-        std::string optResult;
 
         // ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE
         const EnumBinOpNodeType binOpType = node.getTypeof();
 
+        if (binOpType == EnumBinOpNodeType::ASSIGNMENT)
+        {
+            os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
+            return std::nullopt;
+        }
+
+        auto strResult = encoder->getTemp();
+        os << strResult << " = ";
+
         switch (binOpType)
         {
         case EnumBinOpNodeType::ASSIGNMENT:
-            os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
             break;
         case EnumBinOpNodeType::ADD:
-            optResult = encoder->getTemp();
-            os << optResult << " = add " << (includeNSW ? "nsw " : "") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
+            if (isFloatingPoint)
+                os << "fadd ";
+            else
+                os << "add " << (isSignedInt ? "nsw " : "");
+
             break;
         case EnumBinOpNodeType::SUBTRACT:
-            optResult = encoder->getTemp();
-            os << optResult << " = sub " << (includeNSW ? "nsw " : "") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
+            if (isFloatingPoint)
+                os << "fsub ";
+            else
+                os << "sub " << (isSignedInt ? "nsw " : "");
             break;
         case EnumBinOpNodeType::MULTIPLY:
-            optResult = encoder->getTemp();
-            os << optResult << " = mul " << (includeNSW ? "nsw " : "") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
+            if (isFloatingPoint)
+                os << "fmul ";
+            else
+                os << "mul " << (isSignedInt ? "nsw " : "");
             break;
         case EnumBinOpNodeType::DIVIDE:
-            optResult = encoder->getTemp();
-            os << optResult << " = " << (includeNSW ? "sdiv nsw " : "div ") << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
+            if (isFloatingPoint)
+                os << "fdiv ";
+            else
+                os << (isSignedInt ? "sdiv nsw " : "udiv");
             break;
+        default:
+            {
+                static auto& reporter = Reporter::instance();
+                reporter.bug("Un-implemented EnumBinOpNodeType", node.getLocation(), true);
+            }
+
+            return std::nullopt;
         }
 
-        return optResult.empty() ? std::nullopt : std::make_optional<VisitorResult>(new std::string(std::move(optResult)), true);
+        os << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
+
+        return std::make_optional<VisitorResult>(new std::string(std::move(strResult)), true);
     }
 
     /* virtual */
