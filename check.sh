@@ -15,9 +15,8 @@ echo "Cleaning old file..."
 rm -f $OUTFILE
 
 echo "Starting cppcheck"
-# Note: normally --enable=all is what we want, but since we are planning to use the script with the HSON library,
-# we don't want errors such as 'unusedFunction' to be enabled.
-time cppcheck --std=c++11 --enable=warning,style,performance,portability,information,missingInclude --inconclusive \
+
+time cppcheck --std=c++11 --enable=all --inconclusive \
     --xml --xml-version=2 graph 2 -j $JOBS -Iinclude/cmm src include 2> $OUTFILE
 echo "Done"
 
