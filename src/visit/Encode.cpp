@@ -280,6 +280,9 @@ namespace cmm
     VisitorResult Encode::visit(StructDefinitionStatementNode& node)
     {
         platform->emit(this, node);
+
+        // We'll emit a second line to make formatting a little more clean.
+        emitNewline();
         return VisitorResult();
     }
 

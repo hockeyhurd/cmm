@@ -16,6 +16,9 @@
 
 namespace cmm
 {
+    /* static */
+    const std::string PlatformLLVM::structNamePrefix = "%struct.";
+
     PlatformLLVM::PlatformLLVM() : PlatformBase("LLVM")
     {
     }
@@ -307,6 +310,31 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, StructDefinitionStatementNode& node) /* override */
     {
+        const auto& nameOfStruct = node.getName();
+        auto& os = encoder->getOStream();
+        os << PlatformLLVM::structNamePrefix << nameOfStruct;
+        os << " = type { ";
+
+        const auto& blockNode = node.getBlockNode();
+        const auto endIter = blockNode.cend();
+
+        for (auto iter = blockNode.cbegin(); iter != endIter; ++iter)
+        {
+            const auto& fieldStatementPtr = *iter;
+            const auto& varDeclStatement = dynamic_cast<const VariableDeclarationStatementNode&>(*fieldStatementPtr.get());
+            const auto& datatype = varDeclStatement.getDatatype();
+            const auto datatypeAsString = resolveDatatype(datatype);
+            os << datatypeAsString;
+
+            if (iter + 1 != endIter)
+            {
+                os << ", ";
+            }
+        }
+
+        os << " }";
+        encoder->emitNewline();
+
         return std::nullopt;
     }
 

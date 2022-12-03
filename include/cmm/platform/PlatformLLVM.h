@@ -85,6 +85,12 @@ namespace cmm
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, WhileStatementNode& node, const VisitorResult& cond,
             const VisitorResult& statement) override;
+
+    private:
+
+        // The prefix to each struct name (ex. "%struct." used to make "%struct.A",
+        // where 'A' is the name of the struct).
+        static const std::string structNamePrefix;
     };
 }
 
