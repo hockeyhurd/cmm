@@ -70,6 +70,13 @@ namespace cmm
         std::ostream& getOStream() CMM_NOEXCEPT;
 
         /**
+         * Gets a unique param variable.
+         *
+         * @return std::string.
+         */
+        std::string getParam() const;
+
+        /**
          * Gets a unique temp variable.
          *
          * @return std::string.
@@ -119,7 +126,7 @@ namespace cmm
     private:
 
         void incrementIndent(const s32 amount = 4) CMM_NOEXCEPT;
-        void decrementIndent(const s32 amount = -4) CMM_NOEXCEPT;
+        void decrementIndent(const s32 amount = 4) CMM_NOEXCEPT;
 
     private:
 

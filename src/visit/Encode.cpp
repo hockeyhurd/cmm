@@ -28,6 +28,16 @@ namespace cmm
         return os;
     }
 
+    std::string Encode::getParam() const
+    {
+        static std::size_t count = 0;
+
+        std::string result = "%p";
+        result += std::to_string(count++);
+
+        return result;
+    }
+
     std::string Encode::getTemp() const
     {
         static std::size_t count = 0;
@@ -41,7 +51,6 @@ namespace cmm
     void Encode::emitNewline() const CMM_NOEXCEPT
     {
         os << "\n";
-        // printIndent();
     }
 
     void Encode::emitSpace() const CMM_NOEXCEPT
@@ -184,10 +193,17 @@ namespace cmm
         std::vector<VisitorResult> paramResults;
         paramResults.reserve(node.paramCount());
 
-        for (auto& paramNode : node)
+        const auto endParamIter = node.end();
+
+        for (auto iter = node.begin(); iter != endParamIter; ++iter)
         {
-            auto result = paramNode.accept(this);
+            auto result = iter->accept(this);
             paramResults.emplace_back(std::move(result));
+
+            if (iter + 1 != endParamIter)
+            {
+                os << ", ";
+            }
         }
 
         platform->emitFunctionEnd(this);
@@ -200,6 +216,9 @@ namespace cmm
         scope.pop();
 
         platform->emitBlockNodeEnd(this);
+        emitNewline();
+
+        // emit a second new line for better readiblity.
         emitNewline();
 
         return VisitorResult();
@@ -254,7 +273,7 @@ namespace cmm
             optVariableVisitorResult = std::make_optional(std::move(result));
         }
 
-        auto optVisitorResult = platform->emit(this, node, typeNodeVisitorResult, optVariableVisitorResult);
+        auto optVisitorResult = platform->emit(this, node);
 
         return std::move(*optVisitorResult);
     }

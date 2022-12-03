@@ -73,8 +73,7 @@ namespace cmm
         virtual std::optional<VisitorResult> emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
             const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const bool defer) override;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node, const VisitorResult& type,
-            const std::optional<VisitorResult>& optExpr) override;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ReturnStatementNode& node, const VisitorResult& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructDefinitionStatementNode& node) override;

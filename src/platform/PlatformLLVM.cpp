@@ -119,7 +119,6 @@ namespace cmm
         auto& os = encoder->getOStream();
         encoder->printIndent();
 
-
         // ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE
         const EnumBinOpNodeType binOpType = node.getTypeof();
 
@@ -283,10 +282,26 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ParameterNode& node, const VisitorResult& type,
-            const std::optional<VisitorResult>& optExpr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ParameterNode& node) /* override */
     {
-        return std::nullopt;
+        const auto& typeNode = node.getDatatype();
+        const auto& datatype = typeNode.getDatatype();
+        const auto datatypeAsString = resolveDatatype(datatype);
+        const auto& optVariableNode = node.getVariable();
+
+        auto& os = encoder->getOStream();
+        os << " ";
+
+        if (optVariableNode.has_value())
+        {
+            os << optVariableNode->getName();
+            return std::make_optional<VisitorResult>(new std::string(optVariableNode->getName()), true);
+        }
+
+        auto tempParam = encoder->getParam();
+        os << tempParam;
+
+        return std::make_optional<VisitorResult>(new std::string(std::move(tempParam)), true);
     }
 
     /* virtual */
