@@ -302,9 +302,6 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ParameterNode& node) /* override */
     {
-        const auto& typeNode = node.getDatatype();
-        const auto& datatype = typeNode.getDatatype();
-        const auto datatypeAsString = resolveDatatype(datatype);
         const auto& optVariableNode = node.getVariable();
 
         auto& os = encoder->getOStream();
