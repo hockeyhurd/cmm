@@ -102,6 +102,8 @@ namespace cmm
         virtual void emitBlockNodeEnd(Encode* encoder) = 0;
         virtual void emitFunctionStart(Encode* encoder, const std::string& name) = 0;
         virtual void emitFunctionEnd(Encode* encoder) = 0;
+        virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) = 0;
+        virtual void emitFunctionCallEnd(Encode* encoder) = 0;
 
         virtual std::string resolveDatatype(const CType& datatype) = 0;
 

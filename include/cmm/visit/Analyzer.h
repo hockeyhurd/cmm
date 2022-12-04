@@ -22,6 +22,7 @@
 #include <stack>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace cmm
@@ -111,7 +112,7 @@ namespace cmm
         ScopeManager scope;
 
         // A map for keeping track of functions available.
-        std::unordered_map<std::string, EnumSymState> functionTable;
+        std::unordered_map<std::string, std::pair<EnumSymState, CType>> functionTable;
 
         // The table for tracking structs.
         StructTable structTable;

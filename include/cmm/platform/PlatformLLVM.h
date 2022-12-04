@@ -57,6 +57,8 @@ namespace cmm
         virtual void emitBlockNodeEnd(Encode* encoder) override;
         virtual void emitFunctionStart(Encode* encoder, const std::string& name) override;
         virtual void emitFunctionEnd(Encode* encoder) override;
+        virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) override;
+        virtual void emitFunctionCallEnd(Encode* encoder) override;
 
         virtual std::string resolveDatatype(const CType& datatype) override;
 

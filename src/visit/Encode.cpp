@@ -135,7 +135,8 @@ namespace cmm
 
     VisitorResult Encode::visit(FunctionCallNode& node)
     {
-        platform->emitFunctionStart(this, node.getName());
+        const auto& datatype = node.getDatatype();
+        auto optLabel = platform->emitFunctionCallStart(this, datatype, node.getName());
 
         std::vector<VisitorResult> results;
         results.reserve(node.size());
@@ -146,12 +147,12 @@ namespace cmm
             results.emplace_back(std::move(result));
         }
 
-        platform->emitFunctionEnd(this);
+        platform->emitFunctionCallEnd(this);
         emitNewline();
 
-        // auto optVisitorResult = platform->emit(this, node, results);
-        // return std::move(*optVisitorResult);
-        return VisitorResult();
+        // Note: this std::move will make this non-portable. Leave for now
+        // to support LLVM.
+        return VisitorResult(new std::string(std::move(*optLabel)), true);
     }
 
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)

@@ -15,7 +15,7 @@ using namespace cmm;
 
 int main()
 {
-    std::string input = "struct Vec2 { int x; int y; }; int sum(int x, int y) { return x + y; } int main() { int a; a = 10; int b; b = 32; int c; c = a + b; return c; }";
+    std::string input = "struct Vec2 { int x; int y; }; int sum(int x, int y) { return x + y; } int main() { int a; a = 10; int b; b = 32; int c; c = sum(a, b); return c; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
