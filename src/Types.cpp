@@ -59,9 +59,50 @@ namespace cmm
         return std::nullopt;
     }
 
+    CType::CType() CMM_NOEXCEPT : type(EnumCType::NULL_T), pointers(0xFFFF), optStructName(std::nullopt)
+    {
+    }
+
     CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string> optStructName) CMM_NOEXCEPT :
         type(type), pointers(pointers), optStructName(optStructName)
     {
+    }
+
+    CType::CType(const CType& other) : type(other.type), pointers(other.pointers), optStructName(std::nullopt)
+    {
+        if (other.optStructName.has_value())
+        {
+            optStructName = std::make_optional(*other.optStructName);
+        }
+    }
+
+    CType::CType(CType&& other) CMM_NOEXCEPT : type(other.type), pointers(other.pointers),
+        optStructName(std::move(other.optStructName))
+    {
+    }
+
+    CType& CType::operator= (const CType& other)
+    {
+        if (this != &other)
+        {
+            type = other.type;
+            pointers = other.pointers;
+            optStructName = other.optStructName;
+        }
+
+        return *this;
+    }
+
+    CType& CType::operator= (CType&& other) CMM_NOEXCEPT
+    {
+        if (this != &other)
+        {
+            type = other.type;
+            pointers = other.pointers;
+            optStructName = std::move(other.optStructName);
+        }
+
+        return *this;
     }
 
     bool CType::isPointerType() const CMM_NOEXCEPT

@@ -47,6 +47,24 @@ namespace cmm
         os << ")";
     }
 
+    std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) /* override */
+    {
+        auto& os = encoder->getOStream();
+        auto temp = encoder->getTemp();
+        const auto datatypeAsString = resolveDatatype(datatype);
+
+        encoder->printIndent();
+        os << temp << " = call " << datatypeAsString << " @" << name << "(";
+
+        return std::make_optional(std::move(temp));
+    }
+
+    void PlatformLLVM::emitFunctionCallEnd(Encode* encoder) /* override */
+    {
+        auto& os = encoder->getOStream();
+        os << ")";
+    }
+
     std::string PlatformLLVM::resolveDatatype(const CType& datatype) /* override */
     {
         std::string str;

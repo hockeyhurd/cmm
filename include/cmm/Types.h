@@ -225,8 +225,17 @@ namespace cmm
         u16 pointers;
         std::optional<std::string> optStructName;
 
+        /**
+         * Needed for std::pair... do NOT use otherwise.
+         */
+        CType() CMM_NOEXCEPT;
         explicit CType(const EnumCType type, const u16 pointers = 0,
             std::optional<std::string> optStructName = std::nullopt) CMM_NOEXCEPT;
+        CType(const CType& other);
+        CType(CType&& other) CMM_NOEXCEPT;
+
+        CType& operator= (const CType& other);
+        CType& operator= (CType&& other) CMM_NOEXCEPT;
 
         bool isPointerType() const CMM_NOEXCEPT;
 
@@ -323,6 +332,29 @@ namespace cmm
         printRepeat(stream, '*', type.pointers);
     }
 
+    template <class T>
+    void hash_combine(std::size_t& seed, const T& v)
+    {
+        std::hash<T> hasher;
+        seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
+}
+
+namespace std
+{
+    template<>
+    struct hash<cmm::CType>
+    {
+        std::size_t operator() (const cmm::CType& type) const
+        {
+            std::size_t result = (cmm::s32) type.type;
+            cmm::hash_combine(result, type.pointers);
+            cmm::hash_combine(result, type.optStructName);
+
+            return result;
+        }
+    };
 }
 
 #endif //!CMM_TYPES_H

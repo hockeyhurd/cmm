@@ -347,7 +347,13 @@ namespace cmm
             builder << "Could not find a declaration or definition for function '"
                     << funcName << "'";
             reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
         }
+
+        // @@@ set the actual datatype.
+        const auto& stateTypePair = findResult->second;
+        const auto& datatype = stateTypePair.second;
+        node.setDatatype(datatype);
 
         for (auto& arg : node)
         {
@@ -374,7 +380,8 @@ namespace cmm
 
         if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
-            const auto previousState = functionTable[funcName];
+            const auto& stateTypePair = functionTable[funcName];
+            const auto& previousState = stateTypePair.first;
             std::ostringstream builder;
 
             if (previousState == EnumSymState::DECLARED)
@@ -403,9 +410,11 @@ namespace cmm
             reporter.error(builder.str(), node.getLocation());
         }
 
+        // Not defined
         else
         {
-            functionTable[funcName] = EnumSymState::DECLARED;
+            // functionTable[funcName] = std::make_pair<EnumSymState, CType>(EnumSymState::DECLARED, typeNode.getDatatype());
+            functionTable[funcName] = std::make_pair(EnumSymState::DECLARED, typeNode.getDatatype());
         }
 
         for (auto& paramNode : node)
@@ -435,7 +444,8 @@ namespace cmm
 
         if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
-            const auto previousState = functionTable[funcName];
+            const auto& stateTypePair = functionTable[funcName];
+            const auto& previousState = stateTypePair.first;
             std::ostringstream builder;
 
             if (previousState == EnumSymState::DEFINED)
@@ -452,7 +462,8 @@ namespace cmm
 
         else
         {
-            functionTable[funcName] = EnumSymState::DEFINED;
+            // functionTable[funcName] = std::make_pair<EnumSymState, CType>(EnumSymState::DEFINED, typeNode.getDatatype());
+            functionTable[funcName] = std::make_pair(EnumSymState::DEFINED, typeNode.getDatatype());
         }
 
         localityStack.push(EnumLocality::PARAMETER);
@@ -907,7 +918,8 @@ namespace cmm
             return true;
         }
 
-        const auto currentState = findResult->second;
+        const auto& stateTypePair = findResult->second;
+        const auto& currentState = stateTypePair.first;
         const bool invResult = currentState == state || (currentState == EnumSymState::DEFINED && state == EnumSymState::DECLARED);
         return !invResult;
     }
