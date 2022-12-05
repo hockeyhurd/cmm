@@ -125,7 +125,6 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) /* override */
     {
-        auto outputVar = encoder->getTemp();
         auto referenceDatatype = node.getRight()->getDatatype();
         auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
         auto rightTypeStr = resolveDatatype(referenceDatatype);

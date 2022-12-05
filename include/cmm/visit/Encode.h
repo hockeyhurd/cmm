@@ -73,14 +73,14 @@ namespace cmm
          *
          * @return std::string.
          */
-        std::string getParam() const;
+        std::string getParam();
 
         /**
          * Gets a unique temp variable.
          *
          * @return std::string.
          */
-        std::string getTemp() const;
+        std::string getTemp();
 
         /**
          * Emits a newline.
@@ -137,6 +137,12 @@ namespace cmm
 
         // The current indentation amount.
         s32 indent;
+
+        // Used for tracking the current count of temp variables.
+        u32 tempVarCounter;
+
+        // Used for tracking the current count of generic parameters.
+        u32 paramCounter;
 
     };
 }

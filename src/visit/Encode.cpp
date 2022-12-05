@@ -15,7 +15,9 @@
 
 namespace cmm
 {
-    Encode::Encode(PlatformBase* platform, std::ostream& os) : platform(platform), os(os), indent(0)
+
+    Encode::Encode(PlatformBase* platform, std::ostream& os) : platform(platform), os(os),
+        indent(0), tempVarCounter(0), paramCounter(0)
     {
         if (platform == nullptr)
         {
@@ -28,22 +30,18 @@ namespace cmm
         return os;
     }
 
-    std::string Encode::getParam() const
+    std::string Encode::getParam()
     {
-        static std::size_t count = 0;
-
-        std::string result = "%p";
-        result += std::to_string(count++);
+        std::string result = "%p_";
+        result += std::to_string(paramCounter++);
 
         return result;
     }
 
-    std::string Encode::getTemp() const
+    std::string Encode::getTemp()
     {
-        static std::size_t count = 0;
-
-        std::string result = "%temp";
-        result += std::to_string(count++);
+        std::string result = "%t_";
+        result += std::to_string(tempVarCounter++);
 
         return result;
     }
@@ -178,6 +176,12 @@ namespace cmm
 
     VisitorResult Encode::visit(FunctionDefinitionStatementNode& node)
     {
+        // Reset the counter at the start of each function definition since temporary's
+        // are only relevant/contained a single function.  Same thing for parameters with
+        // "no names".
+        tempVarCounter = 0;
+        paramCounter = 0;
+
         platform->emit(this, node);
         emitSpace();
 
