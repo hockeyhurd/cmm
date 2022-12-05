@@ -93,14 +93,12 @@ namespace cmm
     {
         incrementIndent();
         emitNewline();
-        scope.push(true);
 
         for (auto& statementPtr : node)
         {
             statementPtr->accept(this);
         }
 
-        scope.pop();
         decrementIndent();
 
         return VisitorResult();
@@ -180,8 +178,6 @@ namespace cmm
 
     VisitorResult Encode::visit(FunctionDefinitionStatementNode& node)
     {
-        scope.push(true);
-
         platform->emit(this, node);
         emitSpace();
 
@@ -213,8 +209,6 @@ namespace cmm
 
         auto& blockNode = node.getBlock();
         blockNode.accept(this);
-
-        scope.pop();
 
         platform->emitBlockNodeEnd(this);
         emitNewline();

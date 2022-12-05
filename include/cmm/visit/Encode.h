@@ -13,7 +13,6 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
-#include <cmm/ScopeManager.h>
 #include <cmm/visit/Visitor.h>
 
 // std includes
@@ -138,11 +137,6 @@ namespace cmm
 
         // The current indentation amount.
         s32 indent;
-
-        // In this context, ScopeManager will re-use variables
-        // for all labels/asm tags.
-        // @@@ TODO: Do we really need this??
-        ScopeManager scope;
 
     };
 }
