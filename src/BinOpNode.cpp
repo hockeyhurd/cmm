@@ -14,28 +14,6 @@
 namespace cmm
 {
 
-    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT
-    {
-        if (token.isCharSymbol())
-        {
-            switch (token.asCharSymbol())
-            {
-            case CHAR_PLUS:
-                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::ADD);
-            case CHAR_MINUS:
-                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::SUBTRACT);
-            case CHAR_ASTERISK: // multiply
-                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::MULTIPLY);
-            case CHAR_FORWARD_SLASH: // divide
-                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::DIVIDE);
-            default:
-                return std::nullopt;
-            }
-        }
-
-        return std::nullopt;
-    }
-
     BinOpNode::BinOpNode(const Location& location, const EnumBinOpNodeType type,
                          std::unique_ptr<ExpressionNode>&& left,
                          std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT :
@@ -46,6 +24,24 @@ namespace cmm
     EnumBinOpNodeType BinOpNode::getTypeof() const CMM_NOEXCEPT
     {
         return type;
+    }
+
+    bool BinOpNode::isComparisonOp() const CMM_NOEXCEPT
+    {
+        switch (type)
+        {
+        case EnumBinOpNodeType::CMP_EQ:
+        case EnumBinOpNodeType::CMP_NE:
+        case EnumBinOpNodeType::CMP_GE:
+        case EnumBinOpNodeType::CMP_GT:
+        case EnumBinOpNodeType::CMP_LE:
+        case EnumBinOpNodeType::CMP_LT:
+            return true;
+        default:
+            return false;
+        }
+
+        return false;
     }
 
     ExpressionNode* BinOpNode::getLeft() CMM_NOEXCEPT

@@ -35,6 +35,26 @@ namespace cmm
         os << "\n}";
     }
 
+    void PlatformLLVM::emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,
+        const std::string& endLabel, const std::string* elseLabel) /* override */
+    {
+        encoder->printIndent();
+        auto& os = encoder->getOStream();
+        os << "br i1 " << *expr.result.str << ", label " << ifLabel << ", label ";
+
+        if (elseLabel != nullptr)
+        {
+            os << *elseLabel;
+        }
+
+        else
+        {
+            os << endLabel;
+        }
+
+        encoder->emitNewline();
+    }
+
     void PlatformLLVM::emitFunctionStart(Encode* encoder, const std::string& name) /* override */
     {
         auto& os = encoder->getOStream();
@@ -63,6 +83,21 @@ namespace cmm
     {
         auto& os = encoder->getOStream();
         os << ")";
+    }
+
+    void PlatformLLVM::emitJump(Encode* encoder, const std::string& label) /* override */
+    {
+        encoder->printIndent();
+        auto& os = encoder->getOStream();
+        os << "br label " << label;
+        encoder->emitNewline();
+    }
+
+    void PlatformLLVM::emitLabel(Encode* encoder, const std::string& label) /* override */
+    {
+        auto& os = encoder->getOStream();
+        os << label << ":";
+        encoder->emitNewline();
     }
 
     std::string PlatformLLVM::resolveDatatype(const CType& datatype) /* override */
@@ -145,6 +180,7 @@ namespace cmm
             return std::nullopt;
         }
 
+        bool reverseOperations = false;
         auto strResult = encoder->getTemp();
         os << strResult << " = ";
 
@@ -177,6 +213,14 @@ namespace cmm
             else
                 os << (isSignedInt ? "sdiv nsw " : "udiv");
             break;
+        case EnumBinOpNodeType::CMP_NE:
+            reverseOperations = true;
+
+            if (isFloatingPoint)
+                os << "fdiv ";
+            else
+                os << "icmp ne ";
+            break;
         default:
             {
                 static auto& reporter = Reporter::instance();
@@ -186,7 +230,17 @@ namespace cmm
             return std::nullopt;
         }
 
-        os << rightTypeStr << " " << *right.result.str << ", " << *left.result.str;
+        os << rightTypeStr << " ";
+
+        if (reverseOperations)
+        {
+            os << *left.result.str << ", " << *right.result.str;
+        }
+
+        else
+        {
+            os << *right.result.str << ", " << *left.result.str;
+        }
 
         return std::make_optional<VisitorResult>(new std::string(std::move(strResult)), true);
     }
@@ -233,12 +287,14 @@ namespace cmm
         return std::nullopt;
     }
 
+#if 0
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
             const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) /* override */
     {
         return std::nullopt;
     }
+#endif
 
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, LitteralNode& node, const bool defer) /* override */
@@ -251,12 +307,14 @@ namespace cmm
         switch (datatype.type)
         {
         case EnumCType::NULL_T:
+            outputStr = "null";
             break;
-        case EnumCType::VOID:
-            break;
-        case EnumCType::VOID_PTR:
-            break;
+        // case EnumCType::VOID:
+        //     break;
+        // case EnumCType::VOID_PTR:
+        //     break;
         case EnumCType::STRING:
+            outputStr = node.getValue().valueString;
             break;
         case EnumCType::BOOL:
             outputStr = node.getValue().valueBool ? "true" : "false";
@@ -282,10 +340,10 @@ namespace cmm
         case EnumCType::DOUBLE:
             outputStr = std::to_string(node.getValue().valueF64);
             break;
-        case EnumCType::STRUCT:
-            break;
+        // case EnumCType::STRUCT:
+        //     break;
         default:
-            reporter.bug("Un-expected enumeration for an EnumBinOpType", node.getLocation(), true);
+            reporter.bug("Un-expected enumeration for an EnumCType", node.getLocation(), true);
             break;
         }
 

@@ -21,15 +21,6 @@ namespace cmm
 {
     class Token;
 
-    enum class EnumBinOpNodeType
-    {
-        ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE
-    };
-
-    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT;
-
-    // TODO: Consider moving this to sub-classes based on the actual type
-    // as we start using this class more often.
     class BinOpNode : public ExpressionNode
     {
     public:
@@ -81,6 +72,13 @@ namespace cmm
          * @return EnumBinOpNodeType.
          */
         EnumBinOpNodeType getTypeof() const CMM_NOEXCEPT;
+
+        /**
+         * Gets whether the EnumBinOpNodeType is a comparison operation or not.
+         *
+         * @return bool.
+         */
+        bool isComparisonOp() const CMM_NOEXCEPT;
 
         /**
          * Gets the left node.

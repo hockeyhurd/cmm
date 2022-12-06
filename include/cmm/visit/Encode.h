@@ -69,6 +69,13 @@ namespace cmm
         std::ostream& getOStream() CMM_NOEXCEPT;
 
         /**
+         * Gets a unique label.
+         *
+         * @return std::string.
+         */
+        std::string getLabel();
+
+        /**
          * Gets a unique param variable.
          *
          * @return std::string.
@@ -143,6 +150,9 @@ namespace cmm
 
         // Used for tracking the current count of generic parameters.
         u32 paramCounter;
+
+        // Used for tracking the current count of labels.
+        u32 labelCounter;
 
     };
 }

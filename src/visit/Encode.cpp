@@ -30,6 +30,14 @@ namespace cmm
         return os;
     }
 
+    std::string Encode::getLabel()
+    {
+        std::string result = "%l_";
+        result += std::to_string(labelCounter++);
+
+        return result;
+    }
+
     std::string Encode::getParam()
     {
         std::string result = "%p_";
@@ -233,20 +241,38 @@ namespace cmm
     VisitorResult Encode::visit(IfElseStatementNode& node)
     {
         auto* ifCondExpression = node.getIfConditional();
-        auto ifCondVisitorResult = ifCondExpression->accept(this);
-
         auto* ifStatement = node.getIfStatement();
-        auto ifStatementVisitorResult = ifStatement->accept(this);
-
         auto* elseStatement = node.getElseStatement();
-        std::optional<VisitorResult> optElseStatement = std::nullopt;
+
+        std::string ifLabel = getLabel();
+        std::string endLabel = getLabel();
+        std::string elseLabel;
 
         if (elseStatement != nullptr)
         {
-            optElseStatement = std::make_optional(ifStatement->accept(this));
+            elseLabel = getLabel();
         }
 
-        platform->emit(this, node, ifCondVisitorResult, ifStatementVisitorResult, optElseStatement);
+        auto ifCondVisitorResult = ifCondExpression->accept(this);
+        platform->emitBranchInstruction(this, ifCondVisitorResult, ifLabel, endLabel, !elseLabel.empty() ? &elseLabel : nullptr);
+
+        platform->emitLabel(this, ifLabel);
+        auto ifStatementVisitorResult = ifStatement->accept(this);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitJump(this, endLabel);
+
+        if (elseStatement != nullptr)
+        {
+            platform->emitLabel(this, elseLabel);
+            // auto elseStatementVisitorResult = elseStatement->accept(this);
+            elseStatement->accept(this);
+
+            // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+            platform->emitJump(this, endLabel);
+        }
+
+        platform->emitLabel(this, endLabel);
 
         return VisitorResult();
     }

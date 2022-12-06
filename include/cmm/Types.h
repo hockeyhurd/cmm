@@ -149,6 +149,9 @@ namespace cmm
     const f32 f32_e = 2.71828182845904523536F;
     const f64 f64_e = 2.71828182845904523536;
 
+    // Forward declarations
+    class Token;
+
     enum class EnumLocality : u16
     {
         GLOBAL = 0, INTERNAL, LOCAL, PARAMETER
@@ -315,6 +318,14 @@ namespace cmm
 
         return "Unknown type";
     }
+
+    enum class EnumBinOpNodeType
+    {
+        ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE,
+        CMP_EQ, CMP_NE, CMP_GE, CMP_GT, CMP_LE, CMP_LT
+    };
+
+    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT;
 
     template<class Stream, class T, class N>
     void printRepeat(Stream& stream, const T& value, const N count)

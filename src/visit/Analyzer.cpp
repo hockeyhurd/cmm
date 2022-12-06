@@ -566,6 +566,58 @@ namespace cmm
     {
         auto* ifCondExpression = node.getIfConditional();
         ifCondExpression->accept(this);
+        auto ifCondExprNodeType = ifCondExpression->getType();
+
+        // Check if the conditional is a simple variable (i.e. "if (a) { ... }"),
+        // add a DerefNode before we do other transformations.
+        if (ifCondExprNodeType == EnumNodeType::VARIABLE)
+        {
+            node.wrapIfConditionalWithDerefNode();
+
+            // Now we know this is a DerefNode, but we will make sure by resetting these variables.
+            ifCondExpression = node.getIfConditional();
+            ifCondExprNodeType = ifCondExpression->getType();
+        }
+
+        // Note: static_cast is only safe if it is in fact a BinOpNode pointer.
+        auto* binOpNodePtr = static_cast<BinOpNode*>(ifCondExpression);
+
+        // If this isn't a comparison operation, we must wrap it into one.
+        // ex. if (1) { ... } should become if (1 != 0) { ... }
+        if (ifCondExprNodeType != EnumNodeType::BIN_OP || !binOpNodePtr->isComparisonOp())
+        {
+            const auto location = ifCondExpression->getLocation();
+            const auto& datatype = ifCondExpression->getDatatype();
+
+            // Pointer type: compare to NULL
+            if (datatype.pointers > 0)
+            {
+                auto comparator = std::make_unique<LitteralNode>(location);
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+
+            // Single precision floating point type: compare to 0.0F
+            else if (datatype.type == EnumCType::FLOAT)
+            {
+                auto comparator = std::make_unique<LitteralNode>(location, 0.0F);
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+
+            // Double precision floating point type: compare to 0.0
+            else if (datatype.type == EnumCType::DOUBLE)
+            {
+                auto comparator = std::make_unique<LitteralNode>(location, 0.0);
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+
+            // Int type: compare to 0
+            // Note: Should probably consider additional cases (ex. other sized ints).
+            else
+            {
+                auto comparator = std::make_unique<LitteralNode>(location, static_cast<s32>(0));
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+        }
 
         auto* ifStatement = node.getIfStatement();
         ifStatement->accept(this);

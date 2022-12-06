@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Token.h>
 
 // std includes
 #include <map>
@@ -265,6 +266,28 @@ namespace cmm
     CTypeValue::CTypeValue(char* valueString) CMM_NOEXCEPT : length(sizeof(valueString))
     {
         this->valueString = valueString;
+    }
+
+    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT
+    {
+        if (token.isCharSymbol())
+        {
+            switch (token.asCharSymbol())
+            {
+            case CHAR_PLUS:
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::ADD);
+            case CHAR_MINUS:
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::SUBTRACT);
+            case CHAR_ASTERISK: // multiply
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::MULTIPLY);
+            case CHAR_FORWARD_SLASH: // divide
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::DIVIDE);
+            default:
+                return std::nullopt;
+            }
+        }
+
+        return std::nullopt;
     }
 }
 

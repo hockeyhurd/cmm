@@ -55,10 +55,14 @@ namespace cmm
 
         virtual void emitBlockNodeStart(Encode* encoder) override;
         virtual void emitBlockNodeEnd(Encode* encoder) override;
+        virtual void emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,
+            const std::string& endLabel, const std::string* elseLabel) override;
         virtual void emitFunctionStart(Encode* encoder, const std::string& name) override;
         virtual void emitFunctionEnd(Encode* encoder) override;
         virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) override;
         virtual void emitFunctionCallEnd(Encode* encoder) override;
+        virtual void emitJump(Encode* encoder, const std::string& label) override;
+        virtual void emitLabel(Encode* encoder, const std::string& label) override;
 
         virtual std::string resolveDatatype(const CType& datatype) override;
 
@@ -72,8 +76,10 @@ namespace cmm
             const std::vector<VisitorResult>& params) override;
 #endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDefinitionStatementNode& node) override;
+#if 0
         virtual std::optional<VisitorResult> emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
             const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) override;
+#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const bool defer) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) override;

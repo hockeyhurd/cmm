@@ -7,6 +7,8 @@
 
 // Our includes
 #include <cmm/IfElseStatementNode.h>
+#include <cmm/BinOpNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/ExpressionNode.h>
 
 namespace cmm
@@ -33,6 +35,20 @@ namespace cmm
     const ExpressionNode* IfElseStatementNode::getIfConditional() const CMM_NOEXCEPT
     {
         return ifConditionalExpression.get();
+    }
+
+    void IfElseStatementNode::wrapIfConditional(const EnumBinOpNodeType binOpType, std::unique_ptr<ExpressionNode>&& comparator)
+    {
+        auto tempLHS = std::move(ifConditionalExpression);
+        const auto location = tempLHS->getLocation();
+        ifConditionalExpression = std::make_unique<BinOpNode>(location, binOpType, std::move(tempLHS), std::move(comparator));
+    }
+
+    void IfElseStatementNode::wrapIfConditionalWithDerefNode()
+    {
+        const auto location = ifConditionalExpression->getLocation();
+        auto temp = std::move(ifConditionalExpression);
+        ifConditionalExpression = std::make_unique<DerefNode>(location, std::move(temp));
     }
 
     StatementNode* IfElseStatementNode::getIfStatement() CMM_NOEXCEPT

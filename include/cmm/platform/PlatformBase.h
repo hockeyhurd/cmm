@@ -100,10 +100,14 @@ namespace cmm
 
         virtual void emitBlockNodeStart(Encode* encoder) = 0;
         virtual void emitBlockNodeEnd(Encode* encoder) = 0;
+        virtual void emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,
+            const std::string& endLabel, const std::string* elseLabel) = 0;
         virtual void emitFunctionStart(Encode* encoder, const std::string& name) = 0;
         virtual void emitFunctionEnd(Encode* encoder) = 0;
         virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) = 0;
         virtual void emitFunctionCallEnd(Encode* encoder) = 0;
+        virtual void emitJump(Encode* encoder, const std::string& label) = 0;
+        virtual void emitLabel(Encode* encoder, const std::string& label) = 0;
 
         virtual std::string resolveDatatype(const CType& datatype) = 0;
 
@@ -118,8 +122,10 @@ namespace cmm
             const std::vector<VisitorResult>& params) = 0;
 #endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDefinitionStatementNode& node) = 0;
+#if 0
         virtual std::optional<VisitorResult> emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
             const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) = 0;
+#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const bool defer) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) = 0;
