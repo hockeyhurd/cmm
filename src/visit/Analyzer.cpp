@@ -574,7 +574,7 @@ namespace cmm
 
         if (elseStatement != nullptr)
         {
-            ifStatement->accept(this);
+            elseStatement->accept(this);
         }
 
         return VisitorResult();
