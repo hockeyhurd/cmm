@@ -2,7 +2,7 @@
 
 namespace cmm
 {
-    Snapshot::Snapshot(const std::size_t index, const Location& location) : index(index)
+    Snapshot::Snapshot(const std::size_t index, const Location& location) : index(index), location(location)
     {
     }
 

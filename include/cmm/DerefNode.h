@@ -26,9 +26,10 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param expr the expression to be dereferenced.
          */
-        explicit DerefNode(std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT;
+        DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -60,6 +61,13 @@ namespace cmm
         DerefNode& operator= (DerefNode&&) CMM_NOEXCEPT = default;
 
         /**
+         * Gets whether this cast node has ExpressionNode it's trying to cast or not.
+         *
+         * @return bool.
+         */
+        bool hasExpression() const CMM_NOEXCEPT;
+
+        /**
          * Gets the expression to be dereferenced.
          *
          * @return pointer to ExpressionNode.
@@ -78,9 +86,9 @@ namespace cmm
          * This is needed because there could be several other DerefNodes before
          * we get to say a VariableNode.
          *
-         * @return underlying NodeType of wrapped ExpressionNode.
+         * @return underlying EnumNodeType of wrapped ExpressionNode.
          */
-        NodeType getRootType() const CMM_NOEXCEPT;
+        EnumNodeType getRootType() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
@@ -90,8 +98,8 @@ namespace cmm
         // The expression to be dereferenced.
         std::unique_ptr<ExpressionNode> expr;
 
-        // Cached root NodeType.
-        mutable NodeType rootType;
+        // Cached root EnumNodeType.
+        mutable EnumNodeType rootType;
     };
 }
 

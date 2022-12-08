@@ -5,7 +5,9 @@
  * @version 2022-06-22
  */
 
+// Our includes
 #include <cmm/BinOpNode.h>
+#include <cmm/CastNode.h>
 #include <cmm/Token.h>
 
 namespace cmm
@@ -33,9 +35,10 @@ namespace cmm
         return std::nullopt;
     }
 
-    BinOpNode::BinOpNode(const EnumBinOpNodeType type, std::unique_ptr<ExpressionNode>&& left,
+    BinOpNode::BinOpNode(const Location& location, const EnumBinOpNodeType type,
+                         std::unique_ptr<ExpressionNode>&& left,
                          std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::BIN_OP), type(type), left(std::move(left)), right(std::move(right))
+        ExpressionNode(EnumNodeType::BIN_OP, location), type(type), left(std::move(left)), right(std::move(right))
     {
     }
 
@@ -62,6 +65,20 @@ namespace cmm
     const ExpressionNode* BinOpNode::getRight() const CMM_NOEXCEPT
     {
         return right.get();
+    }
+
+    void BinOpNode::castLeft(const CType& newType)
+    {
+        const auto location = left->getLocation();
+        auto tempLeft = std::move(left);
+        left = std::make_unique<CastNode>(location, newType, std::move(tempLeft));
+    }
+
+    void BinOpNode::castRight(const CType& newType)
+    {
+        const auto location = right->getLocation();
+        auto tempRight = std::move(right);
+        right = std::make_unique<CastNode>(location, newType, std::move(tempRight));
     }
 
     std::string BinOpNode::toString() const /* override */

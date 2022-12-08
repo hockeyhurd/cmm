@@ -35,21 +35,23 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param params the parameter list.
          */
-        FunctionDeclarationStatementNode(TypeNode type, const std::string& funcName,
+        FunctionDeclarationStatementNode(const Location& location, TypeNode type, const std::string& funcName,
             ParamList&& params = ParamList());
 
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param name the name of the function.
          * @param params the parameter list.
          */
-        FunctionDeclarationStatementNode(TypeNode type, std::string&& funcName,
+        FunctionDeclarationStatementNode(const Location& location, TypeNode type, std::string&& funcName,
             ParamList&& params = ParamList()) CMM_NOEXCEPT;
 
         /**
@@ -100,7 +102,14 @@ namespace cmm
          *
          * @return TypeNode.
          */
-        EnumCType getDatatype() const CMM_NOEXCEPT;
+        CType& getDatatype() CMM_NOEXCEPT;
+
+        /**
+         * Gets the datatype.
+         *
+         * @return TypeNode.
+         */
+        const CType& getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Gets the variable.

@@ -63,6 +63,49 @@ namespace cmm
         static Reporter& instance();
 
         /**
+         * Gets the number of errors.
+         *
+         * @return s32 count.
+         */
+        s32 getErrorCount() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the number of warnings.
+         *
+         * @return s32 count.
+         */
+        s32 getWarningCount() const CMM_NOEXCEPT;
+
+        /**
+         * Sets whether the reporter actually prints something to std::cout.
+         * This is helpful for disabling in unit tests where we only care
+         * about error, warn, etc. counts.
+         *
+         * @param enable flag whether to enable/disable printing.
+         */
+        void setEnablePrint(const bool enable) CMM_NOEXCEPT;
+
+        /**
+         * Reports a bug in the compiler.
+         *
+         * @param msg the templated error message to provide.
+         * @param location the Location in the file where the error occurred.
+         */
+        template<class T>
+        void bug(const T& msg, const Location& location, const bool fatal)
+        {
+            if (canPrint)
+            {
+                std::cout << "bug: " << msg << " at " << location << std::endl;
+            }
+
+            if (fatal)
+            {
+                std::exit(-1);
+            }
+        }
+
+        /**
          * Reports an error to the console output.
          *
          * @param msg the templated error message to provide.
@@ -71,7 +114,11 @@ namespace cmm
         template<class T>
         void error(const T& msg, const Location& location)
         {
-            std::cout << "error: " << msg << " at " << location << std::endl;
+            if (canPrint)
+            {
+                std::cout << "error: " << msg << " at " << location << std::endl;
+            }
+
             ++errors;
         }
 
@@ -84,9 +131,18 @@ namespace cmm
         template<class T>
         void warn(const T& msg, const Location& location)
         {
-            std::cout << "warning: " << msg << " at " << location << std::endl;
+            if (canPrint)
+            {
+                std::cout << "warning: " << msg << " at " << location << std::endl;
+            }
+
             ++warnings;
         }
+
+        /**
+         * Resets tracked errors and warnings.
+         */
+        void reset();
 
     private:
 
@@ -95,6 +151,9 @@ namespace cmm
 
         // The count of warnings.
         s32 warnings;
+
+        // Flag for enabling/disabling printing.
+        bool canPrint;
     };
 }
 

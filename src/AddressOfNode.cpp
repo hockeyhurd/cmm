@@ -7,22 +7,22 @@
 
 // Our includes
 #include <cmm/AddressOfNode.h>
+#include <cmm/ExpressionNode.h>
 
 namespace cmm
 {
-    AddressOfNode::AddressOfNode(VariableNode&& variable) CMM_NOEXCEPT : ExpressionNode(NodeType::ADDRESS_OF),
-        variable(std::move(variable))
+    AddressOfNode::AddressOfNode(const Location& location, VariableNode&& variable) CMM_NOEXCEPT :
+        UnaryOpNode(EnumNodeType::ADDRESS_OF, location, EnumUnaryOpType::ADDRESS_OF, nullptr)
     {
     }
 
-    VariableNode& AddressOfNode::getVariable() CMM_NOEXCEPT
+    void AddressOfNode::setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT /* override */
     {
-        return variable;
-    }
-
-    const VariableNode& AddressOfNode::getVariable() const CMM_NOEXCEPT
-    {
-        return variable;
+        // Do nothing unless it's a VariableNode
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            UnaryOpNode::setExpression(std::move(expression));
+        }
     }
 
     VisitorResult AddressOfNode::accept(Visitor* visitor) /* override */

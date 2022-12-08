@@ -10,9 +10,14 @@
 
 namespace cmm
 {
-    DerefNode::DerefNode(std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::DEREF), expr(std::move(expr)), rootType(NodeType::UNKNOWN)
+    DerefNode::DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT :
+        ExpressionNode(EnumNodeType::DEREF, location), expr(std::move(expr)), rootType(EnumNodeType::UNKNOWN)
     {
+    }
+
+    bool DerefNode::hasExpression() const CMM_NOEXCEPT
+    {
+        return expr != nullptr;
     }
 
     ExpressionNode* DerefNode::getExpression() CMM_NOEXCEPT
@@ -25,13 +30,13 @@ namespace cmm
         return expr.get();
     }
 
-    NodeType DerefNode::getRootType() const CMM_NOEXCEPT
+    EnumNodeType DerefNode::getRootType() const CMM_NOEXCEPT
     {
-        if (rootType == NodeType::UNKNOWN)
+        if (rootType == EnumNodeType::UNKNOWN)
         {
             auto* lastExpr = expr.get();
 
-            while (lastExpr != nullptr && lastExpr->getType() == NodeType::DEREF)
+            while (lastExpr != nullptr && lastExpr->getType() == EnumNodeType::DEREF)
             {
                 auto* derefNode = static_cast<DerefNode*>(lastExpr);
                 lastExpr = derefNode->getExpression();

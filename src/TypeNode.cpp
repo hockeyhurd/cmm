@@ -9,24 +9,21 @@
 
 namespace cmm
 {
-    TypeNode::TypeNode(const EnumCType type) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE), type(type), pointerInderectionCount(0)
+    // For now we assume it's a variable and the parser will override
+    // by using setNodeType later??
+    TypeNode::TypeNode(const Location& location, const CType& type) CMM_NOEXCEPT :
+        Node(EnumNodeType::VARIABLE, location), type(type)
     {
     }
 
-    TypeNode::TypeNode(const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT :
-        Node(NodeType::VARIABLE), type(type), pointerInderectionCount(pointerInderectionCount)
-    {
-    }
-
-    EnumCType TypeNode::getDatatype() const CMM_NOEXCEPT
+    CType& TypeNode::getDatatype() CMM_NOEXCEPT
     {
         return type;
     }
 
-    u32 TypeNode::getDimensions() const CMM_NOEXCEPT
+    const CType& TypeNode::getDatatype() const CMM_NOEXCEPT
     {
-        return pointerInderectionCount;
+        return type;
     }
 
     VisitorResult TypeNode::accept(Visitor* visitor) /* override */

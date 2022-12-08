@@ -11,9 +11,14 @@
 
 namespace cmm
 {
-    ExpressionStatementNode::ExpressionStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
-        StatementNode(NodeType::EXPRESSION_STATEMENT), expression(std::move(expression))
+    ExpressionStatementNode::ExpressionStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
+        StatementNode(EnumNodeType::EXPRESSION_STATEMENT, location), expression(std::move(expression))
     {
+    }
+
+    bool ExpressionStatementNode::hasExpression() const CMM_NOEXCEPT
+    {
+        return expression != nullptr;
     }
 
     ExpressionNode* ExpressionStatementNode::getExpression() CMM_NOEXCEPT

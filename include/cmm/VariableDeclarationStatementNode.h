@@ -29,10 +29,11 @@ namespace cmm
         /**
          * Default constructor.
          *
+         * @param location the location of this node.
          * @param type the TypeNode.
          * @param variable the VariableNode.
          */
-        VariableDeclarationStatementNode(TypeNode type, VariableNode&& variable) CMM_NOEXCEPT;
+        VariableDeclarationStatementNode(const Location& location, TypeNode type, VariableNode&& variable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -82,12 +83,14 @@ namespace cmm
          *
          * @return TypeNode.
          */
-        EnumCType getDatatype() const CMM_NOEXCEPT;
+        CType& getDatatype() CMM_NOEXCEPT;
 
         /**
-         * The number of pointer inderection.
+         * Gets the datatype.
+         *
+         * @return TypeNode.
          */
-        u32 getDimensions() const CMM_NOEXCEPT;
+        const CType& getDatatype() const CMM_NOEXCEPT;
 
         /**
          * Gets the variable.

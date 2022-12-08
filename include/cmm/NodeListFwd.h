@@ -16,13 +16,14 @@ namespace cmm
     class ArgNode;
     class BinOpNode;
     class BlockNode;
+    class CastNode;
     class CompilationUnitNode;
     class DerefNode;
+    class ExpressionNode;
+    class ExpressionStatementNode;
     class FunctionCallNode;
     class FunctionDeclarationStatementNode;
     class FunctionDefinitionStatementNode;
-    class ExpressionNode;
-    class ExpressionStatementNode;
     class IfElseStatementNode;
     class LitteralNode;
     class Node;
@@ -30,10 +31,13 @@ namespace cmm
     class ParenExpressionNode;
     class ReturnStatementNode;
     class StatementNode;
+    class StructDefinitionStatementNode;
+    class StructFwdDeclarationStatementNode;
     class TranslationUnitNode;
     class TypeNode;
-    class VariableNode;
+    class UnaryOpNode;
     class VariableDeclarationStatementNode;
+    class VariableNode;
     class WhileStatementNode;
 }
 

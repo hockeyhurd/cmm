@@ -12,7 +12,9 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Visitor.h>
+#include <cmm/EnumNodeType.h>
+#include <cmm/Location.h>
+#include <cmm/visit/Visitor.h>
 
 // std includes
 #include <memory>
@@ -20,16 +22,6 @@
 
 namespace cmm
 {
-    // TODO: Consider moving to a seperate file
-    enum class NodeType
-    {
-        UNKNOWN = 0, ADDRESS_OF, ARG, COMPILATION_UNIT, BIN_OP, BLOCK, DEREF,
-        FUNCTION_CALL, FUNCTION_DECLARATION_STATEMENT, FUNCTION_DEFINITION_STATEMENT,
-        EXPRESSION_STATEMENT, EXPRESSION, IF_ELSE_STATEMENT, PARAMETER, PAREN_EXPRESSION,
-        LITTERAL, RETURN_STATEMENT, TRANSLATION_UNIT, VARIABLE, VARIABLE_DECLARATION_STATEMENT,
-        WHILE_STATEMENT
-    };
-
     class Node
     {
     protected:
@@ -37,7 +29,7 @@ namespace cmm
         /**
          * Default constructor that can only be constructed by a derived type.
          */
-        Node(const NodeType type) CMM_NOEXCEPT;
+        Node(const EnumNodeType type, const Location& location) CMM_NOEXCEPT;
 
     public:
 
@@ -73,9 +65,30 @@ namespace cmm
         /**
          * Get the type of this node.
          *
-         * @return NodeType.
+         * @return EnumNodeType.
          */
-        virtual NodeType getType() const CMM_NOEXCEPT;
+        virtual EnumNodeType getType() const CMM_NOEXCEPT;
+
+        /**
+         * Set the type of this node.
+         *
+         * @param type EnumNodeType.
+         */
+        virtual void setType(const EnumNodeType type) CMM_NOEXCEPT;
+
+        /**
+         * Get the location of this node.
+         *
+         * @return Location.
+         */
+        virtual Location& getLocation() CMM_NOEXCEPT;
+
+        /**
+         * Get the location of this node.
+         *
+         * @return Location.
+         */
+        virtual const Location& getLocation() const CMM_NOEXCEPT;
 
         /**
          * Generic and templated function needed for visitor pattern.
@@ -93,7 +106,10 @@ namespace cmm
     protected:
 
         // The type of this Node
-        NodeType type;
+        EnumNodeType type;
+
+        // The Location of this Node.
+        Location location;
     };
 }
 

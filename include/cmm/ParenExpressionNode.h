@@ -23,9 +23,10 @@ namespace cmm
         /**
          * Default constructor with binary op type.
          *
+         * @param location the location of this node.
          * @param type the EnumBinOpNodeType.
          */
-        ParenExpressionNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        ParenExpressionNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -55,6 +56,13 @@ namespace cmm
          * @return ParenExpressionNode reference.
          */
         ParenExpressionNode& operator= (ParenExpressionNode&&) CMM_NOEXCEPT = default;
+
+        /**
+         * Gets whether this cast node has ExpressionNode it's trying to cast or not.
+         *
+         * @return bool.
+         */
+        bool hasExpression() const CMM_NOEXCEPT;
 
         /**
          * Gets the ExpressionNode.

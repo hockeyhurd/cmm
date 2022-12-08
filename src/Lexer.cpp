@@ -12,33 +12,35 @@
 #include <cmm/Token.h>
 
 // std includes
+#include <limits>
 #include <optional>
 #include <sstream>
+
+// GNU GMP incldues
+#include <gmpxx.h>
 
 namespace cmm
 {
     static std::optional<s32> validateInt32(const std::string& str)
     {
-        std::size_t parsedCount = 0;
-        const s32 value = std::stoi(str, &parsedCount);
-        return parsedCount > 0 ? std::make_optional(value) : std::optional<s32>();
-    }
-
-    static std::optional<f32> validateFloat(const std::string& str)
-    {
-        std::size_t parsedCount = 0;
-        const f32 value = std::stof(str, &parsedCount);
-        return parsedCount > 0 ? std::make_optional(value) : std::optional<f32>();
+        mpz_class value(str);
+        return value.fits_sint_p() ? std::make_optional<s32>(value.get_si()) : std::nullopt;
     }
 
     static std::optional<f64> validateDouble(const std::string& str)
     {
-        std::size_t parsedCount = 0;
-        const f64 value = std::stod(str, &parsedCount);
-        return parsedCount > 0 ? std::make_optional(value) : std::optional<f64>();
+        mpf_class value(str);
+        return value ? std::make_optional<f64>(value.get_d()) : std::nullopt;
     }
 
-    Lexer::Lexer(const std::string& text) : text(text), index(0)
+    static std::optional<f32> validateFloat(const std::string& str)
+    {
+        const auto doubleResult = validateDouble(str);
+        return doubleResult.has_value() && (f64) std::numeric_limits<f32>::lowest() <= *doubleResult && *doubleResult <= (f64) std::numeric_limits<f32>::max() ?
+               std::make_optional(static_cast<f32>(*doubleResult)) : std::nullopt;
+    }
+
+    Lexer::Lexer(const std::string& text) : text(text), index(0), location(1, 0)
     {
         builder.reserve(0x40);
     }
@@ -75,16 +77,16 @@ namespace cmm
         return result;
     }
 
-    bool Lexer::nextToken(Token& token, std::string* errorMessage)
+    bool Lexer::nextToken(Token& token, std::string* errorMessage, Location* pLocation)
     {
-        const bool result = nextTokenInternal(token, errorMessage);
+        const bool result = nextTokenInternal(token, errorMessage, pLocation);
         return result;
     }
 
     bool Lexer::peekNextToken(Token& token)
     {
         Snapshot snapshot = snap();
-        const bool result = nextToken(token, nullptr);
+        const bool result = nextToken(token, nullptr, nullptr);
         restore(snapshot);
 
         return result;
@@ -125,6 +127,7 @@ namespace cmm
             // We know it's whitespace and room to consume the char, so simply
             // increment the index.
             ++index;
+            ++location.pos;
         }
     }
 
@@ -159,7 +162,7 @@ namespace cmm
         return CHAR_EOF;
     }
 
-    bool Lexer::nextTokenInternal(Token& token, std::string* errorMessage)
+    bool Lexer::nextTokenInternal(Token& token, std::string* errorMessage, Location* pLocation)
     {
         static Reporter& reporter = Reporter::instance();
 
@@ -168,6 +171,11 @@ namespace cmm
 
         // Always start by consuming any 'dead' whitespace.
         consumeWhitespace();
+
+        if (pLocation != nullptr)
+        {
+            *pLocation = getLocation();
+        }
 
         while (index < text.size())
         {
@@ -308,9 +316,25 @@ namespace cmm
                 const char lookaheadChar = peekNextChar();
 
                 if (isWhitespace(lookaheadChar) ||
-                    (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
+                   (!isDigit(lookaheadChar) && lookaheadChar != CHAR_PERIOD))
                 {
-                    token.setCharSymbol(currentChar);
+                    if (currentChar == CHAR_PLUS && lookaheadChar == CHAR_PLUS)
+                    {
+                        nextChar();
+                        token.setStringSymbol("++");
+                    }
+
+                    else if (currentChar == CHAR_MINUS && lookaheadChar == CHAR_MINUS)
+                    {
+                        nextChar();
+                        token.setStringSymbol("--");
+                    }
+
+                    else
+                    {
+                        token.setCharSymbol(currentChar);
+                    }
+
                     return true;
                 }
             }

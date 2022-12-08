@@ -17,7 +17,6 @@
 
 // std includes
 #include <memory>
-#include <optional>
 #include <string>
 
 namespace cmm
@@ -28,15 +27,18 @@ namespace cmm
 
         /**
          * Default constructor without a defined expression to return.
+         *
+         * @param location the location of this node.
          */
-        ReturnStatementNode() CMM_NOEXCEPT;
+        explicit ReturnStatementNode(const Location& location) CMM_NOEXCEPT;
 
         /**
          * Constructor with a defined expression to return.
          *
+         * @param location the location of this node.
          * @param expression the returned expression.
          */
-        ReturnStatementNode(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+        ReturnStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -87,6 +89,20 @@ namespace cmm
          * @return const pointer to ExpressionNode in the returned expression.
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the underlying CType from the Expression (if non-nullptr).
+         *
+         * @return pointer to optional CType of the underlying expression.
+         */
+        CType* getDatatype() const CMM_NOEXCEPT;
+
+        /**
+         * Attempts to cast the right ExpressionNode.
+         *
+         * @param newType the type of the sub-expression.
+         */
+        void cast(const CType& newType);
 
         VisitorResult accept(Visitor* visitor) override
         {

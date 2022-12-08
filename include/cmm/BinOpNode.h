@@ -37,9 +37,13 @@ namespace cmm
         /**
          * Default constructor with binary op type.
          *
+         * @param location the location of this node.
          * @param type the EnumBinOpNodeType.
+         * @param left the left ExpressionNode.
+         * @param right the right ExpressionNode.
          */
-        BinOpNode(const EnumBinOpNodeType type, std::unique_ptr<ExpressionNode>&& left,
+        BinOpNode(const Location& location, const EnumBinOpNodeType type,
+                  std::unique_ptr<ExpressionNode>&& left,
                   std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT;
 
         /**
@@ -74,7 +78,7 @@ namespace cmm
         /**
          * Get the type of this binary op node.
          *
-         * @return EnumCType.
+         * @return EnumBinOpNodeType.
          */
         EnumBinOpNodeType getTypeof() const CMM_NOEXCEPT;
 
@@ -105,6 +109,20 @@ namespace cmm
          * @return const ExpressionNode pointer.
          */
         const ExpressionNode* getRight() const CMM_NOEXCEPT;
+
+        /**
+         * Attempts to cast the left ExpressionNode.
+         *
+         * @param newType the type of the sub-expression.
+         */
+        void castLeft(const CType& newType);
+
+        /**
+         * Attempts to cast the right ExpressionNode.
+         *
+         * @param newType the type of the sub-expression.
+         */
+        void castRight(const CType& newType);
 
         VisitorResult accept(Visitor* visitor) override
         {

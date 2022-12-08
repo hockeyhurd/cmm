@@ -6,8 +6,8 @@
  */
 
 // Our includes
-#include <cmm/Dump.h>
 #include <cmm/NodeList.h>
+#include <cmm/visit/Dump.h>
 
 // std includes
 #include <algorithm>
@@ -21,10 +21,24 @@ namespace cmm
         std::cout << '[' << node.toString() << "]: ";
     }
 
+    static void printDatatype(const CType& type)
+    {
+        std::cout << toString(type.type);
+
+        if (type.type == EnumCType::STRUCT)
+        {
+            std::cout << type.optStructName.value();
+        }
+
+        printRepeat(std::cout, '*', type.pointers);
+    }
+
     Dump::Dump() CMM_NOEXCEPT : indent(0)
     {
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
     VisitorResult Dump::visit(AddressOfNode& node)
     {
         printIndentation();
@@ -32,14 +46,15 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
-        auto& variable = node.getVariable();
-        variable.accept(this);
+        auto* variablePtr = node.getExpression();
+        variablePtr->accept(this);
 
         decreaseIntentation();
         printNewLine();
 
         return VisitorResult();
     }
+#pragma GCC diagnostic pop
 
     VisitorResult Dump::visit(ArgNode& node)
     {
@@ -97,6 +112,31 @@ namespace cmm
         printIndentation();
         std::cout << "}\n";
         decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(CastNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        else
+        {
+            std::cout << "NULL\n";
+        }
+
+        decreaseIntentation();
+        printNewLine();
 
         return VisitorResult();
     }
@@ -293,12 +333,16 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getValueType()) << ": ";
+        const auto& datatype = node.getDatatype();
+        std::cout << toString(datatype.type) << ": ";
 
-        switch (node.getValueType())
+        switch (datatype.type)
         {
         case EnumCType::NULL_T:
             std::cout << "NULL";
+            break;
+        case EnumCType::VOID:
+            std::cout << "void";
             break;
         case EnumCType::VOID_PTR:
             std::cout << "void*";
@@ -395,6 +439,40 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(StructDefinitionStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        printIndentation();
+        std::cout << "Name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "Fields:";
+        printNewLine();
+
+        increaseIntentation();
+        node.getBlockNode().accept(this);
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(StructFwdDeclarationStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printDatatype(node.getDatatype());
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(TranslationUnitNode& node)
     {
         printIndentation();
@@ -417,7 +495,39 @@ namespace cmm
 
         increaseIntentation();
         printIndentation();
-        std::cout << toString(node.getDatatype());
+        const auto& datatype = node.getDatatype();
+        std::cout << toString(datatype.type);
+        printRepeat(std::cout, '*', datatype.pointers);
+        decreaseIntentation();
+        printNewLine();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(UnaryOpNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        printIndentation();
+        std::cout << "UnaryOpType: " << toString(node.getOpType());
+        printNewLine();
+
+        if (node.hasExpression())
+        {
+            auto* expression = node.getExpression();
+            expression->accept(this);
+        }
+
+        else
+        {
+            printIndentation();
+            std::cout << "<empty>";
+            printNewLine();
+        }
+
         decreaseIntentation();
         printNewLine();
 
@@ -496,10 +606,7 @@ namespace cmm
 
     void Dump::printIndentation() const
     {
-        for (s32 i = 0; i < indent; ++i)
-        {
-            std::cout << ' ';
-        }
+        printRepeat(std::cout, ' ', indent);
     }
 
     void Dump::printNewLine() const

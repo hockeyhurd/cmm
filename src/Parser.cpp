@@ -7,15 +7,17 @@
 
 // Our includes
 #include <cmm/Parser.h>
-#include <cmm/ParserPredictor.h>
+#include <cmm/Keyword.h>
 #include <cmm/NodeList.h>
+#include <cmm/ParserPredictor.h>
 #include <cmm/Reporter.h>
 #include <cmm/Snapshot.h>
 #include <cmm/Token.h>
 
 // std includes
-#include <iostream>
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <optional>
 #include <sstream>
 #include <vector>
@@ -56,6 +58,7 @@ namespace cmm
     static bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch);
     static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
 
+    [[maybe_unused]]
     static bool testExpectChar(Lexer& lexer, std::string* errorMessage, const char ch);
 
     static TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage);
@@ -65,19 +68,24 @@ namespace cmm
     static std::unique_ptr<StatementNode> parseExpressionStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseIfElseStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ReturnStatementNode> parseReturnStatementStrict(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseWhileStatement(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<StatementNode> parseStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage);
 
     // Other utility parsing functions
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
+    static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes);
+    static std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
-    static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage);
+    static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location); // TODO: Make location not optional?
+    static std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr);
 
     // Expression types:
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -85,7 +93,7 @@ namespace cmm
 
     // Terminal nodes:
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
-    static std::unique_ptr<ExpressionNode> parseAddressOfOrDerefOrVariableNode(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseUnaryExpression(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
 
     static std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage);
@@ -104,7 +112,6 @@ namespace cmm
 
         if (lexer.completedOrWhitespaceOnly())
         {
-            // TODO: Add debug logging??
             return nullptr;
         }
 
@@ -158,6 +165,12 @@ namespace cmm
     /* static */
     std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage)
     {
+        return parseBlockStatement(lexer, errorMessage, std::nullopt);
+    }
+
+    /* static */
+    std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes)
+    {
         auto snapshot = lexer.snap();
         auto token = newToken();
         bool result = lexer.peekNextToken(token);
@@ -168,8 +181,11 @@ namespace cmm
             return std::nullopt;
         }
 
+        // Save the location as the start of the BlockNode.
+        Location beginLoc;
+
         // Consume token
-        lexer.nextToken(token, errorMessage);
+        lexer.nextToken(token, errorMessage, &beginLoc);
 
         BlockNode::StatementList statements;
         statements.reserve(0x10);
@@ -181,7 +197,18 @@ namespace cmm
 
             if (currentStatement != nullptr)
             {
-                statements.push_back(std::unique_ptr<StatementNode>(static_cast<StatementNode*>(currentStatement.release())));
+                // Check if there are restrictions and if there are, make sure the types match.
+                if (validNodeTypes == std::nullopt || validNodeTypes->find(currentStatement->getType()) != validNodeTypes->end())
+                {
+                    statements.push_back(std::unique_ptr<StatementNode>(static_cast<StatementNode*>(currentStatement.release())));
+                }
+
+                // Invalid, bail out as invalid
+                else
+                {
+                    lexer.restore(snapshot);
+                    return std::nullopt;
+                }
             }
 
             else
@@ -198,10 +225,20 @@ namespace cmm
             return std::nullopt;
         }
 
-        // Consume token
-        lexer.nextToken(token, errorMessage);
+        Location endLoc;
 
-        return std::make_optional<BlockNode>(std::move(statements));
+        // Consume token
+        lexer.nextToken(token, errorMessage, &endLoc);
+
+        return std::make_optional<BlockNode>(beginLoc, endLoc, std::move(statements));
+    }
+
+    /* static */
+    std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage)
+    {
+        static std::unordered_set<EnumNodeType> validNodeTypes = { EnumNodeType::VARIABLE_DECLARATION_STATEMENT, EnumNodeType::STRUCT_DEFINITION };
+        static auto opt = std::make_optional(validNodeTypes);
+        return parseBlockStatement(lexer, errorMessage, opt);
     }
 
     /* static */
@@ -210,7 +247,7 @@ namespace cmm
         auto expression = parseExpression(lexer, errorMessage);
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<ExpressionStatementNode>(std::move(expression)) :
+               std::make_unique<ExpressionStatementNode>(expression->getLocation(), std::move(expression)) :
                nullptr;
     }
 
@@ -219,7 +256,10 @@ namespace cmm
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
-        bool result = lexer.nextToken(token, errorMessage);
+
+        // Save the location as the start of the BlockNode.
+        Location location;
+        bool result = lexer.nextToken(token, errorMessage, &location);
 
         if (!result || !token.isStringSymbol() || token.asStringSymbol() != "if")
         {
@@ -281,8 +321,8 @@ namespace cmm
             return nullptr;
         }
 
-        auto* rawStatement = static_cast<StatementNode*>(statement.release());
-        std::unique_ptr<StatementNode> ifStatementPtr(rawStatement);
+        auto* rawIfStatement = static_cast<StatementNode*>(statement.release());
+        std::unique_ptr<StatementNode> ifStatementPtr(rawIfStatement);
 
         // Lookahead to see if we have an 'else' part.
         const auto elseSnapshot = lexer.snap();
@@ -293,9 +333,9 @@ namespace cmm
         {
             statement = parseStatement(lexer, errorMessage);
 
-            auto* rawStatement = static_cast<StatementNode*>(statement.release());
-            std::unique_ptr<StatementNode> elseStatementPtr(rawStatement);
-            return std::make_unique<IfElseStatementNode>(std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
+            auto* rawElseStatement = static_cast<StatementNode*>(statement.release());
+            std::unique_ptr<StatementNode> elseStatementPtr(rawElseStatement);
+            return std::make_unique<IfElseStatementNode>(location, std::move(expression), std::move(ifStatementPtr), std::move(elseStatementPtr));
         }
 
         // No else block, restore and continue with just the if block.
@@ -304,15 +344,24 @@ namespace cmm
             lexer.restore(elseSnapshot);
         }
 
-        return std::make_unique<IfElseStatementNode>(std::move(expression), std::move(ifStatementPtr));
+        return std::make_unique<IfElseStatementNode>(location, std::move(expression), std::move(ifStatementPtr));
     }
 
     /* static */
     std::unique_ptr<StatementNode> parseReturnStatement(Lexer& lexer, std::string* errorMessage)
     {
+        return parseReturnStatementStrict(lexer, errorMessage);
+    }
+
+    /* static */
+    std::unique_ptr<ReturnStatementNode> parseReturnStatementStrict(Lexer& lexer, std::string* errorMessage)
+    {
         const auto snapshot = lexer.snap();
         auto token = newToken();
-        bool result = lexer.nextToken(token, errorMessage);
+
+        // Save the location as the start of the BlockNode.
+        Location location;
+        bool result = lexer.nextToken(token, errorMessage, &location);
 
         if (!result || !token.isStringSymbol() || token.asStringSymbol() != "return")
         {
@@ -335,7 +384,7 @@ namespace cmm
             // No need to consume the token after peek since 'expectSemicolon'
             // will handle this for us.
             return expectSemicolon(lexer, errorMessage) ?
-                std::make_unique<ReturnStatementNode>() :
+                std::make_unique<ReturnStatementNode>(location) :
                 nullptr;
         }
 
@@ -343,7 +392,7 @@ namespace cmm
         auto expression = parseExpression(lexer, errorMessage);
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<ReturnStatementNode>(std::move(expression)) :
+               std::make_unique<ReturnStatementNode>(location, std::move(expression)) :
                nullptr;
     }
 
@@ -354,7 +403,10 @@ namespace cmm
 
         const auto snapshot = lexer.snap();
         auto token = newToken();
-        bool result = lexer.nextToken(token, errorMessage);
+
+        // Save the location as the start of the BlockNode.
+        Location location;
+        bool result = lexer.nextToken(token, errorMessage, &location);
 
         // Look for 'while'
         if (!result || !token.isStringSymbol() || token.asStringSymbol() != "while")
@@ -423,7 +475,7 @@ namespace cmm
             return nullptr;
         }
 
-        return std::make_unique<WhileStatementNode>(std::move(conditional), std::move(statementPtr));
+        return std::make_unique<WhileStatementNode>(location, std::move(conditional), std::move(statementPtr));
     }
 
     /* static */
@@ -434,24 +486,30 @@ namespace cmm
         if (predictor.empty())
         {
             auto token = newToken();
-            token.setStringSymbol("return");
+            token.setStringSymbol(Keyword::RETURN.getName());
             predictor.registerFunction(token, parseReturnStatement);
 
-            token.setStringSymbol("if");
+            token.setStringSymbol(Keyword::IF.getName());
             predictor.registerFunction(token, parseIfElseStatement);
 
-            token.setStringSymbol("while");
+            token.setStringSymbol(Keyword::WHILE.getName());
             predictor.registerFunction(token, parseWhileStatement);
 
             token.setCharSymbol(CHAR_LCURLY_BRACKET);
 
-            static const auto parseBlockStatementWrapper = [] (Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
+            static const auto parseBlockStatementWrapper = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<StatementNode>
             {
                 auto optionalBlockNode = parseBlockStatement(lexer, errorMessage);
                 return optionalBlockNode.has_value() ? std::make_unique<BlockNode>(std::move(*optionalBlockNode)) : nullptr;
             };
 
             predictor.registerFunction(token, parseBlockStatementWrapper);
+
+            Keyword::registerPrimitiveKeywordsByName([&](const std::string& keywordName)
+                    {
+                        token.setStringSymbol(keywordName);
+                        predictor.registerFunction(token, parseDeclarationStatement);
+                    });
         }
 
         auto tokenLookahead = newToken();
@@ -469,29 +527,7 @@ namespace cmm
 
         // TODO: See if we can get this in the predictor as well.  Leaving for now...
         const auto snapshot = lexer.snap();
-        std::unique_ptr<StatementNode> node(nullptr);
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseDeclarationStatement(lexer, errorMessage);
-        }
-
-        else
-        {
-            return node;
-        }
-
-        if (node == nullptr)
-        {
-            lexer.restore(snapshot);
-            node = parseExpressionStatement(lexer, errorMessage);
-        }
-
-        else
-        {
-            return node;
-        }
+        std::unique_ptr<StatementNode> node = parseExpressionStatement(lexer, errorMessage);
 
         if (node == nullptr)
         {
@@ -504,24 +540,22 @@ namespace cmm
     /* static */
     std::optional<std::vector<std::unique_ptr<StatementNode>>> parseOneOrMoreStatements(Lexer& lexer, std::string* errorMessage)
     {
-        std::vector<std::unique_ptr<StatementNode>> results;
-        bool parsedAtLeastOne = false;
+        auto statement = parseStatement(lexer, errorMessage);
 
-        do
+        if (statement == nullptr)
         {
-            auto statement = parseStatement(lexer, errorMessage);
-
-            if (statement == nullptr)
-            {
-                break;
-            }
-
-            results.push_back(std::move(statement));
-            parsedAtLeastOne = true;
+            return std::nullopt;
         }
-        while (true);
 
-        return parsedAtLeastOne ? std::make_optional(std::move(results)) : std::nullopt;
+        std::vector<std::unique_ptr<StatementNode>> results;
+
+        while (statement != nullptr)
+        {
+            results.emplace_back(std::move(statement));
+            statement = parseStatement(lexer, errorMessage);
+        }
+
+        return std::make_optional(std::move(results));
     }
 
     /* static */
@@ -534,8 +568,11 @@ namespace cmm
         // Expect opening paren (i.e. '(').
         if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
         {
+            // Save the starting location.
+            Location location;
+
             // Capture the token
-            result = lexer.nextToken(token, errorMessage);
+            lexer.nextToken(token, errorMessage, &location);
 
             // Lookahead to the next token
             result = lexer.peekNextToken(token);
@@ -561,7 +598,7 @@ namespace cmm
 
                         if (litteralPtr != nullptr)
                         {
-                            args.emplace_back(std::move(litteralPtr));
+                            args.emplace_back(litteralPtr->getLocation(), std::move(litteralPtr));
                         }
                     }
 
@@ -572,7 +609,7 @@ namespace cmm
                     if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
                     {
                         // Consume the comma
-                        result = lexer.nextToken(token, errorMessage);
+                        lexer.nextToken(token, errorMessage);
 
                         // Now do the peek ahead again for the next iteration.
                         result = lexer.peekNextToken(token);
@@ -604,7 +641,7 @@ namespace cmm
     }
 
     /* static */
-    std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage)
+    std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location)
     {
         auto snapshot = lexer.snap();
         auto token = newToken();
@@ -616,16 +653,40 @@ namespace cmm
             return std::nullopt;
         }
 
+        Location* tempLocation = nullptr;
         u32 count = 0;
 
         while (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_ASTERISK)
         {
-            lexer.nextToken(token, errorMessage);
+            if (tempLocation == nullptr)
+            {
+                tempLocation = location;
+                lexer.nextToken(token, errorMessage, tempLocation);
+            }
+
+            else
+            {
+                lexer.nextToken(token, errorMessage);
+            }
+
             ++count;
             result = lexer.peekNextToken(token);
         }
 
         return std::make_optional(count);
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr)
+    {
+        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr));
+
+        for (u32 i = 1; i < count; ++i)
+        {
+            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
+        }
+
+        return result;
     }
 
     /* static */
@@ -640,8 +701,11 @@ namespace cmm
         // Expect opening paren (i.e. '(').
         if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_LPAREN)
         {
+            // Save the starting location.
+            Location location;
+
             // Capture the token
-            lexer.nextToken(token, errorMessage);
+            lexer.nextToken(token, errorMessage, &location);
 
             // Lookahead to the next token
             result = lexer.peekNextToken(token);
@@ -665,6 +729,34 @@ namespace cmm
                     {
                         // This could be 'func(int)' or 'func(int x)', so we check if the variable was parsed or not.
                         auto typeOpt = parseTypeNode(lexer, errorMessage);
+
+                        result = lexer.peekNextToken(token);
+
+                        // We expect a variable or comma.  Bail out if it's anything else.
+                        if (!result || (!token.isStringSymbol() && !token.isCharSymbol()) || (token.isCharSymbol() && token.asCharSymbol() != CHAR_COMMA && token.asCharSymbol() != CHAR_RPAREN))
+                        {
+                            if (canWriteErrorMessage(errorMessage))
+                            {
+                                std::ostringstream builder;
+                                builder << "Expected a ',' or ')', but found ";
+
+                                if (token.isCharSymbol())
+                                {
+                                    builder << "char '" << token.asCharSymbol() << "'";
+                                }
+
+                                // Must be a string symbol
+                                else
+                                {
+                                    builder << "symbol '" << token.asStringSymbol() << "'";
+                                }
+
+                                *errorMessage = builder.str();
+                            }
+
+                            return std::nullopt;
+                        }
+
                         auto variableNodeOpt = parseVariableNode(lexer, errorMessage);
 
                         // This is the 'func(int x)' case.
@@ -672,7 +764,7 @@ namespace cmm
                         {
                             // TODO: Should probably verify it is safe to do this
                             // without checking the optional for 'has_value'.
-                            params.emplace_back(std::move(*typeOpt), std::move(*variableNodeOpt));
+                            params.emplace_back(typeOpt->getLocation(), std::move(*typeOpt), std::move(*variableNodeOpt));
                         }
 
                         // This is the 'func(int)' case.
@@ -680,7 +772,7 @@ namespace cmm
                         {
                             // TODO: Should probably verify it is safe to do this
                             // without checking the optional for 'has_value'.
-                            params.emplace_back(std::move(*typeOpt));
+                            params.emplace_back(typeOpt->getLocation(), std::move(*typeOpt));
                         }
                     }
 
@@ -707,7 +799,7 @@ namespace cmm
                     if (result && token.isCharSymbol() && token.asCharSymbol() == CHAR_COMMA)
                     {
                         // Consume the comma
-                        result = lexer.nextToken(token, errorMessage);
+                        lexer.nextToken(token, errorMessage);
 
                         // Now do the peek ahead again for the next iteration.
                         result = lexer.peekNextToken(token);
@@ -747,7 +839,15 @@ namespace cmm
 
         if (statements.has_value())
         {
-            TranslationUnitNode translationUnit(std::move(*statements));
+            Location location;
+
+            if (!statements->empty())
+            {
+                const auto& statementVec = *statements;
+                location = statementVec[0]->getLocation();
+            }
+
+            TranslationUnitNode translationUnit(location, std::move(*statements));
             return translationUnit;
         }
 
@@ -757,6 +857,7 @@ namespace cmm
     /* static */
     std::unique_ptr<StatementNode> parseDeclarationStatement(Lexer& lexer, std::string* errorMessage)
     {
+        static auto& reporter = Reporter::instance();
         auto snapshot = lexer.snap();
         auto type = parseTypeNode(lexer, errorMessage);
 
@@ -766,13 +867,70 @@ namespace cmm
             return nullptr;
         }
 
-        snapshot = lexer.snap();
-        auto variableNameOpt = parseVariableNode(lexer, errorMessage);
+        // If it is a struct, we need to get the name of the struct.
+        const bool wasStructType = type->getDatatype().type == EnumCType::STRUCT;
+        auto optVariableName = parseVariableNode(lexer, errorMessage);
 
-        if (!variableNameOpt.has_value())
+        if (!optVariableName.has_value())
         {
-            lexer.restore(snapshot);
-            return nullptr;
+            // No variable name.  If it was a struct, then it was a forward declaration
+            // or struct definition.
+            if (wasStructType)
+            {
+                // Struct forward declarations or defintions must not contain any '*'.
+                if (type->getDatatype().pointers == 0)
+                {
+                    const auto startLoc = type->getLocation();
+                    snapshot = lexer.snap();
+                    auto token = newToken();
+                    const bool lexerResult = lexer.peekNextToken(token);
+
+                    if (!lexerResult || !token.isCharSymbol())
+                    {
+                        lexer.restore(snapshot);
+                        return nullptr;
+                    }
+
+                    // Struct forward declaration
+                    if (token.asCharSymbol() == CHAR_SEMI_COLON)
+                    {
+                        // Consume the token
+                        lexer.nextToken(token, errorMessage);
+                        return std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type));
+                    }
+
+                    // Struct definition
+                    else if (token.asCharSymbol() == CHAR_LCURLY_BRACKET)
+                    {
+                        auto blockNode = parseStructBlockStatement(lexer, errorMessage);
+                        return expectSemicolon(lexer, errorMessage) ?
+                            std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optStructName, std::move(*blockNode)) :
+                            nullptr;
+                    }
+                }
+
+                else
+                {
+                    std::ostringstream builder;
+                    builder << "Expected qualified identifier ';' to complete a forward declaration or '{' to indicate the start of a struct definition for struct "
+                            << type->getDatatype().optStructName.value();
+                    reporter.error(builder.str(), type->getLocation());
+
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = builder.str();
+                    }
+                }
+
+                return nullptr;
+            }
+
+            // Bad parse, bail out
+            else
+            {
+                lexer.restore(snapshot);
+                return nullptr;
+            }
         }
 
         // Lookahead to see if this is a function declaration or definition before
@@ -786,20 +944,21 @@ namespace cmm
             // Function definition
             if (optionalBlockStatement.has_value())
             {
-                return std::make_unique<FunctionDefinitionStatementNode>(*type, std::move(variableNameOpt->getName()), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
+                return std::make_unique<FunctionDefinitionStatementNode>(type->getLocation(), *type,
+                        optVariableName->getName(), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
             }
 
             // Function declaration
             else
             {
                 return expectSemicolon(lexer, errorMessage) ?
-                    std::make_unique<FunctionDeclarationStatementNode>(*type, std::move(variableNameOpt->getName()), std::move(*optionalFunctionArgs)) :
+                    std::make_unique<FunctionDeclarationStatementNode>(type->getLocation(), *type, optVariableName->getName(), std::move(*optionalFunctionArgs)) :
                     nullptr;
             }
         }
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<VariableDeclarationStatementNode>(*type, std::move(*variableNameOpt)) :
+               std::make_unique<VariableDeclarationStatementNode>(type->getLocation(), *type, std::move(*optVariableName)) :
                nullptr;
     }
 
@@ -812,7 +971,15 @@ namespace cmm
         {
             auto token = newToken();
             token.setCharSymbol(CHAR_LPAREN);
-            predictor.registerFunction(token, parseParenExpression);
+
+            // TODO: This is very naive, but it works.  Maybe we can come up with something better later.
+            static const auto parenPredictor = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<ExpressionNode>
+            {
+                auto expr = parseCastExpression(lexer, errorMessage);
+                return expr != nullptr ? std::move(expr) : parseParenExpression(lexer, errorMessage);
+            };
+
+            predictor.registerFunction(token, parenPredictor);
         }
 
         auto tokenLookahead = newToken();
@@ -853,13 +1020,43 @@ namespace cmm
         static auto& reporter = Reporter::instance();
 
         auto snapshot = lexer.snap();
-        auto derefOrVariablePtr = parseAddressOfOrDerefOrVariableNode(lexer, errorMessage);
+
+        // TODO: Try to use ParserPredictor somehow here.
+        auto unaryOrCastOrDerefOrVarExprPtr = parseUnaryExpression(lexer, errorMessage);
 
         // Did not get a name of the function, early exit.
-        if (!derefOrVariablePtr)
+        if (!unaryOrCastOrDerefOrVarExprPtr)
         {
             lexer.restore(snapshot);
-            return nullptr;
+            unaryOrCastOrDerefOrVarExprPtr = parseCastExpression(lexer, errorMessage);
+
+            // Try parse a cast expression
+            if (!unaryOrCastOrDerefOrVarExprPtr)
+            {
+                lexer.restore(snapshot);
+                Location ptrLocation;
+                auto optionalPtrInderection = parsePointerInderectionCount(lexer, errorMessage, &ptrLocation);
+                auto optionalVariable = parseVariableNode(lexer, errorMessage);
+
+                if (!optionalVariable.has_value())
+                {
+                    lexer.restore(snapshot);
+                    return nullptr;
+                }
+
+                // DerefNode
+                else if (optionalPtrInderection.has_value())
+                {
+                    auto varPtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
+                    unaryOrCastOrDerefOrVarExprPtr = buildDerefNode(*optionalPtrInderection, std::move(varPtr));
+                }
+
+                // Normal variable
+                else
+                {
+                    unaryOrCastOrDerefOrVarExprPtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
+                }
+            }
         }
 
         auto optionalArgList = parseFunctionCallArgs(lexer, errorMessage);
@@ -867,39 +1064,74 @@ namespace cmm
         // Has args
         if (optionalArgList.has_value())
         {
-            auto nodeType = derefOrVariablePtr->getType();
+            auto nodeType = unaryOrCastOrDerefOrVarExprPtr->getType();
 
-            if (nodeType == NodeType::ADDRESS_OF)
+            if (nodeType == EnumNodeType::ADDRESS_OF)
             {
-                const char* theErrorMessage = "cannot take the address of a function call.";
+                const char* theErrorMessage = "cannot take the address of a function call";
 
                 if (canWriteErrorMessage(errorMessage))
                 {
                     *errorMessage = theErrorMessage;
                 }
 
-                reporter.error(theErrorMessage, lexer.getLocation());
+                reporter.error(theErrorMessage, unaryOrCastOrDerefOrVarExprPtr->getLocation());
                 lexer.restore(snapshot);
                 return nullptr;
             }
 
-            else if (nodeType == NodeType::DEREF)
+            else if (nodeType == EnumNodeType::UNARY_OP)
             {
-                const auto* derefPtr = static_cast<DerefNode*>(derefOrVariablePtr.get());
+                auto* unaryOpPtr = static_cast<UnaryOpNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
+                const auto unaryOpType = unaryOpPtr->getOpType();
+
+                if (unaryOpType != EnumUnaryOpType::NEGATIVE && unaryOpType != EnumUnaryOpType::POSITIVE)
+                {
+                    const char* theErrorMessage = "invalid unary operator for a function call";
+
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = theErrorMessage;
+                    }
+
+                    reporter.error(theErrorMessage, unaryOpPtr->getLocation());
+                    lexer.restore(snapshot);
+                    return nullptr;
+                }
+
+                else
+                {
+                    const auto* variablePtr = static_cast<VariableNode*>(unaryOpPtr->getExpression());
+                    auto funcName = variablePtr->getName();
+
+                    std::unique_ptr<ExpressionNode> funcCallPtr = std::make_unique<FunctionCallNode>(unaryOrCastOrDerefOrVarExprPtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
+                    unaryOpPtr->setExpression(std::move(funcCallPtr));
+                    return unaryOrCastOrDerefOrVarExprPtr;
+                }
+            }
+
+            else if (nodeType == EnumNodeType::CAST)
+            {
+                return unaryOrCastOrDerefOrVarExprPtr;
+            }
+
+            else if (nodeType == EnumNodeType::DEREF)
+            {
+                const auto* derefPtr = static_cast<DerefNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 nodeType = derefPtr->getRootType();
             }
 
-            if (nodeType == NodeType::VARIABLE)
+            if (nodeType == EnumNodeType::VARIABLE)
             {
-                auto* variablePtr = static_cast<VariableNode*>(derefOrVariablePtr.get());
+                auto* variablePtr = static_cast<VariableNode*>(unaryOrCastOrDerefOrVarExprPtr.get());
                 auto funcName = variablePtr->getName();
 
-                return std::make_unique<FunctionCallNode>(std::move(funcName), std::move(*optionalArgList));
+                return std::make_unique<FunctionCallNode>(unaryOrCastOrDerefOrVarExprPtr->getLocation(), std::move(funcName), std::move(*optionalArgList));
             }
 
             // else
             std::ostringstream builder;
-            builder << "Un-expected NodeType of " << *reinterpret_cast<int*>(&nodeType);
+            builder << "Un-expected EnumNodeType of " << *reinterpret_cast<int*>(&nodeType);
             unimplementedAbort(builder.str());
 
             // Not reachable
@@ -909,11 +1141,74 @@ namespace cmm
         // No args present, normal variable regardless if there is a DerefNode on it or not.
         else
         {
-            return derefOrVariablePtr;
+            return unaryOrCastOrDerefOrVarExprPtr;
         }
 
         // Should be unreachable...
         return nullptr;
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        Location startLocation;
+        bool lexResult = lexer.nextToken(token, errorMessage, &startLocation);
+
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect some type:
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+        auto optionalTypeNode = parseTypeNode(lexer, errorMessage);
+
+        // Make sure our cast has a type!
+        if (!optionalTypeNode.has_value())
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        if (optionalDimensionCount.has_value())
+        {
+            auto& theType = optionalTypeNode->getDatatype();
+            theType.pointers = *optionalDimensionCount;
+        }
+
+        // Expect closing paren:
+        lexResult = lexer.nextToken(token, errorMessage, nullptr);
+
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        // Expect expression being casted:
+        const auto tempLocation = lexer.snap().getLocation();
+        auto exprToCast = parseExpression(lexer, errorMessage);
+
+        if (exprToCast == nullptr)
+        {
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream builder;
+                builder << "Expected an expression to cast at ("
+                        << tempLocation.getLine() << ", " << tempLocation.getPosition()
+                        << ").";
+                *errorMessage = builder.str();
+            }
+
+            lexer.restore(snapshot);
+            return nullptr;
+        }
+
+        auto castExpr = std::make_unique<CastNode>(startLocation, optionalTypeNode->getDatatype(), std::move(exprToCast));
+        return castExpr;
     }
 
     /* static */
@@ -923,7 +1218,8 @@ namespace cmm
         const auto snapshot = lexer.snap();
 
         auto token = newToken();
-        bool lexResult = lexer.nextToken(token);
+        Location location;
+        bool lexResult = lexer.nextToken(token, errorMessage, &location);
 
         // Expect opening '('
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
@@ -934,7 +1230,7 @@ namespace cmm
 
         // wrapped expression i.e. (expr)
         auto expression = parseExpression(lexer, errorMessage);
-        lexResult = lexer.nextToken(token);
+        lexResult = lexer.nextToken(token, nullptr);
 
         // Expect closing ')'
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
@@ -953,7 +1249,7 @@ namespace cmm
             return nullptr;
         }
 
-        return std::make_unique<ParenExpressionNode>(std::move(expression));
+        return std::make_unique<ParenExpressionNode>(expression->getLocation(), std::move(expression));
     }
 
     /* static */
@@ -969,12 +1265,26 @@ namespace cmm
         auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
+        // For saving the starting token.
+        Location location;
+        Location* locationPtr = nullptr;
+
         while (lexResult)
         {
             if (token.isCharSymbol() && (token.asCharSymbol() == CHAR_ASTERISK || token.asCharSymbol() == CHAR_FORWARD_SLASH))
             {
                 // Valid bin type accept the token
-                lexResult = lexer.nextToken(token, errorMessage);
+
+                if (locationPtr == nullptr)
+                {
+                    locationPtr = &location;
+                    lexer.nextToken(token, errorMessage, locationPtr);
+                }
+
+                else
+                {
+                    lexer.nextToken(token, errorMessage);
+                }
             }
 
             else
@@ -984,7 +1294,7 @@ namespace cmm
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_ASTERISK ? EnumBinOpNodeType::MULTIPLY : EnumBinOpNodeType::DIVIDE;
             auto right = parseExpression(lexer, errorMessage);
-            left = std::make_unique<BinOpNode>(actualBinOp, std::move(left), std::move(right));
+            left = std::make_unique<BinOpNode>(left->getLocation(), actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
             lexResult = lexer.peekNextToken(token);
@@ -1006,12 +1316,26 @@ namespace cmm
         auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
+        // For saving the starting token.
+        Location location;
+        Location* locationPtr = nullptr;
+
         while (lexResult)
         {
             if (token.isCharSymbol() && (token.asCharSymbol() == CHAR_PLUS || token.asCharSymbol() == CHAR_MINUS))
             {
                 // Valid bin type accept the token
-                lexResult = lexer.nextToken(token, errorMessage);
+
+                if (locationPtr == nullptr)
+                {
+                    locationPtr = &location;
+                    lexResult = lexer.nextToken(token, errorMessage, locationPtr);
+                }
+
+                else
+                {
+                    lexResult = lexer.nextToken(token, errorMessage);
+                }
             }
 
             else
@@ -1021,10 +1345,10 @@ namespace cmm
 
             const auto actualBinOp = token.asCharSymbol() == CHAR_PLUS ? EnumBinOpNodeType::ADD: EnumBinOpNodeType::SUBTRACT;
             auto right = parseExpression(lexer, errorMessage);
-            left = std::make_unique<BinOpNode>(actualBinOp, std::move(left), std::move(right));
+            left = std::make_unique<BinOpNode>(left->getLocation(), actualBinOp, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
-            lexResult = lexer.peekNextToken(token);
+            lexer.peekNextToken(token);
         }
 
         return left;
@@ -1043,12 +1367,26 @@ namespace cmm
         auto token = newToken();
         bool lexResult = lexer.peekNextToken(token);
 
+        // For saving the starting token.
+        Location location;
+        Location* locationPtr = nullptr;
+
         while (lexResult)
         {
             if (token.isCharSymbol() && token.asCharSymbol() == CHAR_EQUALS)
             {
                 // Valid bin type accept the token
-                lexResult = lexer.nextToken(token, errorMessage);
+
+                if (locationPtr == nullptr)
+                {
+                    locationPtr = &location;
+                    lexResult = lexer.nextToken(token, errorMessage, locationPtr);
+                }
+
+                else
+                {
+                    lexResult = lexer.nextToken(token, errorMessage);
+                }
             }
 
             else
@@ -1057,10 +1395,10 @@ namespace cmm
             }
 
             auto right = parseExpression(lexer, errorMessage);
-            left = std::make_unique<BinOpNode>(EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
+            left = std::make_unique<BinOpNode>(left->getLocation(), EnumBinOpNodeType::ASSIGNMENT, std::move(left), std::move(right));
 
             // Lookahead for next iteration.
-            lexResult = lexer.peekNextToken(token);
+            lexer.peekNextToken(token);
         }
 
         return left;
@@ -1071,7 +1409,10 @@ namespace cmm
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
-        const bool lexResult = lexer.nextToken(token, errorMessage);
+
+        // For saving the starting token.
+        Location location;
+        const bool lexResult = lexer.nextToken(token, errorMessage, &location);
 
         if (!lexResult)
         {
@@ -1081,19 +1422,19 @@ namespace cmm
         switch (token.getType())
         {
         case TokenType::BOOL:
-            return std::make_unique<LitteralNode>(token.asBool());
+            return std::make_unique<LitteralNode>(location, token.asBool());
         case TokenType::CHAR:
-            return std::make_unique<LitteralNode>(token.asChar());
+            return std::make_unique<LitteralNode>(location, token.asChar());
         case TokenType::FLOAT:
-            return std::make_unique<LitteralNode>(token.asFloat());
+            return std::make_unique<LitteralNode>(location, token.asFloat());
         case TokenType::DOUBLE:
-            return std::make_unique<LitteralNode>(token.asDouble());
+            return std::make_unique<LitteralNode>(location, token.asDouble());
         case TokenType::INT16:
-            return std::make_unique<LitteralNode>(token.asInt16());
+            return std::make_unique<LitteralNode>(location, token.asInt16());
         case TokenType::INT32:
-            return std::make_unique<LitteralNode>(token.asInt32());
+            return std::make_unique<LitteralNode>(location, token.asInt32());
         case TokenType::INT64:
-            return std::make_unique<LitteralNode>(token.asInt64());
+            return std::make_unique<LitteralNode>(location, token.asInt64());
         case TokenType::STRING:
         {
             const auto size = token.asCString().size();
@@ -1105,10 +1446,10 @@ namespace cmm
             // Ensure last char is null-terminated
             copyStr[size] = '\0';
 
-            return std::make_unique<LitteralNode>(copyStr);
+            return std::make_unique<LitteralNode>(location, copyStr);
         }
         case TokenType::NULL_T:
-            return std::make_unique<LitteralNode>();
+            return std::make_unique<LitteralNode>(location);
         case TokenType::CHAR_SYMBOL:
         case TokenType::SYMBOL:
             // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
@@ -1123,43 +1464,74 @@ namespace cmm
     }
 
     /* static */
-    std::unique_ptr<ExpressionNode> parseAddressOfOrDerefOrVariableNode(Lexer& lexer, std::string* errorMessage)
+    std::unique_ptr<ExpressionNode> parseUnaryExpression(Lexer& lexer, std::string* errorMessage)
     {
+        [[maybe_unused]]
+        static Reporter& reporter = Reporter::instance();
+
         const auto snapshot = lexer.snap();
-        const bool foundAddressOfOp = testExpectChar(lexer, errorMessage, CHAR_AMPERSAND);
-        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+        Location unaryOpLocation;
+        auto token = newToken();
+
+        std::optional<EnumUnaryOpType> optionalEnumUnaryOpType;
+
+        if (lexer.nextToken(token, errorMessage, &unaryOpLocation) && (token.isCharSymbol() || token.isStringSymbol()))
+        {
+            optionalEnumUnaryOpType = getOpType(token);
+
+            // Invalid EnumUnaryOpType present, restore.
+            if (!optionalEnumUnaryOpType.has_value())
+            {
+                // Token was a successfully lex'd symbol that is a char or string symbol, but is NOT a unary operator.  Do nothing and continue...
+                lexer.restore(snapshot);
+                // TODO: test
+                return nullptr;
+            }
+        }
+
+        // Unsuccessful lex'd symbol or is not a candidate as a EnumUnaryOpType, restore and continue parsing.
+        else
+        {
+            lexer.restore(snapshot);
+            // TODO: test
+            return nullptr;
+        }
+
+        // Check to see if this expression is being dereferenced (i.e. '**x').
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
         auto optionalVariable = parseVariableNode(lexer, errorMessage);
 
+        // Not a VariableNode, bail out of this parse.
         if (!optionalVariable.has_value())
         {
             lexer.restore(snapshot);
             return nullptr;
         }
 
-        // '*x' case:
+        // Note: there are a few cases to consider.  We should consider postfix
+        // case as well, but we'll leave this for future implementation (TODO).
+        // Also, any incompatibilities must be left for the Analyzer to verify
+        // this expression is valid or not.
+        // 1. *--X
+        // 2. --*X
+        // 3. --x
+        // 4. *x
+
+        std::unique_ptr<ExpressionNode> result = std::make_unique<VariableNode>(std::move(*optionalVariable));
+
+        // DerefNode '*x' case:
         if (optionalDimensionCount.has_value())
         {
-            auto variablePtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
-            std::unique_ptr<ExpressionNode> result = std::make_unique<DerefNode>(std::move(variablePtr));
-
-            for (u32 i = 1; i < *optionalDimensionCount; ++i)
-            {
-                result = std::make_unique<DerefNode>(std::move(result));
-            }
-
-            return result;
+            result = buildDerefNode(*optionalDimensionCount, std::move(result));
         }
 
-        // '&x' case:
-        else if (foundAddressOfOp)
+        // If there was a unary op involved, wrap whatever the current working expression is with a unary op node.
+        if (optionalEnumUnaryOpType.has_value())
         {
-            return std::make_unique<AddressOfNode>(std::move(*optionalVariable));
+            result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalEnumUnaryOpType, std::move(result));
         }
 
-        auto variablePtr = std::make_unique<VariableNode>(std::move(*optionalVariable));
-
-        // else normal 'x' case:
-        return variablePtr;
+        return result;
     }
 
     /* static */
@@ -1167,7 +1539,10 @@ namespace cmm
     {
         const auto snapshot = lexer.snap();
         auto token = newToken();
-        const bool lexResult = lexer.nextToken(token, errorMessage);
+
+        // For saving the starting token.
+        Location location;
+        const bool lexResult = lexer.nextToken(token, errorMessage, &location);
 
         if (!lexResult || !token.isStringSymbol())
         {
@@ -1176,14 +1551,17 @@ namespace cmm
         }
 
         // else
-        return std::make_optional<VariableNode>(token.asStringSymbol());
+        return std::make_optional<VariableNode>(location, token.asStringSymbol());
     }
 
     /* static */
     std::optional<TypeNode> parseTypeNode(Lexer& lexer, std::string* errorMessage)
     {
         auto token = newToken();
-        const bool lexResult = lexer.nextToken(token, errorMessage);
+
+        // For saving the starting token.
+        Location location;
+        bool lexResult = lexer.nextToken(token, errorMessage, &location);
 
         if (!lexResult || !token.isStringSymbol())
         {
@@ -1198,15 +1576,38 @@ namespace cmm
 
             if (enumType.has_value())
             {
-                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage);
+                const bool wasStruct = *enumType == EnumCType::STRUCT;
+                std::optional<std::string> structName;
+
+                // If it was a struct, we need to get the name of the struct.
+                if (wasStruct)
+                {
+                    Location structNameLoc;
+                    lexResult = lexer.nextToken(token, errorMessage, &structNameLoc);
+
+                    if (!lexResult || !token.isStringSymbol())
+                    {
+                        if (canWriteErrorMessage(errorMessage))
+                        {
+                            *errorMessage = "Failed to get the name of the struct being parsed";
+                        }
+
+                        return std::nullopt;
+                    }
+
+                    structName = std::make_optional(token.asStringSymbol());
+                }
+
+                Location dimLocation;
+                auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, &dimLocation);
 
                 if (optionalDimensionCount.has_value())
                 {
-                    return std::make_optional<TypeNode>(enumType.value(), *optionalDimensionCount);
+                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount, std::move(structName)));
                 }
 
                 // else
-                return std::make_optional<TypeNode>(enumType.value());
+                return std::make_optional<TypeNode>(location, CType(enumType.value(), 0, std::move(structName)));
             }
         }
 
@@ -1217,3 +1618,4 @@ namespace cmm
 #if OS_WIN
 #pragma warning(pop)
 #endif
+

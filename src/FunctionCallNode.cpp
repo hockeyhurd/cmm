@@ -11,8 +11,8 @@
 namespace cmm
 {
 
-    FunctionCallNode::FunctionCallNode(std::string name, ArgList&& args) CMM_NOEXCEPT :
-        ExpressionNode(NodeType::FUNCTION_CALL), name(std::move(name)), args(std::move(args))
+    FunctionCallNode::FunctionCallNode(const Location& location, std::string name, ArgList&& args) CMM_NOEXCEPT :
+        ExpressionNode(EnumNodeType::FUNCTION_CALL, location), name(std::move(name)), args(std::move(args))
     {
     }
 

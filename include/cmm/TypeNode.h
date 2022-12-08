@@ -23,22 +23,15 @@ namespace cmm
         /**
          * Default constructor.
          *
-         * @param type the EnumCType.
+         * @param location the location of this node.
+         * @param type the CType.
          */
-        explicit TypeNode(const EnumCType type) CMM_NOEXCEPT;
-
-        /**
-         * Default constructor.
-         *
-         * @param type the EnumCType.
-         * @param pointerInderectionCount the amount of pointer inderection or dimensions.
-         */
-        TypeNode(const EnumCType type, const u32 pointerInderectionCount) CMM_NOEXCEPT;
+        TypeNode(const Location& location, const CType& type) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
          */
-        TypeNode(const TypeNode&) CMM_NOEXCEPT = default;
+        TypeNode(const TypeNode&) = default;
 
         /**
          * Move constructor.
@@ -67,14 +60,16 @@ namespace cmm
         /**
          * Gets the datatype.
          *
-         * @return EnumCType.
+         * @return reference to CType.
          */
-        EnumCType getDatatype() const CMM_NOEXCEPT;
+        CType& getDatatype() CMM_NOEXCEPT;
 
         /**
-         * The number of pointer inderection.
+         * Gets the datatype.
+         *
+         * @return const reference to CType.
          */
-        u32 getDimensions() const CMM_NOEXCEPT;
+        const CType& getDatatype() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
@@ -82,10 +77,7 @@ namespace cmm
     private:
 
         // The name of the datatype.
-        EnumCType type;
-
-        // a.k.a. the number of dimensions.
-        u32 pointerInderectionCount;
+        CType type;
     };
 }
 

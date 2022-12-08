@@ -10,12 +10,8 @@
 
 namespace cmm
 {
-    BlockNode::BlockNode() : StatementNode(NodeType::BLOCK)
-    {
-    }
-
-    BlockNode::BlockNode(StatementList&& statements) CMM_NOEXCEPT : StatementNode(NodeType::BLOCK),
-        statements(std::move(statements))
+    BlockNode::BlockNode(const Location& beginLoc, const Location& endLoc, StatementList&& statements) CMM_NOEXCEPT :
+        StatementNode(EnumNodeType::BLOCK, beginLoc), endLoc(endLoc), statements(std::move(statements))
     {
     }
 
@@ -27,6 +23,26 @@ namespace cmm
     BlockNode::size_type BlockNode::size() const CMM_NOEXCEPT
     {
         return statements.size();
+    }
+
+    Location& BlockNode::getBeginLocation() CMM_NOEXCEPT
+    {
+        return getLocation();
+    }
+
+    const Location& BlockNode::getBeginLocation() const CMM_NOEXCEPT
+    {
+        return getLocation();
+    }
+
+    Location& BlockNode::getEndLocation() CMM_NOEXCEPT
+    {
+        return endLoc;
+    }
+
+    const Location& BlockNode::getEndLocation() const CMM_NOEXCEPT
+    {
+        return endLoc;
     }
 
     BlockNode::StatementListIter BlockNode::begin() CMM_NOEXCEPT

@@ -10,13 +10,13 @@
 
 namespace cmm
 {
-    ParameterNode::ParameterNode(TypeNode&& type) CMM_NOEXCEPT :
-        Node(NodeType::PARAMETER), type(std::move(type)), variable(std::nullopt)
+    ParameterNode::ParameterNode(const Location& location, TypeNode&& type) CMM_NOEXCEPT :
+        Node(EnumNodeType::PARAMETER, location), type(std::move(type)), variable(std::nullopt)
     {
     }
 
-    ParameterNode::ParameterNode(TypeNode&& type, VariableNode&& variable) CMM_NOEXCEPT :
-        Node(NodeType::PARAMETER), type(std::move(type)), variable(std::move(variable))
+    ParameterNode::ParameterNode(const Location& location, TypeNode&& type, VariableNode&& variable) CMM_NOEXCEPT :
+        Node(EnumNodeType::PARAMETER, location), type(std::move(type)), variable(std::move(variable))
     {
     }
 

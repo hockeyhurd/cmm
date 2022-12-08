@@ -26,6 +26,7 @@ namespace cmm
     class TranslationUnitNode : public Node
     {
     public:
+
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
         using StatementListIter = StatementList::iterator;
         using StatementListConstIter = StatementList::const_iterator;
@@ -40,10 +41,11 @@ namespace cmm
         /**
          * Constructor.
          *
+         * @param location the location of this node.
          * @param statements a vector of statements (declarations and/or definitions)
          *        defined within a single translation unit.
          */
-        TranslationUnitNode(StatementList&& statements) CMM_NOEXCEPT;
+        TranslationUnitNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.

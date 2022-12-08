@@ -29,20 +29,22 @@ namespace cmm
         /**
          * Constructor with an if conditional and statement.
          *
+         * @param location the location of this node.
          * @param ifConditionalExpression the conditional expression.
          * @param ifStatement the statement after the if conditional.
          */
-        IfElseStatementNode(std::unique_ptr<ExpressionNode>&& ifConditionalExpression,
+        IfElseStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& ifConditionalExpression,
             std::unique_ptr<StatementNode>&& ifStatement) CMM_NOEXCEPT;
 
         /**
          * Constructor with an if conditional and statement.
          *
+         * @param location the location of this node.
          * @param ifConditionalExpression the conditional expression.
          * @param ifStatement the statement after the if conditional.
          * @param elseStatement the statement after the else keyword.
          */
-        IfElseStatementNode(std::unique_ptr<ExpressionNode>&& ifConditionalExpression,
+        IfElseStatementNode(const Location& location, std::unique_ptr<ExpressionNode>&& ifConditionalExpression,
             std::unique_ptr<StatementNode>&& ifStatement,
             std::unique_ptr<StatementNode>&& elseStatement) CMM_NOEXCEPT;
 

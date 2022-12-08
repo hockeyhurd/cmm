@@ -24,6 +24,7 @@ namespace cmm
     class BlockNode : public StatementNode
     {
     public:
+
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
         using size_type = StatementList::size_type;
         using StatementListIter = StatementList::iterator;
@@ -32,16 +33,13 @@ namespace cmm
     public:
 
         /**
-         * Default constructor
-         */
-        BlockNode();
-
-        /**
          * Constructor with initializing statement list.
          *
+         * @param beginLoc the starting Location of this node.
+         * @param endLoc the end Location of this node.
          * @param statements StatementList.
          */
-        BlockNode(StatementList&& statements) CMM_NOEXCEPT;
+        BlockNode(const Location& beginLoc, const Location& endLoc, StatementList&& statements) CMM_NOEXCEPT;
 
         /**
          * Copy constructor
@@ -83,6 +81,36 @@ namespace cmm
         size_type size() const CMM_NOEXCEPT;
 
         /**
+         * Get the starting Location.
+         * Note: This is an alias to the 'getLocation' function.
+         *
+         * @return reference to starting Location.
+         */
+        Location& getBeginLocation() CMM_NOEXCEPT;
+
+        /**
+         * Get the starting Location.
+         * Note: This is an alias to the 'getLocation' function.
+         *
+         * @return const reference to starting Location.
+         */
+        const Location& getBeginLocation() const CMM_NOEXCEPT;
+
+        /**
+         * Get the end Location.
+         *
+         * @return reference to starting Location.
+         */
+        Location& getEndLocation() CMM_NOEXCEPT;
+
+        /**
+         * Get the end Location.
+         *
+         * @return const reference to starting Location.
+         */
+        const Location& getEndLocation() const CMM_NOEXCEPT;
+
+        /**
          * Iterator to the beginning of the statement list.
          */
         StatementListIter begin() CMM_NOEXCEPT;
@@ -110,6 +138,9 @@ namespace cmm
         std::string toString() const override;
 
     private:
+
+        // The end location (i.e. the closing '}')
+        Location endLoc;
 
         // The internal list of StatementNodes
         StatementList statements;

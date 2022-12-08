@@ -504,11 +504,11 @@ namespace cmm
         switch (token.getType())
         {
         case TokenType::BOOL:
-            result = *reinterpret_cast<const std::size_t*>(&token.value.b);
+            result = static_cast<std::size_t>(token.value.b);
             break;
         case TokenType::CHAR_SYMBOL:
         case TokenType::CHAR:
-            result = static_cast<const std::size_t>(token.value.ch);
+            result = static_cast<std::size_t>(token.value.ch);
             break;
         case TokenType::DOUBLE:
             result = *reinterpret_cast<const std::size_t*>(&token.value.doubleValue);
@@ -517,13 +517,13 @@ namespace cmm
             result = *reinterpret_cast<const std::size_t*>(&token.value.floatValue);
             break;
         case TokenType::INT16:
-            result = static_cast<const std::size_t>(token.value.int16Value);
+            result = static_cast<std::size_t>(token.value.int16Value);
             break;
         case TokenType::INT32:
-            result = static_cast<const std::size_t>(token.value.int32Value);
+            result = static_cast<std::size_t>(token.value.int32Value);
             break;
         case TokenType::INT64:
-            result = static_cast<const std::size_t>(token.value.int64Value);
+            result = static_cast<std::size_t>(token.value.int64Value);
             break;
         case TokenType::NULL_T:
             result = 0;

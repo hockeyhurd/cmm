@@ -9,16 +9,16 @@
 
 namespace cmm
 {
-    FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(TypeNode type,
+    FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(const Location& location, TypeNode type,
         const std::string& funcName, ParamList&& params) :
-        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT), type(type), funcName(funcName),
+        StatementNode(EnumNodeType::FUNCTION_DECLARATION_STATEMENT, location), type(type), funcName(funcName),
         params(std::move(params))
     {
     }
 
-    FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(TypeNode type,
+    FunctionDeclarationStatementNode::FunctionDeclarationStatementNode(const Location& location, TypeNode type,
         std::string&& funcName, ParamList&& params) CMM_NOEXCEPT :
-        StatementNode(NodeType::FUNCTION_DECLARATION_STATEMENT), type(type), funcName(std::move(funcName)),
+        StatementNode(EnumNodeType::FUNCTION_DECLARATION_STATEMENT, location), type(type), funcName(std::move(funcName)),
         params(std::move(params))
     {
     }
@@ -33,7 +33,12 @@ namespace cmm
         return type;
     }
 
-    EnumCType FunctionDeclarationStatementNode::getDatatype() const CMM_NOEXCEPT
+    CType& FunctionDeclarationStatementNode::getDatatype() CMM_NOEXCEPT
+    {
+        return type.getDatatype();
+    }
+
+    const CType& FunctionDeclarationStatementNode::getDatatype() const CMM_NOEXCEPT
     {
         return type.getDatatype();
     }
