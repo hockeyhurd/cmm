@@ -97,15 +97,12 @@ namespace cmm
 
     VisitorResult Encode::visit(BlockNode& node)
     {
-        incrementIndent();
         emitNewline();
 
         for (auto& statementPtr : node)
         {
             statementPtr->accept(this);
         }
-
-        decrementIndent();
 
         return VisitorResult();
     }
@@ -218,10 +215,12 @@ namespace cmm
         platform->emitFunctionEnd(this);
         emitNewline();
         platform->emitBlockNodeStart(this);
+        incrementIndent();
 
         auto& blockNode = node.getBlock();
         blockNode.accept(this);
 
+        decrementIndent();
         platform->emitBlockNodeEnd(this);
         emitNewline();
 
@@ -260,7 +259,7 @@ namespace cmm
         auto ifStatementVisitorResult = ifStatement->accept(this);
 
         // TODO: This is may only be for LLVM.  Consider having the Platform handle this
-        platform->emitJump(this, endLabel);
+        platform->emitBranch(this, endLabel);
 
         if (elseStatement != nullptr)
         {
@@ -269,7 +268,7 @@ namespace cmm
             elseStatement->accept(this);
 
             // TODO: This is may only be for LLVM.  Consider having the Platform handle this
-            platform->emitJump(this, endLabel);
+            platform->emitBranch(this, endLabel);
         }
 
         platform->emitLabel(this, endLabel);

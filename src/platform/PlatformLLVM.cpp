@@ -85,7 +85,7 @@ namespace cmm
         os << ")";
     }
 
-    void PlatformLLVM::emitJump(Encode* encoder, const std::string& label) /* override */
+    void PlatformLLVM::emitBranch(Encode* encoder, const std::string& label) /* override */
     {
         encoder->printIndent();
         auto& os = encoder->getOStream();
