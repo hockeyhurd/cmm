@@ -70,16 +70,7 @@ namespace cmm
         virtual std::optional<VisitorResult> emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, CastNode& node, const VisitorResult& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) override;
-#if 0
-        virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionCallNode& node, const std::vector<VisitorResult>& params) override;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDeclarationStatementNode& node, const VisitorResult& type,
-            const std::vector<VisitorResult>& params) override;
-#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDefinitionStatementNode& node) override;
-#if 0
-        virtual std::optional<VisitorResult> emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
-            const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) override;
-#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const bool defer) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) override;

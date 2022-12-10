@@ -116,16 +116,7 @@ namespace cmm
         // virtual std::optional<VisitorResult> emit(Encode* encoder, BlockNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, CastNode& node, const VisitorResult& expr) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) = 0;
-#if 0
-        virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionCallNode& node, const std::vector<VisitorResult>& params) = 0;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDeclarationStatementNode& node, const VisitorResult& type,
-            const std::vector<VisitorResult>& params) = 0;
-#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDefinitionStatementNode& node) = 0;
-#if 0
-        virtual std::optional<VisitorResult> emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
-            const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) = 0;
-#endif
         virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const bool defer) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) = 0;
