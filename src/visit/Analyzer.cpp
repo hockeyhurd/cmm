@@ -350,7 +350,6 @@ namespace cmm
             return VisitorResult();
         }
 
-        // @@@ set the actual datatype.
         const auto& stateTypePair = findResult->second;
         const auto& datatype = stateTypePair.second;
         node.setDatatype(datatype);
