@@ -640,7 +640,7 @@ TEST(AnalyzerTest, AnalyzerMultipleStructDefinitionError)
     ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
-TEST(AnalyzerTest, AnalyzerQuickTest)
+TEST(AnalyzerTest, AnalyzerParamMatchesLocalVariableError)
 {
     reporter.reset();
 

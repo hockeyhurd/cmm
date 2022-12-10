@@ -21,15 +21,6 @@ namespace cmm
 {
     class Token;
 
-    enum class EnumBinOpNodeType
-    {
-        ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE
-    };
-
-    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT;
-
-    // TODO: Consider moving this to sub-classes based on the actual type
-    // as we start using this class more often.
     class BinOpNode : public ExpressionNode
     {
     public:
@@ -83,6 +74,13 @@ namespace cmm
         EnumBinOpNodeType getTypeof() const CMM_NOEXCEPT;
 
         /**
+         * Gets whether the EnumBinOpNodeType is a comparison operation or not.
+         *
+         * @return bool.
+         */
+        bool isComparisonOp() const CMM_NOEXCEPT;
+
+        /**
          * Gets the left node.
          *
          * @return ExpressionNode pointer.
@@ -123,6 +121,20 @@ namespace cmm
          * @param newType the type of the sub-expression.
          */
         void castRight(const CType& newType);
+
+        /**
+         * Adds a DerefNode to the left node.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void derefNodeLeft();
+
+        /**
+         * Adds a DerefNode to the right node.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void derefNodeRight();
 
         VisitorResult accept(Visitor* visitor) override
         {

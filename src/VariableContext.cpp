@@ -11,7 +11,7 @@
 namespace cmm
 {
     VariableContext::VariableContext(const CType& type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT :
-        type(type), locality(locality), modifiers(modifiers)
+        type(type), locality(locality), modifiers(modifiers), dirtyBit(false)
     {
     }
 
@@ -20,7 +20,7 @@ namespace cmm
         return type;
     }
 
-    const CType& VariableContext::getType() const CMM_NOEXCEPT
+    const CType& VariableContext::getCType() const CMM_NOEXCEPT
     {
         return type;
     }
@@ -33,6 +33,21 @@ namespace cmm
     EnumModifier VariableContext::getModifiers() const CMM_NOEXCEPT
     {
         return modifiers;
+    }
+
+    void VariableContext::setModifiers(const EnumModifier modifiers) CMM_NOEXCEPT
+    {
+        this->modifiers = modifiers;
+    }
+
+    bool VariableContext::getDirtyBit() const CMM_NOEXCEPT
+    {
+        return dirtyBit;
+    }
+
+    void VariableContext::setDirtyBit(const bool dirtyBit) CMM_NOEXCEPT
+    {
+        this->dirtyBit = dirtyBit;
     }
 }
 

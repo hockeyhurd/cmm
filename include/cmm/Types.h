@@ -149,6 +149,9 @@ namespace cmm
     const f32 f32_e = 2.71828182845904523536F;
     const f64 f64_e = 2.71828182845904523536;
 
+    // Forward declarations
+    class Token;
+
     enum class EnumLocality : u16
     {
         GLOBAL = 0, INTERNAL, LOCAL, PARAMETER
@@ -225,8 +228,19 @@ namespace cmm
         u16 pointers;
         std::optional<std::string> optStructName;
 
+        /**
+         * Needed for std::pair... do NOT use otherwise.
+         */
+        CType() CMM_NOEXCEPT;
         explicit CType(const EnumCType type, const u16 pointers = 0,
             std::optional<std::string> optStructName = std::nullopt) CMM_NOEXCEPT;
+        CType(const CType& other);
+        CType(CType&& other) CMM_NOEXCEPT;
+
+        CType& operator= (const CType& other);
+        CType& operator= (CType&& other) CMM_NOEXCEPT;
+
+        bool isPointerType() const CMM_NOEXCEPT;
 
         bool operator== (const CType& other) const CMM_NOEXCEPT;
         bool operator!= (const CType& other) const CMM_NOEXCEPT;
@@ -305,6 +319,14 @@ namespace cmm
         return "Unknown type";
     }
 
+    enum class EnumBinOpNodeType
+    {
+        ASSIGNMENT = 0, ADD, SUBTRACT, MULTIPLY, DIVIDE,
+        CMP_EQ, CMP_NE, CMP_GE, CMP_GT, CMP_LE, CMP_LT
+    };
+
+    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT;
+
     template<class Stream, class T, class N>
     void printRepeat(Stream& stream, const T& value, const N count)
     {
@@ -321,6 +343,29 @@ namespace cmm
         printRepeat(stream, '*', type.pointers);
     }
 
+    template <class T>
+    void hash_combine(std::size_t& seed, const T& v)
+    {
+        std::hash<T> hasher;
+        seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
+}
+
+namespace std
+{
+    template<>
+    struct hash<cmm::CType>
+    {
+        std::size_t operator() (const cmm::CType& type) const
+        {
+            std::size_t result = (cmm::s32) type.type;
+            cmm::hash_combine(result, type.pointers);
+            cmm::hash_combine(result, type.optStructName);
+
+            return result;
+        }
+    };
 }
 
 #endif //!CMM_TYPES_H

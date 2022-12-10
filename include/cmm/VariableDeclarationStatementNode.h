@@ -93,18 +93,32 @@ namespace cmm
         const CType& getDatatype() const CMM_NOEXCEPT;
 
         /**
-         * Gets the variable.
+         * Gets the variable's name.
          *
-         * @return VariableNode.
+         * @return std::string.
          */
         std::string& getName() CMM_NOEXCEPT;
+
+        /**
+         * Gets the variable's name.
+         *
+         * @return std::string.
+         */
+        const std::string& getName() const CMM_NOEXCEPT;
 
         /**
          * Gets the variable.
          *
          * @return VariableNode.
          */
-        const std::string& getName() const CMM_NOEXCEPT;
+        VariableNode& getVariable() CMM_NOEXCEPT;
+
+        /**
+         * Gets the variable.
+         *
+         * @return VariableNode.
+         */
+        const VariableNode& getVariable() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
