@@ -86,7 +86,9 @@ namespace cmm
     static std::unique_ptr<ExpressionNode> parseExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage);
+    // TODO: Consider refactoring/reworking this??
     static std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parseParenExpression2(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
@@ -976,9 +978,26 @@ namespace cmm
             static const auto parenPredictor = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<ExpressionNode>
             {
                 auto expr = parseCastExpression(lexer, errorMessage);
-                return expr != nullptr ? std::move(expr) : parseParenExpression(lexer, errorMessage);
+#if 0
+                // return expr != nullptr ? std::move(expr) : parseParenExpression(lexer, errorMessage);
+                return expr != nullptr ? std::move(expr) : parseParenExpression2(lexer, errorMessage);
+                // return expr != nullptr ? std::move(expr) : nullptr;
+#else
+                if (expr != nullptr)
+                {
+                    return expr;
+                }
+
+                else if (errorMessage != nullptr)
+                {
+                    errorMessage->clear();
+                }
+
+                return nullptr;
+#endif
             };
 
+            // @@@
             predictor.registerFunction(token, parenPredictor);
         }
 
@@ -991,7 +1010,13 @@ namespace cmm
 
             if (predictionContext.has_value())
             {
-                return predictor.call<std::unique_ptr<ExpressionNode>>(*predictionContext, lexer, errorMessage);
+                // @@@
+                // return predictor.call<std::unique_ptr<ExpressionNode>>(*predictionContext, lexer, errorMessage);
+                auto result = predictor.call<std::unique_ptr<ExpressionNode>>(*predictionContext, lexer, errorMessage);
+                if (result != nullptr)
+                {
+                    return result;
+                }
             }
         }
 
@@ -1253,9 +1278,56 @@ namespace cmm
     }
 
     /* static */
+    std::unique_ptr<ExpressionNode> parseParenExpression2(Lexer& lexer, std::string* errorMessage)
+    {
+        static Reporter& reporter = Reporter::instance();
+        const auto snapshot = lexer.snap();
+
+        auto token = newToken();
+        bool lexResult = lexer.peekNextToken(token);
+
+        // Expect opening '('. If not, 'reduce' by parsing variable, litteral, etc.
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
+        {
+            auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
+            return left;
+        }
+
+        // Capture the token if is an CHAR_LPAREN
+        Location startLocation;
+        lexer.nextToken(token, errorMessage, &startLocation);
+
+        // Else, expect a "general" expression.
+        auto subexpression = parseExpression(lexer, errorMessage);
+
+        Location endLocation;
+        lexer.nextToken(token, errorMessage, &endLocation);
+
+        // Lastly, expect a closing paren. Error if not.
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
+        {
+            lexer.restore(snapshot);
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                std::ostringstream os;
+                os << "Expected closing parenthesis";
+                *errorMessage = os.str();
+
+                reporter.error(*errorMessage, lexer.getLocation());
+            }
+
+            return nullptr;
+        }
+
+        return std::make_unique<ParenExpressionNode>(subexpression->getLocation(), std::move(subexpression));
+    }
+
+    /* static */
     std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
+        // auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
+        auto left = parseParenExpression2(lexer, errorMessage);
 
         if (left == nullptr)
         {
