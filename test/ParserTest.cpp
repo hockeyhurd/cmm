@@ -515,9 +515,69 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToNestedParenAddExpression)
     ASSERT_EQ(nestedRightIntPtr->getValue().valueS32, 1);
 }
 
-TEST(ParserTest, ParseCompilationNodeParenMultExpressionThenMult)
+TEST(ParserTest, ParseCompilationNodeParenAddExpressionThenMult)
 {
-    const std::string input = "a = (2 + 3) * 2;";
+    const std::string input = "a = 2 + (3 * 2);";
+    // const std::string input = "a = 2 + (3 * 2);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* rootAssignAndBinOpPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndBinOpPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndBinOpPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndBinOpPtr->getRight()->getType(), EnumNodeType::BIN_OP);
+
+    // auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndBinOpPtr->getLeft());
+    // ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    // auto* rightParenPtr = static_cast<ParenExpressionNode*>(rootAssignAndBinOpPtr->getRight());
+    // ASSERT_NE(rightParenPtr->getExpression(), nullptr);
+    // ASSERT_EQ(rightParenPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    // auto* firstBinOpPtr = static_cast<BinOpNode*>(rightParenPtr->getExpression());
+    // ASSERT_EQ(firstBinOpPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    // ASSERT_NE(firstBinOpPtr->getLeft(), nullptr);
+    // ASSERT_EQ(firstBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
+    // ASSERT_NE(firstBinOpPtr->getRight(), nullptr);
+    // ASSERT_EQ(firstBinOpPtr->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
+
+    // auto* nestedParenExpressionPtr = static_cast<ParenExpressionNode*>(firstBinOpPtr->getRight());
+    // ASSERT_NE(nestedParenExpressionPtr->getExpression(), nullptr);
+    // ASSERT_EQ(nestedParenExpressionPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    // auto* nestedBinOpPtr = static_cast<BinOpNode*>(nestedParenExpressionPtr->getExpression());
+    // ASSERT_EQ(nestedBinOpPtr->getTypeof(), EnumBinOpNodeType::SUBTRACT);
+    // ASSERT_NE(nestedBinOpPtr->getLeft(), nullptr);
+    // ASSERT_EQ(nestedBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
+    // ASSERT_NE(nestedBinOpPtr->getRight(), nullptr);
+    // ASSERT_EQ(nestedBinOpPtr->getRight()->getType(), EnumNodeType::LITTERAL);
+
+    // auto* nestedLeftIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getLeft());
+    // ASSERT_EQ(nestedLeftIntPtr ->getDatatype().type, EnumCType::INT32);
+    // ASSERT_EQ(nestedLeftIntPtr ->getValue().valueS32, 32);
+
+    // auto* nestedRightIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getRight());
+    // ASSERT_EQ(nestedRightIntPtr ->getDatatype().type, EnumCType::INT32);
+    // ASSERT_EQ(nestedRightIntPtr ->getValue().valueS32, 1);
+}
+
+TEST(ParserTest, ParseCompilationNodeParenMultExpressionThenAdd)
+{
+    const std::string input = "a = (2 * 3) + 2;";
     // const std::string input = "a = 2 + (3 * 2);";
     Parser parser(input);
     std::string errorMessage;
