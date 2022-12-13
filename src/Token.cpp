@@ -22,15 +22,16 @@ namespace cmm
     {
         if (isSymbol)
         {
-            type = TokenType::SYMBOL;
+            value.symbol = ch;
+            type = TokenType::CHAR_SYMBOL;
         }
 
         else
         {
+            value.ch = ch;
             type = TokenType::CHAR;
         }
 
-        value.ch = ch;
     }
 
     Token::Token(const f64 doubleValue) CMM_NOEXCEPT : type(TokenType::DOUBLE)
