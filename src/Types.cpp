@@ -111,6 +111,21 @@ namespace cmm
         return pointers > 0;
     }
 
+    bool CType::isFloatingPoint() const CMM_NOEXCEPT
+    {
+        const bool result = pointers == 0 && (type == EnumCType::FLOAT || type == EnumCType::DOUBLE);
+        return result;
+    }
+
+    bool CType::isInt() const CMM_NOEXCEPT
+    {
+        const bool result = pointers == 0 && (type == EnumCType::CHAR ||
+            type == EnumCType::INT8  || type == EnumCType::INT16 ||
+            type == EnumCType::INT32 || type == EnumCType::INT64);
+
+        return result;
+    }
+
     bool CType::operator== (const CType& other) const CMM_NOEXCEPT
     {
         return type == other.type && pointers == other.pointers;

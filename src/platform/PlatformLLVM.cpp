@@ -163,7 +163,7 @@ namespace cmm
         auto referenceDatatype = node.getRight()->getDatatype();
         auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
         auto rightTypeStr = resolveDatatype(referenceDatatype);
-        const bool isFloatingPoint = referenceDatatype.pointers == 0 && (referenceDatatype.type == EnumCType::FLOAT || referenceDatatype.type == EnumCType::DOUBLE);
+        const bool isFloatingPoint = referenceDatatype.isFloatingPoint();
 
         // TODO: When we support unsigned types, make this dynamic:
         CMM_CONSTEXPR bool isSignedInt = false;
@@ -248,7 +248,35 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, CastNode& node, const VisitorResult& expr) /* override */
     {
-        return std::nullopt;
+        static auto& reporter = Reporter::instance();
+        const auto& fromCType = node.getExpression()->getDatatype();
+        const auto& toCType = node.getDatatype();
+
+        static auto datatypeToStr = [](const CType& datatype) -> std::string
+        {
+            if (datatype.isFloatingPoint())
+                return "fp";
+            else if (datatype.isInt())
+            {
+                // TODO: When we support unsigned types, make this dynamic:
+                CMM_CONSTEXPR bool isSignedInt = true;
+                return isSignedInt ? "si" : "ui";
+            }
+
+            std::ostringstream os;
+            os << "unexpected CType at " << __FILE__ << ": " << __LINE__;
+            reporter.bug(os.str(), Location(0, 0), true);
+            return "\0";
+        };
+
+        encoder->printIndent();
+        auto& os = encoder->getOStream();
+        auto temp = encoder->getTemp();
+        os << temp << " = " << datatypeToStr(fromCType) << "to" << datatypeToStr(toCType)
+           << " " << resolveDatatype(fromCType) << " " << *expr.result.str << " to " << resolveDatatype(toCType);
+        encoder->emitNewline();
+
+        return VisitorResult(new std::string(std::move(temp)), true);
     }
 
     /* virtual */

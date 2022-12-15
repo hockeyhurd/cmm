@@ -241,6 +241,8 @@ namespace cmm
         CType& operator= (CType&& other) CMM_NOEXCEPT;
 
         bool isPointerType() const CMM_NOEXCEPT;
+        bool isFloatingPoint() const CMM_NOEXCEPT;
+        bool isInt() const CMM_NOEXCEPT;
 
         bool operator== (const CType& other) const CMM_NOEXCEPT;
         bool operator!= (const CType& other) const CMM_NOEXCEPT;

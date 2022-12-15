@@ -92,6 +92,11 @@ namespace cmm
         right = std::make_unique<DerefNode>(location, std::move(tempRight));
     }
 
+    VisitorResult BinOpNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
+    }
+
     std::string BinOpNode::toString() const /* override */
     {
         return "BinOpNode";

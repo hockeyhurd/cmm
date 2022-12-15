@@ -159,7 +159,7 @@ namespace cmm
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)
     {
         auto& typeNode = node.getTypeNode();
-        auto typeNodeVisitorResult = typeNode.accept(this);
+        typeNode.accept(this);
 
         emitSpace();
         platform->emitFunctionStart(this, node.getName());
@@ -191,7 +191,7 @@ namespace cmm
         emitSpace();
 
         auto& typeNode = node.getTypeNode();
-        auto typeNodeVisitorResult = typeNode.accept(this);
+        typeNode.accept(this);
 
         emitSpace();
         platform->emitFunctionStart(this, node.getName());
@@ -256,7 +256,7 @@ namespace cmm
         platform->emitBranchInstruction(this, ifCondVisitorResult, ifLabel, endLabel, !elseLabel.empty() ? &elseLabel : nullptr);
 
         platform->emitLabel(this, ifLabel);
-        auto ifStatementVisitorResult = ifStatement->accept(this);
+        ifStatement->accept(this);
 
         // TODO: This is may only be for LLVM.  Consider having the Platform handle this
         platform->emitBranch(this, endLabel);
@@ -286,10 +286,10 @@ namespace cmm
     VisitorResult Encode::visit(ParameterNode& node)
     {
         auto& typeNode = node.getDatatype();
-        auto typeNodeVisitorResult = typeNode.accept(this);
+        typeNode.accept(this);
 
         auto& optionalVariableNode = node.getVariable();
-        std::optional<VisitorResult> optVariableVisitorResult = std::nullopt;
+        std::optional<VisitorResult> optVariableVisitorResult;
 
         if (optionalVariableNode.has_value())
         {
@@ -379,7 +379,7 @@ namespace cmm
         emitSpace();
 
         auto& typeNode = node.getTypeNode();
-        auto typeNodeVisitorResult = typeNode.accept(this);
+        typeNode.accept(this);
         emitNewline();
 
         return VisitorResult();
