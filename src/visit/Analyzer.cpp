@@ -267,6 +267,15 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        // If it is a VariableNode, we need to add a DerefNode in front of it.
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            node.derefNode();
+
+            // Update our expression pointer for next use below.
+            expression = node.getExpression();
+        }
+
         const auto& from = node.getDatatype();
         const auto& to = expression->getDatatype();
 

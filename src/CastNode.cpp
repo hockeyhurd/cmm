@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/CastNode.h>
+#include <cmm/DerefNode.h>
 
 namespace cmm
 {
@@ -28,6 +29,13 @@ namespace cmm
     const ExpressionNode* CastNode::getExpression() const CMM_NOEXCEPT
     {
         return expression.get();
+    }
+
+    void CastNode::derefNode()
+    {
+        const auto location = expression->getLocation();
+        auto temp = std::move(expression);
+        expression = std::make_unique<DerefNode>(location, std::move(temp));
     }
 
     VisitorResult CastNode::accept(Visitor* visitor) /* override */
