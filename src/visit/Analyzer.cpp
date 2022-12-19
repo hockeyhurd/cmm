@@ -779,6 +779,9 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        const auto& datatype = expression->getDatatype();
+        node.setDatatype(datatype);
+
         return VisitorResult();
     }
 

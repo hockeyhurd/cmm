@@ -30,6 +30,11 @@ namespace cmm
         return expression.get();
     }
 
+    VisitorResult ParenExpressionNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
+    }
+
     std::string ParenExpressionNode::toString() const /* override */
     {
         return "ParenExpressionNode";

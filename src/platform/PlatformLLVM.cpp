@@ -374,7 +374,7 @@ namespace cmm
         const auto& optVariableNode = node.getVariable();
 
         auto& os = encoder->getOStream();
-        os << " ";
+        encoder->emitSpace();
 
         if (optVariableNode.has_value())
         {
@@ -386,12 +386,6 @@ namespace cmm
         os << tempParam;
 
         return std::make_optional<VisitorResult>(new std::string(std::move(tempParam)), true);
-    }
-
-    /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) /* override */
-    {
-        return std::nullopt;
     }
 
     /* virtual */
@@ -440,6 +434,7 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, StructFwdDeclarationStatementNode& node) /* override */
     {
+        // Do nothing??
         return std::nullopt;
     }
 

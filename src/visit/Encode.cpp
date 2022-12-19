@@ -309,9 +309,8 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
-        auto optVisitorResult = platform->emit(this, node, visitorResult);
 
-        return std::move(*optVisitorResult);
+        return visitorResult;
     }
 
     VisitorResult Encode::visit(ReturnStatementNode& node)
