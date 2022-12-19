@@ -779,6 +779,13 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        // Need to dereference VariableNodes since they can only ever be read from.
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            node.derefNode();
+            expression = node.getExpression();
+        }
+
         const auto& datatype = expression->getDatatype();
         node.setDatatype(datatype);
 
