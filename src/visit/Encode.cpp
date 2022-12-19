@@ -158,6 +158,9 @@ namespace cmm
 
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)
     {
+        platform->emit(this, node);
+        emitSpace();
+
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
 
@@ -340,6 +343,7 @@ namespace cmm
         for (auto& statement : node)
         {
             statement->accept(this);
+            emitNewline();
         }
 
         return VisitorResult();

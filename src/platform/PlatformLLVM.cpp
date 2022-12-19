@@ -292,20 +292,13 @@ namespace cmm
         return VisitorResult(new std::string(std::move(temp)), true);
     }
 
-#if 0
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionCallNode& node, const std::vector<VisitorResult>& params) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionDeclarationStatementNode& node) /* override */
     {
+        auto& os = encoder->getOStream();
+        os << "declare";
         return std::nullopt;
     }
-
-    /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionDeclarationStatementNode& node, const VisitorResult& type,
-            const std::vector<VisitorResult>& params) /* override */
-    {
-        return std::nullopt;
-    }
-#endif
 
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionDefinitionStatementNode& node) /* override */
@@ -314,15 +307,6 @@ namespace cmm
         os << "define";
         return std::nullopt;
     }
-
-#if 0
-    /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
-            const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) /* override */
-    {
-        return std::nullopt;
-    }
-#endif
 
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, LitteralNode& node, const bool defer) /* override */
