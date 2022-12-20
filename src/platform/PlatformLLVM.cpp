@@ -451,9 +451,68 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, UnaryOpNode& node, const VisitorResult& name) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, UnaryOpNode& node, const VisitorResult& expr) /* override */
     {
-        return std::nullopt;
+        static auto& reporter = Reporter::instance();
+        const EnumUnaryOpType opType = node.getOpType();
+        const auto& datatype = node.getDatatype();
+        const bool isFloatingPoint = datatype.isFloatingPoint();
+
+        // TODO: When we support unsigned types, make this dynamic:
+        CMM_CONSTEXPR bool isSignedInt = false;
+
+        // @@@ Copied for temp reference
+        /*enum class EnumUnaryOpType
+        {
+            ADDRESS_OF = 0, NEGATIVE, POSITIVE, DECREMENT, INCREMENT
+        };*/
+
+        encoder->printIndent();
+        auto& os = encoder->getOStream();
+        auto temp = encoder->getTemp();
+
+        switch (opType)
+        {
+        case EnumUnaryOpType::ADDRESS_OF: // &x
+            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            break;
+        case EnumUnaryOpType::NEGATIVE: // -x
+            os << temp << " = ";
+
+            if (isFloatingPoint)
+            {
+                os << "fneg ";
+                printType(os, datatype);
+                encoder->emitSpace();
+            }
+
+            else
+            {
+                os << "sub " << (isSignedInt ? "nsw " : "");
+                printType(os, datatype);
+                os << " 0, ";
+            }
+
+            os << *expr.result.str;
+
+            break;
+        case EnumUnaryOpType::POSITIVE: // +x
+            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            break;
+        case EnumUnaryOpType::INCREMENT: // ++x
+            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            break;
+        case EnumUnaryOpType::DECREMENT: // --x
+            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            break;
+        default:
+            reporter.bug("Un-supported EnumUnaryOpType", node.getLocation(), true);
+            break;
+        }
+
+        encoder->emitNewline();
+
+        return VisitorResult(new std::string(std::move(temp)), true);
     }
 
     /* virtual */

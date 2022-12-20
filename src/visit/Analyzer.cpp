@@ -892,7 +892,6 @@ namespace cmm
             auto* expression = node.getExpression();
             expression->accept(this);
 
-            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != EnumNodeType::VARIABLE)
             if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF)
             {
                 if (expression->getType() != EnumNodeType::VARIABLE)
@@ -903,10 +902,22 @@ namespace cmm
 
                 else
                 {
+                    // Note: We don't add a DerefNode because the variable (at least in LLVM) is already a pointer type.
+                    // TODO: When if/when we support additional backends, re-consider moving this logic.
                     CType newType = expression->getDatatype();
                     ++newType.pointers;
                     node.setDatatype(newType);
                 }
+            }
+
+            else if (expression->getType() == EnumNodeType::VARIABLE)
+            {
+                const CType datatype = expression->getDatatype();
+                node.derefNode();
+                node.setDatatype(datatype);
+
+                // This line is commented out to ignore a cppcheck "error", but may be needed some day.
+                // expression = node.getExpression();
             }
         }
 
