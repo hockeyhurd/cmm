@@ -679,11 +679,11 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr)
     {
-        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr));
+        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr), true);
 
         for (u32 i = 1; i < count; ++i)
         {
-            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
+            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result), true);
         }
 
         return result;

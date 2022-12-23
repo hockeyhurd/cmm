@@ -32,6 +32,15 @@ namespace cmm
         DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT;
 
         /**
+         * Constructor.
+         *
+         * @param location the location of this node.
+         * @param expr the expression to be dereferenced.
+         * @param pExplicit whether there is an explicit deref (i.e. '*x') vs a standard read from variable's memory.
+         */
+        DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr, const bool pExplicit) CMM_NOEXCEPT;
+
+        /**
          * Copy constructor.
          */
         DerefNode(const DerefNode&) = delete;
@@ -91,6 +100,11 @@ namespace cmm
         EnumNodeType getRootType() const CMM_NOEXCEPT;
 
         /**
+         * Resolves the actual datatype if the DerefNode is explicit (see alt constructor).
+         */
+        void resolveDatatype() CMM_NOEXCEPT;
+
+        /**
          * Gets the underlying CType.
          *
          * @return CType.
@@ -121,6 +135,9 @@ namespace cmm
 
         // Cached root EnumNodeType.
         mutable EnumNodeType rootType;
+
+        // This must be mutable incase the sub-expression
+        std::optional<CType> modType;
     };
 }
 

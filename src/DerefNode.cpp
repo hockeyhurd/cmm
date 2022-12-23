@@ -11,7 +11,14 @@
 namespace cmm
 {
     DerefNode::DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr) CMM_NOEXCEPT :
-        ExpressionNode(EnumNodeType::DEREF, location), expr(std::move(expr)), rootType(EnumNodeType::UNKNOWN)
+        ExpressionNode(EnumNodeType::DEREF, location), expr(std::move(expr)), rootType(EnumNodeType::UNKNOWN),
+        modType(std::nullopt)
+    {
+    }
+
+    DerefNode::DerefNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr, const bool pExplicit) CMM_NOEXCEPT :
+        ExpressionNode(EnumNodeType::DEREF, location), expr(std::move(expr)), rootType(EnumNodeType::UNKNOWN),
+        modType(this->expr->getDatatype())
     {
     }
 
@@ -48,19 +55,48 @@ namespace cmm
         return rootType;
     }
 
+    void DerefNode::resolveDatatype() CMM_NOEXCEPT
+    {
+        if (modType.has_value())
+        {
+            modType = expr->getDatatype();
+
+            // We subtract one since this is "popping off" one level of indirection.
+            --modType->pointers;
+        }
+    }
+
     CType& DerefNode::getDatatype() CMM_NOEXCEPT /* override */
     {
+        if (modType.has_value())
+        {
+            return *modType;
+        }
+
         return expr->getDatatype();
     }
 
     const CType& DerefNode::getDatatype() const CMM_NOEXCEPT /* override */
     {
+        if (modType.has_value())
+        {
+            return *modType;
+        }
+
         return expr->getDatatype();
     }
 
     void DerefNode::setDatatype(const CType& datatype) CMM_NOEXCEPT /* override */
     {
-        expr->setDatatype(datatype);
+        if (modType.has_value())
+        {
+            modType = datatype;
+        }
+
+        else
+        {
+            expr->setDatatype(datatype);
+        }
     }
 
     VisitorResult DerefNode::accept(Visitor* visitor) /* override */

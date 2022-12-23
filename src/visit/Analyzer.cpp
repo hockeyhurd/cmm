@@ -63,19 +63,15 @@ namespace cmm
 
     VisitorResult Analyzer::visit(BinOpNode& node)
     {
-        // TODO: How should we handle the case of: "x = y = 42;"??
-        // Ideally, we would like to treat the sub/right-expression as "normal",
-        // then re-write the sub/right expression as just another "RVALUE".
-        // I guess we'll just need to re-visit this when we get to code generation.
-
         auto* rightNode = node.getRight();
 
         [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
         const auto& rightType = rightNode->getDatatype();
 
-        // If the right node is a variable, we need to add a DerefNode to wrap it.
-        if (rightNode->getType() == EnumNodeType::VARIABLE)
+        // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
+        // we need to add a (potentially second) DerefNode to wrap it.
+        if (rightNode->getType() == EnumNodeType::VARIABLE || rightNode->getType() == EnumNodeType::DEREF)
         {
             // Add DerefNode
             node.derefNodeRight();
@@ -227,7 +223,7 @@ namespace cmm
             }
         }
 
-        else if (leftType.pointers > 0 && rightType.pointers > 0)
+        else if (!isAssignment && leftType.pointers > 0 && rightType.pointers > 0)
         {
             std::ostringstream builder;
             builder << "Invalid operands to binary expression between '";
@@ -341,6 +337,14 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         expression->accept(this);
+
+        if (expression->getType() != EnumNodeType::VARIABLE && expression->getType() != EnumNodeType::DEREF)
+        {
+            reporter.error("Expected a variable or dereference node", node.getLocation());
+            return VisitorResult();
+        }
+
+        node.resolveDatatype();
 
         return VisitorResult();
     }

@@ -300,12 +300,23 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) /* override */
     {
-        const auto& datatype = node.getDatatype();
-        auto strType = resolveDatatype(datatype);
+        const auto* expression = node.getExpression();
+        const auto& datatype = expression->getDatatype();
+        const auto strType = resolveDatatype(datatype);
         auto temp = encoder->getTemp();
         encoder->printIndent();
         auto& os = encoder->getOStream();
-        os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
+
+        if (strType == "ptr")
+        {
+            // TODO (hurdn): This is a hack to prevent instances of "ptr*".  Can we do something better??
+            os << temp << " = load " << strType << ", " << strType << " " << *varResult.result.str;
+        }
+
+        else
+        {
+            os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
+        }
 
         return VisitorResult(new std::string(std::move(temp)), true);
     }
@@ -479,39 +490,21 @@ namespace cmm
         // TODO: When we support unsigned types, make this dynamic:
         CMM_CONSTEXPR bool isSignedInt = false;
 
-        // @@@ Copied for temp reference
-        /*enum class EnumUnaryOpType
-        {
-            ADDRESS_OF = 0, NEGATIVE, POSITIVE, DECREMENT, INCREMENT
-        };*/
-
-        encoder->printIndent();
         auto& os = encoder->getOStream();
-        auto temp = encoder->getTemp();
+        std::string temp;
 
         switch (opType)
         {
         case EnumUnaryOpType::ADDRESS_OF: // &x
         {
-#if 0
-            // reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
-            // First, allocate space for a pointer.
-            os << temp << " = alloca ptr";
-            encoder->emitNewline();
-            encoder->printIndent();
-
-            // Second, store the value from the 'expr' to this pointer.
-            // auto tempPtr = encoder->getTemp();
-            // os << "store ptr " << *expr.result.str << ", ptr " << temp;
-
-            // Lastly, swap because the return statement below expects to use temp.
-            // std::swap(temp, tempPtr);
-#else
             temp = std::move(*expr.result.str);
-#endif
+            goto endUnaryOpNodeLabel;
         }
             break;
         case EnumUnaryOpType::NEGATIVE: // -x
+        {
+            encoder->printIndent();
+            temp = encoder->getTemp();
             os << temp << " = ";
 
             if (isFloatingPoint)
@@ -529,7 +522,7 @@ namespace cmm
             }
 
             os << *expr.result.str;
-
+        }
             break;
         case EnumUnaryOpType::POSITIVE: // +x
             return std::make_optional<VisitorResult>(std::move(expr));
@@ -546,6 +539,7 @@ namespace cmm
 
         encoder->emitNewline();
 
+endUnaryOpNodeLabel:;
         return VisitorResult(new std::string(std::move(temp)), true);
     }
 
@@ -575,13 +569,11 @@ namespace cmm
         switch (locality)
         {
         case (EnumLocality::GLOBAL):
-            // example: @value = external global i32 0, align 4, !dbg !0
             os << "= external global ";
             printType(os, node.getDatatype());
             os << " 0";
             break;
         case (EnumLocality::INTERNAL):
-            // example: @value = internal global i32 0, align 4, !dbg !0
             os << "= internal global ";
             printType(os, node.getDatatype());
             os << " 0";
