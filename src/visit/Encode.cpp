@@ -358,7 +358,7 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
-        auto optVisitorResult = platform->emit(this, node, visitorResult);
+        auto optVisitorResult = platform->emit(this, node, std::move(visitorResult));
 
         return std::move(*optVisitorResult);
     }

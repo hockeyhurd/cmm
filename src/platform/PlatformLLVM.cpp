@@ -104,48 +104,56 @@ namespace cmm
     {
         std::string str;
 
-        switch (datatype.type)
+        if (datatype.pointers > 0)
         {
-        case EnumCType::NULL_T:
-            str = "null";
-            break;
-        case EnumCType::VOID:
-            str = "void";
-            break;
-        case EnumCType::VOID_PTR:
             str = "ptr";
-            break;
-        case EnumCType::BOOL:
-        // fallthrough
-        case EnumCType::CHAR:
-        // fallthrough
-        case EnumCType::INT8:
-            str = "i8";
-            break;
-        case EnumCType::INT16:
-            str = "i16";
-            break;
-        case EnumCType::INT32:
-            str = "i32";
-            break;
-        case EnumCType::INT64:
-            str = "i64";
-            break;
-        case EnumCType::FLOAT:
-            str = "float";
-            break;
-        case EnumCType::DOUBLE:
-            str = "double";
-            break;
-        case EnumCType::STRING:
-            str = "ptr";
-            break;
-        case EnumCType::STRUCT:
-            str = "struct." + *datatype.optStructName;
-            break;
-        default:
-            str = "Unknown type";
-            break;
+        }
+
+        else
+        {
+            switch (datatype.type)
+            {
+            case EnumCType::NULL_T:
+                str = "null";
+                break;
+            case EnumCType::VOID:
+                str = "void";
+                break;
+            case EnumCType::VOID_PTR:
+                str = "ptr";
+                break;
+            case EnumCType::BOOL:
+            // fallthrough
+            case EnumCType::CHAR:
+            // fallthrough
+            case EnumCType::INT8:
+                str = "i8";
+                break;
+            case EnumCType::INT16:
+                str = "i16";
+                break;
+            case EnumCType::INT32:
+                str = "i32";
+                break;
+            case EnumCType::INT64:
+                str = "i64";
+                break;
+            case EnumCType::FLOAT:
+                str = "float";
+                break;
+            case EnumCType::DOUBLE:
+                str = "double";
+                break;
+            case EnumCType::STRING:
+                str = "ptr";
+                break;
+            case EnumCType::STRUCT:
+                str = "struct." + *datatype.optStructName;
+                break;
+            default:
+                str = "Unknown type";
+                break;
+            }
         }
 
         return str;
@@ -161,8 +169,8 @@ namespace cmm
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) /* override */
     {
         auto referenceDatatype = node.getRight()->getDatatype();
-        auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
-        auto rightTypeStr = resolveDatatype(referenceDatatype);
+        const auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
+        const auto rightTypeStr = resolveDatatype(referenceDatatype);
         const bool isFloatingPoint = referenceDatatype.isFloatingPoint();
 
         // TODO: When we support unsigned types, make this dynamic:
@@ -176,7 +184,17 @@ namespace cmm
 
         if (binOpType == EnumBinOpNodeType::ASSIGNMENT)
         {
-            os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
+            if (leftTypeStr == "ptr")
+            {
+                // TODO (hurdn): This is a hack to prevent instances of "ptr*".  Can we do something better??
+                os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << " " << *left.result.str;
+            }
+
+            else
+            {
+                os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
+            }
+
             return std::nullopt;
         }
 
@@ -451,7 +469,7 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, UnaryOpNode& node, const VisitorResult& expr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, UnaryOpNode& node, VisitorResult&& expr) /* override */
     {
         static auto& reporter = Reporter::instance();
         const EnumUnaryOpType opType = node.getOpType();
@@ -474,7 +492,24 @@ namespace cmm
         switch (opType)
         {
         case EnumUnaryOpType::ADDRESS_OF: // &x
-            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+        {
+#if 0
+            // reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            // First, allocate space for a pointer.
+            os << temp << " = alloca ptr";
+            encoder->emitNewline();
+            encoder->printIndent();
+
+            // Second, store the value from the 'expr' to this pointer.
+            // auto tempPtr = encoder->getTemp();
+            // os << "store ptr " << *expr.result.str << ", ptr " << temp;
+
+            // Lastly, swap because the return statement below expects to use temp.
+            // std::swap(temp, tempPtr);
+#else
+            temp = std::move(*expr.result.str);
+#endif
+        }
             break;
         case EnumUnaryOpType::NEGATIVE: // -x
             os << temp << " = ";
@@ -497,8 +532,7 @@ namespace cmm
 
             break;
         case EnumUnaryOpType::POSITIVE: // +x
-            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
-            break;
+            return std::make_optional<VisitorResult>(std::move(expr));
         case EnumUnaryOpType::INCREMENT: // ++x
             reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
             break;
@@ -534,8 +568,35 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, VariableDeclarationStatementNode& node) /* override */
     {
+        static auto& reporter = Reporter::instance();
+        const EnumLocality locality = node.getLocality();
         auto& os = encoder->getOStream();
-        os << "= alloca";
+
+        switch (locality)
+        {
+        case (EnumLocality::GLOBAL):
+            // example: @value = external global i32 0, align 4, !dbg !0
+            os << "= external global ";
+            printType(os, node.getDatatype());
+            os << " 0";
+            break;
+        case (EnumLocality::INTERNAL):
+            // example: @value = internal global i32 0, align 4, !dbg !0
+            os << "= internal global ";
+            printType(os, node.getDatatype());
+            os << " 0";
+            break;
+        case (EnumLocality::LOCAL):
+            os << "= alloca";
+            break;
+        case (EnumLocality::PARAMETER):
+            reporter.bug("Unimplemented EnumLocality::PARAMETER for PlatformLLVM::emit(Encode* encoder, VariableDeclarationStatementNode& node)", node.getLocation(), true);
+            break;
+        default:
+            reporter.bug("Unimplemented EnumLocality type for PlatformLLVM::emit(Encode* encoder, VariableDeclarationStatementNode& node)", node.getLocation(), true);
+            break;
+        }
+
         return std::nullopt;
     }
 

@@ -78,7 +78,7 @@ namespace cmm
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructDefinitionStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructFwdDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, TypeNode& node) override;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, UnaryOpNode& node, const VisitorResult& expr) override;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, UnaryOpNode& node, VisitorResult&& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableNode& node, const bool defer) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, WhileStatementNode& node, const VisitorResult& cond,
