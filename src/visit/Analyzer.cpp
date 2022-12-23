@@ -974,6 +974,9 @@ namespace cmm
         else
         {
             scope.add(node.getName(), context);
+
+            // Update the node's locality for later use.
+            node.setLocality(currentLocality);
         }
 
         return VisitorResult();
