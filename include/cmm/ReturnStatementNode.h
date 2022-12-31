@@ -110,11 +110,7 @@ namespace cmm
          */
         void deref();
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
-
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:

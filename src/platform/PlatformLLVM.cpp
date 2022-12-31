@@ -82,12 +82,18 @@ namespace cmm
     std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) /* override */
     {
         auto& os = encoder->getOStream();
+        encoder->printIndent();
+
+        if (datatype.type == EnumCType::VOID && !datatype.isPointerType())
+        {
+            os << "call void @" << name << "(";
+            return std::nullopt;
+        }
+
         auto temp = encoder->getTemp();
         const auto datatypeAsString = resolveDatatype(datatype);
 
-        encoder->printIndent();
         os << temp << " = call " << datatypeAsString << " @" << name << "(";
-
         return std::make_optional(std::move(temp));
     }
 
@@ -178,6 +184,11 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ArgNode& node, const VisitorResult& expr) /* override */
     {
+        const auto& datatype = node.getDatatype();
+        const std::string typeStr = resolveDatatype(datatype);
+        auto& os = encoder->getOStream();
+        os << typeStr << " " << *expr.result.str;
+
         return std::nullopt;
     }
 
@@ -316,8 +327,9 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) /* override */
     {
-        const auto* expression = node.getExpression();
-        const auto& datatype = expression->getDatatype();
+        // const auto* expression = node.getExpression();
+        // const auto& datatype = expression->getDatatype();
+        const auto& datatype = node.getDatatype();
         const auto strType = resolveDatatype(datatype);
         auto temp = encoder->getTemp();
         encoder->printIndent();
@@ -423,7 +435,7 @@ namespace cmm
 
         if (optVariableNode.has_value())
         {
-            os << optVariableNode->getName();
+            os << "%" << optVariableNode->getName();
             return std::make_optional<VisitorResult>(new std::string(optVariableNode->getName()), true);
         }
 
@@ -434,13 +446,22 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ReturnStatementNode& node, const VisitorResult& expr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ReturnStatementNode& node, const std::optional<VisitorResult>& expr) /* override */
     {
-        std::string str = resolveDatatype(*node.getDatatype());
-
+        const auto* datatype = node.getDatatype();
         auto& os = encoder->getOStream();
         encoder->printIndent();
-        os << "ret " << str << " " << *expr.result.str;
+
+        if (datatype != nullptr && expr.has_value())
+        {
+            const std::string str = resolveDatatype(*node.getDatatype());
+            os << "ret " << str << " " << *expr->result.str;
+        }
+
+        else
+        {
+            os << "ret void";
+        }
 
         return std::nullopt;
     }

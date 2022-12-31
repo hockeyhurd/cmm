@@ -66,6 +66,11 @@ namespace cmm
         }
     }
 
+    std::unique_ptr<ExpressionNode> DerefNode::release() CMM_NOEXCEPT
+    {
+        return std::move(expr);
+    }
+
     CType& DerefNode::getDatatype() CMM_NOEXCEPT /* override */
     {
         if (modType.has_value())

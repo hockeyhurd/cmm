@@ -105,6 +105,11 @@ namespace cmm
         void resolveDatatype() CMM_NOEXCEPT;
 
         /**
+         * Releases the underlying expression.  Useful when 'popping' a DerefNode.
+         */
+        std::unique_ptr<ExpressionNode> release() CMM_NOEXCEPT;
+
+        /**
          * Gets the underlying CType.
          *
          * @return CType.

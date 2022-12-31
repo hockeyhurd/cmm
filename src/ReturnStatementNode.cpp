@@ -62,6 +62,11 @@ namespace cmm
         }
     }
 
+    VisitorResult ReturnStatementNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
+    }
+
     std::string ReturnStatementNode::toString() const /* override */
     {
         return "ReturnStatementNode";

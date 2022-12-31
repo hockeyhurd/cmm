@@ -86,8 +86,9 @@ namespace cmm
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
         const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
+        const bool isLeftDerefNode = leftNode->getType() == EnumNodeType::DEREF;
 
-        if (isAssignment && !isLeftVariable)
+        if (isAssignment && !isLeftVariable && !isLeftDerefNode)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -123,6 +124,15 @@ namespace cmm
             // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
             asU16 = ~asU16;
             varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
+        }
+
+        else if (isAssignment && isLeftDerefNode)
+        {
+            // Pop off 1-level of a DerefNode??
+            node.popDerefNodeLeft();
+
+            // Update our pointer to this new pointer.
+            leftNode = node.getLeft();
         }
 
         // If the left node is a variable and this is NOT an assignmnet operation,
@@ -554,6 +564,14 @@ namespace cmm
                     reporter.error(builder.str(), returnStatementPtr->getLocation());
                 }
             }
+        }
+
+        // Is a 'void' function without a return statement.  We will add one implicitly to help with code generation.
+        else if (returnStatementPtr == nullptr && datatype.type == EnumCType::VOID)
+        {
+            const auto& endLocation = node.getBlock().getEndLocation();
+            auto returnStatementNode = std::make_unique<ReturnStatementNode>(endLocation);
+            node.addReturnStatement(std::move(returnStatementNode));
         }
 
         // void function returns a non-void value case #1.

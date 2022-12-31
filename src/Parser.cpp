@@ -591,7 +591,7 @@ namespace cmm
                         return std::make_optional(std::move(args));
                     }
 
-                    else if (!token.isCharSymbol())
+                    else if (!token.isCharSymbol() || token.asCharSymbol() == CHAR_AMPERSAND)
                     {
                         // This could be 'func()' or 'func(x)', so we check if the variable was parsed or not.
                         auto litteralPtr = parseLitteralOrLRValueNode(lexer, errorMessage);

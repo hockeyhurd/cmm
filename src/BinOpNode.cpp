@@ -92,6 +92,28 @@ namespace cmm
         right = std::make_unique<DerefNode>(location, std::move(tempRight));
     }
 
+    void BinOpNode::popDerefNodeLeft()
+    {
+        auto tempLeft = std::move(left);
+        auto* leftExpr = static_cast<DerefNode*>(tempLeft.get());
+        left = leftExpr->release();
+
+        // We 'pop' the pointer count to make the datatypes agree.
+        auto& datatype = left->getDatatype();
+        --datatype.pointers;
+    }
+
+    void BinOpNode::popDerefNodeRight()
+    {
+        auto tempRight = std::move(right);
+        auto* rightExpr = static_cast<DerefNode*>(tempRight.get());
+        right = rightExpr->release();
+
+        // We 'pop' the pointer count to make the datatypes agree.
+        auto& datatype = right->getDatatype();
+        --datatype.pointers;
+    }
+
     VisitorResult BinOpNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

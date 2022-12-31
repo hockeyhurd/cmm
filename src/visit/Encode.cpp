@@ -137,7 +137,7 @@ namespace cmm
     VisitorResult Encode::visit(FunctionCallNode& node)
     {
         const auto& datatype = node.getDatatype();
-        auto optLabel = platform->emitFunctionCallStart(this, datatype, node.getName());
+        auto optLabelStr = platform->emitFunctionCallStart(this, datatype, node.getName());
 
         std::vector<VisitorResult> results;
         results.reserve(node.size());
@@ -151,9 +151,8 @@ namespace cmm
         platform->emitFunctionCallEnd(this);
         emitNewline();
 
-        // Note: this std::move will make this non-portable. Leave for now
-        // to support LLVM.
-        return VisitorResult(new std::string(std::move(*optLabel)), true);
+        // Note: this std::move will make this non-portable. Leave for now to support LLVM.
+        return optLabelStr.has_value() ? VisitorResult(new std::string(std::move(*optLabelStr)), true) : VisitorResult();
     }
 
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)
@@ -316,8 +315,15 @@ namespace cmm
     VisitorResult Encode::visit(ReturnStatementNode& node)
     {
         auto* expression = node.getExpression();
-        auto visitorResult = expression->accept(this);
-        platform->emit(this, node, visitorResult);
+        std::optional<VisitorResult> optVisitorResult = std::nullopt;
+
+        if (expression != nullptr)
+        {
+            auto visitorResult = expression->accept(this);
+            optVisitorResult = std::make_optional<VisitorResult>(std::move(visitorResult));
+        }
+
+        platform->emit(this, node, optVisitorResult);
 
         return VisitorResult();
     }

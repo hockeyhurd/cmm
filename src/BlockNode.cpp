@@ -45,6 +45,11 @@ namespace cmm
         return endLoc;
     }
 
+    void BlockNode::addStatement(std::unique_ptr<StatementNode>&& statement)
+    {
+        statements.emplace_back(std::move(statement));
+    }
+
     BlockNode::StatementListIter BlockNode::begin() CMM_NOEXCEPT
     {
         return statements.begin();
@@ -63,6 +68,11 @@ namespace cmm
     const BlockNode::StatementListConstIter BlockNode::cend() const CMM_NOEXCEPT
     {
         return statements.cend();
+    }
+
+    VisitorResult BlockNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string BlockNode::toString() const /* override */
