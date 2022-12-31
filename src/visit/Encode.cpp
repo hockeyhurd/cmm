@@ -32,7 +32,7 @@ namespace cmm
 
     std::string Encode::getLabel()
     {
-        std::string result = "%l_";
+        std::string result = "l_";
         result += std::to_string(labelCounter++);
 
         return result;
@@ -391,11 +391,30 @@ namespace cmm
     VisitorResult Encode::visit(WhileStatementNode& node)
     {
         auto* conditional = node.getConditional();
+        std::string condLabel = getLabel();
+        std::string statementLabel = getLabel();
+        std::string endLabel = getLabel();
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitBranch(this, condLabel);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitLabel(this, condLabel);
+
         auto condVisitorResult = conditional->accept(this);
 
-        auto* statement = node.getStatement();
-        auto statementVisitorResult = statement->accept(this);
-        platform->emit(this, node, condVisitorResult, statementVisitorResult);
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitBranchInstruction(this, condVisitorResult, statementLabel, endLabel, nullptr);
+        platform->emitLabel(this, statementLabel);
+
+        auto* statementNodePtr = node.getStatement();
+        statementNodePtr->accept(this);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitBranch(this, condLabel);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitLabel(this, endLabel);
 
         return VisitorResult();
     }

@@ -53,6 +53,8 @@ namespace cmm
          */
         PlatformLLVM& operator= (PlatformLLVM&&) CMM_NOEXCEPT = default;
 
+        virtual std::optional<VisitorResult> castForBranch(const VisitorResult& name) CMM_NOEXCEPT override;
+
         virtual void emitBlockNodeStart(Encode* encoder) override;
         virtual void emitBlockNodeEnd(Encode* encoder) override;
         virtual void emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,

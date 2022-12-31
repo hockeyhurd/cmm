@@ -23,24 +23,33 @@ namespace cmm
     {
     }
 
+    /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::castForBranch(const VisitorResult& name) CMM_NOEXCEPT /* override */
+    {
+        return std::nullopt;
+    }
+
+    /* virtual */
     void PlatformLLVM::emitBlockNodeStart(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << "{";
     }
 
+    /* virtual */
     void PlatformLLVM::emitBlockNodeEnd(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << "\n}";
     }
 
+    /* virtual */
     void PlatformLLVM::emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,
         const std::string& endLabel, const std::string* elseLabel) /* override */
     {
         encoder->printIndent();
         auto& os = encoder->getOStream();
-        os << "br i1 " << *expr.result.str << ", label " << ifLabel << ", label ";
+        os << "br i1 " << *expr.result.str << ", label %" << ifLabel << ", label %";
 
         if (elseLabel != nullptr)
         {
@@ -55,18 +64,21 @@ namespace cmm
         encoder->emitNewline();
     }
 
+    /* virtual */
     void PlatformLLVM::emitFunctionStart(Encode* encoder, const std::string& name) /* override */
     {
         auto& os = encoder->getOStream();
         os << "@" << name << "(";
     }
 
+    /* virtual */
     void PlatformLLVM::emitFunctionEnd(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << ")";
     }
 
+    /* virtual */
     std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) /* override */
     {
         auto& os = encoder->getOStream();
@@ -79,20 +91,23 @@ namespace cmm
         return std::make_optional(std::move(temp));
     }
 
+    /* virtual */
     void PlatformLLVM::emitFunctionCallEnd(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << ")";
     }
 
+    /* virtual */
     void PlatformLLVM::emitBranch(Encode* encoder, const std::string& label) /* override */
     {
         encoder->printIndent();
         auto& os = encoder->getOStream();
-        os << "br label " << label;
+        os << "br label %" << label;
         encoder->emitNewline();
     }
 
+    /* virtual */
     void PlatformLLVM::emitLabel(Encode* encoder, const std::string& label) /* override */
     {
         auto& os = encoder->getOStream();
@@ -100,6 +115,7 @@ namespace cmm
         encoder->emitNewline();
     }
 
+    /* virtual */
     std::string PlatformLLVM::resolveDatatype(const CType& datatype) /* override */
     {
         std::string str;
@@ -198,7 +214,7 @@ namespace cmm
             return std::nullopt;
         }
 
-        bool reverseOperations = false;
+        bool reverseOperations = true;
         auto strResult = encoder->getTemp();
         os << strResult << " = ";
 
@@ -232,7 +248,7 @@ namespace cmm
                 os << (isSignedInt ? "sdiv nsw " : "udiv");
             break;
         case EnumBinOpNodeType::CMP_NE:
-            reverseOperations = true;
+            reverseOperations = false;
 
             if (isFloatingPoint)
                 os << "fdiv ";

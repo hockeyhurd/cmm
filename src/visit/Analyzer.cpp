@@ -991,6 +991,24 @@ namespace cmm
         auto* conditional = node.getConditional();
         conditional->accept(this);
 
+        const auto condExprNodeType = conditional->getType();
+        const auto& conditionalExprDatatype = conditional->getDatatype();
+
+        if (condExprNodeType == EnumNodeType::VARIABLE)
+        {
+            node.derefConditional();
+            node.wrapConditionalWithBinOpNode();
+
+            // Now we know this is a DerefNode, but we will make sure by resetting these variables.
+            conditional = node.getConditional();
+        }
+
+        if (conditionalExprDatatype.type == EnumCType::VOID || conditionalExprDatatype.type == EnumCType::VOID_PTR)
+        {
+            reporter.error("Unexpected void or void* expression", node.getLocation());
+            return VisitorResult();
+        }
+
         auto* statement = node.getStatement();
         statement->accept(this);
 

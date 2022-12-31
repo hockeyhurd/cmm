@@ -98,6 +98,14 @@ namespace cmm
          */
         virtual std::string getFooter() const;
 
+        /**
+         * For optional casting of branch types (ex. LLVM requires 'i1' whereas the type maybe i32).
+         *
+         * @param name the name of the variable to be casted.
+         * @return Optional VisitorResult.
+         */
+        virtual std::optional<VisitorResult> castForBranch(const VisitorResult& name) CMM_NOEXCEPT = 0;
+
         virtual void emitBlockNodeStart(Encode* encoder) = 0;
         virtual void emitBlockNodeEnd(Encode* encoder) = 0;
         virtual void emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,

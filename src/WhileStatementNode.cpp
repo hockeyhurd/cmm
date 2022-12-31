@@ -7,7 +7,10 @@
 
 // Our includes
 #include <cmm/WhileStatementNode.h>
+#include <cmm/BinOpNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/ExpressionNode.h>
+#include <cmm/LitteralNode.h>
 
 namespace cmm
 {
@@ -35,6 +38,31 @@ namespace cmm
     const StatementNode* WhileStatementNode::getStatement() const CMM_NOEXCEPT
     {
         return statement.get();
+    }
+
+    void WhileStatementNode::derefConditional()
+    {
+        const auto location = conditional->getLocation();
+        auto temp = std::move(conditional);
+        conditional = std::make_unique<DerefNode>(location, std::move(temp));
+    }
+
+    void WhileStatementNode::wrapConditionalWithBinOpNode()
+    {
+        const auto& datatype = conditional->getDatatype();
+
+        // Setup the LitteralNode 'null' value.
+        auto comparator = std::make_unique<LitteralNode>(LitteralNode::getNullForType(conditional->getLocation(), datatype));
+
+        // Move conditional to the side temporarily
+        auto tempLHS = std::move(conditional);
+        const auto location = tempLHS->getLocation();
+
+        // Create the BinOpNode comparision to replace the conditional expression with.
+        conditional = std::make_unique<BinOpNode>(location, EnumBinOpNodeType::CMP_NE, std::move(tempLHS), std::move(comparator));
+
+        // Make sure the end datatype matches the original conditional.
+        conditional->setDatatype(datatype);
     }
 
     VisitorResult WhileStatementNode::accept(Visitor* visitor) /* override */

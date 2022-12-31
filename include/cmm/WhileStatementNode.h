@@ -93,8 +93,25 @@ namespace cmm
          */
         const StatementNode* getStatement() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override;
+        /**
+         * Adds a DerefNode to the conditional expression, which is expected to be a VariableNode.
+         * Note: This function assumes the caller has already performed the necessary checks
+         *       to satisfy this assumption.
+         */
+        void derefConditional();
 
+        /**
+         * Wraps the while conditional in a comparison (BinOpNode) operator.
+         * Note: This assumes the caller has already performed sufficient
+         *       checking and the new node is valid.  The current while conditional
+         *       will become the lhs expression of the new BinOpNode.
+         *
+         * @param binOpType the EnumBinOpNodeType.
+         * @param comparator the rhs ExpressionNode to compare with.
+         */
+        void wrapConditionalWithBinOpNode();
+
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:

@@ -18,7 +18,8 @@ int main()
     // std::string input = "struct Vec2 { int x; int y; }; int sum(int x, int y) { return x + y; } int main() { int a; a = 10; int b; b = 32; int c; c = sum(a, b); return c; }";
     // std::string input = "int main() { int a; a = 10; if (a + 1) { a = 20; } else { a = 30; } return a; }";
     // std::string input = "void func(); int main() { float a; a = 10.0F; float b; b = 16.0F; float c; c = (2.0F * -b) + a; int result; result = (int) c; return result; }";
-    std::string input = "int main() { int a; a = 42; int* ptr; ptr = &a; int result; result = *ptr; return result; }";
+    // std::string input = "int main() { int a; a = 42; int* ptr; ptr = &a; int result; result = *ptr; return result; }";
+    std::string input = "int main() { int x; x = 2; while (x) { x = x - 1; } return x; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
