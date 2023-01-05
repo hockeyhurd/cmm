@@ -69,7 +69,7 @@ namespace cmm
          *
          * @return CType.
          */
-        const CType& getType() const CMM_NOEXCEPT;
+        const CType& getCType() const CMM_NOEXCEPT;
 
         /**
          * Gets the EnumLocality of this variable.
@@ -85,6 +85,27 @@ namespace cmm
          */
         EnumModifier getModifiers() const CMM_NOEXCEPT;
 
+        /**
+         * Sets the EnumModifier used with this variable.
+         *
+         * @param modifiers The new modifier value.
+         */
+        void setModifiers(const EnumModifier modifiers) CMM_NOEXCEPT;
+
+        /**
+         * Gets the state of the dirty bit.
+         *
+         * @return bool true if variable was recently modified, otherwise false.
+         */
+        bool getDirtyBit() const CMM_NOEXCEPT;
+
+        /**
+         * Allows for setting the dirty bit's value.
+         *
+         * @param dirtyBit bool.
+         */
+        void setDirtyBit(const bool dirtyBit) CMM_NOEXCEPT;
+
     private:
 
         // The type of the variable.
@@ -95,6 +116,10 @@ namespace cmm
 
         // The modifiers of the variable.
         EnumModifier modifiers;
+
+        // Used for tracking when a variable has changed and the compiler should
+        // consider re-reading from memory for the latest value of this variable.
+        bool dirtyBit;
     };
 }
 

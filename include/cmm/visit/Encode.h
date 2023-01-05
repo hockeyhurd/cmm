@@ -1,68 +1,103 @@
 /**
- * An implementation of the base visitor class for analyzing an AST.
+ * An implementation of the base visitor class for encoding an AST.
  *
  * @author hockeyhurd
- * @version 2022-08-31
+ * @version 2022-11-21
  */
 
 #pragma once
 
-#ifndef CMM_ANALYZER_H
-#define CMM_ANALYZER_H
+#ifndef CMM_ENCODE_H
+#define CMM_ENCODE_H
 
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
-#include <cmm/ScopeManager.h>
-#include <cmm/StructTable.h>
-#include <cmm/VariableContext.h>
 #include <cmm/visit/Visitor.h>
 
 // std includes
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#include <ostream>
 
 namespace cmm
 {
-    // Forward declarations:
-    class Reporter;
+    class PlatformBase;
 
-    class Analyzer : public Visitor
+    class Encode : public Visitor
     {
     public:
 
         /**
-         * Constructor with a value.
+         * Constructor with a platform.
+         * Note: Platform mustn't be a nullptr, otherwise an std::runtime_error
+         *       exception is thrown.
+         *
+         * @param platform A pointer to the implementing platform.
+         * @param the output stream we are writing to.
          */
-        Analyzer() CMM_NOEXCEPT;
+        Encode(PlatformBase* platform, std::ostream& os);
 
         /**
          * Copy constructor
          */
-        Analyzer(const Analyzer&) = delete;
+        Encode(const Encode&) = delete;
 
         /**
          * Move constructor
          */
-        Analyzer(Analyzer&&) CMM_NOEXCEPT = delete;
+        Encode(Encode&&) CMM_NOEXCEPT = delete;
 
         /**
          * Default destructor
          */
-        virtual ~Analyzer() = default;
+        virtual ~Encode() = default;
 
         /**
          * Copy assignment operator.
          */
-        Analyzer& operator= (const Analyzer&) = delete;
+        Encode& operator= (const Encode&) = delete;
 
         /**
          * Move assignment operator.
          */
-        Analyzer& operator= (Analyzer&&) CMM_NOEXCEPT = delete;
+        Encode& operator= (Encode&&) CMM_NOEXCEPT = delete;
+
+        /**
+         * Get the stream we are writing to.
+         *
+         * @return reference to the std::ostringstream.
+         */
+        std::ostream& getOStream() CMM_NOEXCEPT;
+
+        /**
+         * Gets a unique label.
+         *
+         * @return std::string.
+         */
+        std::string getLabel();
+
+        /**
+         * Gets a unique param variable.
+         *
+         * @return std::string.
+         */
+        std::string getParam();
+
+        /**
+         * Gets a unique temp variable.
+         *
+         * @return std::string.
+         */
+        std::string getTemp();
+
+        /**
+         * Emits a newline.
+         */
+        void emitNewline() const CMM_NOEXCEPT;
+
+        /**
+         * Emits a single space.
+         */
+        void emitSpace() const CMM_NOEXCEPT;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated"
@@ -92,36 +127,35 @@ namespace cmm
         virtual VisitorResult visit(VariableNode& node) override;
         virtual VisitorResult visit(WhileStatementNode& node) override;
 
-    private:
-
-        /**
-         * Validates that function already exists or does not requiring updating the internal map.
-         *
-         * @param name the name of the function.
-         * @param state the state to be updated (Note: does not actually update the table).
-         * @return bool.
-         */
-        bool validateFunction(const std::string& name, const EnumSymState state);
+        void printIndent() const;
 
     private:
 
-        // Our reporter for reporting things.
-        static Reporter& reporter;
+        void incrementIndent(const s32 amount = 4) CMM_NOEXCEPT;
+        void decrementIndent(const s32 amount = 4) CMM_NOEXCEPT;
 
-        // The symbol table wrapped around a stack based scope. 
-        ScopeManager scope;
+    private:
 
-        // A map for keeping track of functions available.
-        std::unordered_map<std::string, std::pair<EnumSymState, CType>> functionTable;
+        // A pointer to the current platform.
+        PlatformBase* platform;
 
-        // The table for tracking structs.
-        StructTable structTable;
+        // The file we are writing to.
+        std::ostream& os;
 
-        // For tracking current locality.
-        std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;
+        // The current indentation amount.
+        s32 indent;
+
+        // Used for tracking the current count of temp variables.
+        u32 tempVarCounter;
+
+        // Used for tracking the current count of generic parameters.
+        u32 paramCounter;
+
+        // Used for tracking the current count of labels.
+        u32 labelCounter;
 
     };
 }
 
-#endif //!CMM_ANALYZER_H
+#endif //!CMM_ENCODE_H
 

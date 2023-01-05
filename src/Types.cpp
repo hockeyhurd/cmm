@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Token.h>
 
 // std includes
 #include <map>
@@ -59,9 +60,70 @@ namespace cmm
         return std::nullopt;
     }
 
+    CType::CType() CMM_NOEXCEPT : type(EnumCType::NULL_T), pointers(0xFFFF), optStructName(std::nullopt)
+    {
+    }
+
     CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string> optStructName) CMM_NOEXCEPT :
         type(type), pointers(pointers), optStructName(optStructName)
     {
+    }
+
+    CType::CType(const CType& other) : type(other.type), pointers(other.pointers), optStructName(std::nullopt)
+    {
+        if (other.optStructName.has_value())
+        {
+            optStructName = std::make_optional(*other.optStructName);
+        }
+    }
+
+    CType::CType(CType&& other) CMM_NOEXCEPT : type(other.type), pointers(other.pointers),
+        optStructName(std::move(other.optStructName))
+    {
+    }
+
+    CType& CType::operator= (const CType& other)
+    {
+        if (this != &other)
+        {
+            type = other.type;
+            pointers = other.pointers;
+            optStructName = other.optStructName;
+        }
+
+        return *this;
+    }
+
+    CType& CType::operator= (CType&& other) CMM_NOEXCEPT
+    {
+        if (this != &other)
+        {
+            type = other.type;
+            pointers = other.pointers;
+            optStructName = std::move(other.optStructName);
+        }
+
+        return *this;
+    }
+
+    bool CType::isPointerType() const CMM_NOEXCEPT
+    {
+        return pointers > 0;
+    }
+
+    bool CType::isFloatingPoint() const CMM_NOEXCEPT
+    {
+        const bool result = pointers == 0 && (type == EnumCType::FLOAT || type == EnumCType::DOUBLE);
+        return result;
+    }
+
+    bool CType::isInt() const CMM_NOEXCEPT
+    {
+        const bool result = pointers == 0 && (type == EnumCType::CHAR ||
+            type == EnumCType::INT8  || type == EnumCType::INT16 ||
+            type == EnumCType::INT32 || type == EnumCType::INT64);
+
+        return result;
     }
 
     bool CType::operator== (const CType& other) const CMM_NOEXCEPT
@@ -219,6 +281,28 @@ namespace cmm
     CTypeValue::CTypeValue(char* valueString) CMM_NOEXCEPT : length(sizeof(valueString))
     {
         this->valueString = valueString;
+    }
+
+    std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT
+    {
+        if (token.isCharSymbol())
+        {
+            switch (token.asCharSymbol())
+            {
+            case CHAR_PLUS:
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::ADD);
+            case CHAR_MINUS:
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::SUBTRACT);
+            case CHAR_ASTERISK: // multiply
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::MULTIPLY);
+            case CHAR_FORWARD_SLASH: // divide
+                return std::make_optional<EnumBinOpNodeType>(EnumBinOpNodeType::DIVIDE);
+            default:
+                return std::nullopt;
+            }
+        }
+
+        return std::nullopt;
     }
 }
 

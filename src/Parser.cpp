@@ -969,29 +969,31 @@ namespace cmm
 
         if (predictor.empty())
         {
-            auto token = newToken();
-            token.setCharSymbol(CHAR_LPAREN);
+            const Token token(CHAR_LPAREN, true);
 
-            // TODO: This is very naive, but it works.  Maybe we can come up with something better later.
-            static const auto parenPredictor = [](Lexer& lexer, std::string* errorMessage) -> std::unique_ptr<ExpressionNode>
-            {
-                auto expr = parseCastExpression(lexer, errorMessage);
-                return expr != nullptr ? std::move(expr) : parseParenExpression(lexer, errorMessage);
-            };
-
-            predictor.registerFunction(token, parenPredictor);
+            // Note: Previously, we tried to parse a Cast or Paren expression node here.
+            // This will not work for BinOpNodes that contain Paren expressions because
+            // it will not expect 'extra' tokens past the closing expression.
+            // This causes expressions such as 'a = (2 + 3) * 2;' to fail.
+            predictor.registerFunction(token, parseCastExpression);
         }
 
         auto tokenLookahead = newToken();
-        bool result = lexer.peekNextToken(tokenLookahead);
+        const bool lexResult = lexer.peekNextToken(tokenLookahead);
 
-        if (result)
+        if (lexResult)
         {
             auto predictionContext = predictor.predict(tokenLookahead);
 
             if (predictionContext.has_value())
             {
-                return predictor.call<std::unique_ptr<ExpressionNode>>(*predictionContext, lexer, errorMessage);
+                auto predictorResult = predictor.call<std::unique_ptr<ExpressionNode>>(*predictionContext, lexer, errorMessage);
+
+                // Only early exit if the predictor was correct.  Else, continue parsing like normal.
+                if (predictorResult != nullptr)
+                {
+                    return predictorResult;
+                }
             }
         }
 
@@ -1218,21 +1220,26 @@ namespace cmm
         const auto snapshot = lexer.snap();
 
         auto token = newToken();
-        Location location;
-        bool lexResult = lexer.nextToken(token, errorMessage, &location);
+        bool lexResult = lexer.peekNextToken(token);
 
-        // Expect opening '('
+        // Expect opening '('. If not, 'reduce' by parsing variable, litteral, etc.
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LPAREN)
         {
-            lexer.restore(snapshot);
-            return nullptr;
+            auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
+            return left;
         }
 
-        // wrapped expression i.e. (expr)
-        auto expression = parseExpression(lexer, errorMessage);
-        lexResult = lexer.nextToken(token, nullptr);
+        // Capture the token if is an CHAR_LPAREN
+        Location startLocation;
+        lexer.nextToken(token, errorMessage, &startLocation);
 
-        // Expect closing ')'
+        // Else, expect a "general" expression.
+        auto subexpression = parseExpression(lexer, errorMessage);
+
+        Location endLocation;
+        lexer.nextToken(token, errorMessage, &endLocation);
+
+        // Lastly, expect a closing paren. Error if not.
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
         {
             lexer.restore(snapshot);
@@ -1249,13 +1256,13 @@ namespace cmm
             return nullptr;
         }
 
-        return std::make_unique<ParenExpressionNode>(expression->getLocation(), std::move(expression));
+        return std::make_unique<ParenExpressionNode>(subexpression->getLocation(), std::move(subexpression));
     }
 
     /* static */
     std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage)
     {
-        auto left = parseLitteralOrLRValueNode(lexer, errorMessage);
+        auto left = parseParenExpression(lexer, errorMessage);
 
         if (left == nullptr)
         {

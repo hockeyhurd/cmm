@@ -1,17 +1,23 @@
 // Our includes
 #include <cmm/NodeList.h>
 #include <cmm/Parser.h>
+#include <cmm/platform/PlatformLLVM.h>
 #include <cmm/visit/Analyzer.h>
 #include <cmm/visit/Dump.h>
+#include <cmm/visit/Encode.h>
 
 // std includes
+// #include <fstream>
 #include <iostream>
+#include <sstream>
 
 using namespace cmm;
 
 int main()
 {
-    std::string input = "int main() { int a; int b; b = 42; a = b; }";
+    // std::string input = "struct Vec2 { int x; int y; }; int sum(int x, int y) { return x + y; } int main() { int a; a = 10; int b; b = 32; int c; c = sum(a, b); return c; }";
+    // std::string input = "int main() { int a; a = 10; if (a + 1) { a = 20; } else { a = 30; } return a; }";
+    std::string input = "int main() { float a; a = (float) 10; int result; result = (int) a; return result; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
@@ -23,6 +29,13 @@ int main()
 
         Analyzer analyzer;
         analyzer.visit(*compUnitPtr);
+
+        PlatformLLVM platform;
+        std::ostringstream os;
+        Encode encoder(&platform, os);
+        encoder.visit(*compUnitPtr);
+
+        std::cout << "Output:\n" << os.str() << std::endl;
     }
 
     return 0;

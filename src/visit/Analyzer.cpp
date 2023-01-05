@@ -68,13 +68,30 @@ namespace cmm
         // then re-write the sub/right expression as just another "RVALUE".
         // I guess we'll just need to re-visit this when we get to code generation.
 
+        auto* rightNode = node.getRight();
+
+        [[maybe_unused]]
+        auto rightNodeResult = rightNode->accept(this);
+        const auto& rightType = rightNode->getDatatype();
+
+        // If the right node is a variable, we need to add a DerefNode to wrap it.
+        if (rightNode->getType() == EnumNodeType::VARIABLE)
+        {
+            // Add DerefNode
+            node.derefNodeRight();
+
+            // Update our pointer to this new pointer.
+            rightNode = node.getRight();
+        }
+
         auto* leftNode = node.getLeft();
 
         [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
+        const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
 
-        if (isAssignment && leftNode->getType() != EnumNodeType::VARIABLE)
+        if (isAssignment && !isLeftVariable)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -85,12 +102,43 @@ namespace cmm
         const auto& leftType = leftNode->getDatatype();
         node.setDatatype(leftType);
 
-        auto* rightNode = node.getRight();
+        VariableNode* varNode = nullptr;
 
-        [[maybe_unused]]
-        auto rightNodeResult = rightNode->accept(this);
+        if (isAssignment && isLeftVariable)
+        {
+            varNode = static_cast<VariableNode*>(leftNode);
+            auto* varContext = scope.findAnyVariable(varNode->getName());
+            varContext->setDirtyBit(true);
 
-        const auto& rightType = rightNode->getDatatype();
+            const EnumModifier modifiers = varContext->getModifiers();
+
+            u16 asU16;
+
+            if (varContext->getCType().isPointerType())
+            {
+                asU16 = static_cast<u16>(EnumModifier::CONST_POINTER);
+            }
+
+            else
+            {
+                asU16 = static_cast<u16>(EnumModifier::CONST_VALUE);
+            }
+
+            // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
+            asU16 = ~asU16;
+            varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
+        }
+
+        // If the left node is a variable and this is NOT an assignmnet operation,
+        // we need to add a DerefNode to wrap it.
+        else if (!isAssignment && isLeftVariable)
+        {
+            // Add DerefNode
+            node.derefNodeLeft();
+
+            // Update our pointer to this new pointer.
+            leftNode = node.getLeft();
+        }
 
         if (leftType != rightType)
         {
@@ -219,6 +267,15 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        // If it is a VariableNode, we need to add a DerefNode in front of it.
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            node.derefNode();
+
+            // Update our expression pointer for next use below.
+            expression = node.getExpression();
+        }
+
         const auto& from = node.getDatatype();
         const auto& to = expression->getDatatype();
 
@@ -299,11 +356,16 @@ namespace cmm
             builder << "Could not find a declaration or definition for function '"
                     << funcName << "'";
             reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
         }
 
-        for (auto& func : node)
+        const auto& stateTypePair = findResult->second;
+        const auto& datatype = stateTypePair.second;
+        node.setDatatype(datatype);
+
+        for (auto& arg : node)
         {
-            func.accept(this);
+            arg.accept(this);
         }
 
         return VisitorResult();
@@ -326,7 +388,8 @@ namespace cmm
 
         if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
-            const auto previousState = functionTable[funcName];
+            const auto& stateTypePair = functionTable[funcName];
+            const auto& previousState = stateTypePair.first;
             std::ostringstream builder;
 
             if (previousState == EnumSymState::DECLARED)
@@ -355,9 +418,11 @@ namespace cmm
             reporter.error(builder.str(), node.getLocation());
         }
 
+        // Not defined
         else
         {
-            functionTable[funcName] = EnumSymState::DECLARED;
+            // functionTable[funcName] = std::make_pair<EnumSymState, CType>(EnumSymState::DECLARED, typeNode.getDatatype());
+            functionTable[funcName] = std::make_pair(EnumSymState::DECLARED, typeNode.getDatatype());
         }
 
         for (auto& paramNode : node)
@@ -387,7 +452,8 @@ namespace cmm
 
         if (!validateFunction(funcName, EnumSymState::DECLARED))
         {
-            const auto previousState = functionTable[funcName];
+            const auto& stateTypePair = functionTable[funcName];
+            const auto& previousState = stateTypePair.first;
             std::ostringstream builder;
 
             if (previousState == EnumSymState::DEFINED)
@@ -404,7 +470,8 @@ namespace cmm
 
         else
         {
-            functionTable[funcName] = EnumSymState::DEFINED;
+            // functionTable[funcName] = std::make_pair<EnumSymState, CType>(EnumSymState::DEFINED, typeNode.getDatatype());
+            functionTable[funcName] = std::make_pair(EnumSymState::DEFINED, typeNode.getDatatype());
         }
 
         localityStack.push(EnumLocality::PARAMETER);
@@ -507,6 +574,58 @@ namespace cmm
     {
         auto* ifCondExpression = node.getIfConditional();
         ifCondExpression->accept(this);
+        auto ifCondExprNodeType = ifCondExpression->getType();
+
+        // Check if the conditional is a simple variable (i.e. "if (a) { ... }"),
+        // add a DerefNode before we do other transformations.
+        if (ifCondExprNodeType == EnumNodeType::VARIABLE)
+        {
+            node.wrapIfConditionalWithDerefNode();
+
+            // Now we know this is a DerefNode, but we will make sure by resetting these variables.
+            ifCondExpression = node.getIfConditional();
+            ifCondExprNodeType = ifCondExpression->getType();
+        }
+
+        // Note: static_cast is only safe if it is in fact a BinOpNode pointer.
+        auto* binOpNodePtr = static_cast<BinOpNode*>(ifCondExpression);
+
+        // If this isn't a comparison operation, we must wrap it into one.
+        // ex. if (1) { ... } should become if (1 != 0) { ... }
+        if (ifCondExprNodeType != EnumNodeType::BIN_OP || !binOpNodePtr->isComparisonOp())
+        {
+            const auto location = ifCondExpression->getLocation();
+            const auto& datatype = ifCondExpression->getDatatype();
+
+            // Pointer type: compare to NULL
+            if (datatype.pointers > 0)
+            {
+                auto comparator = std::make_unique<LitteralNode>(location);
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+
+            // Single precision floating point type: compare to 0.0F
+            else if (datatype.type == EnumCType::FLOAT)
+            {
+                auto comparator = std::make_unique<LitteralNode>(location, 0.0F);
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+
+            // Double precision floating point type: compare to 0.0
+            else if (datatype.type == EnumCType::DOUBLE)
+            {
+                auto comparator = std::make_unique<LitteralNode>(location, 0.0);
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+
+            // Int type: compare to 0
+            // Note: Should probably consider additional cases (ex. other sized ints).
+            else
+            {
+                auto comparator = std::make_unique<LitteralNode>(location, static_cast<s32>(0));
+                node.wrapIfConditional(EnumBinOpNodeType::CMP_NE, std::move(comparator));
+            }
+        }
 
         auto* ifStatement = node.getIfStatement();
         ifStatement->accept(this);
@@ -515,7 +634,7 @@ namespace cmm
 
         if (elseStatement != nullptr)
         {
-            ifStatement->accept(this);
+            elseStatement->accept(this);
         }
 
         return VisitorResult();
@@ -668,6 +787,11 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            node.deref();
+        }
+
         return VisitorResult();
     }
 
@@ -792,7 +916,7 @@ namespace cmm
             return VisitorResult();
         }
 
-        node.setDatatype(varContext->getType());
+        node.setDatatype(varContext->getCType());
 
         return VisitorResult();
     }
@@ -854,7 +978,8 @@ namespace cmm
             return true;
         }
 
-        const auto currentState = findResult->second;
+        const auto& stateTypePair = findResult->second;
+        const auto& currentState = stateTypePair.first;
         const bool invResult = currentState == state || (currentState == EnumSymState::DEFINED && state == EnumSymState::DECLARED);
         return !invResult;
     }

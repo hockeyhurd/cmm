@@ -92,6 +92,25 @@ namespace cmm
         const ExpressionNode* getIfConditional() const CMM_NOEXCEPT;
 
         /**
+         * Wraps the if conditional in a comparison (BinOpNode) operator.
+         * Note: This assumes the caller has already performed sufficient
+         *       checking and the new node is valid.  The current if conditional
+         *       will become the lhs expression of the new BinOpNode.
+         *
+         * @param binOpType the EnumBinOpNodeType.
+         * @param comparator the rhs ExpressionNode to compare with.
+         */
+        void wrapIfConditional(const EnumBinOpNodeType binOpType,
+            std::unique_ptr<ExpressionNode>&& comparator);
+
+        /**
+         * Wraps the if conditional in a comparison with a DerefNode.
+         * Note: This assumes the caller has already performed sufficient
+         *       error checking to wrap the expression in a DerefNode.
+         */
+        void wrapIfConditionalWithDerefNode();
+
+        /**
          * Gets the if statement following the conditional.
          *
          * @return pointer to StatementNode.

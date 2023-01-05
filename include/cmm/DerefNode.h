@@ -90,6 +90,27 @@ namespace cmm
          */
         EnumNodeType getRootType() const CMM_NOEXCEPT;
 
+        /**
+         * Gets the underlying CType.
+         *
+         * @return CType.
+         */
+        CType& getDatatype() CMM_NOEXCEPT override;
+
+        /**
+         * Gets the underlying CType.
+         *
+         * @return CType.
+         */
+        const CType& getDatatype() const CMM_NOEXCEPT override;
+
+        /**
+         * Sets the DataType since it may be 'lazy loaded'.
+         *
+         * @param type the DataType to set.
+         */
+        void setDatatype(const CType& datatype) CMM_NOEXCEPT override;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 

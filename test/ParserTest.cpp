@@ -475,11 +475,11 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToNestedParenAddExpression)
     ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
 
     auto* rootAssignAndParenSumPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
-    ASSERT_NE(rootAssignAndParenSumPtr ->getLeft(), nullptr);
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getLeft()->getType(), EnumNodeType::VARIABLE);
-    ASSERT_NE(rootAssignAndParenSumPtr ->getRight(), nullptr);
-    ASSERT_EQ(rootAssignAndParenSumPtr ->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
+    ASSERT_EQ(rootAssignAndParenSumPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndParenSumPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndParenSumPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndParenSumPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndParenSumPtr->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
 
     auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndParenSumPtr->getLeft());
     ASSERT_EQ(leftVariablePtr->getName(), "a");
@@ -507,12 +507,136 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignToNestedParenAddExpression)
     ASSERT_EQ(nestedBinOpPtr->getRight()->getType(), EnumNodeType::LITTERAL);
 
     auto* nestedLeftIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getLeft());
-    ASSERT_EQ(nestedLeftIntPtr ->getDatatype().type, EnumCType::INT32);
-    ASSERT_EQ(nestedLeftIntPtr ->getValue().valueS32, 32);
+    ASSERT_EQ(nestedLeftIntPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(nestedLeftIntPtr->getValue().valueS32, 32);
 
     auto* nestedRightIntPtr = static_cast<LitteralNode*>(nestedBinOpPtr->getRight());
-    ASSERT_EQ(nestedRightIntPtr ->getDatatype().type, EnumCType::INT32);
-    ASSERT_EQ(nestedRightIntPtr ->getValue().valueS32, 1);
+    ASSERT_EQ(nestedRightIntPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(nestedRightIntPtr->getValue().valueS32, 1);
+}
+
+TEST(ParserTest, ParseCompilationNodeParenAddExpressionThenMult)
+{
+    const std::string input = "a = 2 + (3 * 2);";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* rootAssignAndBinOpPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndBinOpPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndBinOpPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndBinOpPtr->getRight()->getType(), EnumNodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndBinOpPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightBinOpPtr = static_cast<BinOpNode*>(rootAssignAndBinOpPtr->getRight());
+    ASSERT_EQ(rightBinOpPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
+    ASSERT_NE(rightBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(rightBinOpPtr->getRight()->getType(), EnumNodeType::PAREN_EXPRESSION);
+
+    auto* leftLitteralTwoPtr = static_cast<LitteralNode*>(rightBinOpPtr->getLeft());
+    ASSERT_EQ(leftLitteralTwoPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(leftLitteralTwoPtr->getDatatype().pointers, 0);
+    ASSERT_EQ(leftLitteralTwoPtr->getValue().valueS32, 2);
+
+    auto* rightParenPtr = static_cast<ParenExpressionNode*>(rightBinOpPtr->getRight());
+    ASSERT_NE(rightParenPtr->getExpression(), nullptr);
+    ASSERT_EQ(rightParenPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* innerBinOpPtr = static_cast<BinOpNode*>(rightParenPtr->getExpression());
+    ASSERT_EQ(innerBinOpPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
+    ASSERT_NE(innerBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(innerBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
+    ASSERT_NE(innerBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(innerBinOpPtr->getRight()->getType(), EnumNodeType::LITTERAL);
+
+    auto* innerLeftLitteralPtr = static_cast<LitteralNode*>(innerBinOpPtr->getLeft());
+    ASSERT_EQ(innerLeftLitteralPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(innerLeftLitteralPtr->getDatatype().pointers, 0);
+    ASSERT_EQ(innerLeftLitteralPtr->getValue().valueS32, 3);
+
+    auto* innerRightLitteralPtr = static_cast<LitteralNode*>(innerBinOpPtr->getRight());
+    ASSERT_EQ(innerRightLitteralPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(innerRightLitteralPtr->getDatatype().pointers, 0);
+    ASSERT_EQ(innerRightLitteralPtr->getValue().valueS32, 2);
+}
+
+TEST(ParserTest, ParseCompilationNodeParenMultExpressionThenAdd)
+{
+    const std::string input = "a = (2 * 3) + 2;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* rootAssignAndBinOpPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignAndBinOpPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignAndBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignAndBinOpPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_NE(rootAssignAndBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignAndBinOpPtr->getRight()->getType(), EnumNodeType::BIN_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignAndBinOpPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightBinOpPtr = static_cast<BinOpNode*>(rootAssignAndBinOpPtr->getRight());
+    ASSERT_EQ(rightBinOpPtr->getTypeof(), EnumBinOpNodeType::ADD);
+    ASSERT_NE(rightBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(rightBinOpPtr->getLeft()->getType(), EnumNodeType::PAREN_EXPRESSION);
+    ASSERT_NE(rightBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(rightBinOpPtr->getRight()->getType(), EnumNodeType::LITTERAL);
+
+    auto* rightLitteralTwoPtr = static_cast<LitteralNode*>(rightBinOpPtr->getRight());
+    ASSERT_EQ(rightLitteralTwoPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(rightLitteralTwoPtr->getDatatype().pointers, 0);
+    ASSERT_EQ(rightLitteralTwoPtr->getValue().valueS32, 2);
+
+    auto* leftParenPtr = static_cast<ParenExpressionNode*>(rightBinOpPtr->getLeft());
+    ASSERT_NE(leftParenPtr->getExpression(), nullptr);
+    ASSERT_EQ(leftParenPtr->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* innerBinOpPtr = static_cast<BinOpNode*>(leftParenPtr->getExpression());
+    ASSERT_EQ(innerBinOpPtr->getTypeof(), EnumBinOpNodeType::MULTIPLY);
+    ASSERT_NE(innerBinOpPtr->getLeft(), nullptr);
+    ASSERT_EQ(innerBinOpPtr->getLeft()->getType(), EnumNodeType::LITTERAL);
+    ASSERT_NE(innerBinOpPtr->getRight(), nullptr);
+    ASSERT_EQ(innerBinOpPtr->getRight()->getType(), EnumNodeType::LITTERAL);
+
+    auto* innerRightLitteralPtr = static_cast<LitteralNode*>(innerBinOpPtr->getRight());
+    ASSERT_EQ(innerRightLitteralPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(innerRightLitteralPtr->getDatatype().pointers, 0);
+    ASSERT_EQ(innerRightLitteralPtr->getValue().valueS32, 3);
+
+    auto* innerLeftLitteralPtr = static_cast<LitteralNode*>(innerBinOpPtr->getLeft());
+    ASSERT_EQ(innerLeftLitteralPtr->getDatatype().type, EnumCType::INT32);
+    ASSERT_EQ(innerLeftLitteralPtr->getDatatype().pointers, 0);
+    ASSERT_EQ(innerLeftLitteralPtr->getValue().valueS32, 2);
 }
 
 TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithNoArgsAndAssignment)

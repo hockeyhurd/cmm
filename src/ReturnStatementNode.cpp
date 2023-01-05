@@ -8,6 +8,7 @@
 // Our includes
 #include <cmm/ReturnStatementNode.h>
 #include <cmm/CastNode.h>
+#include <cmm/DerefNode.h>
 
 namespace cmm
 {
@@ -48,6 +49,16 @@ namespace cmm
             const auto location = expression->getLocation();
             auto tempExpression = std::move(expression);
             expression = std::make_unique<CastNode>(location, newType, std::move(tempExpression));
+        }
+    }
+
+    void ReturnStatementNode::deref()
+    {
+        if (hasExpression())
+        {
+            auto location = expression->getLocation();
+            auto tempExpression = std::move(expression);
+            expression = std::make_unique<DerefNode>(location, std::move(tempExpression));
         }
     }
 

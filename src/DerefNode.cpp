@@ -48,6 +48,21 @@ namespace cmm
         return rootType;
     }
 
+    CType& DerefNode::getDatatype() CMM_NOEXCEPT /* override */
+    {
+        return expr->getDatatype();
+    }
+
+    const CType& DerefNode::getDatatype() const CMM_NOEXCEPT /* override */
+    {
+        return expr->getDatatype();
+    }
+
+    void DerefNode::setDatatype(const CType& datatype) CMM_NOEXCEPT /* override */
+    {
+        expr->setDatatype(datatype);
+    }
+
     VisitorResult DerefNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

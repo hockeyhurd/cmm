@@ -126,6 +126,20 @@ namespace cmm
         const std::string& getName() const CMM_NOEXCEPT;
 
         /**
+         * Gets whether there are any parameters or not.
+         *
+         * @return bool true if empty, else false.
+         */
+        bool empty() const CMM_NOEXCEPT;
+
+        /**
+         * Gets number of parameters.
+         *
+         * @return std::size_t
+         */
+        std::size_t paramCount() const CMM_NOEXCEPT;
+
+        /**
          * Parameter list iterator from the beginning.
          *
          * @return ParamListIter.

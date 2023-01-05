@@ -53,6 +53,16 @@ namespace cmm
         return funcName;
     }
 
+    bool FunctionDeclarationStatementNode::empty() const CMM_NOEXCEPT
+    {
+        return params.empty();
+    }
+
+    std::size_t FunctionDeclarationStatementNode::paramCount() const CMM_NOEXCEPT
+    {
+        return params.size();
+    }
+
     FunctionDeclarationStatementNode::ParamListIter FunctionDeclarationStatementNode::begin() CMM_NOEXCEPT
     {
         return params.begin();

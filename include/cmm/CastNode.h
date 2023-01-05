@@ -87,6 +87,13 @@ namespace cmm
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
+        /**
+         * Adds a DerefNode to the underlying Expression.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void derefNode();
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
