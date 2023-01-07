@@ -12,7 +12,6 @@
 
 namespace cmm
 {
-    class AddressOfNode;
     class ArgNode;
     class BinOpNode;
     class BlockNode;

@@ -10,7 +10,6 @@
 #ifndef CMM_NODE_LIST_H
 #define CMM_NODE_LIST_H
 
-#include <cmm/AddressOfNode.h>
 #include <cmm/ArgNode.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/BlockNode.h>

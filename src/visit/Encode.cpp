@@ -64,14 +64,6 @@ namespace cmm
         os << " ";
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated"
-    VisitorResult Encode::visit(AddressOfNode& node)
-    {
-        return VisitorResult();
-    }
-#pragma GCC diagnostic pop
-
     VisitorResult Encode::visit(ArgNode& node)
     {
         auto* expression = node.getExpression();
