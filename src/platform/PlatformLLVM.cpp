@@ -309,7 +309,7 @@ namespace cmm
             }
 
             std::ostringstream os;
-            os << "unexpected CType at " << __FILE__ << ": " << __LINE__;
+            os << "unexpected CType (see compiler source code at " << __FILE__ << ": " << __LINE__ << ")";
             reporter.bug(os.str(), Location(0, 0), true);
             return "\0";
         };
@@ -327,8 +327,6 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) /* override */
     {
-        // const auto* expression = node.getExpression();
-        // const auto& datatype = expression->getDatatype();
         const auto& datatype = node.getDatatype();
         const auto strType = resolveDatatype(datatype);
         auto temp = encoder->getTemp();
