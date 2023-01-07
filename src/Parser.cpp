@@ -1535,7 +1535,9 @@ namespace cmm
         // If there was a unary op involved, wrap whatever the current working expression is with a unary op node.
         if (optionalEnumUnaryOpType.has_value())
         {
-            result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalEnumUnaryOpType, std::move(result));
+            // TODO @@@: support post-fix
+            CMM_CONSTEXPR bool prefix = true;
+            result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalEnumUnaryOpType, std::move(result), prefix);
         }
 
         return result;
