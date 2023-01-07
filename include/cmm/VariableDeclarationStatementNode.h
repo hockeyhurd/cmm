@@ -120,6 +120,22 @@ namespace cmm
          */
         const VariableNode& getVariable() const CMM_NOEXCEPT;
 
+        /**
+         * Gets the locality of the variable declaration.
+         * Note: This value may not be valid until the Analyzer analyzes this declaration.
+         *       Therefore, by default this will be set to 'EnumLocality::GLOBAL'.
+         *
+         * @return EnumLocality.
+         */
+        EnumLocality getLocality() const CMM_NOEXCEPT;
+
+        /**
+         * Sets the new locality for this variable declaration.
+         *
+         * @param locality the new EnumLocality value.
+         */
+        void setLocality(const EnumLocality locality) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -127,6 +143,7 @@ namespace cmm
 
         TypeNode type;
         VariableNode variable;
+        EnumLocality locality;
     };
 }
 

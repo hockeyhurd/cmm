@@ -131,6 +131,13 @@ namespace cmm
          */
         virtual std::optional<EnumNodeType> getExpressionNodeType() const CMM_NOEXCEPT;
 
+        /**
+         * Adds a DerefNode to the underlying expression, which is expected to be a VariableNode.
+         * Note: This function assumes the caller has already performed the necessary checks
+         *       to satisfy this assumption.
+         */
+        virtual void derefNode();
+
         virtual VisitorResult accept(Visitor* visitor) override;
         virtual std::string toString() const override;
 

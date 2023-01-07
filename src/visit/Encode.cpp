@@ -32,7 +32,7 @@ namespace cmm
 
     std::string Encode::getLabel()
     {
-        std::string result = "%l_";
+        std::string result = "l_";
         result += std::to_string(labelCounter++);
 
         return result;
@@ -137,7 +137,7 @@ namespace cmm
     VisitorResult Encode::visit(FunctionCallNode& node)
     {
         const auto& datatype = node.getDatatype();
-        auto optLabel = platform->emitFunctionCallStart(this, datatype, node.getName());
+        auto optLabelStr = platform->emitFunctionCallStart(this, datatype, node.getName());
 
         std::vector<VisitorResult> results;
         results.reserve(node.size());
@@ -151,13 +151,15 @@ namespace cmm
         platform->emitFunctionCallEnd(this);
         emitNewline();
 
-        // Note: this std::move will make this non-portable. Leave for now
-        // to support LLVM.
-        return VisitorResult(new std::string(std::move(*optLabel)), true);
+        // Note: this std::move will make this non-portable. Leave for now to support LLVM.
+        return optLabelStr.has_value() ? VisitorResult(new std::string(std::move(*optLabelStr)), true) : VisitorResult();
     }
 
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)
     {
+        platform->emit(this, node);
+        emitSpace();
+
         auto& typeNode = node.getTypeNode();
         typeNode.accept(this);
 
@@ -306,16 +308,22 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
-        auto optVisitorResult = platform->emit(this, node, visitorResult);
 
-        return std::move(*optVisitorResult);
+        return visitorResult;
     }
 
     VisitorResult Encode::visit(ReturnStatementNode& node)
     {
         auto* expression = node.getExpression();
-        auto visitorResult = expression->accept(this);
-        platform->emit(this, node, visitorResult);
+        std::optional<VisitorResult> optVisitorResult = std::nullopt;
+
+        if (expression != nullptr)
+        {
+            auto visitorResult = expression->accept(this);
+            optVisitorResult = std::make_optional<VisitorResult>(std::move(visitorResult));
+        }
+
+        platform->emit(this, node, optVisitorResult);
 
         return VisitorResult();
     }
@@ -340,6 +348,7 @@ namespace cmm
         for (auto& statement : node)
         {
             statement->accept(this);
+            emitNewline();
         }
 
         return VisitorResult();
@@ -355,7 +364,7 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
-        auto optVisitorResult = platform->emit(this, node, visitorResult);
+        auto optVisitorResult = platform->emit(this, node, std::move(visitorResult));
 
         return std::move(*optVisitorResult);
     }
@@ -388,11 +397,30 @@ namespace cmm
     VisitorResult Encode::visit(WhileStatementNode& node)
     {
         auto* conditional = node.getConditional();
+        std::string condLabel = getLabel();
+        std::string statementLabel = getLabel();
+        std::string endLabel = getLabel();
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitBranch(this, condLabel);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitLabel(this, condLabel);
+
         auto condVisitorResult = conditional->accept(this);
 
-        auto* statement = node.getStatement();
-        auto statementVisitorResult = statement->accept(this);
-        platform->emit(this, node, condVisitorResult, statementVisitorResult);
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitBranchInstruction(this, condVisitorResult, statementLabel, endLabel, nullptr);
+        platform->emitLabel(this, statementLabel);
+
+        auto* statementNodePtr = node.getStatement();
+        statementNodePtr->accept(this);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitBranch(this, condLabel);
+
+        // TODO: This is may only be for LLVM.  Consider having the Platform handle this
+        platform->emitLabel(this, endLabel);
 
         return VisitorResult();
     }

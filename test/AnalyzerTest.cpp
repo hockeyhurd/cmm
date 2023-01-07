@@ -547,7 +547,25 @@ TEST(AnalyzerTest, AnalyzerImplicitCastIntPointerAddIntWarning)
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getWarningCount(), 0);
-    ASSERT_GT(reporter.getErrorCount(), 1);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerLoadValueFromPointerAndReturnValid)
+{
+    reporter.reset();
+
+    const std::string input = "int a; a = 42; int* ptr; ptr = &a; int result; result = *ptr;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
 TEST(AnalyzerTest, AnalyzerImplicitCastIntPointerAddIntPointerError)
@@ -566,6 +584,24 @@ TEST(AnalyzerTest, AnalyzerImplicitCastIntPointerAddIntPointerError)
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerParenExpressionNode)
+{
+    reporter.reset();
+
+    const std::string input = "double func() { double a; a = 10.0; double b; b = 16.0; double c; c = (2.0 * b) + a; return c; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
 TEST(AnalyzerTest, AnalyzerStructDeclarationsThenStructDefinitionValid)

@@ -12,7 +12,7 @@
 namespace cmm
 {
 
-    ArgNode::ArgNode(const Location& location, std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT : Node(EnumNodeType::ARG, location), value(std::move(value))
+    ArgNode::ArgNode(const Location& location, std::unique_ptr<ExpressionNode>&& value) CMM_NOEXCEPT : ExpressionNode(EnumNodeType::ARG, location), value(std::move(value))
     {
     }
 
@@ -24,6 +24,26 @@ namespace cmm
     const ExpressionNode* ArgNode::getExpression() const CMM_NOEXCEPT
     {
         return value.get();
+    }
+
+    CType& ArgNode::getDatatype() CMM_NOEXCEPT /* override */
+    {
+        return value->getDatatype();
+    }
+
+    const CType& ArgNode::getDatatype() const CMM_NOEXCEPT /* override */
+    {
+        return value->getDatatype();
+    }
+
+    void ArgNode::setDatatype(const CType& datatype) CMM_NOEXCEPT /* override */
+    {
+        value->setDatatype(datatype);
+    }
+
+    VisitorResult ArgNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string ArgNode::toString() const /* override */

@@ -11,7 +11,9 @@ namespace cmm
 {
     VariableDeclarationStatementNode::VariableDeclarationStatementNode(const Location& location, TypeNode type,
         VariableNode&& variable) CMM_NOEXCEPT :
-        StatementNode(EnumNodeType::VARIABLE_DECLARATION_STATEMENT, location), type(std::move(type)), variable(std::move(variable))
+        StatementNode(EnumNodeType::VARIABLE_DECLARATION_STATEMENT, location), type(std::move(type)),
+        variable(std::move(variable)),
+        locality(EnumLocality::GLOBAL) // Note: This is the default value until the Analyzer tells us otherwise.
     {
     }
 
@@ -53,6 +55,16 @@ namespace cmm
     const VariableNode& VariableDeclarationStatementNode::getVariable() const CMM_NOEXCEPT
     {
         return variable;
+    }
+
+    EnumLocality VariableDeclarationStatementNode::getLocality() const CMM_NOEXCEPT
+    {
+        return locality;
+    }
+
+    void VariableDeclarationStatementNode::setLocality(const EnumLocality locality) CMM_NOEXCEPT
+    {
+        this->locality = locality;
     }
 
     VisitorResult VariableDeclarationStatementNode::accept(Visitor* visitor) /* override */

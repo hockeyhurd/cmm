@@ -136,6 +136,20 @@ namespace cmm
          */
         void derefNodeRight();
 
+        /**
+         * Removes a DerefNode to the left node.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void popDerefNodeLeft();
+
+        /**
+         * Removes a DerefNode to the right node.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void popDerefNodeRight();
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 

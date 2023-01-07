@@ -23,24 +23,33 @@ namespace cmm
     {
     }
 
+    /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::castForBranch(const VisitorResult& name) CMM_NOEXCEPT /* override */
+    {
+        return std::nullopt;
+    }
+
+    /* virtual */
     void PlatformLLVM::emitBlockNodeStart(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << "{";
     }
 
+    /* virtual */
     void PlatformLLVM::emitBlockNodeEnd(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << "\n}";
     }
 
+    /* virtual */
     void PlatformLLVM::emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,
         const std::string& endLabel, const std::string* elseLabel) /* override */
     {
         encoder->printIndent();
         auto& os = encoder->getOStream();
-        os << "br i1 " << *expr.result.str << ", label " << ifLabel << ", label ";
+        os << "br i1 " << *expr.result.str << ", label %" << ifLabel << ", label %";
 
         if (elseLabel != nullptr)
         {
@@ -55,44 +64,56 @@ namespace cmm
         encoder->emitNewline();
     }
 
+    /* virtual */
     void PlatformLLVM::emitFunctionStart(Encode* encoder, const std::string& name) /* override */
     {
         auto& os = encoder->getOStream();
         os << "@" << name << "(";
     }
 
+    /* virtual */
     void PlatformLLVM::emitFunctionEnd(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << ")";
     }
 
+    /* virtual */
     std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) /* override */
     {
         auto& os = encoder->getOStream();
+        encoder->printIndent();
+
+        if (datatype.type == EnumCType::VOID && !datatype.isPointerType())
+        {
+            os << "call void @" << name << "(";
+            return std::nullopt;
+        }
+
         auto temp = encoder->getTemp();
         const auto datatypeAsString = resolveDatatype(datatype);
 
-        encoder->printIndent();
         os << temp << " = call " << datatypeAsString << " @" << name << "(";
-
         return std::make_optional(std::move(temp));
     }
 
+    /* virtual */
     void PlatformLLVM::emitFunctionCallEnd(Encode* encoder) /* override */
     {
         auto& os = encoder->getOStream();
         os << ")";
     }
 
+    /* virtual */
     void PlatformLLVM::emitBranch(Encode* encoder, const std::string& label) /* override */
     {
         encoder->printIndent();
         auto& os = encoder->getOStream();
-        os << "br label " << label;
+        os << "br label %" << label;
         encoder->emitNewline();
     }
 
+    /* virtual */
     void PlatformLLVM::emitLabel(Encode* encoder, const std::string& label) /* override */
     {
         auto& os = encoder->getOStream();
@@ -100,52 +121,61 @@ namespace cmm
         encoder->emitNewline();
     }
 
+    /* virtual */
     std::string PlatformLLVM::resolveDatatype(const CType& datatype) /* override */
     {
         std::string str;
 
-        switch (datatype.type)
+        if (datatype.pointers > 0)
         {
-        case EnumCType::NULL_T:
-            str = "null";
-            break;
-        case EnumCType::VOID:
-            str = "void";
-            break;
-        case EnumCType::VOID_PTR:
             str = "ptr";
-            break;
-        case EnumCType::BOOL:
-        // fallthrough
-        case EnumCType::CHAR:
-        // fallthrough
-        case EnumCType::INT8:
-            str = "i8";
-            break;
-        case EnumCType::INT16:
-            str = "i16";
-            break;
-        case EnumCType::INT32:
-            str = "i32";
-            break;
-        case EnumCType::INT64:
-            str = "i64";
-            break;
-        case EnumCType::FLOAT:
-            str = "float";
-            break;
-        case EnumCType::DOUBLE:
-            str = "double";
-            break;
-        case EnumCType::STRING:
-            str = "ptr";
-            break;
-        case EnumCType::STRUCT:
-            str = "struct." + *datatype.optStructName;
-            break;
-        default:
-            str = "Unknown type";
-            break;
+        }
+
+        else
+        {
+            switch (datatype.type)
+            {
+            case EnumCType::NULL_T:
+                str = "null";
+                break;
+            case EnumCType::VOID:
+                str = "void";
+                break;
+            case EnumCType::VOID_PTR:
+                str = "ptr";
+                break;
+            case EnumCType::BOOL:
+            // fallthrough
+            case EnumCType::CHAR:
+            // fallthrough
+            case EnumCType::INT8:
+                str = "i8";
+                break;
+            case EnumCType::INT16:
+                str = "i16";
+                break;
+            case EnumCType::INT32:
+                str = "i32";
+                break;
+            case EnumCType::INT64:
+                str = "i64";
+                break;
+            case EnumCType::FLOAT:
+                str = "float";
+                break;
+            case EnumCType::DOUBLE:
+                str = "double";
+                break;
+            case EnumCType::STRING:
+                str = "ptr";
+                break;
+            case EnumCType::STRUCT:
+                str = "struct." + *datatype.optStructName;
+                break;
+            default:
+                str = "Unknown type";
+                break;
+            }
         }
 
         return str;
@@ -154,6 +184,11 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ArgNode& node, const VisitorResult& expr) /* override */
     {
+        const auto& datatype = node.getDatatype();
+        const std::string typeStr = resolveDatatype(datatype);
+        auto& os = encoder->getOStream();
+        os << typeStr << " " << *expr.result.str;
+
         return std::nullopt;
     }
 
@@ -161,8 +196,8 @@ namespace cmm
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) /* override */
     {
         auto referenceDatatype = node.getRight()->getDatatype();
-        auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
-        auto rightTypeStr = resolveDatatype(referenceDatatype);
+        const auto leftTypeStr = resolveDatatype(node.getLeft()->getDatatype());
+        const auto rightTypeStr = resolveDatatype(referenceDatatype);
         const bool isFloatingPoint = referenceDatatype.isFloatingPoint();
 
         // TODO: When we support unsigned types, make this dynamic:
@@ -176,11 +211,21 @@ namespace cmm
 
         if (binOpType == EnumBinOpNodeType::ASSIGNMENT)
         {
-            os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
+            if (leftTypeStr == "ptr")
+            {
+                // TODO (hurdn): This is a hack to prevent instances of "ptr*".  Can we do something better??
+                os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << " " << *left.result.str;
+            }
+
+            else
+            {
+                os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
+            }
+
             return std::nullopt;
         }
 
-        bool reverseOperations = false;
+        bool reverseOperations = true;
         auto strResult = encoder->getTemp();
         os << strResult << " = ";
 
@@ -214,7 +259,7 @@ namespace cmm
                 os << (isSignedInt ? "sdiv nsw " : "udiv");
             break;
         case EnumBinOpNodeType::CMP_NE:
-            reverseOperations = true;
+            reverseOperations = false;
 
             if (isFloatingPoint)
                 os << "fdiv ";
@@ -264,7 +309,7 @@ namespace cmm
             }
 
             std::ostringstream os;
-            os << "unexpected CType at " << __FILE__ << ": " << __LINE__;
+            os << "unexpected CType (see compiler source code at " << __FILE__ << ": " << __LINE__ << ")";
             reporter.bug(os.str(), Location(0, 0), true);
             return "\0";
         };
@@ -283,29 +328,32 @@ namespace cmm
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) /* override */
     {
         const auto& datatype = node.getDatatype();
-        auto strType = resolveDatatype(datatype);
+        const auto strType = resolveDatatype(datatype);
         auto temp = encoder->getTemp();
         encoder->printIndent();
         auto& os = encoder->getOStream();
-        os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
+
+        if (strType == "ptr")
+        {
+            // TODO (hurdn): This is a hack to prevent instances of "ptr*".  Can we do something better??
+            os << temp << " = load " << strType << ", " << strType << " " << *varResult.result.str;
+        }
+
+        else
+        {
+            os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
+        }
 
         return VisitorResult(new std::string(std::move(temp)), true);
     }
 
-#if 0
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionCallNode& node, const std::vector<VisitorResult>& params) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionDeclarationStatementNode& node) /* override */
     {
+        auto& os = encoder->getOStream();
+        os << "declare";
         return std::nullopt;
     }
-
-    /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionDeclarationStatementNode& node, const VisitorResult& type,
-            const std::vector<VisitorResult>& params) /* override */
-    {
-        return std::nullopt;
-    }
-#endif
 
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FunctionDefinitionStatementNode& node) /* override */
@@ -314,15 +362,6 @@ namespace cmm
         os << "define";
         return std::nullopt;
     }
-
-#if 0
-    /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, IfElseStatementNode& node, const VisitorResult& ifCond,
-            const VisitorResult& ifStatement, const std::optional<VisitorResult>& optElseStatement) /* override */
-    {
-        return std::nullopt;
-    }
-#endif
 
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, LitteralNode& node, const bool defer) /* override */
@@ -390,11 +429,11 @@ namespace cmm
         const auto& optVariableNode = node.getVariable();
 
         auto& os = encoder->getOStream();
-        os << " ";
+        encoder->emitSpace();
 
         if (optVariableNode.has_value())
         {
-            os << optVariableNode->getName();
+            os << "%" << optVariableNode->getName();
             return std::make_optional<VisitorResult>(new std::string(optVariableNode->getName()), true);
         }
 
@@ -405,19 +444,22 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ReturnStatementNode& node, const std::optional<VisitorResult>& expr) /* override */
     {
-        return std::nullopt;
-    }
-
-    /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, ReturnStatementNode& node, const VisitorResult& expr) /* override */
-    {
-        std::string str = resolveDatatype(*node.getDatatype());
-
+        const auto* datatype = node.getDatatype();
         auto& os = encoder->getOStream();
         encoder->printIndent();
-        os << "ret " << str << " " << *expr.result.str;
+
+        if (datatype != nullptr && expr.has_value())
+        {
+            const std::string str = resolveDatatype(*node.getDatatype());
+            os << "ret " << str << " " << *expr->result.str;
+        }
+
+        else
+        {
+            os << "ret void";
+        }
 
         return std::nullopt;
     }
@@ -456,6 +498,7 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, StructFwdDeclarationStatementNode& node) /* override */
     {
+        // Do nothing??
         return std::nullopt;
     }
 
@@ -472,9 +515,67 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, UnaryOpNode& node, const VisitorResult& name) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, UnaryOpNode& node, VisitorResult&& expr) /* override */
     {
-        return std::nullopt;
+        static auto& reporter = Reporter::instance();
+        const EnumUnaryOpType opType = node.getOpType();
+        const auto& datatype = node.getDatatype();
+        const bool isFloatingPoint = datatype.isFloatingPoint();
+
+        // TODO: When we support unsigned types, make this dynamic:
+        CMM_CONSTEXPR bool isSignedInt = false;
+
+        auto& os = encoder->getOStream();
+        std::string temp;
+
+        switch (opType)
+        {
+        case EnumUnaryOpType::ADDRESS_OF: // &x
+        {
+            temp = std::move(*expr.result.str);
+            goto endUnaryOpNodeLabel;
+        }
+            break;
+        case EnumUnaryOpType::NEGATIVE: // -x
+        {
+            encoder->printIndent();
+            temp = encoder->getTemp();
+            os << temp << " = ";
+
+            if (isFloatingPoint)
+            {
+                os << "fneg ";
+                printType(os, datatype);
+                encoder->emitSpace();
+            }
+
+            else
+            {
+                os << "sub " << (isSignedInt ? "nsw " : "");
+                printType(os, datatype);
+                os << " 0, ";
+            }
+
+            os << *expr.result.str;
+        }
+            break;
+        case EnumUnaryOpType::POSITIVE: // +x
+            return std::make_optional<VisitorResult>(std::move(expr));
+        case EnumUnaryOpType::INCREMENT: // ++x
+            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            break;
+        case EnumUnaryOpType::DECREMENT: // --x
+            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+            break;
+        default:
+            reporter.bug("Un-supported EnumUnaryOpType", node.getLocation(), true);
+            break;
+        }
+
+        encoder->emitNewline();
+
+endUnaryOpNodeLabel:;
+        return VisitorResult(new std::string(std::move(temp)), true);
     }
 
     /* virtual */
@@ -496,8 +597,33 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, VariableDeclarationStatementNode& node) /* override */
     {
+        static auto& reporter = Reporter::instance();
+        const EnumLocality locality = node.getLocality();
         auto& os = encoder->getOStream();
-        os << "= alloca";
+
+        switch (locality)
+        {
+        case (EnumLocality::GLOBAL):
+            os << "= external global ";
+            printType(os, node.getDatatype());
+            os << " 0";
+            break;
+        case (EnumLocality::INTERNAL):
+            os << "= internal global ";
+            printType(os, node.getDatatype());
+            os << " 0";
+            break;
+        case (EnumLocality::LOCAL):
+            os << "= alloca";
+            break;
+        case (EnumLocality::PARAMETER):
+            reporter.bug("Unimplemented EnumLocality::PARAMETER for PlatformLLVM::emit(Encode* encoder, VariableDeclarationStatementNode& node)", node.getLocation(), true);
+            break;
+        default:
+            reporter.bug("Unimplemented EnumLocality type for PlatformLLVM::emit(Encode* encoder, VariableDeclarationStatementNode& node)", node.getLocation(), true);
+            break;
+        }
+
         return std::nullopt;
     }
 

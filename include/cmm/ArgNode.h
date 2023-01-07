@@ -12,7 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
-#include <cmm/Node.h>
+#include <cmm/ExpressionNode.h>
 
 // std includes
 #include <memory>
@@ -22,7 +22,7 @@ namespace cmm
 {
     class ExpressionNode;
 
-    class ArgNode : public Node
+    class ArgNode : public ExpressionNode
     {
     public:
 
@@ -73,11 +73,28 @@ namespace cmm
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
+        /**
+         * Gets the underlying CType.
+         *
+         * @return CType.
+         */
+        CType& getDatatype() CMM_NOEXCEPT override;
 
+        /**
+         * Gets the underlying CType.
+         *
+         * @return CType.
+         */
+        const CType& getDatatype() const CMM_NOEXCEPT override;
+
+        /**
+         * Sets the DataType since it may be 'lazy loaded'.
+         *
+         * @param type the DataType to set.
+         */
+        void setDatatype(const CType& datatype) CMM_NOEXCEPT override;
+
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:

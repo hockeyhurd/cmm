@@ -6,6 +6,7 @@
  */
 
 #include <cmm/ParenExpressionNode.h>
+#include <cmm/DerefNode.h>
 
 namespace cmm
 {
@@ -28,6 +29,18 @@ namespace cmm
     const ExpressionNode* ParenExpressionNode::getExpression() const CMM_NOEXCEPT
     {
         return expression.get();
+    }
+
+    void ParenExpressionNode::derefNode()
+    {
+        const auto location = expression->getLocation();
+        auto temp = std::move(expression);
+        expression = std::make_unique<DerefNode>(location, std::move(temp));
+    }
+
+    VisitorResult ParenExpressionNode::accept(Visitor* visitor) /* override */
+    {
+        return visitor->visit(*this);
     }
 
     std::string ParenExpressionNode::toString() const /* override */

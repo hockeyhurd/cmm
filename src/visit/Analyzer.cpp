@@ -63,19 +63,15 @@ namespace cmm
 
     VisitorResult Analyzer::visit(BinOpNode& node)
     {
-        // TODO: How should we handle the case of: "x = y = 42;"??
-        // Ideally, we would like to treat the sub/right-expression as "normal",
-        // then re-write the sub/right expression as just another "RVALUE".
-        // I guess we'll just need to re-visit this when we get to code generation.
-
         auto* rightNode = node.getRight();
 
         [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
         const auto& rightType = rightNode->getDatatype();
 
-        // If the right node is a variable, we need to add a DerefNode to wrap it.
-        if (rightNode->getType() == EnumNodeType::VARIABLE)
+        // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
+        // we need to add a (potentially second) DerefNode to wrap it.
+        if (rightNode->getType() == EnumNodeType::VARIABLE || rightNode->getType() == EnumNodeType::DEREF)
         {
             // Add DerefNode
             node.derefNodeRight();
@@ -90,8 +86,9 @@ namespace cmm
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
         const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
+        const bool isLeftDerefNode = leftNode->getType() == EnumNodeType::DEREF;
 
-        if (isAssignment && !isLeftVariable)
+        if (isAssignment && !isLeftVariable && !isLeftDerefNode)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -127,6 +124,15 @@ namespace cmm
             // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
             asU16 = ~asU16;
             varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
+        }
+
+        else if (isAssignment && isLeftDerefNode)
+        {
+            // Pop off 1-level of a DerefNode??
+            node.popDerefNodeLeft();
+
+            // Update our pointer to this new pointer.
+            leftNode = node.getLeft();
         }
 
         // If the left node is a variable and this is NOT an assignmnet operation,
@@ -227,7 +233,7 @@ namespace cmm
             }
         }
 
-        else if (leftType.pointers > 0 && rightType.pointers > 0)
+        else if (!isAssignment && leftType.pointers > 0 && rightType.pointers > 0)
         {
             std::ostringstream builder;
             builder << "Invalid operands to binary expression between '";
@@ -341,6 +347,14 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         expression->accept(this);
+
+        if (expression->getType() != EnumNodeType::VARIABLE && expression->getType() != EnumNodeType::DEREF)
+        {
+            reporter.error("Expected a variable or dereference node", node.getLocation());
+            return VisitorResult();
+        }
+
+        node.resolveDatatype();
 
         return VisitorResult();
     }
@@ -550,6 +564,14 @@ namespace cmm
                     reporter.error(builder.str(), returnStatementPtr->getLocation());
                 }
             }
+        }
+
+        // Is a 'void' function without a return statement.  We will add one implicitly to help with code generation.
+        else if (returnStatementPtr == nullptr && datatype.type == EnumCType::VOID)
+        {
+            const auto& endLocation = node.getBlock().getEndLocation();
+            auto returnStatementNode = std::make_unique<ReturnStatementNode>(endLocation);
+            node.addReturnStatement(std::move(returnStatementNode));
         }
 
         // void function returns a non-void value case #1.
@@ -779,6 +801,16 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
+        // Need to dereference VariableNodes since they can only ever be read from.
+        if (expression->getType() == EnumNodeType::VARIABLE)
+        {
+            node.derefNode();
+            expression = node.getExpression();
+        }
+
+        const auto& datatype = expression->getDatatype();
+        node.setDatatype(datatype);
+
         return VisitorResult();
     }
 
@@ -882,7 +914,6 @@ namespace cmm
             auto* expression = node.getExpression();
             expression->accept(this);
 
-            // if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF && expression->getType() != EnumNodeType::VARIABLE)
             if (node.getOpType() == EnumUnaryOpType::ADDRESS_OF)
             {
                 if (expression->getType() != EnumNodeType::VARIABLE)
@@ -893,10 +924,22 @@ namespace cmm
 
                 else
                 {
+                    // Note: We don't add a DerefNode because the variable (at least in LLVM) is already a pointer type.
+                    // TODO: When if/when we support additional backends, re-consider moving this logic.
                     CType newType = expression->getDatatype();
                     ++newType.pointers;
                     node.setDatatype(newType);
                 }
+            }
+
+            else if (expression->getType() == EnumNodeType::VARIABLE)
+            {
+                const CType datatype = expression->getDatatype();
+                node.derefNode();
+                node.setDatatype(datatype);
+
+                // This line is commented out to ignore a cppcheck "error", but may be needed some day.
+                // expression = node.getExpression();
             }
         }
 
@@ -953,6 +996,9 @@ namespace cmm
         else
         {
             scope.add(node.getName(), context);
+
+            // Update the node's locality for later use.
+            node.setLocality(currentLocality);
         }
 
         return VisitorResult();
@@ -962,6 +1008,24 @@ namespace cmm
     {
         auto* conditional = node.getConditional();
         conditional->accept(this);
+
+        const auto condExprNodeType = conditional->getType();
+        const auto& conditionalExprDatatype = conditional->getDatatype();
+
+        if (condExprNodeType == EnumNodeType::VARIABLE)
+        {
+            node.derefConditional();
+            node.wrapConditionalWithBinOpNode();
+
+            // Now we know this is a DerefNode, but we will make sure by resetting these variables.
+            conditional = node.getConditional();
+        }
+
+        if (conditionalExprDatatype.type == EnumCType::VOID || conditionalExprDatatype.type == EnumCType::VOID_PTR)
+        {
+            reporter.error("Unexpected void or void* expression", node.getLocation());
+            return VisitorResult();
+        }
 
         auto* statement = node.getStatement();
         statement->accept(this);

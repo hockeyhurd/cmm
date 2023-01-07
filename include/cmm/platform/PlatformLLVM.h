@@ -53,6 +53,8 @@ namespace cmm
          */
         PlatformLLVM& operator= (PlatformLLVM&&) CMM_NOEXCEPT = default;
 
+        virtual std::optional<VisitorResult> castForBranch(const VisitorResult& name) CMM_NOEXCEPT override;
+
         virtual void emitBlockNodeStart(Encode* encoder) override;
         virtual void emitBlockNodeEnd(Encode* encoder) override;
         virtual void emitBranchInstruction(Encode* encoder, const VisitorResult& expr, const std::string& ifLabel,
@@ -70,15 +72,16 @@ namespace cmm
         virtual std::optional<VisitorResult> emit(Encode* encoder, BinOpNode& node, const VisitorResult& left, const VisitorResult& right) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, CastNode& node, const VisitorResult& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) override;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, FunctionDefinitionStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, LitteralNode& node, const bool defer) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, ParameterNode& node) override;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, ParenExpressionNode& node, const VisitorResult& expr) override;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, ReturnStatementNode& node, const VisitorResult& expr) override;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, ReturnStatementNode& node,
+            const std::optional<VisitorResult>& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructDefinitionStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructFwdDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, TypeNode& node) override;
-        virtual std::optional<VisitorResult> emit(Encode* encoder, UnaryOpNode& node, const VisitorResult& name) override;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, UnaryOpNode& node, VisitorResult&& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableNode& node, const bool defer) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, WhileStatementNode& node, const VisitorResult& cond,

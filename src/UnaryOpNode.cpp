@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/UnaryOpNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/Token.h>
 
 // std includes
@@ -132,6 +133,14 @@ namespace cmm
     std::optional<EnumNodeType> UnaryOpNode::getExpressionNodeType() const CMM_NOEXCEPT
     {
         return hasExpression() ? std::make_optional(expression->getType()) : std::nullopt;
+    }
+
+    /* virtual */
+    void UnaryOpNode::derefNode()
+    {
+        const auto location = expression->getLocation();
+        auto temp = std::move(expression);
+        expression = std::make_unique<DerefNode>(location, std::move(temp));
     }
 
     /* virtual */

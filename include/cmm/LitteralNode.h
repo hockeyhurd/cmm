@@ -142,6 +142,14 @@ namespace cmm
 
         std::string toString() const override;
 
+        /**
+         * Gets an appropriate "null" values based upon the CType type.
+         *
+         * @param location the Location for this LitteralNode.
+         * @param type the CType to deduce.
+         */
+        static LitteralNode getNullForType(const Location& location, const CType& type);
+
     private:
 
         CTypeValue value;

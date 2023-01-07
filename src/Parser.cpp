@@ -591,7 +591,7 @@ namespace cmm
                         return std::make_optional(std::move(args));
                     }
 
-                    else if (!token.isCharSymbol())
+                    else if (!token.isCharSymbol() || token.asCharSymbol() == CHAR_AMPERSAND)
                     {
                         // This could be 'func()' or 'func(x)', so we check if the variable was parsed or not.
                         auto litteralPtr = parseLitteralOrLRValueNode(lexer, errorMessage);
@@ -679,11 +679,11 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr)
     {
-        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr));
+        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr), true);
 
         for (u32 i = 1; i < count; ++i)
         {
-            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
+            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result), true);
         }
 
         return result;

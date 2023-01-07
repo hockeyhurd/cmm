@@ -78,11 +78,14 @@ namespace cmm
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
+        /**
+         * Adds a DerefNode infront of the underlying VariableNode.
+         * Note: This function does zero checking and assumes the caller
+         *       has already validated this operation.
+         */
+        void derefNode();
 
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:
