@@ -542,18 +542,16 @@ namespace cmm
             temp = encoder->getTemp();
             os << temp << " = ";
 
+            const std::string typeStr = resolveDatatype(datatype);
+
             if (isFloatingPoint)
             {
-                os << "fneg ";
-                printType(os, datatype);
-                encoder->emitSpace();
+                os << "fneg " << typeStr << " ";
             }
 
             else
             {
-                os << "sub " << (isSignedInt ? "nsw " : "");
-                printType(os, datatype);
-                os << " 0, ";
+                os << "sub " << (isSignedInt ? "nsw " : "") << typeStr << " 0, ";
             }
 
             os << *expr.result.str;
@@ -561,11 +559,57 @@ namespace cmm
             break;
         case EnumUnaryOpType::POSITIVE: // +x
             return std::make_optional<VisitorResult>(std::move(expr));
-        case EnumUnaryOpType::INCREMENT: // ++x
-            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+        case EnumUnaryOpType::INCREMENT: // ++x or x++
+        {
+            encoder->printIndent();
+            temp = encoder->getTemp();
+            os << temp << " = ";
+
+            const std::string typeStr = resolveDatatype(datatype);
+
+            if (isFloatingPoint)
+            {
+                os << "fadd " << typeStr << " " << *expr.result.str << ", 1.000000e+00";
+            }
+
+            else
+            {
+                os << "add " << typeStr << (isSignedInt ? " nsw " : " ") << *expr.result.str << ", 1";
+            }
+
+            // If it's postfix, we can either swap with temp or just return the original.
+            if (node.isPostfix())
+            {
+                encoder->emitNewline();
+                return expr;
+            }
+        }
             break;
-        case EnumUnaryOpType::DECREMENT: // --x
-            reporter.bug("Un-implemented EnumUnaryOpType", node.getLocation(), true);
+        case EnumUnaryOpType::DECREMENT: // --x or x--
+        {
+            encoder->printIndent();
+            temp = encoder->getTemp();
+            os << temp << " = ";
+
+            const std::string typeStr = resolveDatatype(datatype);
+
+            if (isFloatingPoint)
+            {
+                os << "fsub " << typeStr << " " << *expr.result.str << ", 1.000000e+00";
+            }
+
+            else
+            {
+                os << "sub " << typeStr << (isSignedInt ? " nsw " : " ") << *expr.result.str << ", 1";
+            }
+
+            // If it's postfix, we can either swap with temp or just return the original.
+            if (node.isPostfix())
+            {
+                encoder->emitNewline();
+                return expr;
+            }
+        }
             break;
         default:
             reporter.bug("Un-supported EnumUnaryOpType", node.getLocation(), true);

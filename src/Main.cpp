@@ -19,7 +19,8 @@ int main()
     // std::string input = "int main() { int a; a = 10; if (a + 1) { a = 20; } else { a = 30; } return a; }";
     // std::string input = "void func(); int main() { float a; a = 10.0F; float b; b = 16.0F; float c; c = (2.0F * -b) + a; int result; result = (int) c; return result; }";
     // std::string input = "int main() { int a; a = 42; int* ptr; ptr = &a; int result; result = *ptr; return result; }";
-    std::string input = "void func(int* value) { *value = *value * 2; } int main() { int x; x = 2; func(&x); return x; }";
+    // std::string input = "void func(int* value) { *value = *value * 2; } int main() { int x; x = 2; func(&x); return x; }";
+    std::string input = "int main() { int x; x = 2; int y; y = 3; int result; result = x-- + --y; return result; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
