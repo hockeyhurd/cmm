@@ -1558,6 +1558,7 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixIncrementB)
     auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
     ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
     ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::INCREMENT);
+    ASSERT_TRUE(rightUnaryOpPtr->isPrefix());
     ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
 
     auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
@@ -1565,6 +1566,82 @@ TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixIncrementB)
 }
 
 TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPrefixDecrementB)
+{
+    const std::string input = "a = --b;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
+    ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
+    ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::DECREMENT);
+    ASSERT_TRUE(rightUnaryOpPtr->isPrefix());
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPostfixIncrementB)
+{
+    const std::string input = "a = b++;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatement = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatement->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatement->getExpression()->getType(), EnumNodeType::BIN_OP);
+
+    auto* rootAssignPtr = static_cast<BinOpNode*>(expressionStatement->getExpression());
+    ASSERT_EQ(rootAssignPtr->getTypeof(), EnumBinOpNodeType::ASSIGNMENT);
+    ASSERT_NE(rootAssignPtr->getLeft(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getLeft()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_NE(rootAssignPtr->getRight(), nullptr);
+    ASSERT_EQ(rootAssignPtr->getRight()->getType(), EnumNodeType::UNARY_OP);
+
+    auto* leftVariablePtr = static_cast<VariableNode*>(rootAssignPtr->getLeft());
+    ASSERT_EQ(leftVariablePtr->getName(), "a");
+
+    auto* rightUnaryOpPtr = static_cast<UnaryOpNode*>(rootAssignPtr->getRight());
+    ASSERT_TRUE(rightUnaryOpPtr->hasExpression());
+    ASSERT_EQ(rightUnaryOpPtr->getOpType(), EnumUnaryOpType::INCREMENT);
+    ASSERT_TRUE(rightUnaryOpPtr->isPostfix());
+    ASSERT_EQ(rightUnaryOpPtr->getExpression()->getType(), EnumNodeType::VARIABLE);
+
+    auto* rightVariablePtr = static_cast<VariableNode*>(rightUnaryOpPtr->getExpression());
+    ASSERT_EQ(rightVariablePtr->getName(), "b");
+}
+
+TEST(ParserTest, ParseCompilationNodeVarAssignmentViaPostfixDecrementB)
 {
     const std::string input = "a = --b;";
     Parser parser(input);

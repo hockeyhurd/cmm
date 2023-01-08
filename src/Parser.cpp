@@ -1476,23 +1476,30 @@ namespace cmm
         [[maybe_unused]]
         static Reporter& reporter = Reporter::instance();
 
+        // Note: there are a few cases to consider.
+        // Also, any incompatibilities must be left for the Analyzer to verify
+        // this expression is valid or not.
+        // 1. *--X
+        // 2. --*X
+        // 3. --x
+        // 4. *x
+        // 5. *X--
+        // 6. x--
+
         const auto snapshot = lexer.snap();
         Location unaryOpLocation;
         auto token = newToken();
 
-        std::optional<EnumUnaryOpType> optionalEnumUnaryOpType;
+        std::optional<EnumUnaryOpType> optionalPrefixEnumUnaryOpType;
 
-        if (lexer.nextToken(token, errorMessage, &unaryOpLocation) && (token.isCharSymbol() || token.isStringSymbol()))
+        if (lexer.peekNextToken(token) && (token.isCharSymbol() || token.isStringSymbol()))
         {
-            optionalEnumUnaryOpType = getOpType(token);
+            optionalPrefixEnumUnaryOpType = getOpType(token);
 
-            // Invalid EnumUnaryOpType present, restore.
-            if (!optionalEnumUnaryOpType.has_value())
+            if (optionalPrefixEnumUnaryOpType.has_value())
             {
-                // Token was a successfully lex'd symbol that is a char or string symbol, but is NOT a unary operator.  Do nothing and continue...
-                lexer.restore(snapshot);
-                // TODO: test
-                return nullptr;
+                // Consume the token
+                lexer.nextToken(token, errorMessage, &unaryOpLocation);
             }
         }
 
@@ -1515,15 +1522,6 @@ namespace cmm
             return nullptr;
         }
 
-        // Note: there are a few cases to consider.  We should consider postfix
-        // case as well, but we'll leave this for future implementation (TODO).
-        // Also, any incompatibilities must be left for the Analyzer to verify
-        // this expression is valid or not.
-        // 1. *--X
-        // 2. --*X
-        // 3. --x
-        // 4. *x
-
         std::unique_ptr<ExpressionNode> result = std::make_unique<VariableNode>(std::move(*optionalVariable));
 
         // DerefNode '*x' case:
@@ -1533,11 +1531,25 @@ namespace cmm
         }
 
         // If there was a unary op involved, wrap whatever the current working expression is with a unary op node.
-        if (optionalEnumUnaryOpType.has_value())
+        if (optionalPrefixEnumUnaryOpType.has_value())
         {
-            // TODO @@@: support post-fix
-            CMM_CONSTEXPR bool prefix = true;
-            result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalEnumUnaryOpType, std::move(result), prefix);
+            result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalPrefixEnumUnaryOpType, std::move(result), true);
+        }
+
+        // Next check if their is a postfix operator.
+        // Note: We can't have a postfix expression if a prefix exists.
+        else if (lexer.peekNextToken(token) && (token.isCharSymbol() || token.isStringSymbol()))
+        {
+            const std::optional<EnumUnaryOpType> optionalPostfixEnumUnaryOpType = getOpType(token);
+
+            // Note: Valid postfix must be '--' or '++' according to cppreference.
+            if (optionalPostfixEnumUnaryOpType.has_value() && (*optionalPostfixEnumUnaryOpType == EnumUnaryOpType::DECREMENT || *optionalPostfixEnumUnaryOpType == EnumUnaryOpType::INCREMENT))
+            {
+                // Consume the token
+                lexer.nextToken(token, errorMessage, &unaryOpLocation);
+
+                result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalPostfixEnumUnaryOpType, std::move(result), false);
+            }
         }
 
         return result;
