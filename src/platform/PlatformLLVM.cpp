@@ -581,7 +581,7 @@ namespace cmm
             if (node.isPostfix())
             {
                 encoder->emitNewline();
-                return expr;
+                return std::make_optional<VisitorResult>(std::move(expr));
             }
         }
             break;
@@ -607,7 +607,7 @@ namespace cmm
             if (node.isPostfix())
             {
                 encoder->emitNewline();
-                return expr;
+                return std::make_optional<VisitorResult>(std::move(expr));
             }
         }
             break;
