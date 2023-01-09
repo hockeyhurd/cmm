@@ -13,10 +13,13 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/BlockNode.h>
+#include <cmm/Field.h>
 #include <cmm/StatementNode.h>
 
 // std includes
+#include <optional>
 #include <string>
+#include <unordered_map>
 
 namespace cmm
 {
@@ -104,6 +107,17 @@ namespace cmm
          */
         std::size_t size() const CMM_NOEXCEPT;
 
+        /**
+         * Handles converting the BlockNode of "VariableDeclarationStatementNodes"
+         * to a proper Field format.
+         *
+         * Note: This does NOT change the BlockNode.
+         * Note #2: The returned value is the first duplicate field (only).
+         *
+         * @return optional std::string of field with an error.
+         */
+        std::optional<std::string> setupFieldTable();
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -114,6 +128,9 @@ namespace cmm
 
         // The block of fields.
         BlockNode blockNode;
+
+        // The map of fields.
+        std::unordered_map<std::string, Field> fieldMap;
     };
 }
 

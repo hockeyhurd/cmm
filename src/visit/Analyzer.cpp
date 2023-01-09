@@ -823,6 +823,16 @@ namespace cmm
         {
             structTable.addOrUpdate(structName, EnumSymState::DEFINED);
             scope.add(structName, context);
+
+            const auto optionalBadField = node.setupFieldTable();
+
+            if (optionalBadField.has_value())
+            {
+                std::ostringstream builder;
+                builder << "Found duplicate field in struct '" << node.getName() << "' called '"
+                        << *optionalBadField << "'";
+                reporter.error(builder.str(), node.getLocation());
+            }
         }
 
         return VisitorResult();
