@@ -37,25 +37,6 @@ namespace cmm
     {
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated"
-    VisitorResult Dump::visit(AddressOfNode& node)
-    {
-        printIndentation();
-        printNode(node);
-        printNewLine();
-
-        increaseIntentation();
-        auto* variablePtr = node.getExpression();
-        variablePtr->accept(this);
-
-        decreaseIntentation();
-        printNewLine();
-
-        return VisitorResult();
-    }
-#pragma GCC diagnostic pop
-
     VisitorResult Dump::visit(ArgNode& node)
     {
         printIndentation();

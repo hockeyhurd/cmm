@@ -29,30 +29,6 @@ namespace cmm
         localityStack.push(EnumLocality::GLOBAL);
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated"
-    VisitorResult Analyzer::visit(AddressOfNode& node)
-    {
-        auto* variablePtr = node.getExpression();
-
-        if (variablePtr == nullptr)
-        {
-            reporter.bug("variablePtr is a nullptr", node.getLocation(), true);
-        }
-
-        else if (variablePtr->getType() != EnumNodeType::VARIABLE)
-        {
-            const char* message = "Expected a variable expression prior to attempting to take the address of it";
-            reporter.error(message, node.getLocation());
-            return VisitorResult();
-        }
-
-        variablePtr->accept(this);
-
-        return VisitorResult();
-    }
-#pragma GCC diagnostic pop
-
     VisitorResult Analyzer::visit(ArgNode& node)
     {
         auto* expression = node.getExpression();
