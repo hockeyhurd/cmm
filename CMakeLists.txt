@@ -20,7 +20,7 @@ include_directories(include)
 set(SOURCE_FILES src/ArgNode.cpp src/BinOpNode.cpp src/BlockNode.cpp
     src/CastNode.cpp src/CompilationUnitNode.cpp src/DerefNode.cpp
     src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/FunctionDeclarationStatementNode.cpp
-    src/Field.cpp src/Frame.cpp src/FunctionCallNode.cpp src/FunctionDefinitionStatementNode.cpp src/IfElseStatementNode.cpp
+    src/Field.cpp src/FieldAccessNode.cpp src/Frame.cpp src/FunctionCallNode.cpp src/FunctionDefinitionStatementNode.cpp src/IfElseStatementNode.cpp
     src/Keyword.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/ParenExpressionNode.cpp
     src/Parser.cpp src/ParserPredictor.cpp
     src/Reporter.cpp src/ReturnStatementNode.cpp src/Snapshot.cpp src/StatementNode.cpp src/StringView.cpp

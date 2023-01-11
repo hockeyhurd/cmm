@@ -104,6 +104,7 @@ namespace cmm
         virtual VisitorResult visit(CompilationUnitNode& node) = 0;
         virtual VisitorResult visit(DerefNode& node) = 0;
         virtual VisitorResult visit(ExpressionStatementNode& node) = 0;
+        virtual VisitorResult visit(FieldAccessNode& node) = 0;
         virtual VisitorResult visit(FunctionCallNode& node) = 0;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) = 0;

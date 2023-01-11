@@ -335,6 +335,12 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(FieldAccessNode& node)
+    {
+        // TODO @@@: Implement
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(FunctionCallNode& node)
     {
         const auto& funcName = node.getName();
