@@ -352,6 +352,12 @@ namespace cmm
                         token.setStringSymbol("--");
                     }
 
+                    else if (currentChar == CHAR_MINUS && lookaheadChar == CHAR_GT)
+                    {
+                        nextChar();
+                        token.setStringSymbol("->");
+                    }
+
                     else
                     {
                         token.setCharSymbol(currentChar);
@@ -603,6 +609,8 @@ namespace cmm
             case CHAR_SEMI_COLON:
             case CHAR_AMPERSAND:
             case CHAR_ASTERISK:
+            case CHAR_GT:
+            case CHAR_LT:
             case CHAR_EQUALS:
                 token.setCharSymbol(currentChar);
                 return true;

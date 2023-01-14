@@ -31,9 +31,11 @@ namespace cmm
     CMM_CONSTEXPR char CHAR_EQUALS = '=';
     CMM_CONSTEXPR char CHAR_FORM_FEED = (char) 12;
     CMM_CONSTEXPR char CHAR_FORWARD_SLASH = '/';
+    CMM_CONSTEXPR char CHAR_GT = '>';
     CMM_CONSTEXPR char CHAR_LCURLY_BRACKET = '{';
     CMM_CONSTEXPR char CHAR_LPAREN = '(';
     CMM_CONSTEXPR char CHAR_LSQUARE_BRACKET = '[';
+    CMM_CONSTEXPR char CHAR_LT = '<';
     CMM_CONSTEXPR char CHAR_MINUS = '-';
     CMM_CONSTEXPR char CHAR_NEWLINE = '\n';
     CMM_CONSTEXPR char CHAR_NULL = '\0';
