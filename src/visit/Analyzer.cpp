@@ -61,10 +61,10 @@ namespace cmm
         [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
-        const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
+        const bool isLeftVariableOrFieldAccess = leftNode->getType() == EnumNodeType::VARIABLE || leftNode->getType() == EnumNodeType::FIELD_ACCESS;
         const bool isLeftDerefNode = leftNode->getType() == EnumNodeType::DEREF;
 
-        if (isAssignment && !isLeftVariable && !isLeftDerefNode)
+        if (isAssignment && !isLeftVariableOrFieldAccess && !isLeftDerefNode)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -77,7 +77,7 @@ namespace cmm
 
         VariableNode* varNode = nullptr;
 
-        if (isAssignment && isLeftVariable)
+        if (isAssignment && isLeftVariableOrFieldAccess)
         {
             varNode = static_cast<VariableNode*>(leftNode);
             auto* varContext = scope.findAnyVariable(varNode->getName());
@@ -113,7 +113,7 @@ namespace cmm
 
         // If the left node is a variable and this is NOT an assignmnet operation,
         // we need to add a DerefNode to wrap it.
-        else if (!isAssignment && isLeftVariable)
+        else if (!isAssignment && isLeftVariableOrFieldAccess)
         {
             // Add DerefNode
             node.derefNodeLeft();
@@ -394,7 +394,7 @@ namespace cmm
         // Check that the field to be used is a part of the struct.
         // Note: We already checked that optStructName has a value, so this is safe to access.
         const auto& structName = *datatype.optStructName;
-        StructData* structData = structTable.get(structName);
+        const StructData* structData = structTable.get(structName);
 
         if (structData == nullptr || structData->symState != EnumSymState::DEFINED)
         {
@@ -404,6 +404,21 @@ namespace cmm
             reporter.error(builder.str(), node.getLocation());
             return VisitorResult();
         }
+
+        const Field* fieldLookupResult = structData->findField(fieldName);
+
+        if (fieldLookupResult == nullptr)
+        {
+            std::ostringstream builder;
+            builder << "Failed to lookup field '" << fieldName << "'. Something internal to the compiler has failed.";
+
+            reporter.bug(builder.str(), node.getLocation(), true);
+            return VisitorResult();
+        }
+
+        // Update the FieldAccessNode's datatype with the datatype of the field post-lookup.
+        const CType& fieldDatatype = fieldLookupResult->getDatatype();
+        node.setDatatype(fieldDatatype);
 
         return VisitorResult();
     }
@@ -868,7 +883,9 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
-        if (expression->getType() == EnumNodeType::VARIABLE)
+        // TODO: Test with this for now... revisit once confirm through more testing...
+        // if (expression->getType() == EnumNodeType::VARIABLE)
+        if (isValidRHSNodeType(expression->getType()))
         {
             node.deref();
         }

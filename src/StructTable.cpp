@@ -15,6 +15,18 @@ namespace cmm
     {
     }
 
+    Field* StructData::findField(const std::string& name) CMM_NOEXCEPT
+    {
+        const auto findResult = fieldMap.find(name);
+        return findResult != fieldMap.cend() ? &findResult->second : nullptr;
+    }
+
+    const Field* StructData::findField(const std::string& name) const CMM_NOEXCEPT
+    {
+        const auto findResult = fieldMap.find(name);
+        return findResult != fieldMap.cend() ? &findResult->second : nullptr;
+    }
+
     bool StructTable::empty() const CMM_NOEXCEPT
     {
         return map.empty();

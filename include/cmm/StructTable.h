@@ -33,6 +33,22 @@ namespace cmm
 
         StructData& operator= (const StructData&) = delete;
         StructData& operator= (StructData&&) CMM_NOEXCEPT = default;
+
+        /**
+         * Helper function for looking up fields in the internal fieldMap.
+         *
+         * @param name the std::string name of the field to find.
+         * @return pointer to the Field if found, else nullptr.
+         */
+        Field* findField(const std::string& name) CMM_NOEXCEPT;
+
+        /**
+         * Helper function for looking up fields in the internal fieldMap.
+         *
+         * @param name the std::string name of the field to find.
+         * @return const pointer to the Field if found, else nullptr.
+         */
+        const Field* findField(const std::string& name) const CMM_NOEXCEPT;
     };
 
     class StructTable
