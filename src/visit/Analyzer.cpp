@@ -47,7 +47,7 @@ namespace cmm
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
         // we need to add a (potentially second) DerefNode to wrap it.
-        if (isValidRHSNodeType(rightNode->getType()))
+        if (isValidNonLitteralRHSNodeType(rightNode->getType()))
         {
             // Add DerefNode
             node.derefNodeRight();
@@ -61,10 +61,13 @@ namespace cmm
         [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
-        const bool isLeftVariableOrFieldAccess = leftNode->getType() == EnumNodeType::VARIABLE || leftNode->getType() == EnumNodeType::FIELD_ACCESS;
+        // const bool isLeftVariableOrFieldAccess = leftNode->getType() == EnumNodeType::VARIABLE || leftNode->getType() == EnumNodeType::FIELD_ACCESS;
+        const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
         const bool isLeftDerefNode = leftNode->getType() == EnumNodeType::DEREF;
+        // const bool isLeftDerefNodeOrFieldAccess = leftNode->getType() == EnumNodeType::DEREF || leftNode->getType() == EnumNodeType::FIELD_ACCESS;
+        const bool isLeftFieldAccess = leftNode->getType() == EnumNodeType::FIELD_ACCESS;
 
-        if (isAssignment && !isLeftVariableOrFieldAccess && !isLeftDerefNode)
+        if (isAssignment && !isLeftVariable && !isLeftDerefNode && !isLeftFieldAccess)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -77,7 +80,7 @@ namespace cmm
 
         VariableNode* varNode = nullptr;
 
-        if (isAssignment && isLeftVariableOrFieldAccess)
+        if (isAssignment && isLeftVariable)
         {
             varNode = static_cast<VariableNode*>(leftNode);
             auto* varContext = scope.findAnyVariable(varNode->getName());
@@ -111,9 +114,15 @@ namespace cmm
             leftNode = node.getLeft();
         }
 
-        // If the left node is a variable and this is NOT an assignmnet operation,
+        else if (isAssignment && isLeftFieldAccess)
+        {
+            // For now, NOOP?
+            ;
+        }
+
+        // If the left node is a variable and this is NOT an assignment operation,
         // we need to add a DerefNode to wrap it.
-        else if (!isAssignment && isLeftVariableOrFieldAccess)
+        else if (!isAssignment && (isLeftVariable || isLeftFieldAccess))
         {
             // Add DerefNode
             node.derefNodeLeft();
@@ -324,7 +333,7 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
-        if (!isValidRHSNodeType(expression->getType()))
+        if (!isValidNonLitteralRHSNodeType(expression->getType()))
         {
             reporter.error("Expected a variable or dereference or field access node", node.getLocation());
             return VisitorResult();
@@ -341,7 +350,7 @@ namespace cmm
         auto* expressionNodePtr = node.getExpression();
         const EnumNodeType expressionType = expressionNodePtr->getType();
 
-        if (!isValidRHSNodeType(expressionType))
+        if (!isValidNonLitteralRHSNodeType(expressionType))
         {
             reporter.error("Expected a variable or dereference or another field accesss node", node.getLocation());
             return VisitorResult();
@@ -410,9 +419,10 @@ namespace cmm
         if (fieldLookupResult == nullptr)
         {
             std::ostringstream builder;
-            builder << "Failed to lookup field '" << fieldName << "'. Something internal to the compiler has failed.";
+            builder << "Failed to find field '" << fieldName << "' in struct '"
+                    << structName << "'";
 
-            reporter.bug(builder.str(), node.getLocation(), true);
+            reporter.error(builder.str(), node.getLocation());
             return VisitorResult();
         }
 
@@ -885,7 +895,7 @@ namespace cmm
 
         // TODO: Test with this for now... revisit once confirm through more testing...
         // if (expression->getType() == EnumNodeType::VARIABLE)
-        if (isValidRHSNodeType(expression->getType()))
+        if (isValidNonLitteralRHSNodeType(expression->getType()))
         {
             node.deref();
         }

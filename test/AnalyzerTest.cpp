@@ -698,7 +698,7 @@ TEST(AnalyzerTest, AnalyzerFieldAccessValid)
 {
     reporter.reset();
 
-    const std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; return (int) v2.y; }";
+    const std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; v2.x = 10; v2.y = 32; int sum; sum = v2.x + v2.y; return sum; }";
     Parser parser(input);
     std::string errorMessage;
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

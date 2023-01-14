@@ -10,15 +10,10 @@
 
 namespace cmm
 {
-    bool isValidRHSNodeType(const EnumNodeType type) CMM_NOEXCEPT
+    bool isValidNonLitteralRHSNodeType(const EnumNodeType type) CMM_NOEXCEPT
     {
-#if 0
-        return type == EnumNodeType::VARIABLE || type == EnumNodeType::DEREF ||
-               type == EnumNodeType::FIELD_ACCESS || type == EnumNodeType::FUNCTION_CALL;
-#else
         return type == EnumNodeType::VARIABLE || type == EnumNodeType::DEREF ||
                type == EnumNodeType::FIELD_ACCESS;
-#endif
     }
 }
 

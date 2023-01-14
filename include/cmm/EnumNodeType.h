@@ -32,7 +32,14 @@ namespace cmm
         WHILE_STATEMENT
     };
 
-    bool isValidRHSNodeType(const EnumNodeType type) CMM_NOEXCEPT;
+    /**
+     * Checks to see if the EnumNodeType is valid for RHS usage. This is typically
+     * helpful for when checking whether a DerefNode should "pushed" or "popped".
+     * Note: This does NOT include Litterals.
+     *
+     * @return bool.
+     */
+    bool isValidNonLitteralRHSNodeType(const EnumNodeType type) CMM_NOEXCEPT;
 }
 
 #endif //!CMM_ENUM_NODE_TYPE_H
