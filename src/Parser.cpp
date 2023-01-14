@@ -1240,7 +1240,7 @@ namespace cmm
         auto subexpression = parseExpression(lexer, errorMessage);
 
         Location endLocation;
-        lexer.nextToken(token, errorMessage, &endLocation);
+        lexResult = lexer.nextToken(token, errorMessage, &endLocation);
 
         // Lastly, expect a closing paren. Error if not.
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
