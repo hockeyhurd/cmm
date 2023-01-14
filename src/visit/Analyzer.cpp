@@ -47,7 +47,7 @@ namespace cmm
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
         // we need to add a (potentially second) DerefNode to wrap it.
-        if (rightNode->getType() == EnumNodeType::VARIABLE || rightNode->getType() == EnumNodeType::DEREF)
+        if (isValidRHSNodeType(rightNode->getType()))
         {
             // Add DerefNode
             node.derefNodeRight();
@@ -324,9 +324,9 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
-        if (expression->getType() != EnumNodeType::VARIABLE && expression->getType() != EnumNodeType::DEREF)
+        if (!isValidRHSNodeType(expression->getType()))
         {
-            reporter.error("Expected a variable or dereference node", node.getLocation());
+            reporter.error("Expected a variable or dereference or field access node", node.getLocation());
             return VisitorResult();
         }
 
@@ -335,9 +335,76 @@ namespace cmm
         return VisitorResult();
     }
 
+    // TODO @@@: Add unittests for each error that can be reported.
     VisitorResult Analyzer::visit(FieldAccessNode& node)
     {
-        // TODO @@@: Implement
+        auto* expressionNodePtr = node.getExpression();
+        const EnumNodeType expressionType = expressionNodePtr->getType();
+
+        if (!isValidRHSNodeType(expressionType))
+        {
+            reporter.error("Expected a variable or dereference or another field accesss node", node.getLocation());
+            return VisitorResult();
+        }
+
+        // Visit the sub-expression (typical the struct variable) first to make sure types are fully resolved.
+        expressionNodePtr->accept(this);
+
+        // Get the expression's datatype so that we can then try and validate our field.
+        const CType& datatype = expressionNodePtr->getDatatype();
+
+        if (datatype.type != EnumCType::STRUCT)
+        {
+            reporter.error("Expected an expression of type struct", node.getLocation());
+            return VisitorResult();
+        }
+
+        else if (!datatype.optStructName.has_value())
+        {
+            reporter.bug("Missing struct name for the accessing expression. Must be a compiler bug??", node.getLocation(), true);
+            return VisitorResult();
+        }
+
+        // Check whether DOT or ARROW usage makes sense.
+        const auto& fieldName = node.getFieldName();
+        const EnumFieldAccessType accessType = node.getFieldAccessType();
+
+        if (datatype.isPointerType() && accessType != EnumFieldAccessType::ARROW)
+        {
+            std::ostringstream builder;
+            builder << "Expression is a pointer type. Expected a dereference or '"
+                    << toString(EnumFieldAccessType::ARROW) << "' before accessing field '"
+                    << fieldName << "'";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
+        else if (!datatype.isPointerType() && accessType != EnumFieldAccessType::DOT)
+        {
+            std::ostringstream builder;
+            builder << "Expression is not a pointer type. Expected a '"
+                    << toString(EnumFieldAccessType::DOT) << "' when accessing field '"
+                    << fieldName << "'";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
+        // Check that the field to be used is a part of the struct.
+        // Note: We already checked that optStructName has a value, so this is safe to access.
+        const auto& structName = *datatype.optStructName;
+        std::optional<EnumSymState> optStructState = structTable.get(structName);
+
+        if (!optStructState.has_value() || *optStructState != EnumSymState::DEFINED)
+        {
+            std::ostringstream builder;
+            builder << "Could not find struct '" << structName << "'. Make sure this struct is fully defined.";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
         return VisitorResult();
     }
 

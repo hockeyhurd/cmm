@@ -44,5 +44,15 @@ namespace cmm
     {
         return index;
     }
+
+    void Field::setIndex(s32 index) CMM_NOEXCEPT
+    {
+        if (index < -1)
+        {
+            index = -1;
+        }
+
+        this->index = index;
+    }
 }
 

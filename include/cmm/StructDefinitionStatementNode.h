@@ -27,6 +27,12 @@ namespace cmm
     {
     public:
 
+        using FieldMap = std::unordered_map<std::string, Field>;
+        using FieldMapIter = FieldMap::iterator;
+        using FieldMapConstIter = FieldMap::const_iterator;
+
+    public:
+
         /**
          * Default constructor.
          *
@@ -118,6 +124,50 @@ namespace cmm
          */
         std::optional<std::string> setupFieldTable();
 
+        /**
+         * Gets an iterator to the beginning of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapIter.
+         */
+        FieldMapIter begin() CMM_NOEXCEPT;
+
+        /**
+         * Gets a const iterator to the beginning of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapConstIter.
+         */
+        FieldMapConstIter cbegin() const CMM_NOEXCEPT;
+
+        /**
+         * Gets an iterator to the end of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapIter.
+         */
+        FieldMapIter end() CMM_NOEXCEPT;
+
+        /**
+         * Gets a const iterator to the end of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapConstIter.
+         */
+        FieldMapConstIter cend() const CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -130,7 +180,7 @@ namespace cmm
         BlockNode blockNode;
 
         // The map of fields.
-        std::unordered_map<std::string, Field> fieldMap;
+        FieldMap fieldMap;
     };
 }
 

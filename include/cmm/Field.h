@@ -97,6 +97,13 @@ namespace cmm
          */
         s32 getIndex() const CMM_NOEXCEPT;
 
+        /**
+         * Gets the index of the Field within its struct.
+         *
+         * @param index the s32 index of the field.
+         */
+        void setIndex(s32 index) CMM_NOEXCEPT;
+
     private:
 
         std::string name;

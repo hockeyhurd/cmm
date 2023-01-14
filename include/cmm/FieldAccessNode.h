@@ -116,6 +116,13 @@ namespace cmm
         const std::string& getFieldName() const CMM_NOEXCEPT;
 
         /**
+         * Gets the type of EnumFieldAccessType.
+         *
+         * @return EnumFieldAccessType.
+         */
+        EnumFieldAccessType getFieldAccessType() const CMM_NOEXCEPT;
+
+        /**
          * Gets the CType of this FieldAccessNode.
          *
          * @return CType reference.
@@ -141,10 +148,14 @@ namespace cmm
 
     private:
 
+        // The expression where the field should live.
         std::unique_ptr<ExpressionNode> expr;
 
         // The field we are wrapping.
         Field field;
+
+        // The type of field access operator.
+        EnumFieldAccessType accessType;
     };
 }
 

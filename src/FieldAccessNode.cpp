@@ -12,14 +12,15 @@ namespace cmm
 {
     FieldAccessNode::FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
         const std::string& fieldName, const EnumFieldAccessType accessType) :
-        ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)), field(fieldName, datatype, -1)
+        ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)),
+        field(fieldName, datatype, -1), accessType(accessType)
     {
     }
 
     FieldAccessNode::FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
         std::string&& fieldName, const EnumFieldAccessType accessType) CMM_NOEXCEPT :
         ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)),
-        field(std::move(fieldName), std::move(datatype), -1)
+        field(std::move(fieldName), std::move(datatype), -1), accessType(accessType)
     {
     }
 
@@ -51,6 +52,11 @@ namespace cmm
     const std::string& FieldAccessNode::getFieldName() const CMM_NOEXCEPT
     {
         return field.getName();
+    }
+
+    EnumFieldAccessType FieldAccessNode::getFieldAccessType() const CMM_NOEXCEPT
+    {
+        return accessType;
     }
 
 #if 0

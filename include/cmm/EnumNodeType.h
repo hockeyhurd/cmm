@@ -10,6 +10,16 @@
 #ifndef CMM_ENUM_NODE_TYPE_H
 #define CMM_ENUM_NODE_TYPE_H
 
+#ifndef CMM_NOEXCEPT
+    #if CPP_VER >= 2014
+        #define CMM_NOEXCEPT noexcept
+    #elif CPP_VER >= 2011
+        #define CMM_NOEXCEPT noexcept
+    #else
+        #define CMM_NOEXCEPT
+    #endif
+#endif
+
 namespace cmm
 {
     enum class EnumNodeType
@@ -21,6 +31,8 @@ namespace cmm
         VARIABLE, VARIABLE_DECLARATION_STATEMENT,
         WHILE_STATEMENT
     };
+
+    bool isValidRHSNodeType(const EnumNodeType type) CMM_NOEXCEPT;
 }
 
 #endif //!CMM_ENUM_NODE_TYPE_H
