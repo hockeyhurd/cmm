@@ -394,9 +394,9 @@ namespace cmm
         // Check that the field to be used is a part of the struct.
         // Note: We already checked that optStructName has a value, so this is safe to access.
         const auto& structName = *datatype.optStructName;
-        std::optional<EnumSymState> optStructState = structTable.get(structName);
+        StructData* structData = structTable.get(structName);
 
-        if (!optStructState.has_value() || *optStructState != EnumSymState::DEFINED)
+        if (structData == nullptr || structData->symState != EnumSymState::DEFINED)
         {
             std::ostringstream builder;
             builder << "Could not find struct '" << structName << "'. Make sure this struct is fully defined.";
@@ -883,18 +883,17 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto optStructState = structTable.get(structName);
+        const auto* structData = structTable.get(structName);
 
-        if (optStructState.has_value() && *optStructState == EnumSymState::DEFINED)
+        if (structData != nullptr && structData->symState == EnumSymState::DEFINED)
         {
             std::ostringstream builder;
             builder << "struct " << structName << " is already previously defined. This violates the multiple definition rule";
             reporter.error(builder.str(), node.getLocation());
         }
 
-        else if (!optStructState.has_value())
+        else if (structData == nullptr)
         {
-            structTable.addOrUpdate(structName, EnumSymState::DEFINED);
             scope.add(structName, context);
 
             const auto optionalBadField = node.setupFieldTable();
@@ -906,6 +905,19 @@ namespace cmm
                         << *optionalBadField << "'";
                 reporter.error(builder.str(), node.getLocation());
             }
+
+            // Copy StructDefinitionStatementNode FieldMap to here so that we
+            // have a copy in the StructTable.
+            // TODO: Try to reduce unnecessary copying in the future.
+            std::unordered_map<std::string, Field> fieldMap;
+
+            for (auto& [name, field] : node)
+            {
+                fieldMap.emplace(name, field);
+            }
+
+            StructData structData(EnumSymState::DEFINED, std::move(fieldMap));
+            structTable.addOrUpdate(structName, std::move(structData));
         }
 
         return VisitorResult();
@@ -918,9 +930,9 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto optStructState = structTable.get(structName);
+        const auto* structData = structTable.get(structName);
 
-        if (optStructState.has_value())
+        if (structData != nullptr)
         {
             std::ostringstream builder;
             builder << "struct " << structName << " is already previously declared or defined";
@@ -929,7 +941,8 @@ namespace cmm
 
         else
         {
-            structTable.addOrUpdate(structName, EnumSymState::DECLARED);
+            StructData structData(EnumSymState::DECLARED);
+            structTable.addOrUpdate(structName, std::move(structData));
             scope.add(structName, context);
         }
 

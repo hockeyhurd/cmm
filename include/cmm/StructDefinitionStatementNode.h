@@ -180,6 +180,7 @@ namespace cmm
         BlockNode blockNode;
 
         // The map of fields.
+        // TODO: Consider moving this to the StructTable (if it makes sense) to reduce duplicate data.
         FieldMap fieldMap;
     };
 }

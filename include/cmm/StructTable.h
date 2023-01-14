@@ -12,19 +12,34 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Field.h>
 
 // std includes
-#include <optional>
 #include <string>
 #include <unordered_map>
 
 namespace cmm
 {
+    struct StructData
+    {
+        EnumSymState symState;
+        std::unordered_map<std::string, Field> fieldMap;
+        const std::string* name;
+
+        StructData(const EnumSymState symState, std::unordered_map<std::string, Field>&& fieldMap = {});
+        StructData(const StructData&) = delete;
+        StructData(StructData&&) CMM_NOEXCEPT = default;
+        ~StructData() = default;
+
+        StructData& operator= (const StructData&) = delete;
+        StructData& operator= (StructData&&) CMM_NOEXCEPT = default;
+    };
+
     class StructTable
     {
     public:
 
-        using Map = std::unordered_map<std::string, EnumSymState>;
+        using Map = std::unordered_map<std::string, StructData>;
         using iterator = Map::iterator;
         using const_iterator = Map::const_iterator;
 
@@ -79,26 +94,34 @@ namespace cmm
          * will be updated to the passed value.
          *
          * @param name the std::string name of the struct.
-         * @param state the EnumSymState of the struct.
+         * @param data the struct's data (name, field, etc.).
          */
-        void addOrUpdate(const std::string& name, const EnumSymState state);
+        void addOrUpdate(const std::string& name, StructData&& data);
 
         /**
          * Adds the struct to the table.  If an entry already exists, the EnumSymState
          * will be updated to the passed value.
          *
          * @param name the std::string name of the struct.
-         * @param state the EnumSymState of the struct.
+         * @param data the struct's data (name, field, etc.).
          */
-        void addOrUpdate(std::string&& name, const EnumSymState);
+        void addOrUpdate(std::string&& name, StructData&& data);
 
         /**
          * Gets the EnumSymState if struct is in the table by name.
          *
          * @param name the std::string name of the struct to lookup.
-         * @return optional EnumSymState if found, else std::nullopt.
+         * @return pointer to the StructData if found, else nullptr.
          */
-        std::optional<EnumSymState> get(const std::string& name) const CMM_NOEXCEPT;
+        StructData* get(const std::string& name) CMM_NOEXCEPT;
+
+        /**
+         * Gets the EnumSymState if struct is in the table by name.
+         *
+         * @param name the std::string name of the struct to lookup.
+         * @return const a pointer to the StructData if found, else nullptr.
+         */
+        const StructData* get(const std::string& name) const CMM_NOEXCEPT;
 
         /**
          * Gets the EnumSymState if struct is in the table by name.
