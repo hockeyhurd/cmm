@@ -10,12 +10,12 @@
 
 namespace cmm
 {
-    Field::Field(const std::string& name, const CType& datatype, const u32 index) :
+    Field::Field(const std::string& name, const CType& datatype, const s32 index) :
         name(name), datatype(datatype), index(index)
     {
     }
 
-    Field::Field(std::string&& name, CType&& datatype, const u32 index) CMM_NOEXCEPT :
+    Field::Field(std::string&& name, CType&& datatype, const s32 index) CMM_NOEXCEPT :
         name(std::move(name)), datatype(std::move(datatype)), index(index)
     {
     }
@@ -40,7 +40,7 @@ namespace cmm
         return datatype;
     }
 
-    u32 Field::getIndex() const CMM_NOEXCEPT
+    s32 Field::getIndex() const CMM_NOEXCEPT
     {
         return index;
     }

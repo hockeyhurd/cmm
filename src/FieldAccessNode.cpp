@@ -10,16 +10,27 @@
 
 namespace cmm
 {
-    FieldAccessNode::FieldAccessNode(const Location& location, const std::string& name,
-        const CType& datatype, const u32 index) : ExpressionNode(EnumNodeType::FIELD_ACCESS, location),
-        field(name, datatype, index)
+    FieldAccessNode::FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
+        const std::string& fieldName, const EnumFieldAccessType accessType) :
+        ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)), field(fieldName, datatype, -1)
     {
     }
 
-    FieldAccessNode::FieldAccessNode(const Location& location, std::string&& name,
-        CType&& datatype, const u32 index) CMM_NOEXCEPT : ExpressionNode(EnumNodeType::FIELD_ACCESS, location),
-        field(std::move(name), std::move(datatype), index)
+    FieldAccessNode::FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
+        std::string&& fieldName, const EnumFieldAccessType accessType) CMM_NOEXCEPT :
+        ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)),
+        field(std::move(fieldName), std::move(datatype), -1)
     {
+    }
+
+    ExpressionNode* FieldAccessNode::getExpression() CMM_NOEXCEPT
+    {
+        return expr.get();
+    }
+
+    const ExpressionNode* FieldAccessNode::getExpression() const CMM_NOEXCEPT
+    {
+        return expr.get();
     }
 
     Field& FieldAccessNode::getField() CMM_NOEXCEPT
@@ -32,16 +43,17 @@ namespace cmm
         return field;
     }
 
-    std::string& FieldAccessNode::getName() CMM_NOEXCEPT
+    std::string& FieldAccessNode::getFieldName() CMM_NOEXCEPT
     {
         return field.getName();
     }
 
-    const std::string& FieldAccessNode::getName() const CMM_NOEXCEPT
+    const std::string& FieldAccessNode::getFieldName() const CMM_NOEXCEPT
     {
         return field.getName();
     }
 
+#if 0
     CType& FieldAccessNode::getDatatype() CMM_NOEXCEPT /* override */
     {
         return field.getDatatype();
@@ -51,8 +63,9 @@ namespace cmm
     {
         return field.getDatatype();
     }
+#endif
 
-    u32 FieldAccessNode::getIndex() const CMM_NOEXCEPT
+    s32 FieldAccessNode::getIndex() const CMM_NOEXCEPT
     {
         return field.getIndex();
     }

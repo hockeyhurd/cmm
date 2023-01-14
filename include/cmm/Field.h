@@ -26,7 +26,7 @@ namespace cmm
          * @param datatype the CType for the field.
          * @param index the index of the field within it's struct.
          */
-        Field(const std::string& name, const CType& datatype, const u32 index);
+        Field(const std::string& name, const CType& datatype, const s32 index);
 
         /**
          * Constructor with move semantics.
@@ -35,7 +35,7 @@ namespace cmm
          * @param datatype the CType for the field.
          * @param index the index of the field within it's struct.
          */
-        Field(std::string&& name, CType&& datatype, const u32 index) CMM_NOEXCEPT;
+        Field(std::string&& name, CType&& datatype, const s32 index) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.
@@ -93,15 +93,15 @@ namespace cmm
         /**
          * Gets the index of the Field within its struct.
          *
-         * @return u32 index.
+         * @return s32 index.
          */
-        u32 getIndex() const CMM_NOEXCEPT;
+        s32 getIndex() const CMM_NOEXCEPT;
 
     private:
 
         std::string name;
         CType datatype;
-        u32 index;
+        s32 index;
     };
 }
 

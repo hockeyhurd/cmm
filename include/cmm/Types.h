@@ -329,6 +329,14 @@ namespace cmm
 
     std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT;
 
+    enum class EnumFieldAccessType
+    {
+        DOT = 0, ARROW
+    };
+
+    std::optional<EnumFieldAccessType> isEnumFieldAccessType(const Token& token) CMM_NOEXCEPT;
+    const char* toString(const EnumFieldAccessType accessType) CMM_NOEXCEPT;
+
     template<class Stream, class T, class N>
     void printRepeat(Stream& stream, const T& value, const N count)
     {

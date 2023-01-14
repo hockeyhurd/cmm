@@ -15,6 +15,9 @@
 #include <cmm/ExpressionNode.h>
 #include <cmm/Field.h>
 
+// std includes
+#include <memory>
+
 namespace cmm
 {
     class FieldAccessNode : public ExpressionNode
@@ -25,26 +28,28 @@ namespace cmm
          * Constructor with copy semantics.
          *
          * @param location the Location of this node.
-         * @param name std::string name of the field.
-         * @param datatype the CType for the field.
-         * @param index the index of the field within it's struct.
+         * @param expr the ExpressionNode struct that contains this Field.
+         * @param fieldName std::string name of the field.
+         * @param accessType the EnumFieldAccessType.
          */
-        FieldAccessNode(const Location& location, const std::string& name, const CType& datatype, const u32 index);
+        FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
+            const std::string& fieldName, const EnumFieldAccessType accessType);
 
         /**
          * Constructor with move semantics.
          *
          * @param location the Location of this node.
-         * @param name std::string name of the field.
-         * @param datatype the CType for the field.
-         * @param index the index of the field within it's struct.
+         * @param expr the ExpressionNode struct that contains this Field.
+         * @param fieldName std::string name of the field.
+         * @param accessType the EnumFieldAccessType.
          */
-        FieldAccessNode(const Location& location, std::string&& name, CType&& datatype, const u32 index) CMM_NOEXCEPT;
+        FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
+            std::string&& fieldName, const EnumFieldAccessType accessType) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.
          */
-        FieldAccessNode(const FieldAccessNode&) = default;
+        FieldAccessNode(const FieldAccessNode&) = delete;
 
         /**
          * Default move constructor.
@@ -59,12 +64,28 @@ namespace cmm
         /**
          * Default copy assignment operator.
          */
-        FieldAccessNode& operator= (const FieldAccessNode&) = default;
+        FieldAccessNode& operator= (const FieldAccessNode&) = delete;
 
         /**
          * Default move assignment operator.
          */
         FieldAccessNode& operator= (FieldAccessNode&&) CMM_NOEXCEPT = default;
+
+        /**
+         * Gets the base ExpressionNode (i.e. the function variable or function
+         * call where the field is to be used with).
+         *
+         * @return pointer to the ExpressionNode.
+         */
+        ExpressionNode* getExpression() CMM_NOEXCEPT;
+
+        /**
+         * Gets the base ExpressionNode (i.e. the function variable or function
+         * call where the field is to be used with).
+         *
+         * @return const pointer to the ExpressionNode.
+         */
+        const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
         /**
          * Gets the underlying Field object.
@@ -85,40 +106,42 @@ namespace cmm
          *
          * @return std::string reference.
          */
-        std::string& getName() CMM_NOEXCEPT;
+        std::string& getFieldName() CMM_NOEXCEPT;
 
         /**
          * Gets the std::string name of this FieldAccessNode.
          *
          * @return std::string const reference.
          */
-        const std::string& getName() const CMM_NOEXCEPT;
+        const std::string& getFieldName() const CMM_NOEXCEPT;
 
         /**
          * Gets the CType of this FieldAccessNode.
          *
          * @return CType reference.
          */
-        CType& getDatatype() CMM_NOEXCEPT override;
+        // CType& getDatatype() CMM_NOEXCEPT override;
 
         /**
          * Gets the CType of this FieldAccessNode.
          *
          * @return CType const reference.
          */
-        const CType& getDatatype() const CMM_NOEXCEPT override;
+        // const CType& getDatatype() const CMM_NOEXCEPT override;
 
         /**
          * Gets the index of the FieldAccessNode within its struct.
          *
-         * @return u32 index.
+         * @return s32 index.
          */
-        u32 getIndex() const CMM_NOEXCEPT;
+        s32 getIndex() const CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:
+
+        std::unique_ptr<ExpressionNode> expr;
 
         // The field we are wrapping.
         Field field;
