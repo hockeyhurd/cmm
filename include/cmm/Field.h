@@ -12,10 +12,11 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/IField.h>
 
 namespace cmm
 {
-    class Field
+    class Field : public IField
     {
     public:
 
@@ -67,42 +68,57 @@ namespace cmm
          *
          * @return std::string reference.
          */
-        std::string& getName() CMM_NOEXCEPT;
+        std::string& getName() CMM_NOEXCEPT override;
 
         /**
          * Gets the std::string name of this Field.
          *
          * @return std::string const reference.
          */
-        const std::string& getName() const CMM_NOEXCEPT;
+        const std::string& getName() const CMM_NOEXCEPT override;
 
         /**
          * Gets the CType of this Field.
          *
          * @return CType reference.
          */
-        CType& getDatatype() CMM_NOEXCEPT;
+        CType& getDatatype() CMM_NOEXCEPT override;
 
         /**
          * Gets the CType of this Field.
          *
          * @return CType const reference.
          */
-        const CType& getDatatype() const CMM_NOEXCEPT;
+        const CType& getDatatype() const CMM_NOEXCEPT override;
+
+        /**
+         * Sets the CType of this Field.
+         *
+         * @param datatype the CType to set.
+         */
+        void setDatatype(const CType& datatype) override;
 
         /**
          * Gets the index of the Field within its struct.
          *
          * @return s32 index.
          */
-        s32 getIndex() const CMM_NOEXCEPT;
+        s32 getIndex() const CMM_NOEXCEPT override;
 
         /**
          * Gets the index of the Field within its struct.
          *
          * @param index the s32 index of the field.
          */
-        void setIndex(s32 index) CMM_NOEXCEPT;
+        void setIndex(s32 index) CMM_NOEXCEPT override;
+
+        /**
+         * Sets this Field based upon another's IField.
+         *
+         * @param other the other IField to set from.
+         *        Note: This parameter shall ALWAYS be a valid pointer.
+         */
+        void set(const IField* other) override;
 
     private:
 

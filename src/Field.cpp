@@ -20,32 +20,37 @@ namespace cmm
     {
     }
 
-    std::string& Field::getName() CMM_NOEXCEPT
+    std::string& Field::getName() CMM_NOEXCEPT /* override */
     {
         return name;
     }
 
-    const std::string& Field::getName() const CMM_NOEXCEPT
+    const std::string& Field::getName() const CMM_NOEXCEPT /* override */
     {
         return name;
     }
 
-    CType& Field::getDatatype() CMM_NOEXCEPT
+    CType& Field::getDatatype() CMM_NOEXCEPT /* override */
     {
         return datatype;
     }
 
-    const CType& Field::getDatatype() const CMM_NOEXCEPT
+    const CType& Field::getDatatype() const CMM_NOEXCEPT /* override */
     {
         return datatype;
     }
 
-    s32 Field::getIndex() const CMM_NOEXCEPT
+    void Field::setDatatype(const CType& datatype) /* override */
+    {
+        this->datatype = datatype;
+    }
+
+    s32 Field::getIndex() const CMM_NOEXCEPT /* override */
     {
         return index;
     }
 
-    void Field::setIndex(s32 index) CMM_NOEXCEPT
+    void Field::setIndex(s32 index) CMM_NOEXCEPT /* override */
     {
         if (index < -1)
         {
@@ -53,6 +58,13 @@ namespace cmm
         }
 
         this->index = index;
+    }
+
+    void Field::set(const IField* other) /* override */
+    {
+        this->name = other->getName();
+        this->datatype = other->getDatatype();
+        this->index = other->getIndex();
     }
 }
 

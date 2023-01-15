@@ -164,7 +164,7 @@ namespace cmm
         printNewLine();
 
         printIndentation();
-        std::cout << "name: " << node.getFieldName();
+        std::cout << "name: " << node.getName();
         printNewLine();
 
         decreaseIntentation();

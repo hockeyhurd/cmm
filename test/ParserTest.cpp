@@ -3730,7 +3730,7 @@ TEST(ParserTest, ParseCompilationNodeFieldAccessNode)
     auto* fieldAccessNodePtr = static_cast<FieldAccessNode*>(expressionStatementPtr->getExpression());
     ASSERT_NE(fieldAccessNodePtr->getExpression(), nullptr);
     ASSERT_EQ(fieldAccessNodePtr->getExpression()->getType(), EnumNodeType::VARIABLE);
-    ASSERT_EQ(fieldAccessNodePtr->getFieldName(), "y");
+    ASSERT_EQ(fieldAccessNodePtr->getName(), "y");
 
     auto* variableNodePtr = static_cast<VariableNode*>(fieldAccessNodePtr->getExpression());
     ASSERT_EQ(variableNodePtr->getName(), "x");

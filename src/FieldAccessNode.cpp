@@ -13,14 +13,14 @@ namespace cmm
     FieldAccessNode::FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
         const std::string& fieldName, const EnumFieldAccessType accessType) :
         ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)),
-        field(fieldName, datatype, -1), accessType(accessType)
+        fieldName(fieldName), index(-1), accessType(accessType)
     {
     }
 
     FieldAccessNode::FieldAccessNode(const Location& location, std::unique_ptr<ExpressionNode>&& expr,
         std::string&& fieldName, const EnumFieldAccessType accessType) CMM_NOEXCEPT :
         ExpressionNode(EnumNodeType::FIELD_ACCESS, location), expr(std::move(expr)),
-        field(std::move(fieldName), std::move(datatype), -1), accessType(accessType)
+        fieldName(std::move(fieldName)), index(-1), accessType(accessType)
     {
     }
 
@@ -34,24 +34,14 @@ namespace cmm
         return expr.get();
     }
 
-    Field& FieldAccessNode::getField() CMM_NOEXCEPT
+    std::string& FieldAccessNode::getName() CMM_NOEXCEPT /* override */
     {
-        return field;
+        return fieldName;
     }
 
-    const Field& FieldAccessNode::getField() const CMM_NOEXCEPT
+    const std::string& FieldAccessNode::getName() const CMM_NOEXCEPT /* override */
     {
-        return field;
-    }
-
-    std::string& FieldAccessNode::getFieldName() CMM_NOEXCEPT
-    {
-        return field.getName();
-    }
-
-    const std::string& FieldAccessNode::getFieldName() const CMM_NOEXCEPT
-    {
-        return field.getName();
+        return fieldName;
     }
 
     EnumFieldAccessType FieldAccessNode::getFieldAccessType() const CMM_NOEXCEPT
@@ -59,21 +49,41 @@ namespace cmm
         return accessType;
     }
 
-#if 0
     CType& FieldAccessNode::getDatatype() CMM_NOEXCEPT /* override */
     {
-        return field.getDatatype();
+        return ExpressionNode::getDatatype();
     }
 
     const CType& FieldAccessNode::getDatatype() const CMM_NOEXCEPT /* override */
     {
-        return field.getDatatype();
+        return ExpressionNode::getDatatype();
     }
-#endif
 
-    s32 FieldAccessNode::getIndex() const CMM_NOEXCEPT
+    void FieldAccessNode::setDatatype(const CType& datatype) /* override */
     {
-        return field.getIndex();
+        ExpressionNode::setDatatype(datatype);
+    }
+
+    s32 FieldAccessNode::getIndex() const CMM_NOEXCEPT /* override */
+    {
+        return index;
+    }
+
+    void FieldAccessNode::setIndex(s32 index) CMM_NOEXCEPT /* override */
+    {
+        if (index < -1)
+        {
+            index = -1;
+        }
+
+        this->index = index;
+    }
+
+    void FieldAccessNode::set(const IField* other) /* override */
+    {
+        this->fieldName = other->getName();
+        ExpressionNode::setDatatype(other->getDatatype());
+        this->index = other->getIndex();
     }
 
     VisitorResult FieldAccessNode::accept(Visitor* visitor) /* override */

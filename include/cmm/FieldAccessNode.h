@@ -13,14 +13,14 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/ExpressionNode.h>
-#include <cmm/Field.h>
+#include <cmm/IField.h>
 
 // std includes
 #include <memory>
 
 namespace cmm
 {
-    class FieldAccessNode : public ExpressionNode
+    class FieldAccessNode : public ExpressionNode, IField
     {
     public:
 
@@ -88,32 +88,18 @@ namespace cmm
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
         /**
-         * Gets the underlying Field object.
-         *
-         * @return reference to the wrapped Field.
-         */
-        Field& getField() CMM_NOEXCEPT;
-
-        /**
-         * Gets the underlying Field object.
-         *
-         * @return const reference to the wrapped Field.
-         */
-        const Field& getField() const CMM_NOEXCEPT;
-
-        /**
          * Gets the std::string name of this FieldAccessNode.
          *
          * @return std::string reference.
          */
-        std::string& getFieldName() CMM_NOEXCEPT;
+        std::string& getName() CMM_NOEXCEPT override;
 
         /**
          * Gets the std::string name of this FieldAccessNode.
          *
          * @return std::string const reference.
          */
-        const std::string& getFieldName() const CMM_NOEXCEPT;
+        const std::string& getName() const CMM_NOEXCEPT override;
 
         /**
          * Gets the type of EnumFieldAccessType.
@@ -127,21 +113,43 @@ namespace cmm
          *
          * @return CType reference.
          */
-        // CType& getDatatype() CMM_NOEXCEPT override;
+        CType& getDatatype() CMM_NOEXCEPT override;
 
         /**
          * Gets the CType of this FieldAccessNode.
          *
          * @return CType const reference.
          */
-        // const CType& getDatatype() const CMM_NOEXCEPT override;
+        const CType& getDatatype() const CMM_NOEXCEPT override;
+
+        /**
+         * Sets the CType of this Field.
+         *
+         * @param datatype the CType to set.
+         */
+        void setDatatype(const CType& datatype) override;
 
         /**
          * Gets the index of the FieldAccessNode within its struct.
          *
          * @return s32 index.
          */
-        s32 getIndex() const CMM_NOEXCEPT;
+        s32 getIndex() const CMM_NOEXCEPT override;
+
+        /**
+         * Sets the index of the Field.
+         *
+         * @param index the s32 index of the field.
+         */
+        void setIndex(s32 index) CMM_NOEXCEPT override;
+
+        /**
+         * Sets this Field based upon another's IField.
+         *
+         * @param other the other IField to set from.
+         *        Note: This parameter shall ALWAYS be a valid pointer.
+         */
+        void set(const IField* other) override;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
@@ -151,8 +159,11 @@ namespace cmm
         // The expression where the field should live.
         std::unique_ptr<ExpressionNode> expr;
 
-        // The field we are wrapping.
-        Field field;
+        // The name of the Field.
+        std::string fieldName;
+
+        // The index of the Field within the struct or union.
+        s32 index;
 
         // The type of field access operator.
         EnumFieldAccessType accessType;

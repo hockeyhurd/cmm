@@ -375,7 +375,7 @@ namespace cmm
         }
 
         // Check whether DOT or ARROW usage makes sense.
-        const auto& fieldName = node.getFieldName();
+        const auto& fieldName = node.getName();
         const EnumFieldAccessType accessType = node.getFieldAccessType();
 
         if (datatype.isPointerType() && accessType != EnumFieldAccessType::ARROW)
@@ -425,6 +425,9 @@ namespace cmm
             reporter.error(builder.str(), node.getLocation());
             return VisitorResult();
         }
+
+        // Sync the StructTable's version of the Field to this node.
+        node.set(fieldLookupResult);
 
         // Update the FieldAccessNode's datatype with the datatype of the field post-lookup.
         const CType& fieldDatatype = fieldLookupResult->getDatatype();
