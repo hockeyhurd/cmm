@@ -3708,7 +3708,7 @@ TEST(ParserTest, ParseCompilationNodeMultipleStatements)
     ASSERT_EQ(statementIter, translationUnit.end());
 }
 
-TEST(ParserTest, ParseCompilationNodeFieldAccessNode)
+TEST(ParserTest, ParseCompilationNodeFieldAccessNodeViaDot)
 {
     const std::string input = "x.y;";
     Parser parser(input);
@@ -3728,6 +3728,36 @@ TEST(ParserTest, ParseCompilationNodeFieldAccessNode)
     ASSERT_EQ(expressionStatementPtr->getExpression()->getType(), EnumNodeType::FIELD_ACCESS);
 
     auto* fieldAccessNodePtr = static_cast<FieldAccessNode*>(expressionStatementPtr->getExpression());
+    ASSERT_EQ(fieldAccessNodePtr->getFieldAccessType(), EnumFieldAccessType::DOT);
+    ASSERT_NE(fieldAccessNodePtr->getExpression(), nullptr);
+    ASSERT_EQ(fieldAccessNodePtr->getExpression()->getType(), EnumNodeType::VARIABLE);
+    ASSERT_EQ(fieldAccessNodePtr->getName(), "y");
+
+    auto* variableNodePtr = static_cast<VariableNode*>(fieldAccessNodePtr->getExpression());
+    ASSERT_EQ(variableNodePtr->getName(), "x");
+}
+
+TEST(ParserTest, ParseCompilationNodeFieldAccessNodeViaArrow)
+{
+    const std::string input = "x->y;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::EXPRESSION_STATEMENT);
+
+    auto* expressionStatementPtr = static_cast<ExpressionStatementNode*>(firstStatement.get());
+    ASSERT_NE(expressionStatementPtr, nullptr);
+    ASSERT_NE(expressionStatementPtr->getExpression(), nullptr);
+    ASSERT_EQ(expressionStatementPtr->getExpression()->getType(), EnumNodeType::FIELD_ACCESS);
+
+    auto* fieldAccessNodePtr = static_cast<FieldAccessNode*>(expressionStatementPtr->getExpression());
+    ASSERT_EQ(fieldAccessNodePtr->getFieldAccessType(), EnumFieldAccessType::ARROW);
     ASSERT_NE(fieldAccessNodePtr->getExpression(), nullptr);
     ASSERT_EQ(fieldAccessNodePtr->getExpression()->getType(), EnumNodeType::VARIABLE);
     ASSERT_EQ(fieldAccessNodePtr->getName(), "y");
