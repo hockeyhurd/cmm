@@ -149,8 +149,11 @@ namespace cmm
 
     VisitorResult Encode::visit(FieldAccessNode& node)
     {
-        // TODO @@@: Implement
-        return VisitorResult();
+        auto* expressionNodePtr = node.getExpression();
+        auto exprVisitorResult = expressionNodePtr->accept(this);
+        auto optVisitorResult = platform->emit(this, node, std::move(exprVisitorResult));
+
+        return std::move(*optVisitorResult);
     }
 
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)

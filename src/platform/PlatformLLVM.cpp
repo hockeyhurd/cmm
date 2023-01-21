@@ -170,7 +170,7 @@ namespace cmm
                 str = "ptr";
                 break;
             case EnumCType::STRUCT:
-                str = "struct." + *datatype.optStructName;
+                str = "%struct." + *datatype.optStructName;
                 break;
             default:
                 str = "Unknown type";
@@ -343,6 +343,28 @@ namespace cmm
         {
             os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
         }
+
+        return VisitorResult(new std::string(std::move(temp)), true);
+    }
+
+    /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FieldAccessNode& node, VisitorResult&& expr) /* override */
+    {
+        std::string temp = encoder->getTemp();
+        const CType& structType = node.getExpression()->getDatatype();
+        const std::string structTypeStr = resolveDatatype(structType);
+        const CType& fieldType = node.getDatatype();
+        const std::string fieldTypeStr = resolveDatatype(fieldType);
+        const auto fieldInStructIndex = node.getIndex();
+
+        encoder->printIndent();
+
+        // Note: See https://llvm.org/docs/LangRef.html#getelementptr-instruction for semantics of the 'getelementptr' instruction.
+        auto& os = encoder->getOStream();
+        os << temp << " = getelementptr inbounds " << structTypeStr
+           << ", ptr " << *expr.result.str << ", i32 0, " << fieldTypeStr << " " << fieldInStructIndex;
+
+        encoder->emitNewline();
 
         return VisitorResult(new std::string(std::move(temp)), true);
     }
