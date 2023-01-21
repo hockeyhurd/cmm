@@ -16,28 +16,50 @@
 #include <optional>
 #include <sstream>
 
-// GNU GMP incldues
+// GNU GMP incldues for non-Windows platforms
+#if !OS_WIN
 #include <gmpxx.h>
+#else
+#include <cstring>
+#endif
 
 namespace cmm
 {
     static std::optional<s32> validateInt32(const std::string& str)
     {
+#if !OS_WIN
         mpz_class value(str);
         return value.fits_sint_p() ? std::make_optional<s32>(value.get_si()) : std::nullopt;
+#else
+        std::size_t parseCount = 0;
+        const s32 value = std::stoi(str, &parseCount);
+        return parseCount > 0 ? std::make_optional<s32>(value) : std::nullopt;
+#endif
     }
 
     static std::optional<f64> validateDouble(const std::string& str)
     {
+#if !OS_WIN
         mpf_class value(str);
         return value ? std::make_optional<f64>(value.get_d()) : std::nullopt;
+#else
+        std::size_t parseCount = 0;
+        const f64 value = std::stod(str, &parseCount);
+        return parseCount > 0 ? std::make_optional<f64>(value) : std::nullopt;
+#endif
     }
 
     static std::optional<f32> validateFloat(const std::string& str)
     {
+#if !OS_WIN
         const auto doubleResult = validateDouble(str);
         return doubleResult.has_value() && (f64) std::numeric_limits<f32>::lowest() <= *doubleResult && *doubleResult <= (f64) std::numeric_limits<f32>::max() ?
                std::make_optional(static_cast<f32>(*doubleResult)) : std::nullopt;
+#else
+        std::size_t parseCount = 0;
+        const f32 value = std::stof(str, &parseCount);
+        return parseCount > 0 ? std::make_optional<f32>(value) : std::nullopt;
+#endif
     }
 
     Lexer::Lexer(const std::string& text) : text(text), index(0), location(1, 0)
