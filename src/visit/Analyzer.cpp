@@ -53,7 +53,9 @@ namespace cmm
             node.derefNodeRight();
 
             // Update our pointer to this new pointer.
-            rightNode = node.getRight();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // rightNode = node.getRight();
         }
 
         auto* leftNode = node.getLeft();
@@ -111,7 +113,9 @@ namespace cmm
             node.popDerefNodeLeft();
 
             // Update our pointer to this new pointer.
-            leftNode = node.getLeft();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // leftNode = node.getLeft();
         }
 
         else if (isAssignment && isLeftFieldAccess)
@@ -128,7 +132,9 @@ namespace cmm
             node.derefNodeLeft();
 
             // Update our pointer to this new pointer.
-            leftNode = node.getLeft();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // leftNode = node.getLeft();
         }
 
         if (leftType != rightType)
@@ -913,16 +919,16 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto* structData = structTable.get(structName);
+        const auto* structDataPtr = structTable.get(structName);
 
-        if (structData != nullptr && structData->symState == EnumSymState::DEFINED)
+        if (structDataPtr != nullptr && structDataPtr->symState == EnumSymState::DEFINED)
         {
             std::ostringstream builder;
             builder << "struct " << structName << " is already previously defined. This violates the multiple definition rule";
             reporter.error(builder.str(), node.getLocation());
         }
 
-        else if (structData == nullptr)
+        else if (structDataPtr == nullptr)
         {
             scope.add(structName, context);
 
@@ -960,9 +966,9 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto* structData = structTable.get(structName);
+        const auto* structDataPtr = structTable.get(structName);
 
-        if (structData != nullptr)
+        if (structDataPtr != nullptr)
         {
             std::ostringstream builder;
             builder << "struct " << structName << " is already previously declared or defined";
@@ -1120,7 +1126,9 @@ namespace cmm
             node.wrapConditionalWithBinOpNode();
 
             // Now we know this is a DerefNode, but we will make sure by resetting these variables.
-            conditional = node.getConditional();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // conditional = node.getConditional();
         }
 
         if (conditionalExprDatatype.type == EnumCType::VOID || conditionalExprDatatype.type == EnumCType::VOID_PTR)
