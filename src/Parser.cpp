@@ -1269,14 +1269,24 @@ namespace cmm
 
         if (result != nullptr)
         {
-            auto optionalFieldAccessPair = parseFieldAccessNode(lexer, errorMessage);
+            bool doLoop;
 
-            if (optionalFieldAccessPair.has_value())
+            do
             {
-                const auto location = result->getLocation();
-                auto temp = std::move(result);
-                result = std::make_unique<FieldAccessNode>(location, std::move(temp), std::move(optionalFieldAccessPair->second), optionalFieldAccessPair->first);
+                doLoop = false;
+
+                // pair: first - EnumFieldAccessType, second - std::string (name of the field)
+                auto optionalFieldAccessPair = parseFieldAccessNode(lexer, errorMessage);
+
+                if (optionalFieldAccessPair.has_value())
+                {
+                    doLoop = true;
+                    const auto location = result->getLocation();
+                    auto temp = std::move(result);
+                    result = std::make_unique<FieldAccessNode>(location, std::move(temp), std::move(optionalFieldAccessPair->second), optionalFieldAccessPair->first);
+                }
             }
+            while (doLoop);
         }
 
         return result;
