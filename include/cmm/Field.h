@@ -44,6 +44,13 @@ namespace cmm
         Field(const Field&) = default;
 
         /**
+         * Copy constructor via IField interface.
+         *
+         * @param other A pointer to the other IField to copy from.
+         */
+        explicit Field(const IField* other);
+
+        /**
          * Default move constructor.
          */
         Field(Field&&) CMM_NOEXCEPT = default;
@@ -122,8 +129,15 @@ namespace cmm
 
     private:
 
+        // The name of the Field.
         std::string name;
+
+        // The Field's datatype.
         CType datatype;
+
+        // The index of the Field within the struct or union.
+        // Note: A value of less than OR equal to '-1' indicates
+        // that the Field's index has not been defined/set (yet).
         s32 index;
     };
 }

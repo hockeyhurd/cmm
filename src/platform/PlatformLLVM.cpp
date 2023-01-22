@@ -321,7 +321,7 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FieldAccessNode& node, VisitorResult&& expr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FieldAccessNode& node, const VisitorResult& expr) /* override */
     {
         std::string temp = encoder->getTemp();
         const CType& structType = node.getExpression()->getDatatype();

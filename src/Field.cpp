@@ -8,6 +8,9 @@
 // Our includes
 #include <cmm/Field.h>
 
+// std includes
+#include <stdexcept>
+
 namespace cmm
 {
     Field::Field(const std::string& name, const CType& datatype, const s32 index) :
@@ -18,6 +21,18 @@ namespace cmm
     Field::Field(std::string&& name, CType&& datatype, const s32 index) CMM_NOEXCEPT :
         name(std::move(name)), datatype(std::move(datatype)), index(index)
     {
+    }
+
+    Field::Field(const IField* other)
+    {
+        if (other == nullptr)
+        {
+            throw std::runtime_error("Cannot copy from an IField pointer that is a nullptr");
+        }
+
+        this->name = other->getName();
+        this->datatype = other->getDatatype();
+        this->index = other->getIndex();
     }
 
     std::string& Field::getName() CMM_NOEXCEPT /* override */

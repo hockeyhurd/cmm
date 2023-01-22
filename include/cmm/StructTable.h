@@ -40,7 +40,7 @@ namespace cmm
          * @param name the std::string name of the field to find.
          * @return pointer to the Field if found, else nullptr.
          */
-        Field* findField(const std::string& name) CMM_NOEXCEPT;
+        IField* findField(const std::string& name) CMM_NOEXCEPT;
 
         /**
          * Helper function for looking up fields in the internal fieldMap.
@@ -48,7 +48,7 @@ namespace cmm
          * @param name the std::string name of the field to find.
          * @return const pointer to the Field if found, else nullptr.
          */
-        const Field* findField(const std::string& name) const CMM_NOEXCEPT;
+        const IField* findField(const std::string& name) const CMM_NOEXCEPT;
     };
 
     class StructTable

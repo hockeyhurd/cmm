@@ -419,7 +419,7 @@ namespace cmm
             return VisitorResult();
         }
 
-        const Field* fieldLookupResult = structData->findField(fieldName);
+        const IField* fieldLookupResult = structData->findField(fieldName);
 
         // Verify the field is in the struct.
         if (fieldLookupResult == nullptr)
@@ -902,8 +902,6 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
-        // TODO: Test with this for now... revisit once confirm through more testing...
-        // if (expression->getType() == EnumNodeType::VARIABLE)
         if (isValidNonLitteralRHSNodeType(expression->getType()))
         {
             node.deref();

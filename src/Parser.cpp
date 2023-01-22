@@ -1494,7 +1494,6 @@ namespace cmm
         case TokenType::SYMBOL:
             // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
             lexer.restore(snapshot);
-            // return parseFunctionCallOrVariable(lexer, errorMessage);
             return parsePrimaryExpression(lexer, errorMessage);
         // Unimplemented types
         default:

@@ -7,6 +7,8 @@
 
 // Our includes
 #include <cmm/StructTable.h>
+#include <cmm/Field.h>
+#include <cmm/IField.h>
 
 namespace cmm
 {
@@ -15,13 +17,13 @@ namespace cmm
     {
     }
 
-    Field* StructData::findField(const std::string& name) CMM_NOEXCEPT
+    IField* StructData::findField(const std::string& name) CMM_NOEXCEPT
     {
         const auto findResult = fieldMap.find(name);
         return findResult != fieldMap.cend() ? &findResult->second : nullptr;
     }
 
-    const Field* StructData::findField(const std::string& name) const CMM_NOEXCEPT
+    const IField* StructData::findField(const std::string& name) const CMM_NOEXCEPT
     {
         const auto findResult = fieldMap.find(name);
         return findResult != fieldMap.cend() ? &findResult->second : nullptr;

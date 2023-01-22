@@ -53,7 +53,7 @@ namespace cmm
             return std::nullopt;
         }
 
-        u32 index = 0;
+        s32 index = 0;
 
         for (const auto& statementNodePtr : blockNode)
         {

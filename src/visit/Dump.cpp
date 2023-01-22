@@ -154,19 +154,24 @@ namespace cmm
 
     VisitorResult Dump::visit(FieldAccessNode& node)
     {
-        // TODO @@@: Anything to update due to recent changes??
         printIndentation();
         printNode(node);
         printNewLine();
 
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
         printIndentation();
+        std::cout << "datatype: ";
         printType(std::cout, node.getDatatype());
         printNewLine();
 
         printIndentation();
-        std::cout << "name: " << node.getName();
+        std::cout << "field name: " << node.getName();
         printNewLine();
 
+        decreaseIntentation();
         decreaseIntentation();
 
         return VisitorResult();
