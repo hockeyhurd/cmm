@@ -74,13 +74,13 @@ TEST(MiscTest, StructTableAddAndCheck)
     ASSERT_FALSE(table.empty());
     ASSERT_EQ(table.size(), 1);
     ASSERT_TRUE(table.has(name));
-    ASSERT_EQ(table.get(name).value(), EnumSymState::DECLARED);
+    ASSERT_EQ(table.get(name)->symState, EnumSymState::DECLARED);
 
     table.addOrUpdate(name, EnumSymState::DEFINED);
     ASSERT_FALSE(table.empty());
     ASSERT_EQ(table.size(), 1);
     ASSERT_TRUE(table.has(name));
-    ASSERT_EQ(table.get(name).value(), EnumSymState::DEFINED);
+    ASSERT_EQ(table.get(name)->symState, EnumSymState::DEFINED);
 }
 
 s32 main(s32 argc, char* argv[])

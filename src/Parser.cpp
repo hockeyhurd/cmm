@@ -20,6 +20,7 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #if OS_WIN
@@ -87,11 +88,13 @@ namespace cmm
     static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parsePrimaryExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
 
     // Terminal nodes:
+    static std::optional<std::pair<EnumFieldAccessType, std::string>> parseFieldAccessNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseUnaryExpression(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
@@ -1237,7 +1240,7 @@ namespace cmm
         auto subexpression = parseExpression(lexer, errorMessage);
 
         Location endLocation;
-        lexer.nextToken(token, errorMessage, &endLocation);
+        lexResult = lexer.nextToken(token, errorMessage, &endLocation);
 
         // Lastly, expect a closing paren. Error if not.
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
@@ -1257,6 +1260,36 @@ namespace cmm
         }
 
         return std::make_unique<ParenExpressionNode>(subexpression->getLocation(), std::move(subexpression));
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> parsePrimaryExpression(Lexer& lexer, std::string* errorMessage)
+    {
+        std::unique_ptr<ExpressionNode> result = parseFunctionCallOrVariable(lexer, errorMessage);
+
+        if (result != nullptr)
+        {
+            bool doLoop;
+
+            do
+            {
+                doLoop = false;
+
+                // pair: first - EnumFieldAccessType, second - std::string (name of the field)
+                auto optionalFieldAccessPair = parseFieldAccessNode(lexer, errorMessage);
+
+                if (optionalFieldAccessPair.has_value())
+                {
+                    doLoop = true;
+                    const auto location = result->getLocation();
+                    auto temp = std::move(result);
+                    result = std::make_unique<FieldAccessNode>(location, std::move(temp), std::move(optionalFieldAccessPair->second), optionalFieldAccessPair->first);
+                }
+            }
+            while (doLoop);
+        }
+
+        return result;
     }
 
     /* static */
@@ -1461,13 +1494,46 @@ namespace cmm
         case TokenType::SYMBOL:
             // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
             lexer.restore(snapshot);
-            return parseFunctionCallOrVariable(lexer, errorMessage);
+            return parsePrimaryExpression(lexer, errorMessage);
         // Unimplemented types
         default:
             return nullptr;
         }
 
         return nullptr;
+    }
+
+    /* static */
+    std::optional<std::pair<EnumFieldAccessType, std::string>> parseFieldAccessNode(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        Location startLocation;
+        auto token = newToken();
+        bool lexResult = lexer.peekNextToken(token);
+
+        if (lexResult)
+        {
+            const auto optFieldAccessType = isEnumFieldAccessType(token);
+
+            if (optFieldAccessType.has_value())
+            {
+                // Capture the Token
+                lexer.nextToken(token, errorMessage, &startLocation);
+
+                // Expect a field name
+                Location fieldLocation;
+                lexResult = lexer.nextToken(token, errorMessage, &fieldLocation);
+
+                if (lexResult && token.isStringSymbol())
+                {
+                    return std::make_optional(std::make_pair(*optFieldAccessType, token.asStringSymbol()));
+                }
+            }
+
+            lexer.restore(snapshot);
+        }
+
+        return std::nullopt;
     }
 
     /* static */

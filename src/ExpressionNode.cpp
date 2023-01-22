@@ -35,7 +35,7 @@ namespace cmm
     }
 
     /* virtual */
-    void ExpressionNode::setDatatype(const CType& datatype) CMM_NOEXCEPT
+    void ExpressionNode::setDatatype(const CType& datatype)
     {
         this->datatype = datatype;
     }

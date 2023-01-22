@@ -147,6 +147,15 @@ namespace cmm
         return optLabelStr.has_value() ? VisitorResult(new std::string(std::move(*optLabelStr)), true) : VisitorResult();
     }
 
+    VisitorResult Encode::visit(FieldAccessNode& node)
+    {
+        auto* expressionNodePtr = node.getExpression();
+        auto exprVisitorResult = expressionNodePtr->accept(this);
+        auto optVisitorResult = platform->emit(this, node, std::move(exprVisitorResult));
+
+        return std::move(*optVisitorResult);
+    }
+
     VisitorResult Encode::visit(FunctionDeclarationStatementNode& node)
     {
         platform->emit(this, node);

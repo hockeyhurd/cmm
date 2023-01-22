@@ -47,13 +47,15 @@ namespace cmm
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
         // we need to add a (potentially second) DerefNode to wrap it.
-        if (rightNode->getType() == EnumNodeType::VARIABLE || rightNode->getType() == EnumNodeType::DEREF)
+        if (isValidNonLitteralRHSNodeType(rightNode->getType()))
         {
             // Add DerefNode
             node.derefNodeRight();
 
             // Update our pointer to this new pointer.
-            rightNode = node.getRight();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // rightNode = node.getRight();
         }
 
         auto* leftNode = node.getLeft();
@@ -63,8 +65,9 @@ namespace cmm
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
         const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
         const bool isLeftDerefNode = leftNode->getType() == EnumNodeType::DEREF;
+        const bool isLeftFieldAccess = leftNode->getType() == EnumNodeType::FIELD_ACCESS;
 
-        if (isAssignment && !isLeftVariable && !isLeftDerefNode)
+        if (isAssignment && !isLeftVariable && !isLeftDerefNode && !isLeftFieldAccess)
         {
             reporter.error("Expression is not assignable", leftNode->getLocation());
 
@@ -108,18 +111,28 @@ namespace cmm
             node.popDerefNodeLeft();
 
             // Update our pointer to this new pointer.
-            leftNode = node.getLeft();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // leftNode = node.getLeft();
         }
 
-        // If the left node is a variable and this is NOT an assignmnet operation,
+        else if (isAssignment && isLeftFieldAccess)
+        {
+            // For now, NOOP?
+            ;
+        }
+
+        // If the left node is a variable and this is NOT an assignment operation,
         // we need to add a DerefNode to wrap it.
-        else if (!isAssignment && isLeftVariable)
+        else if (!isAssignment && (isLeftVariable || isLeftFieldAccess))
         {
             // Add DerefNode
             node.derefNodeLeft();
 
             // Update our pointer to this new pointer.
-            leftNode = node.getLeft();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // leftNode = node.getLeft();
         }
 
         if (leftType != rightType)
@@ -324,13 +337,107 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
-        if (expression->getType() != EnumNodeType::VARIABLE && expression->getType() != EnumNodeType::DEREF)
+        if (!isValidNonLitteralRHSNodeType(expression->getType()))
         {
-            reporter.error("Expected a variable or dereference node", node.getLocation());
+            reporter.error("Expected a variable or dereference or field access node", node.getLocation());
             return VisitorResult();
         }
 
         node.resolveDatatype();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Analyzer::visit(FieldAccessNode& node)
+    {
+        auto* expressionNodePtr = node.getExpression();
+        const EnumNodeType expressionType = expressionNodePtr->getType();
+
+        if (!isValidNonLitteralRHSNodeType(expressionType))
+        {
+            reporter.error("Expected a variable or dereference or another field accesss node", node.getLocation());
+            return VisitorResult();
+        }
+
+        // Visit the sub-expression (typical the struct variable) first to make sure types are fully resolved.
+        expressionNodePtr->accept(this);
+
+        // Get the expression's datatype so that we can then try and validate our field.
+        const CType& datatype = expressionNodePtr->getDatatype();
+
+        if (datatype.type != EnumCType::STRUCT)
+        {
+            reporter.error("Expected an expression of type struct", node.getLocation());
+            return VisitorResult();
+        }
+
+        else if (!datatype.optStructName.has_value())
+        {
+            reporter.bug("Missing struct name for the accessing expression. Must be a compiler bug??", node.getLocation(), true);
+            return VisitorResult();
+        }
+
+        // Check whether DOT or ARROW usage makes sense.
+        const auto& fieldName = node.getName();
+        const EnumFieldAccessType accessType = node.getFieldAccessType();
+
+        if (datatype.isPointerType() && accessType != EnumFieldAccessType::ARROW)
+        {
+            std::ostringstream builder;
+            builder << "Expression is a pointer type. Expected a dereference or '"
+                    << toString(EnumFieldAccessType::ARROW) << "' before accessing field '"
+                    << fieldName << "'";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
+        else if (!datatype.isPointerType() && accessType != EnumFieldAccessType::DOT)
+        {
+            std::ostringstream builder;
+            builder << "Expression is not a pointer type. Expected a '"
+                    << toString(EnumFieldAccessType::DOT) << "' when accessing field '"
+                    << fieldName << "'";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
+        // Check that the field to be used is a part of the struct.
+        // Note: We already checked that optStructName has a value, so this is safe to access.
+        const auto& structName = *datatype.optStructName;
+        const StructData* structData = structTable.get(structName);
+
+        // Check to see that we found the struct and we have access to the definition so that
+        // we can then verify the field is inside of the struct.
+        if (structData == nullptr || structData->symState != EnumSymState::DEFINED)
+        {
+            std::ostringstream builder;
+            builder << "Could not find struct '" << structName << "'. Make sure this struct is fully defined.";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
+        const IField* fieldLookupResult = structData->findField(fieldName);
+
+        // Verify the field is in the struct.
+        if (fieldLookupResult == nullptr)
+        {
+            std::ostringstream builder;
+            builder << "Failed to find field '" << fieldName << "' in struct '"
+                    << structName << "'";
+
+            reporter.error(builder.str(), node.getLocation());
+            return VisitorResult();
+        }
+
+        // Sync the StructTable's version of the Field to this node.
+        node.set(fieldLookupResult);
+
+        // Update the FieldAccessNode's datatype with the datatype of the field post-lookup.
+        const CType& fieldDatatype = fieldLookupResult->getDatatype();
+        node.setDatatype(fieldDatatype);
 
         return VisitorResult();
     }
@@ -795,7 +902,7 @@ namespace cmm
         auto* expression = node.getExpression();
         expression->accept(this);
 
-        if (expression->getType() == EnumNodeType::VARIABLE)
+        if (isValidNonLitteralRHSNodeType(expression->getType()))
         {
             node.deref();
         }
@@ -810,19 +917,41 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto optStructState = structTable.get(structName);
+        const auto* structDataPtr = structTable.get(structName);
 
-        if (optStructState.has_value() && *optStructState == EnumSymState::DEFINED)
+        if (structDataPtr != nullptr && structDataPtr->symState == EnumSymState::DEFINED)
         {
             std::ostringstream builder;
             builder << "struct " << structName << " is already previously defined. This violates the multiple definition rule";
             reporter.error(builder.str(), node.getLocation());
         }
 
-        else if (!optStructState.has_value())
+        else if (structDataPtr == nullptr)
         {
-            structTable.addOrUpdate(structName, EnumSymState::DEFINED);
             scope.add(structName, context);
+
+            const auto optionalBadField = node.setupFieldTable();
+
+            if (optionalBadField.has_value())
+            {
+                std::ostringstream builder;
+                builder << "Found duplicate field in struct '" << node.getName() << "' called '"
+                        << *optionalBadField << "'";
+                reporter.error(builder.str(), node.getLocation());
+            }
+
+            // Copy StructDefinitionStatementNode FieldMap to here so that we
+            // have a copy in the StructTable.
+            // TODO: Try to reduce unnecessary copying in the future.
+            std::unordered_map<std::string, Field> fieldMap;
+
+            for (auto& [name, field] : node)
+            {
+                fieldMap.emplace(name, field);
+            }
+
+            StructData structData(EnumSymState::DEFINED, std::move(fieldMap));
+            structTable.addOrUpdate(structName, std::move(structData));
         }
 
         return VisitorResult();
@@ -835,9 +964,9 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto optStructState = structTable.get(structName);
+        const auto* structDataPtr = structTable.get(structName);
 
-        if (optStructState.has_value())
+        if (structDataPtr != nullptr)
         {
             std::ostringstream builder;
             builder << "struct " << structName << " is already previously declared or defined";
@@ -846,7 +975,8 @@ namespace cmm
 
         else
         {
-            structTable.addOrUpdate(structName, EnumSymState::DECLARED);
+            StructData structData(EnumSymState::DECLARED);
+            structTable.addOrUpdate(structName, std::move(structData));
             scope.add(structName, context);
         }
 
@@ -994,7 +1124,9 @@ namespace cmm
             node.wrapConditionalWithBinOpNode();
 
             // Now we know this is a DerefNode, but we will make sure by resetting these variables.
-            conditional = node.getConditional();
+            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+            //       in the future.
+            // conditional = node.getConditional();
         }
 
         if (conditionalExprDatatype.type == EnumCType::VOID || conditionalExprDatatype.type == EnumCType::VOID_PTR)

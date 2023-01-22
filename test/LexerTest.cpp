@@ -568,6 +568,54 @@ TEST(LexerTest, LexComment)
     ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
 }
 
+TEST(LexerTest, LexGreaterThanCharSymbol)
+{
+    const std::string input = ">";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), '>');
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexLessThanCharSymbol)
+{
+    const std::string input = "<";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), '<');
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexDotCharSymbol)
+{
+    const std::string input = ".";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::CHAR_SYMBOL);
+    ASSERT_EQ(token.asCharSymbol(), '.');
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
+TEST(LexerTest, LexArrowStringSymbol)
+{
+    const std::string input = "->";
+    Lexer lexer(input);
+    Token token('\0', false);
+
+    ASSERT_TRUE(lexer.nextToken(token));
+    ASSERT_EQ(token.getType(), TokenType::SYMBOL);
+    ASSERT_EQ(token.asStringSymbol(), input);
+    ASSERT_TRUE(lexer.completedOrWhitespaceOnly());
+}
+
 s32 main(s32 argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

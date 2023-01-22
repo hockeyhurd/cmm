@@ -13,15 +13,24 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/BlockNode.h>
+#include <cmm/Field.h>
 #include <cmm/StatementNode.h>
 
 // std includes
+#include <optional>
 #include <string>
+#include <unordered_map>
 
 namespace cmm
 {
     class StructDefinitionStatementNode : public StatementNode
     {
+    public:
+
+        using FieldMap = std::unordered_map<std::string, Field>;
+        using FieldMapIter = FieldMap::iterator;
+        using FieldMapConstIter = FieldMap::const_iterator;
+
     public:
 
         /**
@@ -104,6 +113,61 @@ namespace cmm
          */
         std::size_t size() const CMM_NOEXCEPT;
 
+        /**
+         * Handles converting the BlockNode of "VariableDeclarationStatementNodes"
+         * to a proper Field format.
+         *
+         * Note: This does NOT change the BlockNode.
+         * Note #2: The returned value is the first duplicate field (only).
+         *
+         * @return optional std::string of field with an error.
+         */
+        std::optional<std::string> setupFieldTable();
+
+        /**
+         * Gets an iterator to the beginning of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapIter.
+         */
+        FieldMapIter begin() CMM_NOEXCEPT;
+
+        /**
+         * Gets a const iterator to the beginning of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapConstIter.
+         */
+        FieldMapConstIter cbegin() const CMM_NOEXCEPT;
+
+        /**
+         * Gets an iterator to the end of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapIter.
+         */
+        FieldMapIter end() CMM_NOEXCEPT;
+
+        /**
+         * Gets a const iterator to the end of the FieldMap.
+         *
+         * Note: The map is backed by an std::unordered_map and thus will
+         *       NOT be guranteed to be in 'index' order (i.e. as appears in
+         *       the struct definition).
+         *
+         * @return FieldMapConstIter.
+         */
+        FieldMapConstIter cend() const CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -114,6 +178,10 @@ namespace cmm
 
         // The block of fields.
         BlockNode blockNode;
+
+        // The map of fields.
+        // TODO: Consider moving this to the StructTable (if it makes sense) to reduce duplicate data.
+        FieldMap fieldMap;
     };
 }
 

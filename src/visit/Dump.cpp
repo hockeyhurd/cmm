@@ -152,6 +152,31 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(FieldAccessNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        printIndentation();
+        std::cout << "datatype: ";
+        printType(std::cout, node.getDatatype());
+        printNewLine();
+
+        printIndentation();
+        std::cout << "field name: " << node.getName();
+        printNewLine();
+
+        decreaseIntentation();
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(FunctionCallNode& node)
     {
         printIndentation();

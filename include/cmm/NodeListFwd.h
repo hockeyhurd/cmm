@@ -20,6 +20,7 @@ namespace cmm
     class DerefNode;
     class ExpressionNode;
     class ExpressionStatementNode;
+    class FieldAccessNode;
     class FunctionCallNode;
     class FunctionDeclarationStatementNode;
     class FunctionDefinitionStatementNode;

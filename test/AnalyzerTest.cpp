@@ -694,6 +694,96 @@ TEST(AnalyzerTest, AnalyzerParamMatchesLocalVariableError)
     ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
+TEST(AnalyzerTest, AnalyzerFieldAccessValid)
+{
+    reporter.reset();
+
+    const std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; v2.x = 10; v2.y = 32; int sum; sum = v2.x + v2.y; return sum; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerFieldAccessAccessorIsNotAStructError)
+{
+    reporter.reset();
+
+    const std::string input = "struct Vec2 { int x; int y; }; int main() { int z; z = 10; z.x = 5; return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerFieldAccessExpectedArrowOpError)
+{
+    reporter.reset();
+
+    const std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2* v2; v2.x; return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerFieldAccessStructUndefinedError)
+{
+    reporter.reset();
+
+    const std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec3 v3; v3.x; return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerFieldAccessUsingAMissingFieldError)
+{
+    reporter.reset();
+
+    const std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; v2.z; return 0; }";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_GT(reporter.getErrorCount(), 0);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     reporter.setEnablePrint(false);
