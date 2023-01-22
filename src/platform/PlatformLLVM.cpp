@@ -126,56 +126,48 @@ namespace cmm
     {
         std::string str;
 
-        if (datatype.pointers > 0)
+        switch (datatype.type)
         {
-            str = "ptr";
-        }
-
-        else
-        {
-            switch (datatype.type)
-            {
-            case EnumCType::NULL_T:
-                str = "null";
-                break;
-            case EnumCType::VOID:
-                str = "void";
-                break;
-            case EnumCType::VOID_PTR:
-                str = "ptr";
-                break;
-            case EnumCType::BOOL:
-            // fallthrough
-            case EnumCType::CHAR:
-            // fallthrough
-            case EnumCType::INT8:
-                str = "i8";
-                break;
-            case EnumCType::INT16:
-                str = "i16";
-                break;
-            case EnumCType::INT32:
-                str = "i32";
-                break;
-            case EnumCType::INT64:
-                str = "i64";
-                break;
-            case EnumCType::FLOAT:
-                str = "float";
-                break;
-            case EnumCType::DOUBLE:
-                str = "double";
-                break;
-            case EnumCType::STRING:
-                str = "ptr";
-                break;
-            case EnumCType::STRUCT:
-                str = "%struct." + *datatype.optStructName;
-                break;
-            default:
-                str = "Unknown type";
-                break;
-            }
+        case EnumCType::NULL_T:
+            str = "null";
+            break;
+        case EnumCType::VOID:
+            str = "void";
+            break;
+        case EnumCType::VOID_PTR:
+            str = "i8*";
+            break;
+        case EnumCType::BOOL:
+        // fallthrough
+        case EnumCType::CHAR:
+        // fallthrough
+        case EnumCType::INT8:
+            str = "i8";
+            break;
+        case EnumCType::INT16:
+            str = "i16";
+            break;
+        case EnumCType::INT32:
+            str = "i32";
+            break;
+        case EnumCType::INT64:
+            str = "i64";
+            break;
+        case EnumCType::FLOAT:
+            str = "float";
+            break;
+        case EnumCType::DOUBLE:
+            str = "double";
+            break;
+        case EnumCType::STRING:
+            str = "i8*";
+            break;
+        case EnumCType::STRUCT:
+            str = "%struct." + *datatype.optStructName;
+            break;
+        default:
+            str = "Unknown type";
+            break;
         }
 
         return str;
@@ -211,17 +203,7 @@ namespace cmm
 
         if (binOpType == EnumBinOpNodeType::ASSIGNMENT)
         {
-            if (leftTypeStr == "ptr")
-            {
-                // TODO (hurdn): This is a hack to prevent instances of "ptr*".  Can we do something better??
-                os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << " " << *left.result.str;
-            }
-
-            else
-            {
-                os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
-            }
-
+            os << "store " << rightTypeStr << " " << *right.result.str << ", " << leftTypeStr << "* " << *left.result.str;
             return std::nullopt;
         }
 
@@ -333,16 +315,7 @@ namespace cmm
         encoder->printIndent();
         auto& os = encoder->getOStream();
 
-        if (strType == "ptr")
-        {
-            // TODO (hurdn): This is a hack to prevent instances of "ptr*".  Can we do something better??
-            os << temp << " = load " << strType << ", " << strType << " " << *varResult.result.str;
-        }
-
-        else
-        {
-            os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
-        }
+        os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
 
         return VisitorResult(new std::string(std::move(temp)), true);
     }
@@ -360,7 +333,7 @@ namespace cmm
         // Note: See https://llvm.org/docs/LangRef.html#getelementptr-instruction for semantics of the 'getelementptr' instruction.
         auto& os = encoder->getOStream();
         os << temp << " = getelementptr inbounds " << structTypeStr
-           << ", ptr " << *expr.result.str << ", i32 0, i32 " << fieldInStructIndex;
+           << ", " << structTypeStr << "* " << *expr.result.str << ", i32 0, i32 " << fieldInStructIndex;
 
         encoder->emitNewline();
 
