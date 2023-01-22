@@ -63,10 +63,8 @@ namespace cmm
         [[maybe_unused]]
         auto leftNodeResult = leftNode->accept(this);
         const bool isAssignment = node.getTypeof() == EnumBinOpNodeType::ASSIGNMENT;
-        // const bool isLeftVariableOrFieldAccess = leftNode->getType() == EnumNodeType::VARIABLE || leftNode->getType() == EnumNodeType::FIELD_ACCESS;
         const bool isLeftVariable = leftNode->getType() == EnumNodeType::VARIABLE;
         const bool isLeftDerefNode = leftNode->getType() == EnumNodeType::DEREF;
-        // const bool isLeftDerefNodeOrFieldAccess = leftNode->getType() == EnumNodeType::DEREF || leftNode->getType() == EnumNodeType::FIELD_ACCESS;
         const bool isLeftFieldAccess = leftNode->getType() == EnumNodeType::FIELD_ACCESS;
 
         if (isAssignment && !isLeftVariable && !isLeftDerefNode && !isLeftFieldAccess)
@@ -350,7 +348,6 @@ namespace cmm
         return VisitorResult();
     }
 
-    // TODO @@@: Add unittests for each error that can be reported.
     VisitorResult Analyzer::visit(FieldAccessNode& node)
     {
         auto* expressionNodePtr = node.getExpression();
@@ -411,6 +408,8 @@ namespace cmm
         const auto& structName = *datatype.optStructName;
         const StructData* structData = structTable.get(structName);
 
+        // Check to see that we found the struct and we have access to the definition so that
+        // we can then verify the field is inside of the struct.
         if (structData == nullptr || structData->symState != EnumSymState::DEFINED)
         {
             std::ostringstream builder;
@@ -422,6 +421,7 @@ namespace cmm
 
         const Field* fieldLookupResult = structData->findField(fieldName);
 
+        // Verify the field is in the struct.
         if (fieldLookupResult == nullptr)
         {
             std::ostringstream builder;
