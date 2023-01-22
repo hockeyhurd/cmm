@@ -199,6 +199,13 @@ namespace cmm
          */
         const ReturnStatementNode* getReturnStatement() const CMM_NOEXCEPT;
 
+        /**
+         * Adds a ReturnStatementNode to the function definition.
+         *
+         * @param statement The ReturnStatementNode to add.
+         */
+        void addReturnStatement(std::unique_ptr<ReturnStatementNode>&& statement) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override
         {
             return visitor->visit(*this);

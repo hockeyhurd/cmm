@@ -147,6 +147,12 @@ namespace cmm
         return returnStatementPtr;
     }
 
+    void FunctionDefinitionStatementNode::addReturnStatement(std::unique_ptr<ReturnStatementNode>&& statement) CMM_NOEXCEPT
+    {
+        returnStatementPtr = statement.get();
+        block.addStatement(std::move(statement));
+    }
+
     std::string FunctionDefinitionStatementNode::toString() const /* override */
     {
         return "FunctionDefinitionStatementNode";

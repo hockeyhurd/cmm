@@ -6,6 +6,7 @@
  */
 
 #include <cmm/StructDefinitionStatementNode.h>
+#include <cmm/VariableDeclarationStatementNode.h>
 
 namespace cmm
 {
@@ -42,6 +43,54 @@ namespace cmm
     std::size_t StructDefinitionStatementNode::size() const CMM_NOEXCEPT
     {
         return blockNode.size();
+    }
+
+    std::optional<std::string> StructDefinitionStatementNode::setupFieldTable()
+    {
+        // Only re/calculate if the fieldMap is empty.
+        if (!fieldMap.empty())
+        {
+            return std::nullopt;
+        }
+
+        s32 index = 0;
+
+        for (const auto& statementNodePtr : blockNode)
+        {
+            const auto* varDeclPtr = static_cast<const VariableDeclarationStatementNode*>(statementNodePtr.get());
+            const std::string& name = varDeclPtr->getName();
+            const auto findResult = fieldMap.find(name);
+
+            // If we found a duplicate, return this value.
+            if (findResult != fieldMap.end())
+            {
+                return std::make_optional(name);
+            }
+
+            fieldMap.emplace(name, Field(name, varDeclPtr->getDatatype(), index++));
+        }
+
+        return std::nullopt;
+    }
+
+    StructDefinitionStatementNode::FieldMapIter StructDefinitionStatementNode::begin() CMM_NOEXCEPT
+    {
+        return fieldMap.begin();
+    }
+
+    StructDefinitionStatementNode::FieldMapConstIter StructDefinitionStatementNode::cbegin() const CMM_NOEXCEPT
+    {
+        return fieldMap.cbegin();
+    }
+
+    StructDefinitionStatementNode::FieldMapIter StructDefinitionStatementNode::end() CMM_NOEXCEPT
+    {
+        return fieldMap.end();
+    }
+
+    StructDefinitionStatementNode::FieldMapConstIter StructDefinitionStatementNode::cend() const CMM_NOEXCEPT
+    {
+        return fieldMap.cend();
     }
 
     VisitorResult StructDefinitionStatementNode::accept(Visitor* visitor) /* override */

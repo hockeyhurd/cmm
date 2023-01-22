@@ -97,10 +97,6 @@ namespace cmm
          */
         Visitor& operator= (Visitor&&) CMM_NOEXCEPT = delete;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated"
-        virtual VisitorResult visit(AddressOfNode& node) = 0;
-#pragma GCC diagnostic pop
         virtual VisitorResult visit(ArgNode& node) = 0;
         virtual VisitorResult visit(BinOpNode& node) = 0;
         virtual VisitorResult visit(BlockNode& node) = 0;
@@ -108,6 +104,7 @@ namespace cmm
         virtual VisitorResult visit(CompilationUnitNode& node) = 0;
         virtual VisitorResult visit(DerefNode& node) = 0;
         virtual VisitorResult visit(ExpressionStatementNode& node) = 0;
+        virtual VisitorResult visit(FieldAccessNode& node) = 0;
         virtual VisitorResult visit(FunctionCallNode& node) = 0;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) = 0;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) = 0;

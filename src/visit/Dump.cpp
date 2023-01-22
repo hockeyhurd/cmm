@@ -37,25 +37,6 @@ namespace cmm
     {
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated"
-    VisitorResult Dump::visit(AddressOfNode& node)
-    {
-        printIndentation();
-        printNode(node);
-        printNewLine();
-
-        increaseIntentation();
-        auto* variablePtr = node.getExpression();
-        variablePtr->accept(this);
-
-        decreaseIntentation();
-        printNewLine();
-
-        return VisitorResult();
-    }
-#pragma GCC diagnostic pop
-
     VisitorResult Dump::visit(ArgNode& node)
     {
         printIndentation();
@@ -167,6 +148,31 @@ namespace cmm
 
         decreaseIntentation();
         printNewLine();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(FieldAccessNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        auto* expression = node.getExpression();
+        expression->accept(this);
+
+        printIndentation();
+        std::cout << "datatype: ";
+        printType(std::cout, node.getDatatype());
+        printNewLine();
+
+        printIndentation();
+        std::cout << "field name: " << node.getName();
+        printNewLine();
+
+        decreaseIntentation();
+        decreaseIntentation();
 
         return VisitorResult();
     }

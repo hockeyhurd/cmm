@@ -10,7 +10,6 @@
 #ifndef CMM_NODE_LIST_H
 #define CMM_NODE_LIST_H
 
-#include <cmm/AddressOfNode.h>
 #include <cmm/ArgNode.h>
 #include <cmm/BinOpNode.h>
 #include <cmm/BlockNode.h>
@@ -19,6 +18,7 @@
 #include <cmm/DerefNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
+#include <cmm/FieldAccessNode.h>
 #include <cmm/FunctionCallNode.h>
 #include <cmm/FunctionDeclarationStatementNode.h>
 #include <cmm/FunctionDefinitionStatementNode.h>

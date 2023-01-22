@@ -111,6 +111,13 @@ namespace cmm
         const Location& getEndLocation() const CMM_NOEXCEPT;
 
         /**
+         * Adds a StatementNode to the function definition.
+         *
+         * @param statement The StatementNode to add.
+         */
+        void addStatement(std::unique_ptr<StatementNode>&& statement);
+
+        /**
          * Iterator to the beginning of the statement list.
          */
         StatementListIter begin() CMM_NOEXCEPT;
@@ -130,11 +137,7 @@ namespace cmm
          */
         const StatementListConstIter cend() const CMM_NOEXCEPT;
 
-        VisitorResult accept(Visitor* visitor) override
-        {
-            return visitor->visit(*this);
-        }
-
+        VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
     private:

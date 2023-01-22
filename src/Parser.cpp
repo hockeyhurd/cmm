@@ -20,6 +20,7 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #if OS_WIN
@@ -87,11 +88,13 @@ namespace cmm
     static std::unique_ptr<ExpressionNode> parseFunctionCallOrVariable(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseCastExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseParenExpression(Lexer& lexer, std::string* errorMessage);
+    static std::unique_ptr<ExpressionNode> parsePrimaryExpression(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseMultiplyDivideBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAddSubBinOpNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseAssignmentBinOpNode(Lexer& lexer, std::string* errorMessage);
 
     // Terminal nodes:
+    static std::optional<std::pair<EnumFieldAccessType, std::string>> parseFieldAccessNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseLitteralOrLRValueNode(Lexer& lexer, std::string* errorMessage);
     static std::unique_ptr<ExpressionNode> parseUnaryExpression(Lexer& lexer, std::string* errorMessage);
     static std::optional<VariableNode> parseVariableNode(Lexer& lexer, std::string* errorMessage);
@@ -591,7 +594,7 @@ namespace cmm
                         return std::make_optional(std::move(args));
                     }
 
-                    else if (!token.isCharSymbol())
+                    else if (!token.isCharSymbol() || token.asCharSymbol() == CHAR_AMPERSAND)
                     {
                         // This could be 'func()' or 'func(x)', so we check if the variable was parsed or not.
                         auto litteralPtr = parseLitteralOrLRValueNode(lexer, errorMessage);
@@ -679,11 +682,11 @@ namespace cmm
     /* static */
     std::unique_ptr<ExpressionNode> buildDerefNode(const u32 count, std::unique_ptr<ExpressionNode>&& expr)
     {
-        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr));
+        auto result = std::make_unique<DerefNode>(expr->getLocation(), std::move(expr), true);
 
         for (u32 i = 1; i < count; ++i)
         {
-            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result));
+            result = std::make_unique<DerefNode>(result->getLocation(), std::move(result), true);
         }
 
         return result;
@@ -1237,7 +1240,7 @@ namespace cmm
         auto subexpression = parseExpression(lexer, errorMessage);
 
         Location endLocation;
-        lexer.nextToken(token, errorMessage, &endLocation);
+        lexResult = lexer.nextToken(token, errorMessage, &endLocation);
 
         // Lastly, expect a closing paren. Error if not.
         if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RPAREN)
@@ -1257,6 +1260,36 @@ namespace cmm
         }
 
         return std::make_unique<ParenExpressionNode>(subexpression->getLocation(), std::move(subexpression));
+    }
+
+    /* static */
+    std::unique_ptr<ExpressionNode> parsePrimaryExpression(Lexer& lexer, std::string* errorMessage)
+    {
+        std::unique_ptr<ExpressionNode> result = parseFunctionCallOrVariable(lexer, errorMessage);
+
+        if (result != nullptr)
+        {
+            bool doLoop;
+
+            do
+            {
+                doLoop = false;
+
+                // pair: first - EnumFieldAccessType, second - std::string (name of the field)
+                auto optionalFieldAccessPair = parseFieldAccessNode(lexer, errorMessage);
+
+                if (optionalFieldAccessPair.has_value())
+                {
+                    doLoop = true;
+                    const auto location = result->getLocation();
+                    auto temp = std::move(result);
+                    result = std::make_unique<FieldAccessNode>(location, std::move(temp), std::move(optionalFieldAccessPair->second), optionalFieldAccessPair->first);
+                }
+            }
+            while (doLoop);
+        }
+
+        return result;
     }
 
     /* static */
@@ -1461,7 +1494,7 @@ namespace cmm
         case TokenType::SYMBOL:
             // We need to restore because 'parseFunctionCallOrVariable' with consume the token for us...
             lexer.restore(snapshot);
-            return parseFunctionCallOrVariable(lexer, errorMessage);
+            return parsePrimaryExpression(lexer, errorMessage);
         // Unimplemented types
         default:
             return nullptr;
@@ -1471,28 +1504,96 @@ namespace cmm
     }
 
     /* static */
+    std::optional<std::pair<EnumFieldAccessType, std::string>> parseFieldAccessNode(Lexer& lexer, std::string* errorMessage)
+    {
+        auto snapshot = lexer.snap();
+        Location startLocation;
+        auto token = newToken();
+        bool lexResult = lexer.peekNextToken(token);
+
+        if (lexResult)
+        {
+            const auto optFieldAccessType = isEnumFieldAccessType(token);
+
+            if (optFieldAccessType.has_value())
+            {
+                // Capture the Token
+                lexer.nextToken(token, errorMessage, &startLocation);
+
+                // Expect a field name
+                Location fieldLocation;
+                lexResult = lexer.nextToken(token, errorMessage, &fieldLocation);
+
+                if (lexResult && token.isStringSymbol())
+                {
+                    return std::make_optional(std::make_pair(*optFieldAccessType, token.asStringSymbol()));
+                }
+            }
+
+            lexer.restore(snapshot);
+        }
+
+        return std::nullopt;
+    }
+
+    /* static */
     std::unique_ptr<ExpressionNode> parseUnaryExpression(Lexer& lexer, std::string* errorMessage)
     {
         [[maybe_unused]]
         static Reporter& reporter = Reporter::instance();
 
+        // Note: there are a few cases to consider.
+        // Also, any incompatibilities must be left for the Analyzer to verify
+        // this expression is valid or not.
+        // 1. *--X
+        // 2. --*X
+        // 3. --x
+        // 4. *x
+        // 5. *X--
+        // 6. x--
+
+        // Helper function for checking if a unary op node is '++'
+        static const auto isIncrementOrDecrement = [](const EnumUnaryOpType type) -> bool
+        {
+            return type == EnumUnaryOpType::DECREMENT || type == EnumUnaryOpType::INCREMENT;
+        };
+
         const auto snapshot = lexer.snap();
         Location unaryOpLocation;
         auto token = newToken();
 
-        std::optional<EnumUnaryOpType> optionalEnumUnaryOpType;
+        // Check to see if this expression is being dereferenced (i.e. '**x').
+        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+        const bool derefWasFirst = optionalDimensionCount.has_value() && *optionalDimensionCount > 0;
 
-        if (lexer.nextToken(token, errorMessage, &unaryOpLocation) && (token.isCharSymbol() || token.isStringSymbol()))
+        std::optional<EnumUnaryOpType> optionalPrefixEnumUnaryOpType;
+
+        if (lexer.peekNextToken(token) && (token.isCharSymbol() || token.isStringSymbol()))
         {
-            optionalEnumUnaryOpType = getOpType(token);
+            optionalPrefixEnumUnaryOpType = getOpType(token);
 
-            // Invalid EnumUnaryOpType present, restore.
-            if (!optionalEnumUnaryOpType.has_value())
+            if (optionalPrefixEnumUnaryOpType.has_value())
             {
-                // Token was a successfully lex'd symbol that is a char or string symbol, but is NOT a unary operator.  Do nothing and continue...
-                lexer.restore(snapshot);
-                // TODO: test
-                return nullptr;
+                // Consume the token
+                lexer.nextToken(token, errorMessage, &unaryOpLocation);
+
+                // Validate this is a compatible unary op given one or more dereferences
+                if (derefWasFirst && !isIncrementOrDecrement(*optionalPrefixEnumUnaryOpType))
+                {
+                    std::ostringstream builder;
+                    builder << "Un-expected unary operator ('" << token.asCharSymbol() << "') following a dereference";
+
+                    auto outputStr = builder.str();
+                    reporter.error(outputStr, unaryOpLocation);
+
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = std::move(outputStr);
+                    }
+
+                    lexer.restore(snapshot);
+                    return nullptr;
+                }
             }
         }
 
@@ -1504,8 +1605,12 @@ namespace cmm
             return nullptr;
         }
 
-        // Check to see if this expression is being dereferenced (i.e. '**x').
-        auto optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+        // If there wasn't a dereference prior to the prefix unary op, try again.
+        if (!optionalDimensionCount.has_value())
+        {
+            optionalDimensionCount = parsePointerInderectionCount(lexer, errorMessage, nullptr);
+        }
+
         auto optionalVariable = parseVariableNode(lexer, errorMessage);
 
         // Not a VariableNode, bail out of this parse.
@@ -1515,27 +1620,54 @@ namespace cmm
             return nullptr;
         }
 
-        // Note: there are a few cases to consider.  We should consider postfix
-        // case as well, but we'll leave this for future implementation (TODO).
-        // Also, any incompatibilities must be left for the Analyzer to verify
-        // this expression is valid or not.
-        // 1. *--X
-        // 2. --*X
-        // 3. --x
-        // 4. *x
-
         std::unique_ptr<ExpressionNode> result = std::make_unique<VariableNode>(std::move(*optionalVariable));
 
-        // DerefNode '*x' case:
-        if (optionalDimensionCount.has_value())
+        // This infers optionalDimensionCount must have a value > 0 (see above).
+        if (optionalPrefixEnumUnaryOpType.has_value())
         {
-            result = buildDerefNode(*optionalDimensionCount, std::move(result));
+            if (derefWasFirst)
+            {
+                // If there was a unary op involved, wrap whatever the current working expression is with a unary op node.
+                if (optionalPrefixEnumUnaryOpType.has_value())
+                {
+                    result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalPrefixEnumUnaryOpType, std::move(result), true);
+                }
+
+                result = buildDerefNode(*optionalDimensionCount, std::move(result));
+            }
+
+            else
+            {
+                // Handle the case where deref came after the prefix unary op.
+                if (optionalDimensionCount.has_value())
+                {
+                    result = buildDerefNode(*optionalDimensionCount, std::move(result));
+                }
+
+                result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalPrefixEnumUnaryOpType, std::move(result), true);
+            }
         }
 
-        // If there was a unary op involved, wrap whatever the current working expression is with a unary op node.
-        if (optionalEnumUnaryOpType.has_value())
+        // Next check if their is a postfix operator.
+        // Note: We can't have a postfix expression if a prefix exists.
+        else if (lexer.peekNextToken(token) && (token.isCharSymbol() || token.isStringSymbol()))
         {
-            result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalEnumUnaryOpType, std::move(result));
+            const std::optional<EnumUnaryOpType> optionalPostfixEnumUnaryOpType = getOpType(token);
+
+            // Note: Valid postfix must be '--' or '++' according to cppreference.
+            if (optionalPostfixEnumUnaryOpType.has_value() && isIncrementOrDecrement(*optionalPostfixEnumUnaryOpType))
+            {
+                // Consume the token
+                lexer.nextToken(token, errorMessage, &unaryOpLocation);
+
+                result = std::make_unique<UnaryOpNode>(unaryOpLocation, *optionalPostfixEnumUnaryOpType, std::move(result), false);
+            }
+
+            // Another way of simply saying was there a dereference at all since it would obviously always be first.
+            if (derefWasFirst)
+            {
+                result = buildDerefNode(*optionalDimensionCount, std::move(result));
+            }
         }
 
         return result;

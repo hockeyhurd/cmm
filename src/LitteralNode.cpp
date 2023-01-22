@@ -93,5 +93,48 @@ namespace cmm
     {
         return "LitteralNode";
     }
+
+    /* static */
+    LitteralNode LitteralNode::getNullForType(const Location& location, const CType& type)
+    {
+        if (type.isPointerType())
+        {
+            return LitteralNode(location, (void*) nullptr);
+        }
+
+        switch (type.type)
+        {
+        case EnumCType::NULL_T:
+            return LitteralNode(location);
+        case EnumCType::BOOL:
+            return LitteralNode(location, false);
+        case EnumCType::CHAR:
+            return LitteralNode(location, '\0');
+        case EnumCType::INT8:
+            return LitteralNode(location, static_cast<s8>(0));
+        case EnumCType::INT16:
+            return LitteralNode(location, static_cast<s16>(0));
+        case EnumCType::INT32:
+            return LitteralNode(location, static_cast<s32>(0));
+        case EnumCType::INT64:
+            return LitteralNode(location, static_cast<s64>(0));
+        case EnumCType::FLOAT:
+            return LitteralNode(location, 0.0F);
+        case EnumCType::DOUBLE:
+            return LitteralNode(location, 0.0);
+        case EnumCType::STRING:
+            return LitteralNode(location, "null");
+        case EnumCType::STRUCT:
+            // fallthrough
+        case EnumCType::VOID:
+            // fallthrough
+        case EnumCType::VOID_PTR:
+            // fallthrough
+        default:
+            return LitteralNode(location, "Unknown type");
+        }
+
+        return LitteralNode(location, "Unknown type");
+    }
 }
 

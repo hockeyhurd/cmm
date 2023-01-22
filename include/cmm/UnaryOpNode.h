@@ -44,9 +44,10 @@ namespace cmm
          * @param location the location of this node.
          * @param opType the unary op type of this node.
          * @param expression the expression to be casted.
+         * @param prefix flag for whether this is a prefix (true) or postfix (false).
          */
         UnaryOpNode(const EnumNodeType type, const Location& location, const EnumUnaryOpType opType,
-            std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+            std::unique_ptr<ExpressionNode>&& expression, const bool prefix) CMM_NOEXCEPT;
 
     public:
 
@@ -56,9 +57,10 @@ namespace cmm
          * @param location the location of this node.
          * @param opType the unary op type of this node.
          * @param expression the expression to be casted.
+         * @param prefix flag for whether this is a prefix (true) or postfix (false).
          */
         UnaryOpNode(const Location& location, const EnumUnaryOpType opType,
-            std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT;
+            std::unique_ptr<ExpressionNode>&& expression, const bool prefix) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -131,6 +133,27 @@ namespace cmm
          */
         virtual std::optional<EnumNodeType> getExpressionNodeType() const CMM_NOEXCEPT;
 
+        /**
+         * Gets whether this UnaryOpNode is in prefix notation vs postfixed.
+         *
+         * @return bool true if prefix notation, else false for postfix.
+         */
+        virtual bool isPrefix() const CMM_NOEXCEPT;
+
+        /**
+         * Gets whether this UnaryOpNode is in postfixed notation vs prefixed.
+         *
+         * @return bool true if postfix notation, else false for prefix.
+         */
+        virtual bool isPostfix() const CMM_NOEXCEPT;
+
+        /**
+         * Adds a DerefNode to the underlying expression, which is expected to be a VariableNode.
+         * Note: This function assumes the caller has already performed the necessary checks
+         *       to satisfy this assumption.
+         */
+        virtual void derefNode();
+
         virtual VisitorResult accept(Visitor* visitor) override;
         virtual std::string toString() const override;
 
@@ -141,6 +164,9 @@ namespace cmm
 
         // The expression we are casting.
         std::unique_ptr<ExpressionNode> expression;
+
+        // Flag for whether the unary operator is a prefix or postfix notation.
+        bool prefix;
     };
 }
 

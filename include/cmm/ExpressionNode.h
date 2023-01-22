@@ -83,7 +83,7 @@ namespace cmm
          *
          * @param type the DataType to set.
          */
-        virtual void setDatatype(const CType& datatype) CMM_NOEXCEPT;
+        virtual void setDatatype(const CType& datatype);
 
         virtual VisitorResult accept(Visitor* visitor) override = 0;
         virtual std::string toString() const override;

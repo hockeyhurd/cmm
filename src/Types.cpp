@@ -302,7 +302,40 @@ namespace cmm
             }
         }
 
+        // Should be unreachable.
         return std::nullopt;
+    }
+
+    std::optional<EnumFieldAccessType> isEnumFieldAccessType(const Token& token) CMM_NOEXCEPT
+    {
+        if (token.isCharSymbol() && token.asCharSymbol() == CHAR_PERIOD)
+        {
+            return std::make_optional(EnumFieldAccessType::DOT);
+        }
+
+        else if (token.isStringSymbol() && token.asStringSymbol() == "->")
+        {
+            return std::make_optional(EnumFieldAccessType::ARROW);
+        }
+
+        // else {}
+        return std::nullopt;
+    }
+
+    const char* toString(const EnumFieldAccessType accessType) CMM_NOEXCEPT
+    {
+        switch (accessType)
+        {
+        case EnumFieldAccessType::DOT:
+            return "EnumFieldAccessType::DOT";
+        case EnumFieldAccessType::ARROW:
+            return "EnumFieldAccessType::ARROW";
+        default:
+            return "UNKNOWN EnumFieldAccessType";
+        }
+
+        // Should be unreachable.
+        return "UNKNOWN EnumFieldAccessType";
     }
 }
 

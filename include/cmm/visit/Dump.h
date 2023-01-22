@@ -51,10 +51,6 @@ namespace cmm
          */
         Dump& operator= (Dump&&) CMM_NOEXCEPT = delete;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated"
-        virtual VisitorResult visit(AddressOfNode& node) override;
-#pragma GCC diagnostic pop
         virtual VisitorResult visit(ArgNode& node) override;
         virtual VisitorResult visit(BinOpNode& node) override;
         virtual VisitorResult visit(BlockNode& node) override;
@@ -62,6 +58,7 @@ namespace cmm
         virtual VisitorResult visit(CompilationUnitNode& node) override;
         virtual VisitorResult visit(DerefNode& node) override;
         virtual VisitorResult visit(ExpressionStatementNode& node) override;
+        virtual VisitorResult visit(FieldAccessNode& node) override;
         virtual VisitorResult visit(FunctionCallNode& node) override;
         virtual VisitorResult visit(FunctionDeclarationStatementNode& node) override;
         virtual VisitorResult visit(FunctionDefinitionStatementNode& node) override;

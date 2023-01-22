@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/UnaryOpNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/Token.h>
 
 // std includes
@@ -87,14 +88,15 @@ namespace cmm
     }
 
     UnaryOpNode::UnaryOpNode(const EnumNodeType type, const Location& location,
-        const EnumUnaryOpType opType, std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
-        ExpressionNode(type, location), opType(opType), expression(std::move(expression))
+        const EnumUnaryOpType opType, std::unique_ptr<ExpressionNode>&& expression, const bool prefix) CMM_NOEXCEPT :
+        ExpressionNode(type, location), opType(opType), expression(std::move(expression)), prefix(prefix)
     {
     }
 
     UnaryOpNode::UnaryOpNode(const Location& location, const EnumUnaryOpType opType,
-        std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT :
-        ExpressionNode(EnumNodeType::UNARY_OP, location), opType(opType), expression(std::move(expression))
+        std::unique_ptr<ExpressionNode>&& expression, const bool prefix) CMM_NOEXCEPT :
+        ExpressionNode(EnumNodeType::UNARY_OP, location), opType(opType),
+        expression(std::move(expression)), prefix(prefix)
     {
     }
 
@@ -132,6 +134,26 @@ namespace cmm
     std::optional<EnumNodeType> UnaryOpNode::getExpressionNodeType() const CMM_NOEXCEPT
     {
         return hasExpression() ? std::make_optional(expression->getType()) : std::nullopt;
+    }
+
+    /* virtual */
+    bool UnaryOpNode::isPrefix() const CMM_NOEXCEPT
+    {
+        return prefix;
+    }
+
+    /* virtual */
+    bool UnaryOpNode::isPostfix() const CMM_NOEXCEPT
+    {
+        return !isPrefix();
+    }
+
+    /* virtual */
+    void UnaryOpNode::derefNode()
+    {
+        const auto location = expression->getLocation();
+        auto temp = std::move(expression);
+        expression = std::make_unique<DerefNode>(location, std::move(temp));
     }
 
     /* virtual */

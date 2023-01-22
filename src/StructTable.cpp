@@ -7,9 +7,28 @@
 
 // Our includes
 #include <cmm/StructTable.h>
+#include <cmm/Field.h>
+#include <cmm/IField.h>
 
 namespace cmm
 {
+    StructData::StructData(const EnumSymState symState, std::unordered_map<std::string, Field>&& fieldMap) :
+        symState(symState), fieldMap(std::move(fieldMap))
+    {
+    }
+
+    IField* StructData::findField(const std::string& name) CMM_NOEXCEPT
+    {
+        const auto findResult = fieldMap.find(name);
+        return findResult != fieldMap.cend() ? &findResult->second : nullptr;
+    }
+
+    const IField* StructData::findField(const std::string& name) const CMM_NOEXCEPT
+    {
+        const auto findResult = fieldMap.find(name);
+        return findResult != fieldMap.cend() ? &findResult->second : nullptr;
+    }
+
     bool StructTable::empty() const CMM_NOEXCEPT
     {
         return map.empty();
@@ -20,20 +39,50 @@ namespace cmm
         return map.size();
     }
 
-    void StructTable::addOrUpdate(const std::string& name, const EnumSymState state)
-    {
-        map[name] = state;
-    }
-
-    void StructTable::addOrUpdate(std::string&& name, const EnumSymState state)
-    {
-        map[std::move(name)] = state;
-    }
-
-    std::optional<EnumSymState> StructTable::get(const std::string& name) const CMM_NOEXCEPT
+    void StructTable::addOrUpdate(const std::string& name, StructData&& data)
     {
         const auto findResult = map.find(name);
-        return findResult != map.cend() ? std::make_optional(findResult->second) : std::nullopt;
+
+        if (findResult != map.end())
+        {
+            findResult->second = std::move(data);
+        }
+
+        else
+        {
+            [[maybe_unused]]
+            auto [iter, wasInserted] = map.emplace(name, std::move(data));
+            iter->second.name = &iter->first;
+        }
+    }
+
+    void StructTable::addOrUpdate(std::string&& name, StructData&& data)
+    {
+        const auto findResult = map.find(name);
+
+        if (findResult != map.end())
+        {
+            findResult->second = std::move(data);
+        }
+
+        else
+        {
+            [[maybe_unused]]
+            auto [iter, wasInserted] = map.emplace(std::move(name), std::move(data));
+            iter->second.name = &iter->first;
+        }
+    }
+
+    StructData* StructTable::get(const std::string& name) CMM_NOEXCEPT
+    {
+        const auto findResult = map.find(name);
+        return findResult != map.cend() ? &findResult->second : nullptr;
+    }
+
+    const StructData* StructTable::get(const std::string& name) const CMM_NOEXCEPT
+    {
+        const auto findResult = map.find(name);
+        return findResult != map.cend() ? &findResult->second : nullptr;
     }
 
     bool StructTable::has(const std::string& name) const CMM_NOEXCEPT
