@@ -353,8 +353,6 @@ namespace cmm
         std::string temp = encoder->getTemp();
         const CType& structType = node.getExpression()->getDatatype();
         const std::string structTypeStr = resolveDatatype(structType);
-        const CType& fieldType = node.getDatatype();
-        const std::string fieldTypeStr = resolveDatatype(fieldType);
         const auto fieldInStructIndex = node.getIndex();
 
         encoder->printIndent();
@@ -362,7 +360,7 @@ namespace cmm
         // Note: See https://llvm.org/docs/LangRef.html#getelementptr-instruction for semantics of the 'getelementptr' instruction.
         auto& os = encoder->getOStream();
         os << temp << " = getelementptr inbounds " << structTypeStr
-           << ", ptr " << *expr.result.str << ", i32 0, " << fieldTypeStr << " " << fieldInStructIndex;
+           << ", ptr " << *expr.result.str << ", i32 0, i32 " << fieldInStructIndex;
 
         encoder->emitNewline();
 

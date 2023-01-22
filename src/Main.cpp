@@ -21,7 +21,8 @@ int main()
     // std::string input = "int main() { int a; a = 42; int* ptr; ptr = &a; int result; result = *ptr; return result; }";
     // std::string input = "void func(int* value) { *value = *value * 2; } int main() { int x; x = 2; func(&x); return x; }";
     // std::string input = "int main() { int x; x = 2; int y; y = 3; int result; result = x-- + --y; return result; }";
-    std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; v2.x = 10; v2.y = 32; int result; result = v2.x + v2.y; return result; }";
+    // std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; v2.x = 10; v2.y = 32; int result; result = v2.x + v2.y; return result; }";
+    std::string input = "struct Vec2 { int x; int y; }; struct Vec3 { struct Vec2 v2; int z; }; int main() { struct Vec3 v3; v3.v2.x = 10; v3.v2.y = 12; v3.z = 20; int result; result = v3.v2.x + v3.v2.y + v3.z; return result; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
