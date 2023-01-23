@@ -2,15 +2,27 @@ cmake_minimum_required(VERSION 3.16.2)
 project(cmmcore)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Wall -Wextra -Wno-unused-parameter -Wcast-qual -Wfloat-equal -Woverloaded-virtual -pedantic")
+
+# Split compiler flags depending on OS
+if (UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Wall -Wextra -Wno-unused-parameter -Wcast-qual -Wfloat-equal -Woverloaded-virtual -pedantic")
+    # set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+    set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-4 -O0")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W1 /Zc:__cplusplus")
+    # set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+    set(CMAKE_CXX_FLAGS_DEBUG "/Od /MTd")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /MT")
+endif (UNIX)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-# set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-4 -O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 if (NOT CMAKE_BUILD_TYPE)
     message("-- CMAKE_BUILD_TYPE variable not set. Defaulting to \"Release\"")
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+else ()
+    message("-- CMAKE_BUILD_TYPE set to \"${CMAKE_BUILD_TYPE}\"")
 endif()
 
 # All includes
@@ -33,13 +45,18 @@ set(SOURCE_FILES src/ArgNode.cpp src/BinOpNode.cpp src/BlockNode.cpp
 # Set the path for our cmake modules.
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 
-# Require threading library (Linux/Unix this is pthreads).
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
+# Split dependencies based on OS
+if (UNIX)
+    # Require threading library (Linux/Unix this is pthreads).
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
 
-# Require GMP and GMPXX (C++ wrapper) libraries.
-find_package(GMP 6.2.0 REQUIRED)
-find_package(GMPXX 6.2.0 REQUIRED)
+    # Require GMP and GMPXX (C++ wrapper) libraries.
+    find_package(GMP 6.2.0 REQUIRED)
+    find_package(GMPXX 6.2.0 REQUIRED)
+else ()
+    find_package(Threads REQUIRED)
+endif (UNIX)
 
 enable_testing()
 find_package(GTest REQUIRED)
@@ -93,7 +110,8 @@ target_link_libraries(parserTest ${GTEST_BOTH_LIBRARIES})
 # GoogleTest ends here:
 
 # If we found GMP and GMPXX, add includes and linkage here in a central spot.
-if (GMP_FOUND AND GMPXX_FOUND)
+# Note: Unix/Linux only
+if (UNIX AND GMP_FOUND AND GMPXX_FOUND)
     include_directories(${GMP_INCLUDE_DIRS})
     include_directories(${GMPXX_INCLUDE_DIRS})
 

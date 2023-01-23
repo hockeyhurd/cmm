@@ -1,0 +1,69 @@
+name: CMake
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'dev'
+      - 'GithubActions'
+      - '71_add_windows_support_to_github_actions'
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - 'main'
+      - 'dev'
+
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          #- {runs_on: windows-latest, name: "MSVC", CFLAGS: "", CMAKE_BUILD_TYPE: "Debug"}
+          - {runs_on: windows-latest, name: "MSVC Release", CFLAGS: "", CMAKE_BUILD_TYPE: "Release"}
+    runs-on: ${{ matrix.toolchain.runs_on }}
+    env:
+      # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+      CMAKE_BUILD_TYPE: ${{ matrix.toolchain.CMAKE_BUILD_TYPE }}
+      CMAKE_C_COMPILER: ${{ matrix.toolchain.CC }}
+      CMAKE_C_FLAGS: ${{ matrix.toolchain.CFLAGS }}
+      CMAKE_CXX_COMPILER: ${{ matrix.toolchain.CXX }}
+      CMAKE_CXX_FLAGS: ${{ matrix.toolchain.CFLAGS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Log versions
+        run: |
+          cmake --version
+          uname -s
+        shell: bash
+
+      - name: Install gtest manually
+        run: |
+          mkdir vendor && cd vendor && git clone https://github.com/google/googletest.git -b v1.12.x && cd googletest && \
+          cmake -B build && cd build && cmake --build . -j 2 -- /property:Configuration=Release && cmake --install .
+        shell: bash
+
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: cmake -DCMAKE_CXX_FLAGS="/MT" -B ${{github.workspace}}/build -DCMAKE_C_COMPILER="${CMAKE_C_COMPILER}" -DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}" -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS}" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" -DGTEST_ROOT="C:/Program Files (x86)/googletest-distribution"
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cd ${{github.workspace}}/build && cmake --build . -j 2 -- /property:configuration=Release
+
+      #- name: Build Tests
+      #  # Build your program with the given configuration
+      #  run: cd ${{github.workspace}}/build && cmake --build . -j 2 --target analyzerTest -- /property:configuration=Release
+
+      #- name: Test
+      #  # working-directory: ${{github.workspace}}/build
+      #  # Execute tests defined by the CMake configuration.
+      #  # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      #  run: bash unitTest.sh
+      #  shell: bash
+
