@@ -5,8 +5,6 @@ on:
     branches:
       - 'main'
       - 'dev'
-      - 'GithubActions'
-      - '71_add_windows_support_to_github_actions'
   pull_request:
     types: [opened, synchronize]
     branches:
@@ -43,7 +41,7 @@ jobs:
 
       - name: Install gtest manually
         run: |
-          mkdir vendor && cd vendor && git clone https://github.com/google/googletest.git -b v1.12.x && cd googletest && \
+          mkdir vendor && cd vendor && git clone https://github.com/google/googletest.git -b v1.13.x && cd googletest && \
           cmake -B build && cd build && cmake --build . -j 2 -- /property:Configuration=Release && cmake --install .
         shell: bash
 
