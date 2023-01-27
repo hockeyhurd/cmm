@@ -63,7 +63,7 @@ add_library(cmmcore STATIC ${SOURCE_FILES})
 target_link_libraries(cmmcore Threads::Threads)
 
 # add_custom_target(cmm DEPENDS cmmcore)
-add_custom_target(tests DEPENDS analyzerTest lexerTest miscTest parserTest)
+add_custom_target(tests DEPENDS analyzerTest containerTest lexerTest miscTest parserTest)
 
 set(SOURCE_FILES_CMM_TEST src/Main.cpp)
 add_executable(cmm ${SOURCE_FILES_CMM_TEST})
@@ -80,6 +80,14 @@ target_include_directories(analyzerTest PRIVATE ${GTEST_INCLUDE_DIRS})
 target_link_libraries(analyzerTest cmmcore)
 target_link_libraries(analyzerTest Threads::Threads)
 target_link_libraries(analyzerTest ${GTEST_BOTH_LIBRARIES})
+
+set(SOURCE_FILES_CONTAINER_TEST test/ContainerTest.cpp)
+add_executable(containerTest EXCLUDE_FROM_ALL ${SOURCE_FILES_CONTAINER_TEST})
+add_dependencies(containerTest cmmcore)
+target_include_directories(containerTest PRIVATE ${GTEST_INCLUDE_DIRS})
+target_link_libraries(containerTest cmmcore)
+target_link_libraries(containerTest Threads::Threads)
+target_link_libraries(containerTest ${GTEST_BOTH_LIBRARIES})
 
 set(SOURCE_FILES_LEXER_TEST test/LexerTest.cpp)
 add_executable(lexerTest EXCLUDE_FROM_ALL ${SOURCE_FILES_LEXER_TEST})
@@ -121,6 +129,9 @@ if (UNIX AND GMP_FOUND AND GMPXX_FOUND)
 
     target_link_libraries(analyzerTest ${GMP_LIBRARIES})
     target_link_libraries(analyzerTest ${GMPXX_LIBRARIES})
+
+    target_link_libraries(containerTest ${GMP_LIBRARIES})
+    target_link_libraries(containerTest ${GMPXX_LIBRARIES})
 
     target_link_libraries(lexerTest ${GMP_LIBRARIES})
     target_link_libraries(lexerTest ${GMPXX_LIBRARIES})

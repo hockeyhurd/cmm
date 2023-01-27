@@ -14,7 +14,7 @@
 #include <cmm/Types.h>
 
 // std includes
-#include <cstdef>
+#include <cstddef>
 
 namespace cmm
 {
@@ -72,14 +72,14 @@ namespace cmm
          *
          * @return const pointer to string of type T.
          */
-        const T* string() CMM_NOEXCEPT const;
+        const T* string() const CMM_NOEXCEPT;
 
         /**
          * Gets the length of the StringView.
          *
          * @return std::size_t length.
          */
-        std::size_t size() CMM_NOEXCEPT const;
+        std::size_t size() const CMM_NOEXCEPT;
 
         /**
          * Gets a reference to the underlying char if in range, else will throw an exception.
