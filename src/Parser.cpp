@@ -1481,7 +1481,7 @@ namespace cmm
 
             // Note: +1 for null-terminating character
             char* copyStr = new char[size + 1];
-            std::strncpy(copyStr, token.asCString().c_str(), size);
+            std::strncpy(copyStr, token.asCString().string(), size);
 
             // Ensure last char is null-terminated
             copyStr[size] = '\0';
@@ -1503,6 +1503,7 @@ namespace cmm
         return nullptr;
     }
 
+    // TODO @@@: Consider making this return a StringView<char>
     /* static */
     std::optional<std::pair<EnumFieldAccessType, std::string>> parseFieldAccessNode(Lexer& lexer, std::string* errorMessage)
     {
@@ -1526,7 +1527,7 @@ namespace cmm
 
                 if (lexResult && token.isStringSymbol())
                 {
-                    return std::make_optional(std::make_pair(*optFieldAccessType, token.asStringSymbol()));
+                    return std::make_optional(std::make_pair(*optFieldAccessType, token.asStringSymbol().toString()));
                 }
             }
 
@@ -1690,7 +1691,7 @@ namespace cmm
         }
 
         // else
-        return std::make_optional<VariableNode>(location, token.asStringSymbol());
+        return std::make_optional<VariableNode>(location, token.asStringSymbol().toString());
     }
 
     /* static */
@@ -1734,7 +1735,7 @@ namespace cmm
                         return std::nullopt;
                     }
 
-                    structName = std::make_optional(token.asStringSymbol());
+                    structName = std::make_optional(token.asStringSymbol().toString());
                 }
 
                 Location dimLocation;

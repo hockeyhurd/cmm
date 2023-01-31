@@ -13,6 +13,11 @@
 
 namespace cmm
 {
+    Token::Values::Values() CMM_NOEXCEPT
+    {
+        std::memset(unused_, 0, sizeof(StringView<char>));
+    }
+
     Token::Token(const bool b) CMM_NOEXCEPT : type(TokenType::BOOL)
     {
         value.b = b;
@@ -39,21 +44,31 @@ namespace cmm
         value.doubleValue = doubleValue;
     }
 
+#if 0
     Token::Token(const std::string& str, const bool isSymbol) : type(TokenType::STRING)
     {
         value.str = new std::string(str);
     }
+#else
+    Token::Token(const std::string& str, const bool isSymbol) : type(TokenType::STRING)
+    {
+        value.str = StringView<char>(str.c_str(), str.size());
+    }
+#endif
 
+#if 0
     Token::Token(std::string&& str, const bool isSymbol) : type(TokenType::STRING)
     {
         value.str = new std::string(std::move(str));
     }
+#endif
 
     Token::Token(const Token& other) : type(other.type)
     {
         if (other.type == TokenType::STRING || other.type == TokenType::SYMBOL)
         {
-            value.str = new std::string(*other.value.str);
+            // value.str = new std::string(*other.value.str);
+            value.str = other.value.str;
         }
 
         else
@@ -64,6 +79,7 @@ namespace cmm
 
     Token::Token(Token&& other) CMM_NOEXCEPT : type(other.type)
     {
+#if 0
         if (other.type == TokenType::STRING || other.type == TokenType::SYMBOL)
         {
             value.str = other.value.str;
@@ -75,15 +91,20 @@ namespace cmm
             value = other.value;
             other.value.str = nullptr; // zero out other value
         }
+#else
+        value = other.value;
+#endif
     }
 
     Token::~Token()
     {
+#if 0
         if ((isCStringOrStringSymbol()) && value.str != nullptr)
         {
             delete value.str;
             value.str = nullptr;
         }
+#endif
     }
 
     Token& Token::operator= (const Token& other)
@@ -93,6 +114,7 @@ namespace cmm
             return *this;
         }
 
+#if 0
         // See if we are already a string
         else if (isCStringOrStringSymbol())
         {
@@ -125,6 +147,9 @@ namespace cmm
         {
             value.str = new std::string(*other.value.str);
         }
+#else
+        value = other.value;
+#endif
 
         type = other.type;
 
@@ -135,15 +160,17 @@ namespace cmm
     {
         // If we have an allocated std::string, need to clean this up before
         // aquiring a new value.
+#if 0
         if ((isCStringOrStringSymbol()) && value.str != nullptr)
         {
             delete value.str;
             value.str = nullptr;
         }
+#endif
 
-        type = other.type;
         value = other.value;
-        other.value.str = nullptr; // zero out the value
+        type = other.type;
+        // other.value.str = nullptr; // zero out the value
 
         return *this;
     }
@@ -165,7 +192,7 @@ namespace cmm
 
     void Token::setBool(const bool b) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::BOOL;
         value.b = b;
@@ -183,7 +210,7 @@ namespace cmm
 
     void Token::setChar(const char ch) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::CHAR;
         value.ch = ch;
@@ -201,7 +228,7 @@ namespace cmm
 
     void Token::setDouble(const f64 doubleValue) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::DOUBLE;
         value.doubleValue = doubleValue;
@@ -219,7 +246,7 @@ namespace cmm
 
     void Token::setFloat(const f32 floatValue) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::FLOAT;
         value.floatValue = floatValue;
@@ -237,7 +264,7 @@ namespace cmm
 
     void Token::setInt16(const s16 int16Value) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::INT16;
         value.int16Value = int16Value;
@@ -255,7 +282,7 @@ namespace cmm
 
     void Token::setInt32(const s32 int32Value) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::INT32;
         value.int32Value = int32Value;
@@ -273,7 +300,7 @@ namespace cmm
 
     void Token::setInt64(const s64 int64Value) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::INT64;
         value.int64Value = int64Value;
@@ -286,19 +313,19 @@ namespace cmm
 
     void Token::setNull() CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::NULL_T;
     }
 
-    std::string& Token::asCString() CMM_NOEXCEPT
+    StringView<char>& Token::asCString() CMM_NOEXCEPT
     {
-        return *value.str;
+        return value.str;
     }
 
-    const std::string& Token::asCString() const CMM_NOEXCEPT
+    const StringView<char>& Token::asCString() const CMM_NOEXCEPT
     {
-        return *value.str;
+        return value.str;
     }
 
     bool Token::isCString() const CMM_NOEXCEPT
@@ -309,6 +336,7 @@ namespace cmm
     void Token::setCString(const std::string& str)
     {
         // Check if already a std::string
+#if 0
         if (type == TokenType::STRING)
         {
             if (value.str == nullptr)
@@ -324,11 +352,16 @@ namespace cmm
 
         else
         {
-            type = TokenType::STRING;
             value.str = new std::string(str);
+            type = TokenType::STRING;
         }
+#else
+        value.str = StringView<char>(str.c_str(), str.size());
+        type = TokenType::STRING;
+#endif
     }
 
+#if 0
     void Token::setCString(std::string&& str)
     {
         // Check if already a std::string
@@ -351,6 +384,7 @@ namespace cmm
             value.str = new std::string(std::move(str));
         }
     }
+#endif
 
     char Token::asCharSymbol() const CMM_NOEXCEPT
     {
@@ -364,20 +398,20 @@ namespace cmm
 
     void Token::setCharSymbol(const char symbol) CMM_NOEXCEPT
     {
-        conditionallyCleanString();
+        // conditionallyCleanString();
 
         type = TokenType::CHAR_SYMBOL;
         value.symbol = symbol;
     }
 
-    std::string& Token::asStringSymbol() CMM_NOEXCEPT
+    StringView<char>& Token::asStringSymbol() CMM_NOEXCEPT
     {
-        return *value.str;
+        return value.str;
     }
 
-    const std::string& Token::asStringSymbol() const CMM_NOEXCEPT
+    const StringView<char>& Token::asStringSymbol() const CMM_NOEXCEPT
     {
-        return *value.str;
+        return value.str;
     }
 
     bool Token::isStringSymbol() const CMM_NOEXCEPT
@@ -387,6 +421,7 @@ namespace cmm
 
     void Token::setStringSymbol(const std::string& strSymbol) CMM_NOEXCEPT
     {
+#if 0
         // Check if already a std::string
         if (isCStringOrStringSymbol())
         {
@@ -406,8 +441,13 @@ namespace cmm
             type = TokenType::SYMBOL;
             value.str = new std::string(strSymbol);
         }
+#else
+        value.str = StringView<char>(strSymbol.c_str(), strSymbol.size());
+        type = TokenType::SYMBOL;
+#endif
     }
 
+#if 0
     void Token::setStringSymbol(std::string&& strSymbol) CMM_NOEXCEPT
     {
         // Check if already a std::string
@@ -426,10 +466,11 @@ namespace cmm
 
         else
         {
-            type = TokenType::SYMBOL;
             value.str = new std::string(std::move(strSymbol));
+            type = TokenType::SYMBOL;
         }
     }
+#endif
 
     bool Token::operator== (const Token& other) const
     {
@@ -469,7 +510,7 @@ namespace cmm
                 }
 
                 // Compare each character
-                return *value.str == *other.value.str;
+                return value.str == other.value.str;
             }
             return false;
         default:
@@ -484,6 +525,7 @@ namespace cmm
         return !(*this == other);
     }
 
+#if 0
     void Token::conditionallyCleanString() CMM_NOEXCEPT
     {
         if (isCStringOrStringSymbol() && value.str != nullptr)
@@ -492,6 +534,7 @@ namespace cmm
             value.str = nullptr;
         }
     }
+#endif
 
     bool Token::isCStringOrStringSymbol() const CMM_NOEXCEPT
     {
@@ -531,7 +574,7 @@ namespace cmm
             break;
         case TokenType::SYMBOL:
         case TokenType::STRING:
-            result = std::hash<std::string>()(*token.value.str);
+            result = std::hash<const char*>()(token.value.str.string());
             break;
         default:
             throw std::runtime_error("Unexpected token type");

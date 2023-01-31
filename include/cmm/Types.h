@@ -36,11 +36,11 @@
 #define OS_UNIX 1
 #endif
 
+// std includes
 #include <cstdlib>
 #include <cstdint>
 #include <optional>
 #include <string>
-// #include <cfloat>
 
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
@@ -151,6 +151,9 @@ namespace cmm
 
     // Forward declarations
     class Token;
+
+    template<class T>
+    class StringView;
 
     enum class EnumLocality : u16
     {
@@ -281,7 +284,9 @@ namespace cmm
 
     std::optional<CType> canPromote(const CType& from, const CType& to);
     std::optional<CType> canTruncate(const CType& from, const CType& to);
+    bool isCType(const StringView<char>& str) CMM_NOEXCEPT;
     bool isCType(const std::string& str) CMM_NOEXCEPT;
+    std::optional<EnumCType> getCType(const StringView<char>& str) CMM_NOEXCEPT;
     std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT;
 
     constexpr const char* toString(const EnumCType type)

@@ -8,6 +8,7 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/Token.h>
+#include <cmm/container/StringView.h>
 
 // std includes
 #include <map>
@@ -17,21 +18,21 @@
 namespace cmm
 {
 
-    static std::map<std::string, EnumCType> ctypeMap;
+    static std::map<StringView<char>, EnumCType> ctypeMap;
 
     static void initCTypeMap()
     {
-        ctypeMap.emplace("NULL", EnumCType::NULL_T);
-        ctypeMap.emplace("void", EnumCType::VOID);
-        ctypeMap.emplace("void*", EnumCType::VOID_PTR);
-        ctypeMap.emplace("bool", EnumCType::BOOL);
-        ctypeMap.emplace("char", EnumCType::CHAR);
-        ctypeMap.emplace("short", EnumCType::INT16);
-        ctypeMap.emplace("int", EnumCType::INT32);
-        ctypeMap.emplace("long", EnumCType::INT64);
-        ctypeMap.emplace("float", EnumCType::FLOAT);
-        ctypeMap.emplace("double", EnumCType::DOUBLE);
-        ctypeMap.emplace("struct", EnumCType::STRUCT);
+        ctypeMap.emplace(StringView<char>("NULL", strlen("NULL")), EnumCType::NULL_T);
+        ctypeMap.emplace(StringView<char>("void", strlen("void")), EnumCType::VOID);
+        ctypeMap.emplace(StringView<char>("void*", strlen("void*")), EnumCType::VOID_PTR);
+        ctypeMap.emplace(StringView<char>("bool", strlen("bool")), EnumCType::BOOL);
+        ctypeMap.emplace(StringView<char>("char", strlen("char")), EnumCType::CHAR);
+        ctypeMap.emplace(StringView<char>("short", strlen("short")), EnumCType::INT16);
+        ctypeMap.emplace(StringView<char>("int", strlen("int")), EnumCType::INT32);
+        ctypeMap.emplace(StringView<char>("long", strlen("long")), EnumCType::INT64);
+        ctypeMap.emplace(StringView<char>("float", strlen("float")), EnumCType::FLOAT);
+        ctypeMap.emplace(StringView<char>("double", strlen("double")), EnumCType::DOUBLE);
+        ctypeMap.emplace(StringView<char>("struct", strlen("struct")), EnumCType::STRUCT);
     }
 
     static std::optional<CType> promoOrTruncateLookup(const CType& from, const CType& to, std::unordered_map<EnumCType, std::unordered_set<EnumCType>>& theMap)
@@ -212,7 +213,7 @@ namespace cmm
         return promoOrTruncateLookup(from, to, truncateMap);
     }
 
-    bool isCType(const std::string& str) CMM_NOEXCEPT
+    bool isCType(const StringView<char>& str) CMM_NOEXCEPT
     {
         if (ctypeMap.empty())
         {
@@ -222,7 +223,17 @@ namespace cmm
         return ctypeMap.find(str) != ctypeMap.cend();
     }
 
-    std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT
+    bool isCType(const std::string& str) CMM_NOEXCEPT
+    {
+        if (ctypeMap.empty())
+        {
+            initCTypeMap();
+        }
+
+        return ctypeMap.find(StringView<char>(str)) != ctypeMap.cend();
+    }
+
+    std::optional<EnumCType> getCType(const StringView<char>& str) CMM_NOEXCEPT
     {
         if (ctypeMap.empty())
         {
@@ -230,6 +241,17 @@ namespace cmm
         }
 
         const auto findResult = ctypeMap.find(str);
+        return findResult != ctypeMap.cend() ? std::make_optional(findResult->second) : std::nullopt;
+    }
+
+    std::optional<EnumCType> getCType(const std::string& str) CMM_NOEXCEPT
+    {
+        if (ctypeMap.empty())
+        {
+            initCTypeMap();
+        }
+
+        const auto findResult = ctypeMap.find(StringView<char>(str));
         return findResult != ctypeMap.cend() ? std::make_optional(findResult->second) : std::nullopt;
     }
 

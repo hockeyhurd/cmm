@@ -12,6 +12,7 @@
 
 // cmm includes
 #include <cmm/Types.h>
+#include <cmm/container/StringView.h>
 
 // std includes
 #include <string>
@@ -138,7 +139,7 @@ namespace cmm
          * @param str the character string.
          * @param isSymbol whether this is a c-style(false) string or symbol (true).
          */
-        explicit Token(std::string&& str, const bool isSymbol);
+        // explicit Token(std::string&& str, const bool isSymbol);
 
         /**
          * Default copy constructor.
@@ -350,21 +351,21 @@ namespace cmm
          * Note: the caller should check against the TokenType before calling
          * this as the result is the raw value as a char (valid or not).
          *
-         * @return std::string reference.
+         * @return StringView<char> reference.
          */
-        std::string& asCString() CMM_NOEXCEPT;
+        StringView<char>& asCString() CMM_NOEXCEPT;
 
         /**
          * Gets the value as a char.
          * Note: the caller should check against the TokenType before calling
          * this as the result is the raw value as a char (valid or not).
          *
-         * @return const std::string reference.
+         * @return const StringView<char> reference.
          */
-        const std::string& asCString() const CMM_NOEXCEPT;
+        const StringView<char>& asCString() const CMM_NOEXCEPT;
 
         /**
-         * Gets whether the token is a std::string.
+         * Gets whether the token is a StringView<char>.
          *
          * @return bool.
          */
@@ -373,7 +374,7 @@ namespace cmm
         /**
          * Sets the underlying value to the passed value and updates the TokenType.
          *
-         * @param str the std::string to set.
+         * @param str the StringView<char> to set.
          */
         void setCString(const std::string& str);
 
@@ -382,7 +383,7 @@ namespace cmm
          *
          * @param str the std::string to set.
          */
-        void setCString(std::string&& str);
+        // void setCString(std::string&& str);
 
         /**
          * Gets the value as a char symbol.
@@ -408,22 +409,22 @@ namespace cmm
         void setCharSymbol(const char charSymbol) CMM_NOEXCEPT;
 
         /**
-         * Gets the value as a std::string symbol.
+         * Gets the value as a StringView<char> symbol.
          * Note: the caller should check against the TokenType before calling
          * this as the result is the raw value as a char symbol, that also happens to be a char (valid or not).
          *
-         * @return std::string.
+         * @return StringView<char>.
          */
-        std::string& asStringSymbol() CMM_NOEXCEPT;
+        StringView<char>& asStringSymbol() CMM_NOEXCEPT;
 
         /**
-         * Gets the value as a std::string symbol.
+         * Gets the value as a StringView<char> symbol.
          * Note: the caller should check against the TokenType before calling
          * this as the result is the raw value as a char symbol, that also happens to be a char (valid or not).
          *
-         * @return std::string.
+         * @return StringView<char>.
          */
-        const std::string& asStringSymbol() const CMM_NOEXCEPT;
+        const StringView<char>& asStringSymbol() const CMM_NOEXCEPT;
 
         /**
          * Gets whether the token is a string symbol.
@@ -444,7 +445,7 @@ namespace cmm
          *
          * @param string symbol the char to set.
          */
-        void setStringSymbol(std::string&& stringSymbol) CMM_NOEXCEPT;
+        // void setStringSymbol(std::string&& stringSymbol) CMM_NOEXCEPT;
 
         /**
          * Equality operator
@@ -467,10 +468,10 @@ namespace cmm
         /**
          * Performs logic to conditionally clean our value str (i.e. TokenType::SYMBOL or TokenType::STRING).
          */
-        void conditionallyCleanString() CMM_NOEXCEPT;
+        // void conditionallyCleanString() CMM_NOEXCEPT;
 
         /**
-         * Gets whether this is an std::string (i.e. TokenType::SYMBOL or TokenType::STRING).
+         * Gets whether this is an StringView<char> (i.e. TokenType::SYMBOL or TokenType::STRING).
          *
          * @return bool.
          */
@@ -486,8 +487,12 @@ namespace cmm
             s16 int16Value;
             s32 int32Value;
             s64 int64Value;
-            std::string* str;
+            // std::string* str;
+            StringView<char> str;
             char symbol;
+            char* unused_[sizeof(StringView<char>)];
+
+            Values() CMM_NOEXCEPT;
         };
 
         // The type of the token

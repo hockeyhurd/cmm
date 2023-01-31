@@ -1,7 +1,7 @@
 #include <cmm/Types.h>
 #include <cmm/Lexer.h>
-#include <cmm/StringView.h>
 #include <cmm/Token.h>
+#include <cmm/container/StringView.h>
 
 #include <gtest/gtest.h>
 
@@ -279,7 +279,7 @@ TEST(LexerTest, LexNull)
 TEST(LexerTest, LexString)
 {
     const std::string input = "\"\\\"Hello, world!\\\"\"";
-    const StringView strView(input.c_str(), input.c_str() + input.size() - 2);
+    const StringView<char> strView(input.c_str(), input.size() - 2);
     Lexer lexer(input);
     Token token('\0', false);
 
@@ -323,7 +323,7 @@ TEST(LexerTest, ParseStringWithEscapedQuotes)
 
     const auto& outValue = token.asCString();
     ASSERT_EQ(value.size(), outValue.size());
-    ASSERT_EQ(value, outValue);
+    ASSERT_EQ(value, outValue.string());
 }
 
 TEST(LexerTest, LexSymbol)

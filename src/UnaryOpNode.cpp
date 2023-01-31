@@ -9,23 +9,24 @@
 #include <cmm/UnaryOpNode.h>
 #include <cmm/DerefNode.h>
 #include <cmm/Token.h>
+#include <cmm/container/StringView.h>
 
 // std includes
 #include <unordered_map>
 
 namespace cmm
 {
-    static std::unordered_map<std::string, EnumUnaryOpType> opTypeTable;
+    static std::unordered_map<StringView<char>, EnumUnaryOpType> opTypeTable;
 
     static void oneTimeInitUnaryOpTypeTable()
     {
         if (opTypeTable.empty())
         {
-            opTypeTable.emplace("&", EnumUnaryOpType::ADDRESS_OF);
-            opTypeTable.emplace("-", EnumUnaryOpType::NEGATIVE);
-            opTypeTable.emplace("+", EnumUnaryOpType::POSITIVE);
-            opTypeTable.emplace("--", EnumUnaryOpType::DECREMENT);
-            opTypeTable.emplace("++", EnumUnaryOpType::INCREMENT);
+            opTypeTable.emplace(StringView<char>("&", 1), EnumUnaryOpType::ADDRESS_OF);
+            opTypeTable.emplace(StringView<char>("-", 1), EnumUnaryOpType::NEGATIVE);
+            opTypeTable.emplace(StringView<char>("+", 1), EnumUnaryOpType::POSITIVE);
+            opTypeTable.emplace(StringView<char>("--", 2), EnumUnaryOpType::DECREMENT);
+            opTypeTable.emplace(StringView<char>("++", 2), EnumUnaryOpType::INCREMENT);
         }
     }
 
@@ -50,7 +51,7 @@ namespace cmm
         return nullptr;
     }
 
-    std::optional<EnumUnaryOpType> getOpType(const std::string& str)
+    std::optional<EnumUnaryOpType> getOpType(const StringView<char>& str)
     {
         oneTimeInitUnaryOpTypeTable();
 
