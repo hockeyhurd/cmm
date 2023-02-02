@@ -111,8 +111,10 @@ namespace cmm
         // A map for keeping track of functions available.
         std::unordered_map<std::string, std::pair<EnumSymState, CType>> functionTable;
 
-        // The table for tracking structs.
-        StructTable structTable;
+        // The pointer to the table for tracking structs for the current translation unit.
+        // Note: This pointer shall only be valid while a TranslationUnitNode and
+        // it's child AST nodes are being analyzed.
+        StructTable* structTable;
 
         // For tracking current locality.
         std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;
