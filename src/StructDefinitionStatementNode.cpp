@@ -5,13 +5,16 @@
  * @version 2022-10-26
  */
 
+// Our includes
 #include <cmm/StructDefinitionStatementNode.h>
+#include <cmm/StructTable.h>
 #include <cmm/VariableDeclarationStatementNode.h>
 
 namespace cmm
 {
-    StructDefinitionStatementNode::StructDefinitionStatementNode(const Location& location, const std::string& name, BlockNode&& blockNode) :
-        StatementNode(EnumNodeType::STRUCT_DEFINITION, location), name(name), blockNode(std::move(blockNode))
+    StructDefinitionStatementNode::StructDefinitionStatementNode(const Location& location, const std::string& name,
+        BlockNode&& blockNode) : StatementNode(EnumNodeType::STRUCT_DEFINITION, location),
+        name(name), blockNode(std::move(blockNode)), structData(nullptr)
     {
     }
 
@@ -45,14 +48,23 @@ namespace cmm
         return blockNode.size();
     }
 
-    std::optional<std::string> StructDefinitionStatementNode::setupFieldTable()
+    StructData* StructDefinitionStatementNode::getStructData() CMM_NOEXCEPT
     {
-        // Only re/calculate if the fieldMap is empty.
-        if (!fieldMap.empty())
-        {
-            return std::nullopt;
-        }
+        return structData;
+    }
 
+    const StructData* StructDefinitionStatementNode::getStructData() const CMM_NOEXCEPT
+    {
+        return structData;
+    }
+
+    void StructDefinitionStatementNode::setStructData(StructData* structData) CMM_NOEXCEPT
+    {
+        this->structData = structData;
+    }
+
+    std::optional<std::string> StructDefinitionStatementNode::setupFieldTable(std::unordered_map<std::string, Field>& fieldMap)
+    {
         s32 index = 0;
 
         for (const auto& statementNodePtr : blockNode)
@@ -71,26 +83,6 @@ namespace cmm
         }
 
         return std::nullopt;
-    }
-
-    StructDefinitionStatementNode::FieldMapIter StructDefinitionStatementNode::begin() CMM_NOEXCEPT
-    {
-        return fieldMap.begin();
-    }
-
-    StructDefinitionStatementNode::FieldMapConstIter StructDefinitionStatementNode::cbegin() const CMM_NOEXCEPT
-    {
-        return fieldMap.cbegin();
-    }
-
-    StructDefinitionStatementNode::FieldMapIter StructDefinitionStatementNode::end() CMM_NOEXCEPT
-    {
-        return fieldMap.end();
-    }
-
-    StructDefinitionStatementNode::FieldMapConstIter StructDefinitionStatementNode::cend() const CMM_NOEXCEPT
-    {
-        return fieldMap.cend();
     }
 
     VisitorResult StructDefinitionStatementNode::accept(Visitor* visitor) /* override */

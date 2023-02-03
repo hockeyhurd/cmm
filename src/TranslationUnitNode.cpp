@@ -30,6 +30,26 @@ namespace cmm
         return statements.size();
     }
 
+    StructTable& TranslationUnitNode::getStructTable() CMM_NOEXCEPT
+    {
+        return structTable;
+    }
+
+    const StructTable& TranslationUnitNode::getStructTable() const CMM_NOEXCEPT
+    {
+        return structTable;
+    }
+
+    StructTable* TranslationUnitNode::getStructTablePtr() CMM_NOEXCEPT
+    {
+        return &structTable;
+    }
+
+    const StructTable* TranslationUnitNode::getStructTablePtr() const CMM_NOEXCEPT
+    {
+        return &structTable;
+    }
+
     TranslationUnitNode::StatementListIter TranslationUnitNode::begin() CMM_NOEXCEPT
     {
         return statements.begin();

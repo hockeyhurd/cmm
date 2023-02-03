@@ -24,7 +24,7 @@ namespace cmm
         return std::numeric_limits<T>::lowest() <= value && value <= std::numeric_limits<T>::max();
     }
 
-    Analyzer::Analyzer() CMM_NOEXCEPT
+    Analyzer::Analyzer() CMM_NOEXCEPT : structTable(nullptr)
     {
         localityStack.push(EnumLocality::GLOBAL);
     }
@@ -327,7 +327,11 @@ namespace cmm
 
     VisitorResult Analyzer::visit(CompilationUnitNode& node)
     {
+        // TODO: Someday support multiple TranslationUnitNodes.
         auto result = node.getRoot().accept(this);
+
+        // NULL the structTable pointer to invalidate it.
+        structTable = nullptr;
 
         return result;
     }
@@ -406,7 +410,7 @@ namespace cmm
         // Check that the field to be used is a part of the struct.
         // Note: We already checked that optStructName has a value, so this is safe to access.
         const auto& structName = *datatype.optStructName;
-        const StructData* structData = structTable.get(structName);
+        const StructData* structData = structTable->get(structName);
 
         // Check to see that we found the struct and we have access to the definition so that
         // we can then verify the field is inside of the struct.
@@ -917,7 +921,7 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto* structDataPtr = structTable.get(structName);
+        const auto* structDataPtr = structTable->get(structName);
 
         if (structDataPtr != nullptr && structDataPtr->symState == EnumSymState::DEFINED)
         {
@@ -930,7 +934,8 @@ namespace cmm
         {
             scope.add(structName, context);
 
-            const auto optionalBadField = node.setupFieldTable();
+            StructData structData(EnumSymState::DEFINED);
+            const auto optionalBadField = node.setupFieldTable(structData.fieldMap);
 
             if (optionalBadField.has_value())
             {
@@ -940,18 +945,8 @@ namespace cmm
                 reporter.error(builder.str(), node.getLocation());
             }
 
-            // Copy StructDefinitionStatementNode FieldMap to here so that we
-            // have a copy in the StructTable.
-            // TODO: Try to reduce unnecessary copying in the future.
-            std::unordered_map<std::string, Field> fieldMap;
-
-            for (auto& [name, field] : node)
-            {
-                fieldMap.emplace(name, field);
-            }
-
-            StructData structData(EnumSymState::DEFINED, std::move(fieldMap));
-            structTable.addOrUpdate(structName, std::move(structData));
+            auto* addedStructDataPtr = structTable->addOrUpdate(structName, std::move(structData));
+            node.setStructData(addedStructDataPtr);
         }
 
         return VisitorResult();
@@ -964,7 +959,7 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto* structDataPtr = structTable.get(structName);
+        const auto* structDataPtr = structTable->get(structName);
 
         if (structDataPtr != nullptr)
         {
@@ -976,7 +971,7 @@ namespace cmm
         else
         {
             StructData structData(EnumSymState::DECLARED);
-            structTable.addOrUpdate(structName, std::move(structData));
+            structTable->addOrUpdate(structName, std::move(structData));
             scope.add(structName, context);
         }
 
@@ -985,6 +980,8 @@ namespace cmm
 
     VisitorResult Analyzer::visit(TranslationUnitNode& node)
     {
+        structTable = node.getStructTablePtr();
+
         for (auto& statement : node)
         {
             if (statement != nullptr)

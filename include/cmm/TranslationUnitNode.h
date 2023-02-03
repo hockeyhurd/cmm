@@ -13,6 +13,7 @@
 // Our includes
 #include <cmm/Types.h>
 #include <cmm/Node.h>
+#include <cmm/StructTable.h>
 
 // std includes
 #include <memory>
@@ -91,6 +92,36 @@ namespace cmm
         std::size_t size() const CMM_NOEXCEPT;
 
         /**
+         * Gets the StructTable.
+         *
+         * @return reference to the StructTable.
+         */
+        StructTable& getStructTable() CMM_NOEXCEPT;
+
+        /**
+         * Gets the StructTable.
+         *
+         * @return const reference to the StructTable.
+         */
+        const StructTable& getStructTable() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the StructTable.
+         * Note: This pointer shall always be valid.
+         *
+         * @return pointer to the StructTable.
+         */
+        StructTable* getStructTablePtr() CMM_NOEXCEPT;
+
+        /**
+         * Gets the StructTable.
+         * Note: This const pointer shall always be valid.
+         *
+         * @return const pointer to the StructTable.
+         */
+        const StructTable* getStructTablePtr() const CMM_NOEXCEPT;
+
+        /**
          * The beginning iterator to the statement list.
          *
          * @return StatementListIter.
@@ -126,6 +157,9 @@ namespace cmm
 
         // The list of statements in this translation unit.
         StatementList statements;
+
+        // The struct table containing all structs for this translation unit.
+        StructTable structTable;
     };
 }
 
