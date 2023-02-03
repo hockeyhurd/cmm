@@ -19,6 +19,8 @@
 
 namespace cmm
 {
+    struct EnumData;
+
     class EnumDefinitionStatementNode : public StatementNode
     {
     public:
@@ -82,6 +84,41 @@ namespace cmm
          */
         const std::string& getName() const CMM_NOEXCEPT;
 
+        /**
+         * Gets whether there are no enumerators in the enum's definition or not.
+         *
+         * @return bool true if empty, else false.
+         */
+        bool empty() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the number of enumerators in the enum's definition.
+         *
+         * @return std::size_t count.
+         */
+        std::size_t size() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the assigned EnumData containing all of the necessary enumerators.
+         *
+         * @return pointer to the EnumData.
+         */
+        EnumData* getEnumData() CMM_NOEXCEPT;
+
+        /**
+         * Gets the assigned EnumData containing all of the necessary enumerators.
+         *
+         * @return const pointer to the EnumData.
+         */
+        const EnumData* getEnumData() const CMM_NOEXCEPT;
+
+        /**
+         * Assigns the EnumData to this EnumDefinitionStatementNode.
+         *
+         * @param structData pointer to the EnumData being assigned.
+         */
+        void setEnumData(EnumData* enumData) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -89,6 +126,10 @@ namespace cmm
 
         // The name of the enum
         std::string name;
+
+        // A pointer to the enum's data which includes things
+        // such as enumerator information.
+        EnumData* enumData;
     };
 }
 

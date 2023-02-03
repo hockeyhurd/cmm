@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/EnumDefinitionStatementNode.h>
+#include <cmm/EnumTable.h>
 
 namespace cmm
 {
@@ -28,6 +29,31 @@ namespace cmm
     const std::string& EnumDefinitionStatementNode::getName() const CMM_NOEXCEPT
     {
         return name;
+    }
+
+    bool EnumDefinitionStatementNode::empty() const CMM_NOEXCEPT
+    {
+        return enumData == nullptr || enumData->enumeratorSet.empty();
+    }
+
+    std::size_t EnumDefinitionStatementNode::size() const CMM_NOEXCEPT
+    {
+        return enumData != nullptr ? enumData->enumeratorSet.size() : 0;
+    }
+
+    EnumData* EnumDefinitionStatementNode::getEnumData() CMM_NOEXCEPT
+    {
+        return enumData;
+    }
+
+    const EnumData* EnumDefinitionStatementNode::getEnumData() const CMM_NOEXCEPT
+    {
+        return enumData;
+    }
+
+    void EnumDefinitionStatementNode::setEnumData(EnumData* enumData) CMM_NOEXCEPT
+    {
+        this->enumData = enumData;
     }
 
     VisitorResult EnumDefinitionStatementNode::accept(Visitor* visitor) /* override */
