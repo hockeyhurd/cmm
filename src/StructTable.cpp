@@ -39,38 +39,64 @@ namespace cmm
         return map.size();
     }
 
-    void StructTable::addOrUpdate(const std::string& name, StructData&& data)
+    StructData* StructTable::addOrUpdate(const std::string& name, StructData&& data)
     {
+        StructData* result;
         const auto findResult = map.find(name);
 
         if (findResult != map.end())
         {
             findResult->second = std::move(data);
+            result = &findResult->second;
         }
 
         else
         {
-            [[maybe_unused]]
             auto [iter, wasInserted] = map.emplace(name, std::move(data));
             iter->second.name = &iter->first;
+
+            if (wasInserted)
+            {
+                result = &iter->second;
+            }
+
+            else
+            {
+                result = nullptr;
+            }
         }
+
+        return result;
     }
 
-    void StructTable::addOrUpdate(std::string&& name, StructData&& data)
+    StructData* StructTable::addOrUpdate(std::string&& name, StructData&& data)
     {
+        StructData* result;
         const auto findResult = map.find(name);
 
         if (findResult != map.end())
         {
             findResult->second = std::move(data);
+            result = &findResult->second;
         }
 
         else
         {
-            [[maybe_unused]]
             auto [iter, wasInserted] = map.emplace(std::move(name), std::move(data));
             iter->second.name = &iter->first;
+
+            if (wasInserted)
+            {
+                result = &iter->second;
+            }
+
+            else
+            {
+                result = nullptr;
+            }
         }
+
+        return result;
     }
 
     StructData* StructTable::get(const std::string& name) CMM_NOEXCEPT

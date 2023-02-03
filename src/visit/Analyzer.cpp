@@ -934,7 +934,8 @@ namespace cmm
         {
             scope.add(structName, context);
 
-            const auto optionalBadField = node.setupFieldTable();
+            StructData structData(EnumSymState::DEFINED);
+            const auto optionalBadField = node.setupFieldTable(structData.fieldMap);
 
             if (optionalBadField.has_value())
             {
@@ -944,18 +945,8 @@ namespace cmm
                 reporter.error(builder.str(), node.getLocation());
             }
 
-            // Copy StructDefinitionStatementNode FieldMap to here so that we
-            // have a copy in the StructTable.
-            // TODO: Try to reduce unnecessary copying in the future.
-            std::unordered_map<std::string, Field> fieldMap;
-
-            for (auto& [name, field] : node)
-            {
-                fieldMap.emplace(name, field);
-            }
-
-            StructData structData(EnumSymState::DEFINED, std::move(fieldMap));
-            structTable->addOrUpdate(structName, std::move(structData));
+            auto* addedStructDataPtr = structTable->addOrUpdate(structName, std::move(structData));
+            node.setStructData(addedStructDataPtr);
         }
 
         return VisitorResult();

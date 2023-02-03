@@ -23,14 +23,11 @@
 
 namespace cmm
 {
+    // Forward declaration(s):
+    struct StructData;
+
     class StructDefinitionStatementNode : public StatementNode
     {
-    public:
-
-        using FieldMap = std::unordered_map<std::string, Field>;
-        using FieldMapIter = FieldMap::iterator;
-        using FieldMapConstIter = FieldMap::const_iterator;
-
     public:
 
         /**
@@ -114,16 +111,39 @@ namespace cmm
         std::size_t size() const CMM_NOEXCEPT;
 
         /**
+         * Gets the assigned StructData containing all of the necessary fields.
+         *
+         * @return pointer to the StructData.
+         */
+        StructData* getStructData() CMM_NOEXCEPT;
+
+        /**
+         * Gets the assigned StructData containing all of the necessary fields.
+         *
+         * @return const pointer to the StructData.
+         */
+        const StructData* getStructData() const CMM_NOEXCEPT;
+
+        /**
+         * Assigns the StructData to this StructDefinitionStatementNode.
+         *
+         * @param structData pointer to the StructData being assigned.
+         */
+        void setStructData(StructData* structData) CMM_NOEXCEPT;
+
+        /**
          * Handles converting the BlockNode of "VariableDeclarationStatementNodes"
          * to a proper Field format.
          *
          * Note: This does NOT change the BlockNode.
          * Note #2: The returned value is the first duplicate field (only).
          *
+         * @param fieldMap the map to fill.
          * @return optional std::string of field with an error.
          */
-        std::optional<std::string> setupFieldTable();
+        std::optional<std::string> setupFieldTable(std::unordered_map<std::string, Field>& fieldMap);
 
+#if 0
         /**
          * Gets an iterator to the beginning of the FieldMap.
          *
@@ -167,6 +187,7 @@ namespace cmm
          * @return FieldMapConstIter.
          */
         FieldMapConstIter cend() const CMM_NOEXCEPT;
+#endif
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
@@ -179,9 +200,8 @@ namespace cmm
         // The block of fields.
         BlockNode blockNode;
 
-        // The map of fields.
-        // TODO: Consider moving this to the StructTable (if it makes sense) to reduce duplicate data.
-        FieldMap fieldMap;
+        // The pointer to the StructData of fields.
+        StructData* structData;
     };
 }
 

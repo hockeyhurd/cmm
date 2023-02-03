@@ -111,8 +111,9 @@ namespace cmm
          *
          * @param name the std::string name of the struct.
          * @param data the struct's data (name, field, etc.).
+         * @return pointer to the added or updated StructData if successful, else nullptr.
          */
-        void addOrUpdate(const std::string& name, StructData&& data);
+        StructData* addOrUpdate(const std::string& name, StructData&& data);
 
         /**
          * Adds the struct to the table.  If an entry already exists, the EnumSymState
@@ -120,8 +121,9 @@ namespace cmm
          *
          * @param name the std::string name of the struct.
          * @param data the struct's data (name, field, etc.).
+         * @return pointer to the added or updated StructData if successful, else nullptr.
          */
-        void addOrUpdate(std::string&& name, StructData&& data);
+        StructData* addOrUpdate(std::string&& name, StructData&& data);
 
         /**
          * Gets the EnumSymState if struct is in the table by name.
