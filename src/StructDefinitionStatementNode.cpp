@@ -85,28 +85,6 @@ namespace cmm
         return std::nullopt;
     }
 
-#if 0
-    StructDefinitionStatementNode::FieldMapIter StructDefinitionStatementNode::begin() CMM_NOEXCEPT
-    {
-        return fieldMap.begin();
-    }
-
-    StructDefinitionStatementNode::FieldMapConstIter StructDefinitionStatementNode::cbegin() const CMM_NOEXCEPT
-    {
-        return fieldMap.cbegin();
-    }
-
-    StructDefinitionStatementNode::FieldMapIter StructDefinitionStatementNode::end() CMM_NOEXCEPT
-    {
-        return fieldMap.end();
-    }
-
-    StructDefinitionStatementNode::FieldMapConstIter StructDefinitionStatementNode::cend() const CMM_NOEXCEPT
-    {
-        return fieldMap.cend();
-    }
-#endif
-
     VisitorResult StructDefinitionStatementNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

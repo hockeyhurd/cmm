@@ -143,52 +143,6 @@ namespace cmm
          */
         std::optional<std::string> setupFieldTable(std::unordered_map<std::string, Field>& fieldMap);
 
-#if 0
-        /**
-         * Gets an iterator to the beginning of the FieldMap.
-         *
-         * Note: The map is backed by an std::unordered_map and thus will
-         *       NOT be guranteed to be in 'index' order (i.e. as appears in
-         *       the struct definition).
-         *
-         * @return FieldMapIter.
-         */
-        FieldMapIter begin() CMM_NOEXCEPT;
-
-        /**
-         * Gets a const iterator to the beginning of the FieldMap.
-         *
-         * Note: The map is backed by an std::unordered_map and thus will
-         *       NOT be guranteed to be in 'index' order (i.e. as appears in
-         *       the struct definition).
-         *
-         * @return FieldMapConstIter.
-         */
-        FieldMapConstIter cbegin() const CMM_NOEXCEPT;
-
-        /**
-         * Gets an iterator to the end of the FieldMap.
-         *
-         * Note: The map is backed by an std::unordered_map and thus will
-         *       NOT be guranteed to be in 'index' order (i.e. as appears in
-         *       the struct definition).
-         *
-         * @return FieldMapIter.
-         */
-        FieldMapIter end() CMM_NOEXCEPT;
-
-        /**
-         * Gets a const iterator to the end of the FieldMap.
-         *
-         * Note: The map is backed by an std::unordered_map and thus will
-         *       NOT be guranteed to be in 'index' order (i.e. as appears in
-         *       the struct definition).
-         *
-         * @return FieldMapConstIter.
-         */
-        FieldMapConstIter cend() const CMM_NOEXCEPT;
-#endif
-
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
