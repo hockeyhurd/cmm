@@ -16,6 +16,7 @@
 #include <cmm/CastNode.h>
 #include <cmm/CompilationUnitNode.h>
 #include <cmm/DerefNode.h>
+#include <cmm/EnumDefinitionStatementNode.h>
 #include <cmm/ExpressionNode.h>
 #include <cmm/ExpressionStatementNode.h>
 #include <cmm/FieldAccessNode.h>

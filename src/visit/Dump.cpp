@@ -280,6 +280,21 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Dump::visit(EnumDefinitionStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+        // @@@
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
     VisitorResult Dump::visit(ExpressionStatementNode& node)
     {
         printIndentation();

@@ -672,6 +672,12 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(EnumDefinitionStatementNode& node)
+    {
+        // @@@
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(ExpressionStatementNode& node)
     {
         node.getExpression()->accept(this);

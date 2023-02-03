@@ -233,6 +233,12 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Encode::visit(EnumDefinitionStatementNode& node)
+    {
+        // @@@
+        return VisitorResult();
+    }
+
     VisitorResult Encode::visit(ExpressionStatementNode& node)
     {
         auto visitorResult = node.getExpression()->accept(this);

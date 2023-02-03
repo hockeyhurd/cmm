@@ -18,6 +18,7 @@ namespace cmm
     class CastNode;
     class CompilationUnitNode;
     class DerefNode;
+    class EnumDefinitionStatementNode;
     class ExpressionNode;
     class ExpressionStatementNode;
     class FieldAccessNode;
