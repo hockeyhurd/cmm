@@ -8,6 +8,7 @@
 // Our includes
 #include <cmm/Parser.h>
 #include <cmm/EnumTable.h>
+#include <cmm/Enumerator.h>
 #include <cmm/Keyword.h>
 #include <cmm/NodeList.h>
 #include <cmm/ParserPredictor.h>
@@ -21,6 +22,7 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -80,7 +82,7 @@ namespace cmm
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes);
     static std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage);
-    static std::optional<std::unordered_set<std::string>> parseEnumerators(Lexer& lexer, std::string* errorMessage);
+    static std::optional<std::unordered_map<std::string, Enumerator>> parseEnumerators(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
     static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location); // TODO: Make location not optional?
@@ -248,7 +250,7 @@ namespace cmm
     }
 
     /* static */
-    std::optional<std::unordered_set<std::string>> parseEnumerators(Lexer& lexer, std::string* errorMessage)
+    std::optional<std::unordered_map<std::string, Enumerator>> parseEnumerators(Lexer& lexer, std::string* errorMessage)
     {
         static Reporter& reporter = Reporter::instance();
 
@@ -272,7 +274,8 @@ namespace cmm
             return std::nullopt;
         }
 
-        std::unordered_set<std::string> enumeratorSet;
+        std::unordered_map<std::string, Enumerator> enumeratorMap;
+        s32 enumIndex = 0;
         bool requireComma = false;
 
         do
@@ -337,10 +340,10 @@ namespace cmm
                 if (token.isStringSymbol())
                 {
                     const std::string& enumerator = token.asStringSymbol();
-                    const auto findResult = enumeratorSet.find(enumerator);
+                    const auto findResult = enumeratorMap.find(enumerator);
 
                     // Enumerator already exists
-                    if (findResult != enumeratorSet.cend())
+                    if (findResult != enumeratorMap.cend())
                     {
                         std::ostringstream os;
                         os << "enum already contains enumerator '" << enumerator << "'";
@@ -360,7 +363,7 @@ namespace cmm
                     // New enumerator, add it to our map.
                     else
                     {
-                        enumeratorSet.emplace(enumerator);
+                        enumeratorMap.emplace(enumerator, Enumerator(enumerator, enumIndex++));
                     }
                 }
 
@@ -383,7 +386,7 @@ namespace cmm
         while (result);
 
         return expectSemicolon(lexer, errorMessage) ?
-               std::make_optional(std::move(enumeratorSet)) :
+               std::make_optional(std::move(enumeratorMap)) :
                std::nullopt;
     }
 
@@ -1078,10 +1081,10 @@ namespace cmm
 
                         else if (wasEnumType)
                         {
-                            auto optEnumeratorSet = parseEnumerators(lexer, errorMessage);
+                            auto optEnumeratorMap = parseEnumerators(lexer, errorMessage);
 
                             // Successful parse. Let's update our table and create the EnumDefinitionStatementNode.
-                            if (optEnumeratorSet.has_value())
+                            if (optEnumeratorMap.has_value())
                             {
                                 // @@@ see if we can use move semantics for optTypeName
                                 const auto& enumName = *type->getDatatype().optTypeName;
@@ -1104,7 +1107,7 @@ namespace cmm
                                 // Add the enum to the table and return success.
                                 else
                                 {
-                                    auto* enumDataPtr = currentEnumTable.addOrUpdate(enumName, EnumData(std::move(*optEnumeratorSet)));
+                                    auto* enumDataPtr = currentEnumTable.addOrUpdate(enumName, EnumData(std::move(*optEnumeratorMap)));
                                     auto exprResult = std::make_unique<EnumDefinitionStatementNode>(startLoc, enumName);
                                     exprResult->setEnumData(enumDataPtr);
                                     return exprResult;

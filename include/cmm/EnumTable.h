@@ -12,20 +12,20 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/Enumerator.h>
 
 // std includes
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
 namespace cmm
 {
     struct EnumData
     {
-        std::unordered_set<std::string> enumeratorSet;
+        std::unordered_map<std::string, Enumerator> enumeratorMap;
         const std::string* name;
 
-        explicit EnumData(std::unordered_set<std::string>&& enumeratorSet = {});
+        explicit EnumData(std::unordered_map<std::string, Enumerator>&& enumeratorMap = {});
         EnumData(const EnumData&) = delete;
         EnumData(EnumData&&) CMM_NOEXCEPT = default;
         ~EnumData() = default;
@@ -34,7 +34,7 @@ namespace cmm
         EnumData& operator= (EnumData&&) CMM_NOEXCEPT = default;
 
         /**
-         * Helper function for looking up an enumerator in the internal enumeratorSet.
+         * Helper function for looking up an enumerator in the internal enumeratorMap.
          *
          * @param name the std::string name of the enumerator to find.
          * @return bool true if found, else false.

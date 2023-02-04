@@ -10,14 +10,14 @@
 
 namespace cmm
 {
-    EnumData::EnumData(std::unordered_set<std::string>&& enumeratorSet) : enumeratorSet(std::move(enumeratorSet)),
-        name(nullptr)
+    EnumData::EnumData(std::unordered_map<std::string, Enumerator>&& enumeratorMap) :
+        enumeratorMap(std::move(enumeratorMap)), name(nullptr)
     {
     }
 
     bool EnumData::findEnumerator(const std::string& name) const CMM_NOEXCEPT
     {
-        return enumeratorSet.find(name) != enumeratorSet.cend();
+        return enumeratorMap.find(name) != enumeratorMap.cend();
     }
 
     bool EnumTable::empty() const CMM_NOEXCEPT

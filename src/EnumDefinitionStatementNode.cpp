@@ -33,12 +33,12 @@ namespace cmm
 
     bool EnumDefinitionStatementNode::empty() const CMM_NOEXCEPT
     {
-        return enumData == nullptr || enumData->enumeratorSet.empty();
+        return enumData == nullptr || enumData->enumeratorMap.empty();
     }
 
     std::size_t EnumDefinitionStatementNode::size() const CMM_NOEXCEPT
     {
-        return enumData != nullptr ? enumData->enumeratorSet.size() : 0;
+        return enumData != nullptr ? enumData->enumeratorMap.size() : 0;
     }
 
     EnumData* EnumDefinitionStatementNode::getEnumData() CMM_NOEXCEPT

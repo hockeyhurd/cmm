@@ -292,7 +292,15 @@ namespace cmm
 
         const auto* enumDataPtr = node.getEnumData();
         std::cout << "enumerators: [\n";
-        std::for_each(enumDataPtr->enumeratorSet.cbegin(), enumDataPtr->enumeratorSet.cend(), [this](const std::string& enumeratorName) { printIndentation(); std::cout << enumeratorName << ",\n"; });
+        /*std::for_each(enumDataPtr->enumeratorMap.cbegin(), enumDataPtr->enumeratorMap.cend(), [this](const Enumerator& enumerator)
+                {
+                    printIndentation(); std::cout << "name: " << enumerator.getName() << ",\nordinal: " << enumerator.getIndex() << "\n";
+                });*/
+        for (const auto& [keyName, enumerator] : enumDataPtr->enumeratorMap)
+        {
+            printIndentation(); std::cout << "name: " << enumerator.getName() << ",\nordinal: " << enumerator.getIndex() << "\n";
+        }
+
         printIndentation();
         std::cout << "]\n";
         decreaseIntentation();
