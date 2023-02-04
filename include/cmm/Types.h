@@ -233,7 +233,7 @@ namespace cmm
          */
         CType() CMM_NOEXCEPT;
         explicit CType(const EnumCType type, const u16 pointers = 0,
-            std::optional<std::string> optTypeName = std::nullopt) CMM_NOEXCEPT;
+            std::optional<std::string>&& optTypeName = std::nullopt) CMM_NOEXCEPT;
         CType(const CType& other);
         CType(CType&& other) CMM_NOEXCEPT;
 

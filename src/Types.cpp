@@ -65,8 +65,8 @@ namespace cmm
     {
     }
 
-    CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string> optTypeName) CMM_NOEXCEPT :
-        type(type), pointers(pointers), optTypeName(optTypeName)
+    CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string>&& optTypeName) CMM_NOEXCEPT :
+        type(type), pointers(pointers), optTypeName(std::move(optTypeName))
     {
     }
 
