@@ -367,6 +367,12 @@ namespace cmm
                     }
                 }
 
+                // See if it's a closing '}', indicating the end of the definition
+                else if (token.isCharSymbol() && token.asCharSymbol() == CHAR_RCURLY_BRACKET)
+                {
+                    break;
+                }
+
                 // Not an enumerator, abort!
                 else
                 {
@@ -385,9 +391,20 @@ namespace cmm
         }
         while (result);
 
-        return expectSemicolon(lexer, errorMessage) ?
-               std::make_optional(std::move(enumeratorMap)) :
-               std::nullopt;
+        if (!expectSemicolon(lexer, errorMessage))
+        {
+            const char* err = "expected a closing semi-colon after enum definition";
+            reporter.error(err, location);
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = err;
+            }
+
+            return std::nullopt;
+        }
+
+        return std::make_optional(std::move(enumeratorMap));
     }
 
     /* static */

@@ -684,6 +684,29 @@ namespace cmm
             std::ostringstream os;
             os << "Enum '" << enumName << "' doesn't appear to be defined";
             reporter.error(os.str(), node.getLocation());
+
+            return VisitorResult();
+        }
+
+        // Next we need to check if there is a naming conflict between other variables or enums.
+        const CType datatype(EnumCType::ENUM, 0, std::make_optional<std::string>(enumName));
+        const auto currentLocality = localityStack.top();
+
+        for (auto& [name, enumerator] : enumDataPtr->enumeratorMap)
+        {
+            const auto* lookupContext = scope.findAnyVariable(name);
+
+            if (lookupContext != nullptr)
+            {
+                // @@@ test this error case.
+                std::ostringstream builder;
+                builder << "Enumerator '" << name << "' would cause a redefinition of previously declared or defined variable with the same name";
+                reporter.error(builder.str(), node.getLocation());
+                break;
+            }
+
+            VariableContext context(datatype, currentLocality, EnumModifier::CONST_VALUE);
+            scope.add(name, context);
         }
 
         return VisitorResult();
