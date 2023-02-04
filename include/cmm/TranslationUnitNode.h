@@ -12,6 +12,7 @@
 
 // Our includes
 #include <cmm/Types.h>
+#include <cmm/EnumTable.h>
 #include <cmm/Node.h>
 #include <cmm/StructTable.h>
 
@@ -46,7 +47,7 @@ namespace cmm
          * @param statements a vector of statements (declarations and/or definitions)
          *        defined within a single translation unit.
          */
-        TranslationUnitNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT;
+        TranslationUnitNode(const Location& location, StatementList&& statements, EnumTable&& enumTable) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -90,6 +91,36 @@ namespace cmm
          * @return std::size_t count.
          */
         std::size_t size() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the EnumTable.
+         *
+         * @return reference to the EnumTable.
+         */
+        EnumTable& getEnumTable() CMM_NOEXCEPT;
+
+        /**
+         * Gets the EnumTable.
+         *
+         * @return const reference to the EnumTable.
+         */
+        const EnumTable& getEnumTable() const CMM_NOEXCEPT;
+
+        /**
+         * Gets the EnumTable.
+         * Note: This pointer shall always be valid.
+         *
+         * @return pointer to the EnumTable.
+         */
+        EnumTable* getEnumTablePtr() CMM_NOEXCEPT;
+
+        /**
+         * Gets the EnumTable.
+         * Note: This const pointer shall always be valid.
+         *
+         * @return const pointer to the EnumTable.
+         */
+        const EnumTable* getEnumTablePtr() const CMM_NOEXCEPT;
 
         /**
          * Gets the StructTable.
@@ -157,6 +188,9 @@ namespace cmm
 
         // The list of statements in this translation unit.
         StatementList statements;
+
+        // The enum table containing all enums for this translation unit.
+        EnumTable enumTable;
 
         // The struct table containing all structs for this translation unit.
         StructTable structTable;

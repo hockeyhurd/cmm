@@ -289,7 +289,12 @@ namespace cmm
         increaseIntentation();
         std::cout << "name: " << node.getName();
         printNewLine();
-        // @@@
+
+        const auto* enumDataPtr = node.getEnumData();
+        std::cout << "enumerators: [\n";
+        std::for_each(enumDataPtr->enumeratorSet.cbegin(), enumDataPtr->enumeratorSet.cend(), [this](const std::string& enumeratorName) { printIndentation(); std::cout << enumeratorName << ",\n"; });
+        printIndentation();
+        std::cout << "]\n";
         decreaseIntentation();
 
         return VisitorResult();

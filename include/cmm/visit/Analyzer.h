@@ -14,7 +14,6 @@
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
 #include <cmm/ScopeManager.h>
-#include <cmm/StructTable.h>
 #include <cmm/VariableContext.h>
 #include <cmm/visit/Visitor.h>
 
@@ -29,6 +28,7 @@ namespace cmm
 {
     // Forward declarations:
     class Reporter;
+    class StructTable;
 
     class Analyzer : public Visitor
     {

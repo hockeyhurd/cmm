@@ -39,6 +39,11 @@ namespace cmm
         return map.size();
     }
 
+    void StructTable::clear() CMM_NOEXCEPT
+    {
+        map.clear();
+    }
+
     StructData* StructTable::addOrUpdate(const std::string& name, StructData&& data)
     {
         StructData* result;

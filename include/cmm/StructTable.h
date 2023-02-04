@@ -106,6 +106,11 @@ namespace cmm
         Map::size_type size() const CMM_NOEXCEPT;
 
         /**
+         * Clears the underlying table.
+         */
+        void clear() CMM_NOEXCEPT;
+
+        /**
          * Adds the struct to the table.  If an entry already exists, the EnumSymState
          * will be updated to the passed value.
          *

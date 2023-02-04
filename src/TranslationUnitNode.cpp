@@ -15,8 +15,9 @@ namespace cmm
     {
     }
 
-    TranslationUnitNode::TranslationUnitNode(const Location& location, StatementList&& statements) CMM_NOEXCEPT :
-        Node(EnumNodeType::TRANSLATION_UNIT, location), statements(std::move(statements))
+    TranslationUnitNode::TranslationUnitNode(const Location& location, StatementList&& statements,
+        EnumTable&& enumTable) CMM_NOEXCEPT : Node(EnumNodeType::TRANSLATION_UNIT, location),
+        statements(std::move(statements)), enumTable(std::move(enumTable))
     {
     }
 
@@ -28,6 +29,26 @@ namespace cmm
     std::size_t TranslationUnitNode::size() const CMM_NOEXCEPT
     {
         return statements.size();
+    }
+
+    EnumTable& TranslationUnitNode::getEnumTable() CMM_NOEXCEPT
+    {
+        return enumTable;
+    }
+
+    const EnumTable& TranslationUnitNode::getEnumTable() const CMM_NOEXCEPT
+    {
+        return enumTable;
+    }
+
+    EnumTable* TranslationUnitNode::getEnumTablePtr() CMM_NOEXCEPT
+    {
+        return &enumTable;
+    }
+
+    const EnumTable* TranslationUnitNode::getEnumTablePtr() const CMM_NOEXCEPT
+    {
+        return &enumTable;
     }
 
     StructTable& TranslationUnitNode::getStructTable() CMM_NOEXCEPT

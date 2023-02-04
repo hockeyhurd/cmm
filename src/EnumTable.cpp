@@ -30,6 +30,11 @@ namespace cmm
         return enumMap.size();
     }
 
+    void EnumTable::clear() CMM_NOEXCEPT
+    {
+        enumMap.clear();
+    }
+
     EnumData* EnumTable::addOrUpdate(const std::string& name, EnumData&& data)
     {
         EnumData* result;

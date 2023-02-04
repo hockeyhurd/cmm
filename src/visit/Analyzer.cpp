@@ -7,8 +7,10 @@
 
 // Our includes
 #include <cmm/visit/Analyzer.h>
+#include <cmm/EnumTable.h>
 #include <cmm/NodeList.h>
 #include <cmm/Reporter.h>
+#include <cmm/StructTable.h>
 
 // std includes
 #include <limits>
@@ -674,7 +676,16 @@ namespace cmm
 
     VisitorResult Analyzer::visit(EnumDefinitionStatementNode& node)
     {
-        // @@@
+        const auto& enumName = node.getName();
+        auto* enumDataPtr = node.getEnumData();
+
+        if (enumDataPtr == nullptr)
+        {
+            std::ostringstream os;
+            os << "Enum '" << enumName << "' doesn't appear to be defined";
+            reporter.error(os.str(), node.getLocation());
+        }
+
         return VisitorResult();
     }
 

@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/Parser.h>
+#include <cmm/EnumTable.h>
 #include <cmm/Keyword.h>
 #include <cmm/NodeList.h>
 #include <cmm/ParserPredictor.h>
@@ -30,6 +31,7 @@
 
 namespace cmm
 {
+    static EnumTable currentEnumTable;
 
     // TODO: This should be broken out into a different class or file.
     template<class T>
@@ -979,6 +981,7 @@ namespace cmm
     /* static */
     TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage)
     {
+        currentEnumTable = EnumTable();
         auto statements = parseOneOrMoreStatements(lexer, errorMessage);
 
         if (statements.has_value())
@@ -991,7 +994,7 @@ namespace cmm
                 location = statementVec[0]->getLocation();
             }
 
-            TranslationUnitNode translationUnit(location, std::move(*statements));
+            TranslationUnitNode translationUnit(location, std::move(*statements), std::move(currentEnumTable));
             return translationUnit;
         }
 
@@ -1068,6 +1071,7 @@ namespace cmm
                         {
                             auto blockNode = parseStructBlockStatement(lexer, errorMessage);
                             return expectSemicolon(lexer, errorMessage) ?
+                                // @@@ see if we can use move semantics for optTypeName
                                 std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optTypeName, std::move(*blockNode)) :
                                 nullptr;
                         }
@@ -1075,7 +1079,40 @@ namespace cmm
                         else if (wasEnumType)
                         {
                             auto optEnumeratorSet = parseEnumerators(lexer, errorMessage);
-                            return optEnumeratorSet.has_value() ? std::make_unique<EnumDefinitionStatementNode>(startLoc, *type->getDatatype().optTypeName) : nullptr;
+
+                            // Successful parse. Let's update our table and create the EnumDefinitionStatementNode.
+                            if (optEnumeratorSet.has_value())
+                            {
+                                // @@@ see if we can use move semantics for optTypeName
+                                const auto& enumName = *type->getDatatype().optTypeName;
+
+                                // See if enum is already defined and report an error as neccessary.
+                                if (currentEnumTable.has(enumName))
+                                {
+                                    std::ostringstream os;
+                                    os << "enum '" << enumName << "' is already defined";
+
+                                    auto err = os.str();
+                                    reporter.error(err, startLoc);
+
+                                    if (canWriteErrorMessage(errorMessage))
+                                    {
+                                        *errorMessage = std::move(err);
+                                    }
+                                }
+
+                                // Add the enum to the table and return success.
+                                else
+                                {
+                                    auto* enumDataPtr = currentEnumTable.addOrUpdate(enumName, EnumData(std::move(*optEnumeratorSet)));
+                                    auto exprResult = std::make_unique<EnumDefinitionStatementNode>(startLoc, enumName);
+                                    exprResult->setEnumData(enumDataPtr);
+                                    return exprResult;
+                                }
+                            }
+
+                            // enum 'catch all' return failure/nullptr.
+                            return nullptr;
                         }
 
                         else
