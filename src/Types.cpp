@@ -26,6 +26,7 @@ namespace cmm
         ctypeMap.emplace("void*", EnumCType::VOID_PTR);
         ctypeMap.emplace("bool", EnumCType::BOOL);
         ctypeMap.emplace("char", EnumCType::CHAR);
+        ctypeMap.emplace("enum", EnumCType::ENUM);
         ctypeMap.emplace("short", EnumCType::INT16);
         ctypeMap.emplace("int", EnumCType::INT32);
         ctypeMap.emplace("long", EnumCType::INT64);
@@ -60,25 +61,25 @@ namespace cmm
         return std::nullopt;
     }
 
-    CType::CType() CMM_NOEXCEPT : type(EnumCType::NULL_T), pointers(0xFFFF), optStructName(std::nullopt)
+    CType::CType() CMM_NOEXCEPT : type(EnumCType::NULL_T), pointers(0xFFFF), optTypeName(std::nullopt)
     {
     }
 
-    CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string> optStructName) CMM_NOEXCEPT :
-        type(type), pointers(pointers), optStructName(optStructName)
+    CType::CType(const EnumCType type, const u16 pointers, std::optional<std::string> optTypeName) CMM_NOEXCEPT :
+        type(type), pointers(pointers), optTypeName(optTypeName)
     {
     }
 
-    CType::CType(const CType& other) : type(other.type), pointers(other.pointers), optStructName(std::nullopt)
+    CType::CType(const CType& other) : type(other.type), pointers(other.pointers), optTypeName(std::nullopt)
     {
-        if (other.optStructName.has_value())
+        if (other.optTypeName.has_value())
         {
-            optStructName = std::make_optional(*other.optStructName);
+            optTypeName = std::make_optional(*other.optTypeName);
         }
     }
 
     CType::CType(CType&& other) CMM_NOEXCEPT : type(other.type), pointers(other.pointers),
-        optStructName(std::move(other.optStructName))
+        optTypeName(std::move(other.optTypeName))
     {
     }
 
@@ -88,7 +89,7 @@ namespace cmm
         {
             type = other.type;
             pointers = other.pointers;
-            optStructName = other.optStructName;
+            optTypeName = other.optTypeName;
         }
 
         return *this;
@@ -100,7 +101,7 @@ namespace cmm
         {
             type = other.type;
             pointers = other.pointers;
-            optStructName = std::move(other.optStructName);
+            optTypeName = std::move(other.optTypeName);
         }
 
         return *this;
@@ -119,7 +120,8 @@ namespace cmm
 
     bool CType::isInt() const CMM_NOEXCEPT
     {
-        const bool result = pointers == 0 && (type == EnumCType::CHAR ||
+        const bool result = pointers == 0 &&
+            (type == EnumCType::CHAR || type == EnumCType::ENUM  ||
             type == EnumCType::INT8  || type == EnumCType::INT16 ||
             type == EnumCType::INT32 || type == EnumCType::INT64);
 
@@ -146,6 +148,19 @@ namespace cmm
             {
                 auto& set = promoMap[EnumCType::CHAR];
                 set.emplace(EnumCType::CHAR);
+                set.emplace(EnumCType::ENUM);
+                set.emplace(EnumCType::INT8);
+                set.emplace(EnumCType::INT16);
+                set.emplace(EnumCType::INT32);
+                set.emplace(EnumCType::INT64);
+                set.emplace(EnumCType::FLOAT);
+                set.emplace(EnumCType::DOUBLE);
+            }
+
+            // For reference, see https://stackoverflow.com/questions/366017/what-is-the-size-of-an-enum-in-c
+            {
+                auto& set = promoMap[EnumCType::ENUM];
+                set.emplace(EnumCType::CHAR);
                 set.emplace(EnumCType::INT8);
                 set.emplace(EnumCType::INT16);
                 set.emplace(EnumCType::INT32);
@@ -157,6 +172,7 @@ namespace cmm
             {
                 auto& set = promoMap[EnumCType::INT8];
                 set.emplace(EnumCType::CHAR);
+                set.emplace(EnumCType::ENUM);
                 set.emplace(EnumCType::INT16);
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
@@ -166,6 +182,7 @@ namespace cmm
 
             {
                 auto& set = promoMap[EnumCType::INT16];
+                set.emplace(EnumCType::ENUM);
                 set.emplace(EnumCType::INT16);
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
@@ -175,6 +192,7 @@ namespace cmm
 
             {
                 auto& set = promoMap[EnumCType::INT32];
+                set.emplace(EnumCType::ENUM);
                 set.emplace(EnumCType::INT32);
                 set.emplace(EnumCType::INT64);
                 set.emplace(EnumCType::FLOAT);

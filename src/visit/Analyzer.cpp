@@ -375,7 +375,7 @@ namespace cmm
             return VisitorResult();
         }
 
-        else if (!datatype.optStructName.has_value())
+        else if (!datatype.optTypeName.has_value())
         {
             reporter.bug("Missing struct name for the accessing expression. Must be a compiler bug??", node.getLocation(), true);
             return VisitorResult();
@@ -408,8 +408,8 @@ namespace cmm
         }
 
         // Check that the field to be used is a part of the struct.
-        // Note: We already checked that optStructName has a value, so this is safe to access.
-        const auto& structName = *datatype.optStructName;
+        // Note: We already checked that optTypeName has a value, so this is safe to access.
+        const auto& structName = *datatype.optTypeName;
         const StructData* structData = structTable->get(structName);
 
         // Check to see that we found the struct and we have access to the definition so that

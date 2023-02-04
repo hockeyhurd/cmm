@@ -163,7 +163,7 @@ namespace cmm
             str = "i8*";
             break;
         case EnumCType::STRUCT:
-            str = "%struct." + *datatype.optStructName;
+            str = "%struct." + *datatype.optTypeName;
             break;
         default:
             str = "Unknown type";

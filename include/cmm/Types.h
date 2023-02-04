@@ -218,22 +218,22 @@ namespace cmm
 
     enum class EnumCType : u16
     {
-        NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, INT8, INT16, INT32, INT64, FLOAT,
-        DOUBLE, STRING, STRUCT
+        NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, ENUM, INT8, INT16, INT32, INT64,
+        FLOAT, DOUBLE, STRING, STRUCT
     };
 
     struct CType
     {
         EnumCType type;
         u16 pointers;
-        std::optional<std::string> optStructName;
+        std::optional<std::string> optTypeName;
 
         /**
          * Needed for std::pair... do NOT use otherwise.
          */
         CType() CMM_NOEXCEPT;
         explicit CType(const EnumCType type, const u16 pointers = 0,
-            std::optional<std::string> optStructName = std::nullopt) CMM_NOEXCEPT;
+            std::optional<std::string> optTypeName = std::nullopt) CMM_NOEXCEPT;
         CType(const CType& other);
         CType(CType&& other) CMM_NOEXCEPT;
 
@@ -257,6 +257,7 @@ namespace cmm
             void* valueVoidPtr;
             char  valueChar;
             bool  valueBool;
+            unsigned int valueEnum;
             s8    valueS8;
             s16   valueS16;
             s32   valueS32;
@@ -270,6 +271,7 @@ namespace cmm
         explicit CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
         explicit CTypeValue(const bool valueBool) CMM_NOEXCEPT;
         explicit CTypeValue(const char valueChar) CMM_NOEXCEPT;
+        explicit CTypeValue(const unsigned int valueEnum) CMM_NOEXCEPT;
         explicit CTypeValue(const s8 valueS8) CMM_NOEXCEPT;
         explicit CTypeValue(const s16 valueS16) CMM_NOEXCEPT;
         explicit CTypeValue(const s32 valueS32) CMM_NOEXCEPT;
@@ -298,6 +300,8 @@ namespace cmm
             return "bool";
         case EnumCType::CHAR:
             return "char";
+        case EnumCType::ENUM:
+            return "enum";
         case EnumCType::INT8:
             return "int8";
         case EnumCType::INT16:
@@ -371,7 +375,7 @@ namespace std
         {
             std::size_t result = (cmm::s32) type.type;
             cmm::hash_combine(result, type.pointers);
-            cmm::hash_combine(result, type.optStructName);
+            cmm::hash_combine(result, type.optTypeName);
 
             return result;
         }

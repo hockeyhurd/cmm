@@ -27,7 +27,7 @@ namespace cmm
 
         if (type.type == EnumCType::STRUCT)
         {
-            std::cout << type.optStructName.value();
+            std::cout << type.optTypeName.value();
         }
 
         printRepeat(std::cout, '*', type.pointers);

@@ -23,6 +23,8 @@ namespace cmm
     /* static */
     const Keyword Keyword::ELSE("else", false);
     /* static */
+    const Keyword Keyword::ENUM("enum", true);
+    /* static */
     const Keyword Keyword::FLOAT("float", true);
     /* static */
     const Keyword Keyword::IF("if", false);
@@ -106,7 +108,7 @@ namespace cmm
             // addKeyword("do", false);
             addKeyword(&Keyword::DOUBLE);
             addKeyword(&Keyword::ELSE);
-            // addKeyword("enum", false);
+            addKeyword(&Keyword::ENUM);
             // addKeyword("extern", false);
             addKeyword(&Keyword::FLOAT);
             // addKeyword("for", false);
