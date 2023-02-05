@@ -698,7 +698,6 @@ namespace cmm
 
             if (lookupContext != nullptr)
             {
-                // @@@ test this error case.
                 std::ostringstream builder;
                 builder << "Enumerator '" << name << "' would cause a redefinition of previously declared or defined variable with the same name";
                 reporter.error(builder.str(), node.getLocation());

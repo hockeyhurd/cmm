@@ -3886,6 +3886,17 @@ TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeMulti)
     ASSERT_EQ(findResult->second.getIndex(), 2);
 }
 
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeDuplicateEnumeratorError)
+{
+    const std::string input = "enum A { X, Y, X };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     reporter.setEnablePrint(false);

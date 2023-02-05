@@ -235,7 +235,8 @@ namespace cmm
 
     VisitorResult Encode::visit(EnumDefinitionStatementNode& node)
     {
-        // @@@
+        // Leave any necessary encoding to the platform.
+        platform->emit(this, node);
         return VisitorResult();
     }
 

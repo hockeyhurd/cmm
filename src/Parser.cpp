@@ -1091,8 +1091,7 @@ namespace cmm
                         {
                             auto blockNode = parseStructBlockStatement(lexer, errorMessage);
                             return expectSemicolon(lexer, errorMessage) ?
-                                // @@@ see if we can use move semantics for optTypeName
-                                std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optTypeName, std::move(*blockNode)) :
+                                std::make_unique<StructDefinitionStatementNode>(startLoc, std::move(*type->getDatatype().optTypeName), std::move(*blockNode)) :
                                 nullptr;
                         }
 
@@ -1103,8 +1102,7 @@ namespace cmm
                             // Successful parse. Let's update our table and create the EnumDefinitionStatementNode.
                             if (optEnumeratorMap.has_value())
                             {
-                                // @@@ see if we can use move semantics for optTypeName
-                                const auto& enumName = *type->getDatatype().optTypeName;
+                                std::string enumName = std::move(*type->getDatatype().optTypeName);
 
                                 // See if enum is already defined and report an error as neccessary.
                                 if (currentEnumTable.has(enumName))
