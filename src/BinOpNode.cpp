@@ -114,6 +114,18 @@ namespace cmm
         --datatype.pointers;
     }
 
+    // TODO @@@: Find a better solution
+    void BinOpNode::setLeftNode(ExpressionNode* left) CMM_NOEXCEPT
+    {
+        this->left.reset(left);
+    }
+
+    // TODO @@@: Find a better solution
+    void BinOpNode::setRightNode(ExpressionNode* right) CMM_NOEXCEPT
+    {
+        this->right.reset(right);
+    }
+
     VisitorResult BinOpNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

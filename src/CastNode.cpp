@@ -31,6 +31,12 @@ namespace cmm
         return expression.get();
     }
 
+    // TODO @@@: Find a better solution.
+    void CastNode::setExpression(ExpressionNode* expression) CMM_NOEXCEPT
+    {
+        this->expression.reset(expression);
+    }
+
     void CastNode::derefNode()
     {
         const auto location = expression->getLocation();

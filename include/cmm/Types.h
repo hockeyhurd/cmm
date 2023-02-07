@@ -271,6 +271,7 @@ namespace cmm
         explicit CTypeValue(void* valueVoidPtr) CMM_NOEXCEPT;
         explicit CTypeValue(const bool valueBool) CMM_NOEXCEPT;
         explicit CTypeValue(const char valueChar) CMM_NOEXCEPT;
+        // @@@ this won't work for enums with negative values.
         explicit CTypeValue(const unsigned int valueEnum) CMM_NOEXCEPT;
         explicit CTypeValue(const s8 valueS8) CMM_NOEXCEPT;
         explicit CTypeValue(const s16 valueS16) CMM_NOEXCEPT;

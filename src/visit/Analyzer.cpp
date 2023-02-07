@@ -26,7 +26,7 @@ namespace cmm
         return std::numeric_limits<T>::lowest() <= value && value <= std::numeric_limits<T>::max();
     }
 
-    Analyzer::Analyzer() CMM_NOEXCEPT : structTable(nullptr)
+    Analyzer::Analyzer() CMM_NOEXCEPT : enumTable(nullptr), structTable(nullptr)
     {
         localityStack.push(EnumLocality::GLOBAL);
     }
@@ -43,8 +43,15 @@ namespace cmm
     {
         auto* rightNode = node.getRight();
 
-        [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
+
+        if (rightNodeResult.resultType == EnumVisitorResultType::NODE)
+        {
+            // TODO @@@: Can we avoid the dynamic_cast ??
+            node.setRightNode(dynamic_cast<ExpressionNode*>(rightNodeResult.result.node));
+            // rightNodeResult.owned = false;
+        }
+
         const auto& rightType = rightNode->getDatatype();
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
@@ -262,7 +269,13 @@ namespace cmm
         }
 
         auto* expression = node.getExpression();
-        expression->accept(this);
+        auto visitorResult = expression->accept(this);
+
+        if (visitorResult.resultType == EnumVisitorResultType::NODE)
+        {
+            node.setExpression(dynamic_cast<ExpressionNode*>(visitorResult.result.node));
+            expression = node.getExpression();
+        }
 
         // If it is a VariableNode, we need to add a DerefNode in front of it.
         if (expression->getType() == EnumNodeType::VARIABLE)
@@ -332,7 +345,8 @@ namespace cmm
         // TODO: Someday support multiple TranslationUnitNodes.
         auto result = node.getRoot().accept(this);
 
-        // NULL the structTable pointer to invalidate it.
+        // NULL the enumTable and structTable pointers to invalidate it.
+        enumTable = nullptr;
         structTable = nullptr;
 
         return result;
@@ -704,7 +718,9 @@ namespace cmm
                 break;
             }
 
-            VariableContext context(datatype, currentLocality, EnumModifier::CONST_VALUE);
+            // @@@ this won't work for enums with negative values.
+            auto optValue = std::make_optional<CTypeValue>(static_cast<unsigned int>(enumerator.getValue()));
+            VariableContext context(datatype, currentLocality, EnumModifier::CONST_VALUE, std::move(optValue));
             scope.add(name, context);
         }
 
@@ -1019,6 +1035,7 @@ namespace cmm
 
     VisitorResult Analyzer::visit(TranslationUnitNode& node)
     {
+        enumTable = node.getEnumTablePtr();
         structTable = node.getStructTablePtr();
 
         for (auto& statement : node)
@@ -1102,6 +1119,16 @@ namespace cmm
         }
 
         node.setDatatype(varContext->getCType());
+
+        // Check if the variable is a const value that we could inline the value
+        // from (if known, such as an enum). For now, only support for enums...
+        // TODO: Support non-enums here.
+        if ((varContext->getModifiers() & EnumModifier::CONST_VALUE) != 0 &&
+             node.getDatatype().type == EnumCType::ENUM && node.getDatatype().pointers == 0)
+        {
+            auto* litteralNode = new LitteralNode(node.getLocation(), varContext->getOptionalValue()->valueEnum);
+            return VisitorResult(litteralNode, false);
+        }
 
         return VisitorResult();
     }

@@ -150,6 +150,12 @@ namespace cmm
          */
         void popDerefNodeRight();
 
+        // TODO @@@: Find a better solution
+        void setLeftNode(ExpressionNode* left) CMM_NOEXCEPT;
+
+        // TODO @@@: Find a better solution
+        void setRightNode(ExpressionNode* right) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 

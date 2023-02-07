@@ -147,6 +147,8 @@ namespace cmm
         case EnumCType::INT16:
             str = "i16";
             break;
+        case EnumCType::ENUM:
+        // fallthrough
         case EnumCType::INT32:
             str = "i32";
             break;
@@ -388,6 +390,9 @@ namespace cmm
             break;
         case EnumCType::CHAR:
             outputStr = std::to_string(node.getValue().valueChar);
+            break;
+        case EnumCType::ENUM:
+            outputStr = std::to_string(node.getValue().valueEnum);
             break;
         case EnumCType::INT8:
             outputStr = std::to_string(node.getValue().valueS8);

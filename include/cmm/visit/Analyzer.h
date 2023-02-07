@@ -28,6 +28,7 @@ namespace cmm
 {
     // Forward declarations:
     class Reporter;
+    class EnumTable;
     class StructTable;
 
     class Analyzer : public Visitor
@@ -111,6 +112,11 @@ namespace cmm
 
         // A map for keeping track of functions available.
         std::unordered_map<std::string, std::pair<EnumSymState, CType>> functionTable;
+
+        // The pointer to the table for tracking enums for the current translation unit.
+        // Note: This pointer shall only be valid while a TranslationUnitNode and
+        // it's child AST nodes are being analyzed.
+        EnumTable* enumTable;
 
         // The pointer to the table for tracking structs for the current translation unit.
         // Note: This pointer shall only be valid while a TranslationUnitNode and

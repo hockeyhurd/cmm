@@ -820,6 +820,24 @@ TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeVariableNameConflictionWit
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeThenAssignToVarValid)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; int Z; Z = (int) X;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     reporter.setEnablePrint(false);

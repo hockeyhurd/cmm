@@ -266,6 +266,12 @@ namespace cmm
         this->valueChar = valueChar;
     }
 
+    // @@@ this won't work for enums with negative values.
+    CTypeValue::CTypeValue(const unsigned int valueEnum) CMM_NOEXCEPT : length(sizeof(valueEnum))
+    {
+        this->valueEnum = valueEnum;
+    }
+
     CTypeValue::CTypeValue(const s8 valueS8) CMM_NOEXCEPT : length(sizeof(valueS8))
     {
         this->valueS8 = valueS8;

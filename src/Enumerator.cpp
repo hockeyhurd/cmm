@@ -13,12 +13,22 @@
 
 namespace cmm
 {
-    Enumerator::Enumerator(const std::string& name, const s32 index) : name(name), index(index)
+    Enumerator::Enumerator(const std::string& name, s32 index) : name(name), index(index < 0 ? 0 : index), value(this->index)
     {
     }
 
-    Enumerator::Enumerator(std::string&& name, const s32 index) CMM_NOEXCEPT :
-        name(std::move(name)), index(index)
+    Enumerator::Enumerator(std::string&& name, s32 index) CMM_NOEXCEPT :
+        name(std::move(name)), index(index < 0 ? 0 : index), value(this->index)
+    {
+    }
+
+    Enumerator::Enumerator(const std::string& name, const s32 index, const s32 value) : name(name),
+        index(index < 0 ? 0 : index), value(value)
+    {
+    }
+
+    Enumerator::Enumerator(std::string&& name, const s32 index, const s32 value) CMM_NOEXCEPT :
+        name(std::move(name)), index(index < 0 ? 0 : index), value(value)
     {
     }
 
@@ -39,12 +49,22 @@ namespace cmm
 
     void Enumerator::setIndex(s32 index) CMM_NOEXCEPT
     {
-        if (index < -1)
+        if (index < 0)
         {
-            index = -1;
+            index = 0;
         }
 
         this->index = index;
+    }
+
+    s32 Enumerator::getValue() const CMM_NOEXCEPT
+    {
+        return value;
+    }
+
+    void Enumerator::setValue(s32 value) CMM_NOEXCEPT
+    {
+        this->value = value;
     }
 }
 

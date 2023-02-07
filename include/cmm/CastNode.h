@@ -87,6 +87,9 @@ namespace cmm
          */
         const ExpressionNode* getExpression() const CMM_NOEXCEPT;
 
+        // TODO @@@: Find a better solution.
+        void setExpression(ExpressionNode* expression) CMM_NOEXCEPT;
+
         /**
          * Adds a DerefNode to the underlying Expression.
          * Note: This function does zero checking and assumes the caller
