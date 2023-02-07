@@ -275,12 +275,18 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, CastNode& node, const VisitorResult& expr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, CastNode& node, VisitorResult&& expr) /* override */
     {
-        static auto& reporter = Reporter::instance();
         const auto& fromCType = node.getExpression()->getDatatype();
         const auto& toCType = node.getDatatype();
 
+        if ((fromCType.isInt() && toCType.type == EnumCType::ENUM) ||
+            (fromCType.type == EnumCType::ENUM && toCType.isInt()))
+        {
+            return std::move(expr);
+        }
+
+        static auto& reporter = Reporter::instance();
         static auto datatypeToStr = [](const CType& datatype) -> std::string
         {
             if (datatype.isFloatingPoint())
