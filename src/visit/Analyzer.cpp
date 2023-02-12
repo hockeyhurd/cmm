@@ -47,9 +47,14 @@ namespace cmm
 
         if (rightNodeResult.resultType == EnumVisitorResultType::NODE)
         {
-            // TODO @@@: Can we avoid the dynamic_cast ??
-            node.setRightNode(dynamic_cast<ExpressionNode*>(rightNodeResult.result.node));
-            // rightNodeResult.owned = false;
+            // Replace our right node with the returned VisitorResult.
+            node.setRightNode(static_cast<ExpressionNode*>(rightNodeResult.result.node));
+
+            // Release ownership
+            rightNodeResult.owned = false;
+
+            // Update our pointer to look at this new value.
+            rightNode = node.getRight();
         }
 
         const auto& rightType = rightNode->getDatatype();
@@ -273,7 +278,13 @@ namespace cmm
 
         if (visitorResult.resultType == EnumVisitorResultType::NODE)
         {
-            node.setExpression(dynamic_cast<ExpressionNode*>(visitorResult.result.node));
+            // Replace our right node with the returned VisitorResult.
+            node.setExpression(static_cast<ExpressionNode*>(visitorResult.result.node));
+
+            // Release ownership
+            visitorResult.owned = false;
+
+            // Update our pointer to look at this new value.
             expression = node.getExpression();
         }
 
@@ -1127,7 +1138,7 @@ namespace cmm
              node.getDatatype().type == EnumCType::ENUM && node.getDatatype().pointers == 0)
         {
             auto* litteralNode = new LitteralNode(node.getLocation(), varContext->getOptionalValue()->valueEnum);
-            return VisitorResult(litteralNode, false);
+            return VisitorResult(litteralNode, true);
         }
 
         return VisitorResult();
