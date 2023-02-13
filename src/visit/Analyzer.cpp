@@ -730,7 +730,7 @@ namespace cmm
             }
 
             // @@@ this won't work for enums with negative values.
-            auto optValue = std::make_optional<CTypeValue>(static_cast<unsigned int>(enumerator.getValue()));
+            auto optValue = std::make_optional<CTypeValue>(static_cast<EnumEnum>(enumerator.getValue()));
             VariableContext context(datatype, currentLocality, EnumModifier::CONST_VALUE, std::move(optValue));
             scope.add(name, context);
         }
