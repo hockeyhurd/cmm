@@ -114,16 +114,14 @@ namespace cmm
         --datatype.pointers;
     }
 
-    // TODO @@@: Find a better solution
-    void BinOpNode::setLeftNode(ExpressionNode* left) CMM_NOEXCEPT
+    void BinOpNode::setLeftNode(std::unique_ptr<ExpressionNode>&& left) CMM_NOEXCEPT
     {
-        this->left.reset(left);
+        this->left = std::move(left);
     }
 
-    // TODO @@@: Find a better solution
-    void BinOpNode::setRightNode(ExpressionNode* right) CMM_NOEXCEPT
+    void BinOpNode::setRightNode(std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT
     {
-        this->right.reset(right);
+        this->right = std::move(right);
     }
 
     VisitorResult BinOpNode::accept(Visitor* visitor) /* override */

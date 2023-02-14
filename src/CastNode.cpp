@@ -31,10 +31,9 @@ namespace cmm
         return expression.get();
     }
 
-    // TODO @@@: Find a better solution.
-    void CastNode::setExpression(ExpressionNode* expression) CMM_NOEXCEPT
+    void CastNode::setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT
     {
-        this->expression.reset(expression);
+        this->expression = std::move(expression);
     }
 
     void CastNode::derefNode()

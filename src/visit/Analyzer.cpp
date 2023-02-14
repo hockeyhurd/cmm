@@ -48,7 +48,7 @@ namespace cmm
         if (rightNodeResult.resultType == EnumVisitorResultType::NODE)
         {
             // Replace our right node with the returned VisitorResult.
-            node.setRightNode(static_cast<ExpressionNode*>(rightNodeResult.result.node));
+            node.setRightNode(std::unique_ptr<ExpressionNode>(static_cast<ExpressionNode*>(rightNodeResult.result.node)));
 
             // Release ownership
             rightNodeResult.owned = false;
@@ -279,7 +279,7 @@ namespace cmm
         if (visitorResult.resultType == EnumVisitorResultType::NODE)
         {
             // Replace our right node with the returned VisitorResult.
-            node.setExpression(static_cast<ExpressionNode*>(visitorResult.result.node));
+            node.setExpression(std::unique_ptr<ExpressionNode>(static_cast<ExpressionNode*>(visitorResult.result.node)));
 
             // Release ownership
             visitorResult.owned = false;
@@ -729,7 +729,6 @@ namespace cmm
                 break;
             }
 
-            // @@@ this won't work for enums with negative values.
             auto optValue = std::make_optional<CTypeValue>(static_cast<EnumEnum>(enumerator.getValue()));
             VariableContext context(datatype, currentLocality, EnumModifier::CONST_VALUE, std::move(optValue));
             scope.add(name, context);

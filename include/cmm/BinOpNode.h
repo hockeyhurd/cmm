@@ -150,11 +150,19 @@ namespace cmm
          */
         void popDerefNodeRight();
 
-        // TODO @@@: Find a better solution
-        void setLeftNode(ExpressionNode* left) CMM_NOEXCEPT;
+        /**
+         * Replaces the left ExpressionNode with a new expression.
+         *
+         * @param left the new left ExpressionNode.
+         */
+        void setLeftNode(std::unique_ptr<ExpressionNode>&& left) CMM_NOEXCEPT;
 
-        // TODO @@@: Find a better solution
-        void setRightNode(ExpressionNode* right) CMM_NOEXCEPT;
+        /**
+         * Replaces the right ExpressionNode with a new expression.
+         *
+         * @param right the new right ExpressionNode.
+         */
+        void setRightNode(std::unique_ptr<ExpressionNode>&& right) CMM_NOEXCEPT;
 
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
