@@ -856,6 +856,60 @@ TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeThenAssignToVarValid)
     ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentCharWarning)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X = 'a', Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentDoubleError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X = -2.5, Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentStringError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X = \"Hello, world!\", Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     reporter.setEnablePrint(false);
