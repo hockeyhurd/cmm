@@ -41,8 +41,9 @@ namespace cmm
          * @param name std::string name of the enumerator.
          * @param index the index of the enumerator within it's definition.
          * @param value the value of the enumerator if defined.
+         * @param isUnsigned flag whether the value set is actually unsigned.
          */
-        Enumerator(const std::string& name, const s32 index, const s32 value);
+        Enumerator(const std::string& name, const s32 index, const s32 value, const bool isUnsigned);
 
         /**
          * Constructor with move semantics.
@@ -50,8 +51,9 @@ namespace cmm
          * @param name std::string name of the enumerator.
          * @param index the index of the enumerator within it's definition.
          * @param value the value of the enumerator if defined.
+         * @param isUnsigned flag whether the value set is actually unsigned.
          */
-        Enumerator(std::string&& name, const s32 index, const s32 value) CMM_NOEXCEPT;
+        Enumerator(std::string&& name, const s32 index, const s32 value, const bool isUnsigned) CMM_NOEXCEPT;
 
         /**
          * Default copy constructor.
@@ -107,18 +109,32 @@ namespace cmm
         void setIndex(s32 index) CMM_NOEXCEPT;
 
         /**
-         * Gets the index of the Enumerator within its definition.
+         * Gets the value of the Enumerator within its definition.
          *
          * @return s32 value.
          */
         s32 getValue() const CMM_NOEXCEPT;
 
         /**
-         * Gets the index of the Enumerator within its definition.
+         * Sets the value of the Enumerator within its definition.
          *
-         * @param index the s32 value of the enumerator.
+         * @param value the s32 value of the enumerator.
          */
         void setValue(s32 value) CMM_NOEXCEPT;
+
+        /**
+         * Gets whether the enumerator's value is considered unsigned or not.
+         *
+         * @return bool true if unsigned, else false.
+         */
+        bool isUnsigned() const CMM_NOEXCEPT;
+
+        /**
+         * Sets the unsigned flag of the Enumerator within its definition.
+         *
+         * @param isUnsigned bool flag.
+         */
+        void setUnsigned(bool isUnsigned) CMM_NOEXCEPT;
 
     private:
 
@@ -133,6 +149,9 @@ namespace cmm
         // The value of the Enumerator. If unspecified, the value will be
         // set to the index.
         s32 value;
+
+        // A flag for whether this enumerator value is considered unsigned or not.
+        bool unsignedFlag;
     };
 }
 

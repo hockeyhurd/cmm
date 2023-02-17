@@ -13,22 +13,23 @@
 
 namespace cmm
 {
-    Enumerator::Enumerator(const std::string& name, s32 index) : name(name), index(index < 0 ? 0 : index), value(this->index)
+    Enumerator::Enumerator(const std::string& name, s32 index) : name(name), index(index < 0 ? 0 : index),
+        value(this->index), unsignedFlag(false)
     {
     }
 
     Enumerator::Enumerator(std::string&& name, s32 index) CMM_NOEXCEPT :
-        name(std::move(name)), index(index < 0 ? 0 : index), value(this->index)
+        name(std::move(name)), index(index < 0 ? 0 : index), value(this->index), unsignedFlag(false)
     {
     }
 
-    Enumerator::Enumerator(const std::string& name, const s32 index, const s32 value) : name(name),
-        index(index < 0 ? 0 : index), value(value)
+    Enumerator::Enumerator(const std::string& name, const s32 index, const s32 value, const bool isUnsigned) :
+        name(name), index(index < 0 ? 0 : index), value(value), unsignedFlag(isUnsigned)
     {
     }
 
-    Enumerator::Enumerator(std::string&& name, const s32 index, const s32 value) CMM_NOEXCEPT :
-        name(std::move(name)), index(index < 0 ? 0 : index), value(value)
+    Enumerator::Enumerator(std::string&& name, const s32 index, const s32 value, const bool isUnsigned) CMM_NOEXCEPT :
+        name(std::move(name)), index(index < 0 ? 0 : index), value(value), unsignedFlag(isUnsigned)
     {
     }
 
@@ -65,6 +66,16 @@ namespace cmm
     void Enumerator::setValue(s32 value) CMM_NOEXCEPT
     {
         this->value = value;
+    }
+
+    bool Enumerator::isUnsigned() const CMM_NOEXCEPT
+    {
+        return unsignedFlag;
+    }
+
+    void Enumerator::setUnsigned(bool isUnsigned) CMM_NOEXCEPT
+    {
+        this->unsignedFlag = isUnsigned;
     }
 }
 

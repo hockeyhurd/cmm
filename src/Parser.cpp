@@ -83,6 +83,7 @@ namespace cmm
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes);
     static std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::unordered_map<std::string, Enumerator>> parseEnumerators(Lexer& lexer, std::string* errorMessage);
+    static std::optional<s32> parseEnumeratorAssignment(Lexer& lexer, std::string* errorMessage, bool& unsignedFlag);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
     static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location); // TODO: Make location not optional?
@@ -363,7 +364,23 @@ namespace cmm
                     // New enumerator, add it to our map.
                     else
                     {
-                        enumeratorMap.emplace(enumerator, Enumerator(enumerator, enumIndex++));
+                        // static auto parseEnumeratorAssignment = [](Lexer& lexer, std::string* errorMessage, bool& unsignedFlag) -> std::optional<s32>
+                        // {
+                        //     return std::nullopt;
+                        // };
+
+                        bool isUnsigned = false;
+                        auto optAssignment = parseEnumeratorAssignment(lexer, errorMessage, isUnsigned);
+
+                        if (optAssignment.has_value())
+                        {
+                            enumeratorMap.emplace(enumerator, Enumerator(enumerator, enumIndex++, *optAssignment, isUnsigned));
+                        }
+
+                        else
+                        {
+                            enumeratorMap.emplace(enumerator, Enumerator(enumerator, enumIndex++));
+                        }
                     }
                 }
 
@@ -405,6 +422,77 @@ namespace cmm
         }
 
         return std::make_optional(std::move(enumeratorMap));
+    }
+
+    /* static */
+    std::optional<s32> parseEnumeratorAssignment(Lexer& lexer, std::string* errorMessage, bool& unsignedFlag)
+    {
+        // This function attempts to parse the following:
+        // enum A { X = 123, Y, ... };
+        //            |---|
+        // Start to end inclusively and (obviously) ignoring any whitespace.
+        // TODO: Support 'isUnsigned'
+
+        static Reporter& reporter = Reporter::instance();
+
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool lexResult = lexer.nextToken(token, errorMessage, nullptr);
+
+        // Lex the '='
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_EQUALS)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        // Lex the value
+        Location valueLocation;
+        lexResult = lexer.nextToken(token, errorMessage, &valueLocation);
+
+        // TODO: What to do
+        if (!lexResult)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        else if (!token.isInt32())
+        {
+            std::ostringstream os;
+
+            if (token.isInt64())
+            {
+                os << "enumerator is defined as a Int64 ('" << token.asInt64() << "'). This will be truncated to an Int32";
+
+                reporter.warn(os.str(), valueLocation);
+                return std::make_optional(static_cast<s32>(token.asInt64()));
+            }
+
+            else if (token.isInt16() || token.isChar())
+            {
+                const s32 value = static_cast<s32>(token.isInt16() ? token.asInt16() : token.asChar());
+                os << "enumerator is defined with a smaller value than an Int32 ('"
+                   << value << "'). This will be extended to an Int32";
+
+                reporter.warn(os.str(), valueLocation);
+                return std::make_optional(value);
+            }
+
+            os << "enumerator is defined with an unexpected value ('" << toString(token.getType()) << "')";
+            std::string err = os.str();
+            reporter.error(err, valueLocation);
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = std::move(err);
+            }
+
+            return std::nullopt;
+        }
+
+        // Must be an Int32
+        return std::make_optional<s32>(token.asInt32());
     }
 
     /* static */
