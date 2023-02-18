@@ -48,13 +48,19 @@ namespace cmm
      * Checks if we can write an error message if and only if the pointer is
      * NOT 'nullptr' and an  error message does NOT already exist (i.e. is empty).
      *
-     * return bool.
+     * @param errorMessage the pointer to an std::string to check.
+     * @return bool.
      */
     inline static bool canWriteErrorMessage(std::string* errorMessage)
     {
         return errorMessage != nullptr && errorMessage->empty();
     }
 
+    /**
+     * Gets a new (empty) Token.
+     *
+     * @return new empty Token.
+     */
     inline static Token newToken()
     {
         return Token('\0', false);
@@ -1210,7 +1216,31 @@ namespace cmm
                                 // Add the enum to the table and return success.
                                 else
                                 {
-                                    auto* enumDataPtr = currentEnumTable.addOrUpdate(enumName, EnumData(std::move(*optEnumeratorMap)));
+                                    // Note: errorMessage may be passed in as a nullptr, but we want to be able
+                                    // to catch the actual error message regardless.  We make a temp and
+                                    // re-wire the reason pointer accordingly.
+                                    std::string backupErrorMessage;
+                                    std::string* reason;
+
+                                    if (errorMessage != nullptr)
+                                    {
+                                        reason = errorMessage;
+                                    }
+
+                                    else
+                                    {
+                                        reason = &backupErrorMessage;
+                                    }
+
+                                    auto* enumDataPtr = currentEnumTable.addOrUpdate(enumName, EnumData(std::move(*optEnumeratorMap)), reason);
+
+                                    // If we failed to add the enum for whatever reason, abort.
+                                    if (enumDataPtr == nullptr)
+                                    {
+                                        reporter.error(*reason, startLoc);
+                                        return nullptr;
+                                    }
+
                                     auto exprResult = std::make_unique<EnumDefinitionStatementNode>(startLoc, enumName);
                                     exprResult->setEnumData(enumDataPtr);
                                     return exprResult;

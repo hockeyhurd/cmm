@@ -72,7 +72,9 @@ TEST(MiscTest, EnumTableAddAndCheck)
     ASSERT_EQ(table.size(), 0);
     ASSERT_FALSE(table.has(name));
 
-    table.addOrUpdate(name, EnumData());
+    std::string reason;
+    table.addOrUpdate(name, EnumData(), &reason);
+    ASSERT_TRUE(reason.empty());
     ASSERT_FALSE(table.empty());
     ASSERT_EQ(table.size(), 1);
     ASSERT_TRUE(table.has(name));

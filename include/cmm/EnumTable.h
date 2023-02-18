@@ -17,6 +17,7 @@
 // std includes
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace cmm
 {
@@ -46,9 +47,12 @@ namespace cmm
     {
     public:
 
+        // Useful typedefs
         using EnumMap = std::unordered_map<std::string, EnumData>;
         using iterator = EnumMap::iterator;
         using const_iterator = EnumMap::const_iterator;
+
+        using EnumeratorNameSet = std::unordered_set<std::string>;
 
     public:
 
@@ -102,27 +106,29 @@ namespace cmm
         void clear() CMM_NOEXCEPT;
 
         /**
-         * Adds the enum to the table.  If an entry already exists, the EnumSymState
+         * Adds the enum to the table.  If an entry already exists, the EnumData
          * will be updated to the passed value.
          *
          * @param name the std::string name of the enum.
          * @param data the enum's data (name, field, etc.).
+         * @param reason optional std::string pointer to write an error message if unsuccessfull.
          * @return pointer to the added or updated EnumData if successful, else nullptr.
          */
-        EnumData* addOrUpdate(const std::string& name, EnumData&& data);
+        EnumData* addOrUpdate(const std::string& name, EnumData&& data, std::string* reason = nullptr);
 
         /**
-         * Adds the enum to the table.  If an entry already exists, the EnumSymState
+         * Adds the enum to the table.  If an entry already exists, the EnumData
          * will be updated to the passed value.
          *
          * @param name the std::string name of the enum.
          * @param data the enum's data (name, field, etc.).
+         * @param reason optional std::string pointer to write an error message if unsuccessfull.
          * @return pointer to the added or updated EnumData if successful, else nullptr.
          */
-        EnumData* addOrUpdate(std::string&& name, EnumData&& data);
+        EnumData* addOrUpdate(std::string&& name, EnumData&& data, std::string* reason = nullptr);
 
         /**
-         * Gets the EnumSymState if enum is in the table by name.
+         * Gets the EnumData if enum is in the table by name.
          *
          * @param name the std::string name of the enum to lookup.
          * @return pointer to the EnumData if found, else nullptr.
@@ -130,7 +136,7 @@ namespace cmm
         EnumData* get(const std::string& name) CMM_NOEXCEPT;
 
         /**
-         * Gets the EnumSymState if enum is in the table by name.
+         * Gets the EnumData if enum is in the table by name.
          *
          * @param name the std::string name of the enum to lookup.
          * @return const a pointer to the EnumData if found, else nullptr.
@@ -138,7 +144,7 @@ namespace cmm
         const EnumData* get(const std::string& name) const CMM_NOEXCEPT;
 
         /**
-         * Gets the EnumSymState if enum is in the table by name.
+         * Gets the EnumData if enum is in the table by name.
          *
          * @param name the std::string name of the enum to lookup.
          * @return bool true if found, else false.
@@ -149,6 +155,9 @@ namespace cmm
 
         // The underlying enum map
         EnumMap enumMap;
+
+        // A table for enumerator names all.
+        EnumeratorNameSet enumeratorNameSet;
     };
 }
 

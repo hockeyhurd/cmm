@@ -8,6 +8,9 @@
 // Our includes
 #include <cmm/EnumTable.h>
 
+// std includes
+#include <sstream>
+
 namespace cmm
 {
     EnumData::EnumData(std::unordered_map<std::string, Enumerator>&& enumeratorMap) :
@@ -35,61 +38,103 @@ namespace cmm
         enumMap.clear();
     }
 
-    EnumData* EnumTable::addOrUpdate(const std::string& name, EnumData&& data)
+    EnumData* EnumTable::addOrUpdate(const std::string& name, EnumData&& data, std::string* reason)
     {
         EnumData* result;
-        const auto findResult = enumMap.find(name);
+        const auto findEnumResult = enumMap.find(name);
 
-        if (findResult != enumMap.end())
+        if (findEnumResult != enumMap.end())
         {
-            findResult->second = std::move(data);
-            result = &findResult->second;
+            findEnumResult->second = std::move(data);
+            result = &findEnumResult->second;
+            return result;
+        }
+
+        // Now need to check to see if individual defined enumerators could cause a redefinition.
+        // ex. enum A { X, Y }; enum B { X, Z }; would cause a redefinition on 'X'.
+        for (const auto& [enumeratorName, enumerator] : data.enumeratorMap)
+        {
+            const auto findEnumeratorNameResult  = enumeratorNameSet.find(enumeratorName);
+
+            // enumerator already exists
+            if (findEnumeratorNameResult != enumeratorNameSet.cend())
+            {
+                if (reason != nullptr)
+                {
+                    std::ostringstream os;
+                    os << "enumerator with name '" << enumeratorName << "' is already previously defined";
+                    *reason = os.str();
+                }
+
+                return nullptr;
+            }
+
+            // New enumerator, add it to our set.
+            enumeratorNameSet.emplace(enumeratorName);
+        }
+
+        auto [iter, wasInserted] = enumMap.emplace(name, std::move(data));
+        iter->second.name = &iter->first;
+
+        if (wasInserted)
+        {
+            result = &iter->second;
         }
 
         else
         {
-            auto [iter, wasInserted] = enumMap.emplace(name, std::move(data));
-            iter->second.name = &iter->first;
-
-            if (wasInserted)
-            {
-                result = &iter->second;
-            }
-
-            else
-            {
-                result = nullptr;
-            }
+            result = nullptr;
         }
 
         return result;
     }
 
-    EnumData* EnumTable::addOrUpdate(std::string&& name, EnumData&& data)
+    EnumData* EnumTable::addOrUpdate(std::string&& name, EnumData&& data, std::string* reason)
     {
         EnumData* result;
-        const auto findResult = enumMap.find(name);
+        const auto findEnumResult = enumMap.find(name);
 
-        if (findResult != enumMap.end())
+        if (findEnumResult != enumMap.end())
         {
-            findResult->second = std::move(data);
-            result = &findResult->second;
+            findEnumResult->second = std::move(data);
+            result = &findEnumResult->second;
+            return result;
+        }
+
+        // Now need to check to see if individual defined enumerators could cause a redefinition.
+        // ex. enum A { X, Y }; enum B { X, Z }; would cause a redefinition on 'X'.
+        for (const auto& [enumeratorName, enumerator] : data.enumeratorMap)
+        {
+            const auto findEnumeratorNameResult  = enumeratorNameSet.find(enumeratorName);
+
+            // enumerator already exists
+            if (findEnumeratorNameResult != enumeratorNameSet.cend())
+            {
+                if (reason != nullptr)
+                {
+                    std::ostringstream os;
+                    os << "enumerator with name '" << enumeratorName << "' is already previously defined";
+                    *reason = os.str();
+                }
+
+                return nullptr;
+            }
+
+            // New enumerator, add it to our set.
+            enumeratorNameSet.emplace(enumeratorName);
+        }
+
+        auto [iter, wasInserted] = enumMap.emplace(std::move(name), std::move(data));
+        iter->second.name = &iter->first;
+
+        if (wasInserted)
+        {
+            result = &iter->second;
         }
 
         else
         {
-            auto [iter, wasInserted] = enumMap.emplace(std::move(name), std::move(data));
-            iter->second.name = &iter->first;
-
-            if (wasInserted)
-            {
-                result = &iter->second;
-            }
-
-            else
-            {
-                result = nullptr;
-            }
+            result = nullptr;
         }
 
         return result;

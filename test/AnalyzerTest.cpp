@@ -910,6 +910,42 @@ TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentStringError)
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeRedefinitionError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum A { X, Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeEnumeratorNameConflictionError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum B { X, Z };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     reporter.setEnablePrint(false);
