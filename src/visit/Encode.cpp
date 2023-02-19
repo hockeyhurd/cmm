@@ -240,6 +240,14 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Encode::visit(EnumUsageNode& node)
+    {
+        // TODO @@@
+        // Leave any necessary encoding to the platform.
+        // platform->emit(this, node);
+        return VisitorResult();
+    }
+
     VisitorResult Encode::visit(ExpressionStatementNode& node)
     {
         auto visitorResult = node.getExpression()->accept(this);

@@ -19,6 +19,7 @@ namespace cmm
     class CompilationUnitNode;
     class DerefNode;
     class EnumDefinitionStatementNode;
+    class EnumUsageNode;
     class ExpressionNode;
     class ExpressionStatementNode;
     class FieldAccessNode;

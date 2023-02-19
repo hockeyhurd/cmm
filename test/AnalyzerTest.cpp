@@ -11,6 +11,7 @@ using namespace cmm;
 
 static Reporter& reporter = Reporter::instance();
 
+#if 1
 TEST(AnalyzerTest, AnalyzerExpressionNotAssignableError)
 {
     reporter.reset();
@@ -944,6 +945,25 @@ TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeEnumeratorNameConflictionE
     analyzer.visit(*compUnitPtr);
     ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+#endif
+
+TEST(AnalyzerTest, DISABLED_AnalyzerAssignEnumVariableToAnotherWarning)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum B { Z, W }; enum A e; e = Z;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
 s32 main(s32 argc, char* argv[])

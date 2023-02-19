@@ -72,6 +72,7 @@ namespace cmm
         virtual VisitorResult visit(CompilationUnitNode& node) override;
         virtual VisitorResult visit(DerefNode& node) override;
         virtual VisitorResult visit(EnumDefinitionStatementNode& node) override;
+        virtual VisitorResult visit(EnumUsageNode& node) override;
         virtual VisitorResult visit(ExpressionStatementNode& node) override;
         virtual VisitorResult visit(FieldAccessNode& node) override;
         virtual VisitorResult visit(FunctionCallNode& node) override;

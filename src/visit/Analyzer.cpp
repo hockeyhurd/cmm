@@ -737,6 +737,14 @@ namespace cmm
         return VisitorResult();
     }
 
+    VisitorResult Analyzer::visit(EnumUsageNode& node)
+    {
+        // TODO @@@
+        // Leave any necessary encoding to the platform.
+        // platform->emit(this, node);
+        return VisitorResult();
+    }
+
     VisitorResult Analyzer::visit(ExpressionStatementNode& node)
     {
         node.getExpression()->accept(this);
