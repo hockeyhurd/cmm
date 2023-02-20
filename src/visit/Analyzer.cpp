@@ -95,10 +95,6 @@ namespace cmm
 
         VariableNode* varNode = nullptr;
 
-        // if (leftType == rightType && leftType.isEnum() && rightType.isEnum())
-        // {
-        // }
-
         if (isAssignment && isLeftVariable)
         {
             varNode = static_cast<VariableNode*>(leftNode);
