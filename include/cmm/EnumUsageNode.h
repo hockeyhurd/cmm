@@ -99,6 +99,13 @@ namespace cmm
          */
         const Enumerator* getEnumerator() const CMM_NOEXCEPT;
 
+        /**
+         * Sets the Enumerator.
+         *
+         * @param enumerator the pointer to the enum that 'owns' this enumerator.
+         */
+        void setEnumerator(Enumerator* enumerator) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 

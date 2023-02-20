@@ -12,12 +12,12 @@
 namespace cmm
 {
     EnumUsageNode::EnumUsageNode(const Location& location, const std::string& name) :
-        ExpressionNode(EnumNodeType::ENUM_USAGE, location), name(name), enumerator(nullptr)
+        ExpressionNode(EnumNodeType::ENUM_USAGE, location, CType(EnumCType::ENUM)), name(name), enumerator(nullptr)
     {
     }
 
     EnumUsageNode::EnumUsageNode(const Location& location, std::string&& name) CMM_NOEXCEPT :
-        ExpressionNode(EnumNodeType::ENUM_USAGE, location), name(std::move(name)), enumerator(nullptr)
+        ExpressionNode(EnumNodeType::ENUM_USAGE, location, CType(EnumCType::ENUM)), name(std::move(name)), enumerator(nullptr)
     {
     }
 
@@ -39,6 +39,11 @@ namespace cmm
     Enumerator* EnumUsageNode::getEnumerator() CMM_NOEXCEPT
     {
         return enumerator;
+    }
+
+    void EnumUsageNode::setEnumerator(Enumerator* enumerator) CMM_NOEXCEPT
+    {
+        this->enumerator = enumerator;
     }
 
     VisitorResult EnumUsageNode::accept(Visitor* visitor) /* override */

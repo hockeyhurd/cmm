@@ -242,10 +242,9 @@ namespace cmm
 
     VisitorResult Encode::visit(EnumUsageNode& node)
     {
-        // TODO @@@
         // Leave any necessary encoding to the platform.
-        // platform->emit(this, node);
-        return VisitorResult();
+        auto optVisitorResult = platform->emit(this, node);
+        return std::move(*optVisitorResult);
     }
 
     VisitorResult Encode::visit(ExpressionStatementNode& node)

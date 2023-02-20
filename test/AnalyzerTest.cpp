@@ -11,7 +11,6 @@ using namespace cmm;
 
 static Reporter& reporter = Reporter::instance();
 
-#if 1
 TEST(AnalyzerTest, AnalyzerExpressionNotAssignableError)
 {
     reporter.reset();
@@ -946,9 +945,8 @@ TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeEnumeratorNameConflictionE
     ASSERT_EQ(reporter.getWarningCount(), 0);
     ASSERT_EQ(reporter.getErrorCount(), 1);
 }
-#endif
 
-TEST(AnalyzerTest, DISABLED_AnalyzerAssignEnumVariableToAnotherWarning)
+TEST(AnalyzerTest, AnalyzerAssignEnumVariableToAnotherWarning)
 {
     reporter.reset();
 
@@ -962,8 +960,8 @@ TEST(AnalyzerTest, DISABLED_AnalyzerAssignEnumVariableToAnotherWarning)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
-    ASSERT_EQ(reporter.getWarningCount(), 1);
-    ASSERT_EQ(reporter.getErrorCount(), 0);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
 }
 
 s32 main(s32 argc, char* argv[])

@@ -336,6 +336,15 @@ namespace cmm
     }
 
     /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, EnumUsageNode& node) /* override */
+    {
+        const Enumerator* enumerator = node.getEnumerator();
+        const s32 value = enumerator->getValue();
+
+        return VisitorResult(new std::string(std::to_string(value)), true);
+    }
+
+    /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, FieldAccessNode& node, const VisitorResult& expr) /* override */
     {
         std::string temp = encoder->getTemp();

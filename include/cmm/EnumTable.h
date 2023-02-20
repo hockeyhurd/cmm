@@ -17,7 +17,6 @@
 // std includes
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
 namespace cmm
 {
@@ -38,9 +37,17 @@ namespace cmm
          * Helper function for looking up an enumerator in the internal enumeratorMap.
          *
          * @param name the std::string name of the enumerator to find.
-         * @return bool true if found, else false.
+         * @return const pointer to an Enumerator if found, else nullptr.
          */
-        bool findEnumerator(const std::string& name) const CMM_NOEXCEPT;
+        Enumerator* findEnumerator(const std::string& name) CMM_NOEXCEPT;
+
+        /**
+         * Helper function for looking up an enumerator in the internal enumeratorMap.
+         *
+         * @param name the std::string name of the enumerator to find.
+         * @return const pointer to an Enumerator if found, else nullptr.
+         */
+        const Enumerator* findEnumerator(const std::string& name) const CMM_NOEXCEPT;
     };
 
     class EnumTable
@@ -52,7 +59,7 @@ namespace cmm
         using iterator = EnumMap::iterator;
         using const_iterator = EnumMap::const_iterator;
 
-        using EnumeratorNameSet = std::unordered_set<std::string>;
+        using EnumeratorNameMap = std::unordered_map<std::string, EnumData*>;
 
     public:
 
@@ -133,7 +140,7 @@ namespace cmm
          * @param name the std::string name of the enum to lookup.
          * @return pointer to the EnumData if found, else nullptr.
          */
-        EnumData* get(const std::string& name) CMM_NOEXCEPT;
+        EnumData* get(const std::string& name);
 
         /**
          * Gets the EnumData if enum is in the table by name.
@@ -141,7 +148,7 @@ namespace cmm
          * @param name the std::string name of the enum to lookup.
          * @return const a pointer to the EnumData if found, else nullptr.
          */
-        const EnumData* get(const std::string& name) const CMM_NOEXCEPT;
+        const EnumData* get(const std::string& name) const;
 
         /**
          * Gets the EnumData if enum is in the table by name.
@@ -151,13 +158,29 @@ namespace cmm
          */
         bool has(const std::string& name) const CMM_NOEXCEPT;
 
+        /**
+         * Gets the EnumData if enum is found given an Enumerator's name.
+         *
+         * @param name the std::string name of the enumerator to lookup.
+         * @return a pointer to the EnumData if found, else nullptr.
+         */
+        EnumData* findEnumFromEnumeratorName(const std::string& name);
+
+        /**
+         * Gets the EnumData if enum is found given an Enumerator's name.
+         *
+         * @param name the std::string name of the enumerator to lookup.
+         * @return a const pointer to the EnumData if found, else nullptr.
+         */
+        const EnumData* findEnumFromEnumeratorName(const std::string& name) const;
+
     private:
 
         // The underlying enum map
         EnumMap enumMap;
 
         // A table for enumerator names all.
-        EnumeratorNameSet enumeratorNameSet;
+        EnumeratorNameMap enumeratorNameMap;
     };
 }
 

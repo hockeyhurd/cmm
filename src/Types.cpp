@@ -107,9 +107,10 @@ namespace cmm
         return *this;
     }
 
-    bool CType::isPointerType() const CMM_NOEXCEPT
+    bool CType::isEnum() const CMM_NOEXCEPT
     {
-        return pointers > 0;
+        const bool result = pointers == 0 && type == EnumCType::ENUM;
+        return result;
     }
 
     bool CType::isFloatingPoint() const CMM_NOEXCEPT
@@ -128,9 +129,14 @@ namespace cmm
         return result;
     }
 
+    bool CType::isPointerType() const CMM_NOEXCEPT
+    {
+        return pointers > 0;
+    }
+
     bool CType::operator== (const CType& other) const CMM_NOEXCEPT
     {
-        return type == other.type && pointers == other.pointers;
+        return type == other.type && pointers == other.pointers && optTypeName == other.optTypeName;
     }
 
     bool CType::operator!= (const CType& other) const CMM_NOEXCEPT

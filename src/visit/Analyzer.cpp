@@ -13,6 +13,7 @@
 #include <cmm/StructTable.h>
 
 // std includes
+#include <cassert>
 #include <limits>
 
 namespace cmm
@@ -93,6 +94,10 @@ namespace cmm
         node.setDatatype(leftType);
 
         VariableNode* varNode = nullptr;
+
+        // if (leftType == rightType && leftType.isEnum() && rightType.isEnum())
+        // {
+        // }
 
         if (isAssignment && isLeftVariable)
         {
@@ -739,9 +744,31 @@ namespace cmm
 
     VisitorResult Analyzer::visit(EnumUsageNode& node)
     {
-        // TODO @@@
-        // Leave any necessary encoding to the platform.
-        // platform->emit(this, node);
+        static auto& reporter = Reporter::instance();
+        const auto& enumeratorName = node.getName();
+        EnumData* enumDataPtr = enumTable->findEnumFromEnumeratorName(enumeratorName);
+
+        if (enumDataPtr == nullptr)
+        {
+            std::ostringstream os;
+            os << "Failed to find enum for enumerator '" << enumeratorName << "'";
+            reporter.error(os.str(), node.getLocation());
+        }
+
+        else
+        {
+            // Make sure the datatype optTypeName is set to this exact enum.
+            auto& datatype = node.getDatatype();
+
+            // Assert the name is not a nullptr.  If it is, then there must be a compiler error
+            // where the EnumTable has not correctly processed the enum's enumerators.
+            assert(enumDataPtr->name != nullptr);
+            datatype.optTypeName = *enumDataPtr->name;
+
+            Enumerator* enumerator = enumDataPtr->findEnumerator(enumeratorName);
+            node.setEnumerator(enumerator);
+        }
+
         return VisitorResult();
     }
 
@@ -1144,8 +1171,11 @@ namespace cmm
         if ((varContext->getModifiers() & EnumModifier::CONST_VALUE) != 0 &&
              node.getDatatype().type == EnumCType::ENUM && node.getDatatype().pointers == 0)
         {
-            auto* litteralNode = new LitteralNode(node.getLocation(), varContext->getOptionalValue()->valueEnum);
-            return VisitorResult(litteralNode, true);
+            // auto* litteralNode = new LitteralNode(node.getLocation(), varContext->getOptionalValue()->valueEnum);
+            auto* enumUsageNodePtr = new EnumUsageNode(node.getLocation(), varName);
+            // return VisitorResult(litteralNode, true);
+            enumUsageNodePtr->accept(this);
+            return VisitorResult(enumUsageNodePtr, true);
         }
 
         return VisitorResult();

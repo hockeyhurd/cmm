@@ -246,9 +246,10 @@ namespace cmm
         CType& operator= (const CType& other);
         CType& operator= (CType&& other) CMM_NOEXCEPT;
 
-        bool isPointerType() const CMM_NOEXCEPT;
+        bool isEnum() const CMM_NOEXCEPT;
         bool isFloatingPoint() const CMM_NOEXCEPT;
         bool isInt() const CMM_NOEXCEPT;
+        bool isPointerType() const CMM_NOEXCEPT;
 
         bool operator== (const CType& other) const CMM_NOEXCEPT;
         bool operator!= (const CType& other) const CMM_NOEXCEPT;
@@ -360,6 +361,12 @@ namespace cmm
     void printType(Stream& stream, const CType& type)
     {
         stream << toString(type.type);
+
+        if (type.isEnum() && type.optTypeName.has_value())
+        {
+            stream << " " << *type.optTypeName;
+        }
+
         printRepeat(stream, '*', type.pointers);
     }
 
