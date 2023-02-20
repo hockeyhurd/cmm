@@ -103,7 +103,7 @@ namespace cmm
     {
         auto* expression = node.getExpression();
         auto visitorResult = expression->accept(this);
-        auto optVisitorResult = platform->emit(this, node, visitorResult);
+        auto optVisitorResult = platform->emit(this, node, std::move(visitorResult));
 
         return std::move(*optVisitorResult);
     }
@@ -231,6 +231,20 @@ namespace cmm
         emitNewline();
 
         return VisitorResult();
+    }
+
+    VisitorResult Encode::visit(EnumDefinitionStatementNode& node)
+    {
+        // Leave any necessary encoding to the platform.
+        platform->emit(this, node);
+        return VisitorResult();
+    }
+
+    VisitorResult Encode::visit(EnumUsageNode& node)
+    {
+        // Leave any necessary encoding to the platform.
+        auto optVisitorResult = platform->emit(this, node);
+        return std::move(*optVisitorResult);
     }
 
     VisitorResult Encode::visit(ExpressionStatementNode& node)

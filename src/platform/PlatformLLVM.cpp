@@ -147,6 +147,8 @@ namespace cmm
         case EnumCType::INT16:
             str = "i16";
             break;
+        case EnumCType::ENUM:
+        // fallthrough
         case EnumCType::INT32:
             str = "i32";
             break;
@@ -163,7 +165,7 @@ namespace cmm
             str = "i8*";
             break;
         case EnumCType::STRUCT:
-            str = "%struct." + *datatype.optStructName;
+            str = "%struct." + *datatype.optTypeName;
             break;
         default:
             str = "Unknown type";
@@ -273,12 +275,18 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, CastNode& node, const VisitorResult& expr) /* override */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, CastNode& node, VisitorResult&& expr) /* override */
     {
-        static auto& reporter = Reporter::instance();
         const auto& fromCType = node.getExpression()->getDatatype();
         const auto& toCType = node.getDatatype();
 
+        if ((fromCType.isInt() && toCType.type == EnumCType::ENUM) ||
+            (fromCType.type == EnumCType::ENUM && toCType.isInt()))
+        {
+            return std::move(expr);
+        }
+
+        static auto& reporter = Reporter::instance();
         static auto datatypeToStr = [](const CType& datatype) -> std::string
         {
             if (datatype.isFloatingPoint())
@@ -318,6 +326,22 @@ namespace cmm
         os << temp << " = load " << strType << ", " << strType << "* " << *varResult.result.str;
 
         return VisitorResult(new std::string(std::move(temp)), true);
+    }
+
+    /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, EnumDefinitionStatementNode& node) /* override */
+    {
+        // Do nothing on LLVM.
+        return VisitorResult();
+    }
+
+    /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, EnumUsageNode& node) /* override */
+    {
+        const Enumerator* enumerator = node.getEnumerator();
+        const s32 value = enumerator->getValue();
+
+        return VisitorResult(new std::string(std::to_string(value)), true);
     }
 
     /* virtual */
@@ -381,6 +405,9 @@ namespace cmm
             break;
         case EnumCType::CHAR:
             outputStr = std::to_string(node.getValue().valueChar);
+            break;
+        case EnumCType::ENUM:
+            outputStr = std::to_string(node.getValue().valueEnum);
             break;
         case EnumCType::INT8:
             outputStr = std::to_string(node.getValue().valueS8);

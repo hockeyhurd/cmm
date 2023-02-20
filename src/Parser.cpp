@@ -7,6 +7,8 @@
 
 // Our includes
 #include <cmm/Parser.h>
+#include <cmm/EnumTable.h>
+#include <cmm/Enumerator.h>
 #include <cmm/Keyword.h>
 #include <cmm/NodeList.h>
 #include <cmm/ParserPredictor.h>
@@ -20,6 +22,7 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -30,6 +33,7 @@
 
 namespace cmm
 {
+    static EnumTable currentEnumTable;
 
     // TODO: This should be broken out into a different class or file.
     template<class T>
@@ -44,13 +48,19 @@ namespace cmm
      * Checks if we can write an error message if and only if the pointer is
      * NOT 'nullptr' and an  error message does NOT already exist (i.e. is empty).
      *
-     * return bool.
+     * @param errorMessage the pointer to an std::string to check.
+     * @return bool.
      */
     inline static bool canWriteErrorMessage(std::string* errorMessage)
     {
         return errorMessage != nullptr && errorMessage->empty();
     }
 
+    /**
+     * Gets a new (empty) Token.
+     *
+     * @return new empty Token.
+     */
     inline static Token newToken()
     {
         return Token('\0', false);
@@ -78,6 +88,8 @@ namespace cmm
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage);
     static std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes);
     static std::optional<BlockNode> parseStructBlockStatement(Lexer& lexer, std::string* errorMessage);
+    static std::optional<std::unordered_map<std::string, Enumerator>> parseEnumerators(Lexer& lexer, std::string* errorMessage);
+    static std::optional<s32> parseEnumeratorAssignment(Lexer& lexer, std::string* errorMessage, bool& unsignedFlag);
     static std::optional<std::vector<ArgNode>> parseFunctionCallArgs(Lexer& lexer, std::string* errorMessage);
     static std::optional<std::vector<ParameterNode>> parseFunctionParameters(Lexer& lexer, std::string* errorMessage);
     static std::optional<u32> parsePointerInderectionCount(Lexer& lexer, std::string* errorMessage, Location* location); // TODO: Make location not optional?
@@ -242,6 +254,251 @@ namespace cmm
         static std::unordered_set<EnumNodeType> validNodeTypes = { EnumNodeType::VARIABLE_DECLARATION_STATEMENT, EnumNodeType::STRUCT_DEFINITION };
         static auto opt = std::make_optional(validNodeTypes);
         return parseBlockStatement(lexer, errorMessage, opt);
+    }
+
+    /* static */
+    std::optional<std::unordered_map<std::string, Enumerator>> parseEnumerators(Lexer& lexer, std::string* errorMessage)
+    {
+        static Reporter& reporter = Reporter::instance();
+
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+
+        Location location;
+        bool result = lexer.nextToken(token, errorMessage, &location);
+
+        if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_LCURLY_BRACKET)
+        {
+            const char* err = "expected an openning '{' for defining the enum";
+            reporter.error(err, location);
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = err;
+            }
+
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        std::unordered_map<std::string, Enumerator> enumeratorMap;
+        s32 enumIndex = 0;
+        bool requireComma = false;
+
+        do
+        {
+            snapshot = lexer.snap();
+            result = lexer.nextToken(token, errorMessage, &location);
+
+            // We expect a comma, but we will also accept a closing curly brace ('}').
+            if (requireComma)
+            {
+                requireComma = false;
+
+                if (token.isCharSymbol())
+                {
+                    const auto ch = token.asCharSymbol();
+
+                    if (ch == CHAR_COMMA)
+                        continue;
+                    else if (ch == CHAR_RCURLY_BRACKET)
+                        break;
+                    // Un-expected char...
+                    else
+                    {
+                        std::ostringstream os;
+                        os << "expected a ',' or '}', but got '" << ch << "'";
+
+                        auto err = os.str();
+                        reporter.error(err, location);
+
+                        if (canWriteErrorMessage(errorMessage))
+                        {
+                            *errorMessage = std::move(err);
+                        }
+
+                        lexer.restore(snapshot);
+                        return std::nullopt;
+                    }
+                }
+
+                // No way this is a comma, abort!
+                else
+                {
+                    const char* err = "expected a ',' or '}' here";
+                    reporter.error(err, location);
+
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = std::move(err);
+                    }
+
+                    lexer.restore(snapshot);
+                    return std::nullopt;
+                }
+            }
+
+            // Expect the next enumerator.
+            else
+            {
+                requireComma = true;
+
+                // Candidate enumerator
+                if (token.isStringSymbol())
+                {
+                    const std::string& enumerator = token.asStringSymbol();
+                    const auto findResult = enumeratorMap.find(enumerator);
+
+                    // Enumerator already exists
+                    if (findResult != enumeratorMap.cend())
+                    {
+                        std::ostringstream os;
+                        os << "enum already contains enumerator '" << enumerator << "'";
+
+                        auto err = os.str();
+                        reporter.error(err, location);
+
+                        if (canWriteErrorMessage(errorMessage))
+                        {
+                            *errorMessage = std::move(err);
+                        }
+
+                        lexer.restore(snapshot);
+                        return std::nullopt;
+                    }
+
+                    // New enumerator, add it to our map.
+                    else
+                    {
+                        // static auto parseEnumeratorAssignment = [](Lexer& lexer, std::string* errorMessage, bool& unsignedFlag) -> std::optional<s32>
+                        // {
+                        //     return std::nullopt;
+                        // };
+
+                        bool isUnsigned = false;
+                        auto optAssignment = parseEnumeratorAssignment(lexer, errorMessage, isUnsigned);
+
+                        if (optAssignment.has_value())
+                        {
+                            enumeratorMap.emplace(enumerator, Enumerator(enumerator, enumIndex++, *optAssignment, isUnsigned));
+                        }
+
+                        else
+                        {
+                            enumeratorMap.emplace(enumerator, Enumerator(enumerator, enumIndex++));
+                        }
+                    }
+                }
+
+                // See if it's a closing '}', indicating the end of the definition
+                else if (token.isCharSymbol() && token.asCharSymbol() == CHAR_RCURLY_BRACKET)
+                {
+                    break;
+                }
+
+                // Not an enumerator, abort!
+                else
+                {
+                    const char* err = "expected another enumerator next";
+                    reporter.error(err, location);
+
+                    if (canWriteErrorMessage(errorMessage))
+                    {
+                        *errorMessage = std::move(err);
+                    }
+
+                    lexer.restore(snapshot);
+                    return std::nullopt;
+                }
+            }
+        }
+        while (result);
+
+        if (!expectSemicolon(lexer, errorMessage))
+        {
+            const char* err = "expected a closing semi-colon after enum definition";
+            reporter.error(err, location);
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = err;
+            }
+
+            return std::nullopt;
+        }
+
+        return std::make_optional(std::move(enumeratorMap));
+    }
+
+    /* static */
+    std::optional<s32> parseEnumeratorAssignment(Lexer& lexer, std::string* errorMessage, bool& unsignedFlag)
+    {
+        // This function attempts to parse the following:
+        // enum A { X = 123, Y, ... };
+        //            |---|
+        // Start to end inclusively and (obviously) ignoring any whitespace.
+        // TODO: Support 'isUnsigned'
+
+        static Reporter& reporter = Reporter::instance();
+
+        auto snapshot = lexer.snap();
+        auto token = newToken();
+        bool lexResult = lexer.nextToken(token, errorMessage, nullptr);
+
+        // Lex the '='
+        if (!lexResult || !token.isCharSymbol() || token.asCharSymbol() != CHAR_EQUALS)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        // Lex the value
+        Location valueLocation;
+        lexResult = lexer.nextToken(token, errorMessage, &valueLocation);
+
+        // TODO: What to do
+        if (!lexResult)
+        {
+            lexer.restore(snapshot);
+            return std::nullopt;
+        }
+
+        else if (!token.isInt32())
+        {
+            std::ostringstream os;
+
+            if (token.isInt64())
+            {
+                os << "enumerator is defined as a Int64 ('" << token.asInt64() << "'). This will be truncated to an Int32";
+
+                reporter.warn(os.str(), valueLocation);
+                return std::make_optional(static_cast<s32>(token.asInt64()));
+            }
+
+            else if (token.isInt16() || token.isChar())
+            {
+                const s32 value = static_cast<s32>(token.isInt16() ? token.asInt16() : token.asChar());
+                os << "enumerator is defined with a smaller value than an Int32 ('"
+                   << value << "'). This will be extended to an Int32";
+
+                reporter.warn(os.str(), valueLocation);
+                return std::make_optional(value);
+            }
+
+            os << "enumerator is defined with an unexpected value ('" << toString(token.getType()) << "')";
+            std::string err = os.str();
+            reporter.error(err, valueLocation);
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = std::move(err);
+            }
+
+            return std::nullopt;
+        }
+
+        // Must be an Int32
+        return std::make_optional<s32>(token.asInt32());
     }
 
     /* static */
@@ -838,6 +1095,7 @@ namespace cmm
     /* static */
     TranslationUnitNode parseTranslationUnit(Lexer& lexer, std::string* errorMessage)
     {
+        currentEnumTable = EnumTable();
         auto statements = parseOneOrMoreStatements(lexer, errorMessage);
 
         if (statements.has_value())
@@ -850,7 +1108,7 @@ namespace cmm
                 location = statementVec[0]->getLocation();
             }
 
-            TranslationUnitNode translationUnit(location, std::move(*statements));
+            TranslationUnitNode translationUnit(location, std::move(*statements), std::move(currentEnumTable));
             return translationUnit;
         }
 
@@ -872,15 +1130,17 @@ namespace cmm
 
         // If it is a struct, we need to get the name of the struct.
         const bool wasStructType = type->getDatatype().type == EnumCType::STRUCT;
+        const bool wasEnumType = type->getDatatype().type == EnumCType::ENUM;
         auto optVariableName = parseVariableNode(lexer, errorMessage);
 
         if (!optVariableName.has_value())
         {
             // No variable name.  If it was a struct, then it was a forward declaration
-            // or struct definition.
-            if (wasStructType)
+            // or struct definition.  If it was an enum, it must be a definition.
+            if (wasStructType || wasEnumType)
             {
                 // Struct forward declarations or defintions must not contain any '*'.
+                // Enums as well.
                 if (type->getDatatype().pointers == 0)
                 {
                     const auto startLoc = type->getLocation();
@@ -897,18 +1157,105 @@ namespace cmm
                     // Struct forward declaration
                     if (token.asCharSymbol() == CHAR_SEMI_COLON)
                     {
-                        // Consume the token
-                        lexer.nextToken(token, errorMessage);
-                        return std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type));
+                        if (wasStructType)
+                        {
+                            // Consume the token
+                            lexer.nextToken(token, errorMessage);
+                            return std::make_unique<StructFwdDeclarationStatementNode>(startLoc, std::move(*type));
+                        }
+
+                        else if (wasEnumType)
+                        {
+                            lexer.restore(snapshot);
+                            reporter.error("Enums may not be forward declared per the C standard", startLoc);
+                            return nullptr;
+                        }
+
+                        else
+                        {
+                            reporter.bug("Un-expected condition why parsing struct declaration", startLoc, true);
+                            return nullptr;
+                        }
                     }
 
-                    // Struct definition
+                    // Struct or enum definition
                     else if (token.asCharSymbol() == CHAR_LCURLY_BRACKET)
                     {
-                        auto blockNode = parseStructBlockStatement(lexer, errorMessage);
-                        return expectSemicolon(lexer, errorMessage) ?
-                            std::make_unique<StructDefinitionStatementNode>(startLoc, *type->getDatatype().optStructName, std::move(*blockNode)) :
-                            nullptr;
+                        if (wasStructType)
+                        {
+                            auto blockNode = parseStructBlockStatement(lexer, errorMessage);
+                            return expectSemicolon(lexer, errorMessage) ?
+                                std::make_unique<StructDefinitionStatementNode>(startLoc, std::move(*type->getDatatype().optTypeName), std::move(*blockNode)) :
+                                nullptr;
+                        }
+
+                        else if (wasEnumType)
+                        {
+                            auto optEnumeratorMap = parseEnumerators(lexer, errorMessage);
+
+                            // Successful parse. Let's update our table and create the EnumDefinitionStatementNode.
+                            if (optEnumeratorMap.has_value())
+                            {
+                                std::string enumName = std::move(*type->getDatatype().optTypeName);
+
+                                // See if enum is already defined and report an error as neccessary.
+                                if (currentEnumTable.has(enumName))
+                                {
+                                    std::ostringstream os;
+                                    os << "enum '" << enumName << "' is already defined";
+
+                                    auto err = os.str();
+                                    reporter.error(err, startLoc);
+
+                                    if (canWriteErrorMessage(errorMessage))
+                                    {
+                                        *errorMessage = std::move(err);
+                                    }
+                                }
+
+                                // Add the enum to the table and return success.
+                                else
+                                {
+                                    // Note: errorMessage may be passed in as a nullptr, but we want to be able
+                                    // to catch the actual error message regardless.  We make a temp and
+                                    // re-wire the reason pointer accordingly.
+                                    std::string backupErrorMessage;
+                                    std::string* reason;
+
+                                    if (errorMessage != nullptr)
+                                    {
+                                        reason = errorMessage;
+                                    }
+
+                                    else
+                                    {
+                                        reason = &backupErrorMessage;
+                                    }
+
+                                    auto* enumDataPtr = currentEnumTable.addOrUpdate(enumName, EnumData(std::move(*optEnumeratorMap)), reason);
+
+                                    // If we failed to add the enum for whatever reason, abort.
+                                    if (enumDataPtr == nullptr)
+                                    {
+                                        reporter.error(*reason, startLoc);
+                                        return nullptr;
+                                    }
+
+                                    auto exprResult = std::make_unique<EnumDefinitionStatementNode>(startLoc, enumName);
+                                    exprResult->setEnumData(enumDataPtr);
+                                    return exprResult;
+                                }
+                            }
+
+                            // enum 'catch all' return failure/nullptr.
+                            return nullptr;
+                        }
+
+                        else
+                        {
+                            reporter.bug("Un-expected condition why parsing struct or enum definition", startLoc, true);
+                            return nullptr;
+                        }
                     }
                 }
 
@@ -916,7 +1263,7 @@ namespace cmm
                 {
                     std::ostringstream builder;
                     builder << "Expected qualified identifier ';' to complete a forward declaration or '{' to indicate the start of a struct definition for struct "
-                            << type->getDatatype().optStructName.value();
+                            << type->getDatatype().optTypeName.value();
                     reporter.error(builder.str(), type->getLocation());
 
                     if (canWriteErrorMessage(errorMessage))
@@ -1716,25 +2063,26 @@ namespace cmm
             if (enumType.has_value())
             {
                 const bool wasStruct = *enumType == EnumCType::STRUCT;
-                std::optional<std::string> structName;
+                const bool wasEnum = *enumType == EnumCType::ENUM;
+                std::optional<std::string> structOrEnumName;
 
                 // If it was a struct, we need to get the name of the struct.
-                if (wasStruct)
+                if (wasStruct || wasEnum)
                 {
-                    Location structNameLoc;
-                    lexResult = lexer.nextToken(token, errorMessage, &structNameLoc);
+                    Location structOrEnumNameLoc;
+                    lexResult = lexer.nextToken(token, errorMessage, &structOrEnumNameLoc);
 
                     if (!lexResult || !token.isStringSymbol())
                     {
                         if (canWriteErrorMessage(errorMessage))
                         {
-                            *errorMessage = "Failed to get the name of the struct being parsed";
+                            *errorMessage = "Failed to get the name of the struct or enum being parsed";
                         }
 
                         return std::nullopt;
                     }
 
-                    structName = std::make_optional(token.asStringSymbol());
+                    structOrEnumName = std::make_optional(token.asStringSymbol());
                 }
 
                 Location dimLocation;
@@ -1742,11 +2090,11 @@ namespace cmm
 
                 if (optionalDimensionCount.has_value())
                 {
-                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount, std::move(structName)));
+                    return std::make_optional<TypeNode>(dimLocation, CType(enumType.value(), *optionalDimensionCount, std::move(structOrEnumName)));
                 }
 
                 // else
-                return std::make_optional<TypeNode>(location, CType(enumType.value(), 0, std::move(structName)));
+                return std::make_optional<TypeNode>(location, CType(enumType.value(), 0, std::move(structOrEnumName)));
             }
         }
 

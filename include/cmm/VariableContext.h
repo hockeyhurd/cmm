@@ -13,6 +13,9 @@
 // Our includes
 #include <cmm/Types.h>
 
+// std includes
+#include <optional>
+
 namespace cmm
 {
     class VariableContext
@@ -25,8 +28,10 @@ namespace cmm
          * @param type the CType of the variable.
          * @param locality the spacial location of the variable.
          * @param modifiers the modifiers used on the variable.
+         * @param optValue optional value typically used for const values, enums, etc.
          */
-        VariableContext(const CType& type, const EnumLocality locality, const EnumModifier modifiers) CMM_NOEXCEPT;
+        VariableContext(const CType& type, const EnumLocality locality, const EnumModifier modifiers,
+            std::optional<CTypeValue>&& optValue = std::nullopt) CMM_NOEXCEPT;
 
         /**
          * Copy constructor.
@@ -93,6 +98,22 @@ namespace cmm
         void setModifiers(const EnumModifier modifiers) CMM_NOEXCEPT;
 
         /**
+         * Gets the optional value if it exists.
+         * This is typically used for const values, enums, etc.
+         *
+         * @return reference to an optional CTypeValue (if exists), else std::nullopt.
+         */
+        std::optional<CTypeValue>& getOptionalValue() CMM_NOEXCEPT;
+
+        /**
+         * Gets the optional value if it exists.
+         * This is typically used for const values, enums, etc.
+         *
+         * @return const reference to an optional CTypeValue (if exists), else std::nullopt.
+         */
+        const std::optional<CTypeValue>& getOptionalValue() const CMM_NOEXCEPT;
+
+        /**
          * Gets the state of the dirty bit.
          *
          * @return bool true if variable was recently modified, otherwise false.
@@ -116,6 +137,9 @@ namespace cmm
 
         // The modifiers of the variable.
         EnumModifier modifiers;
+
+        // optional value that may be provided by a const values, enums, etc.
+        std::optional<CTypeValue> optValue;
 
         // Used for tracking when a variable has changed and the compiler should
         // consider re-reading from memory for the latest value of this variable.

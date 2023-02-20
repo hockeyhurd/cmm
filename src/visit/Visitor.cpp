@@ -35,9 +35,11 @@ namespace cmm
         {
             case EnumVisitorResultType::NODE:
                 result.node = other.result.node;
+                other.result.node = nullptr;
                 break;
             case EnumVisitorResultType::STRING:
                 result.str = other.result.str;
+                other.result.str = nullptr;
                 break;
             default:
                 // No-op
@@ -55,9 +57,11 @@ namespace cmm
         {
             case EnumVisitorResultType::NODE:
                 result.node = other.result.node;
+                other.result.node = nullptr;
                 break;
             case EnumVisitorResultType::STRING:
                 result.str = other.result.str;
+                other.result.str = nullptr;
                 break;
             default:
                 // No-op

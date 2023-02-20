@@ -31,6 +31,11 @@ namespace cmm
         return expression.get();
     }
 
+    void CastNode::setExpression(std::unique_ptr<ExpressionNode>&& expression) CMM_NOEXCEPT
+    {
+        this->expression = std::move(expression);
+    }
+
     void CastNode::derefNode()
     {
         const auto location = expression->getLocation();

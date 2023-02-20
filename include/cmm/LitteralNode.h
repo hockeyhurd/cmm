@@ -51,6 +51,13 @@ namespace cmm
         LitteralNode(const Location& location, const char value) CMM_NOEXCEPT;
 
         /**
+         * Default constructor for enum type.
+         *
+         * @param location the location of this node.
+         */
+        LitteralNode(const Location& location, const EnumEnum value) CMM_NOEXCEPT;
+
+        /**
          * Default constructor for s8 type.
          *
          * @param location the location of this node.

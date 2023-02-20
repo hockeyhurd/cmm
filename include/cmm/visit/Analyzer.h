@@ -14,7 +14,6 @@
 #include <cmm/Types.h>
 #include <cmm/NodeListFwd.h>
 #include <cmm/ScopeManager.h>
-#include <cmm/StructTable.h>
 #include <cmm/VariableContext.h>
 #include <cmm/visit/Visitor.h>
 
@@ -29,6 +28,8 @@ namespace cmm
 {
     // Forward declarations:
     class Reporter;
+    class EnumTable;
+    class StructTable;
 
     class Analyzer : public Visitor
     {
@@ -70,6 +71,8 @@ namespace cmm
         virtual VisitorResult visit(CastNode& node) override;
         virtual VisitorResult visit(CompilationUnitNode& node) override;
         virtual VisitorResult visit(DerefNode& node) override;
+        virtual VisitorResult visit(EnumDefinitionStatementNode& node) override;
+        virtual VisitorResult visit(EnumUsageNode& node) override;
         virtual VisitorResult visit(ExpressionStatementNode& node) override;
         virtual VisitorResult visit(FieldAccessNode& node) override;
         virtual VisitorResult visit(FunctionCallNode& node) override;
@@ -110,6 +113,11 @@ namespace cmm
 
         // A map for keeping track of functions available.
         std::unordered_map<std::string, std::pair<EnumSymState, CType>> functionTable;
+
+        // The pointer to the table for tracking enums for the current translation unit.
+        // Note: This pointer shall only be valid while a TranslationUnitNode and
+        // it's child AST nodes are being analyzed.
+        EnumTable* enumTable;
 
         // The pointer to the table for tracking structs for the current translation unit.
         // Note: This pointer shall only be valid while a TranslationUnitNode and

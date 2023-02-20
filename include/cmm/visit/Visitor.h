@@ -103,6 +103,8 @@ namespace cmm
         virtual VisitorResult visit(CastNode& node) = 0;
         virtual VisitorResult visit(CompilationUnitNode& node) = 0;
         virtual VisitorResult visit(DerefNode& node) = 0;
+        virtual VisitorResult visit(EnumDefinitionStatementNode& node) = 0;
+        virtual VisitorResult visit(EnumUsageNode& node) = 0;
         virtual VisitorResult visit(ExpressionStatementNode& node) = 0;
         virtual VisitorResult visit(FieldAccessNode& node) = 0;
         virtual VisitorResult visit(FunctionCallNode& node) = 0;

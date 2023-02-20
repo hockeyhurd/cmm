@@ -7,10 +7,13 @@
 
 // Our includes
 #include <cmm/visit/Analyzer.h>
+#include <cmm/EnumTable.h>
 #include <cmm/NodeList.h>
 #include <cmm/Reporter.h>
+#include <cmm/StructTable.h>
 
 // std includes
+#include <cassert>
 #include <limits>
 
 namespace cmm
@@ -24,7 +27,7 @@ namespace cmm
         return std::numeric_limits<T>::lowest() <= value && value <= std::numeric_limits<T>::max();
     }
 
-    Analyzer::Analyzer() CMM_NOEXCEPT : structTable(nullptr)
+    Analyzer::Analyzer() CMM_NOEXCEPT : enumTable(nullptr), structTable(nullptr)
     {
         localityStack.push(EnumLocality::GLOBAL);
     }
@@ -41,8 +44,20 @@ namespace cmm
     {
         auto* rightNode = node.getRight();
 
-        [[maybe_unused]]
         auto rightNodeResult = rightNode->accept(this);
+
+        if (rightNodeResult.resultType == EnumVisitorResultType::NODE)
+        {
+            // Replace our right node with the returned VisitorResult.
+            node.setRightNode(std::unique_ptr<ExpressionNode>(static_cast<ExpressionNode*>(rightNodeResult.result.node)));
+
+            // Release ownership
+            rightNodeResult.owned = false;
+
+            // Update our pointer to look at this new value.
+            rightNode = node.getRight();
+        }
+
         const auto& rightType = rightNode->getDatatype();
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
@@ -260,7 +275,19 @@ namespace cmm
         }
 
         auto* expression = node.getExpression();
-        expression->accept(this);
+        auto visitorResult = expression->accept(this);
+
+        if (visitorResult.resultType == EnumVisitorResultType::NODE)
+        {
+            // Replace our right node with the returned VisitorResult.
+            node.setExpression(std::unique_ptr<ExpressionNode>(static_cast<ExpressionNode*>(visitorResult.result.node)));
+
+            // Release ownership
+            visitorResult.owned = false;
+
+            // Update our pointer to look at this new value.
+            expression = node.getExpression();
+        }
 
         // If it is a VariableNode, we need to add a DerefNode in front of it.
         if (expression->getType() == EnumNodeType::VARIABLE)
@@ -330,7 +357,8 @@ namespace cmm
         // TODO: Someday support multiple TranslationUnitNodes.
         auto result = node.getRoot().accept(this);
 
-        // NULL the structTable pointer to invalidate it.
+        // NULL the enumTable and structTable pointers to invalidate it.
+        enumTable = nullptr;
         structTable = nullptr;
 
         return result;
@@ -375,7 +403,7 @@ namespace cmm
             return VisitorResult();
         }
 
-        else if (!datatype.optStructName.has_value())
+        else if (!datatype.optTypeName.has_value())
         {
             reporter.bug("Missing struct name for the accessing expression. Must be a compiler bug??", node.getLocation(), true);
             return VisitorResult();
@@ -408,8 +436,8 @@ namespace cmm
         }
 
         // Check that the field to be used is a part of the struct.
-        // Note: We already checked that optStructName has a value, so this is safe to access.
-        const auto& structName = *datatype.optStructName;
+        // Note: We already checked that optTypeName has a value, so this is safe to access.
+        const auto& structName = *datatype.optTypeName;
         const StructData* structData = structTable->get(structName);
 
         // Check to see that we found the struct and we have access to the definition so that
@@ -667,6 +695,74 @@ namespace cmm
             std::ostringstream builder;
             builder << "Function '" << node.getName() << "' should not return a non-void value";
             reporter.error(builder.str(), returnStatementPtr->getLocation());
+        }
+
+        return VisitorResult();
+    }
+
+    VisitorResult Analyzer::visit(EnumDefinitionStatementNode& node)
+    {
+        const auto& enumName = node.getName();
+        auto* enumDataPtr = node.getEnumData();
+
+        if (enumDataPtr == nullptr)
+        {
+            std::ostringstream os;
+            os << "Enum '" << enumName << "' doesn't appear to be defined";
+            reporter.error(os.str(), node.getLocation());
+
+            return VisitorResult();
+        }
+
+        // Next we need to check if there is a naming conflict between other variables or enums.
+        const CType datatype(EnumCType::ENUM, 0, std::make_optional<std::string>(enumName));
+        const auto currentLocality = localityStack.top();
+
+        for (auto& [name, enumerator] : enumDataPtr->enumeratorMap)
+        {
+            const auto* lookupContext = scope.findAnyVariable(name);
+
+            if (lookupContext != nullptr)
+            {
+                std::ostringstream builder;
+                builder << "Enumerator '" << name << "' would cause a redefinition of previously declared or defined variable with the same name";
+                reporter.error(builder.str(), node.getLocation());
+                break;
+            }
+
+            auto optValue = std::make_optional<CTypeValue>(static_cast<EnumEnum>(enumerator.getValue()));
+            VariableContext context(datatype, currentLocality, EnumModifier::CONST_VALUE, std::move(optValue));
+            scope.add(name, context);
+        }
+
+        return VisitorResult();
+    }
+
+    VisitorResult Analyzer::visit(EnumUsageNode& node)
+    {
+        static auto& reporter = Reporter::instance();
+        const auto& enumeratorName = node.getName();
+        EnumData* enumDataPtr = enumTable->findEnumFromEnumeratorName(enumeratorName);
+
+        if (enumDataPtr == nullptr)
+        {
+            std::ostringstream os;
+            os << "Failed to find enum for enumerator '" << enumeratorName << "'";
+            reporter.error(os.str(), node.getLocation());
+        }
+
+        else
+        {
+            // Make sure the datatype optTypeName is set to this exact enum.
+            auto& datatype = node.getDatatype();
+
+            // Assert the name is not a nullptr.  If it is, then there must be a compiler error
+            // where the EnumTable has not correctly processed the enum's enumerators.
+            assert(enumDataPtr->name != nullptr);
+            datatype.optTypeName = *enumDataPtr->name;
+
+            Enumerator* enumerator = enumDataPtr->findEnumerator(enumeratorName);
+            node.setEnumerator(enumerator);
         }
 
         return VisitorResult();
@@ -980,6 +1076,7 @@ namespace cmm
 
     VisitorResult Analyzer::visit(TranslationUnitNode& node)
     {
+        enumTable = node.getEnumTablePtr();
         structTable = node.getStructTablePtr();
 
         for (auto& statement : node)
@@ -1063,6 +1160,19 @@ namespace cmm
         }
 
         node.setDatatype(varContext->getCType());
+
+        // Check if the variable is a const value that we could inline the value
+        // from (if known, such as an enum). For now, only support for enums...
+        // TODO: Support non-enums here.
+        if ((varContext->getModifiers() & EnumModifier::CONST_VALUE) != 0 &&
+             node.getDatatype().type == EnumCType::ENUM && node.getDatatype().pointers == 0)
+        {
+            // auto* litteralNode = new LitteralNode(node.getLocation(), varContext->getOptionalValue()->valueEnum);
+            auto* enumUsageNodePtr = new EnumUsageNode(node.getLocation(), varName);
+            // return VisitorResult(litteralNode, true);
+            enumUsageNodePtr->accept(this);
+            return VisitorResult(enumUsageNodePtr, true);
+        }
 
         return VisitorResult();
     }

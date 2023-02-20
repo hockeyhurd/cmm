@@ -27,7 +27,7 @@ namespace cmm
 
         if (type.type == EnumCType::STRUCT)
         {
-            std::cout << type.optStructName.value();
+            std::cout << type.optTypeName.value();
         }
 
         printRepeat(std::cout, '*', type.pointers);
@@ -276,6 +276,48 @@ namespace cmm
 
         decreaseIntentation();
         printNewLine();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(EnumDefinitionStatementNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+
+        const auto* enumDataPtr = node.getEnumData();
+        std::cout << "enumerators: [\n";
+
+        for (const auto& [keyName, enumerator] : enumDataPtr->enumeratorMap)
+        {
+            printIndentation(); std::cout << "name: " << enumerator.getName() << ",\nordinal: " << enumerator.getIndex() << "\n";
+        }
+
+        printIndentation();
+        std::cout << "]\n";
+        decreaseIntentation();
+
+        return VisitorResult();
+    }
+
+    VisitorResult Dump::visit(EnumUsageNode& node)
+    {
+        printIndentation();
+        printNode(node);
+        printNewLine();
+
+        increaseIntentation();
+        std::cout << "name: " << node.getName();
+        printNewLine();
+
+        printIndentation();
+        std::cout << "]\n";
+        decreaseIntentation();
 
         return VisitorResult();
     }

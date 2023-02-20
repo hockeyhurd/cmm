@@ -1,4 +1,5 @@
 #include <cmm/Types.h>
+#include <cmm/EnumTable.h>
 #include <cmm/StructTable.h>
 
 #include <gtest/gtest.h>
@@ -59,6 +60,30 @@ TEST(MiscTest, TypePromoDoubleCHARError)
 
     const auto optResult = canPromote(from, to);
     ASSERT_FALSE(optResult.has_value());
+}
+
+TEST(MiscTest, EnumTableAddAndCheck)
+{
+    const std::string name = "A";
+    // s32 index = 0;
+    EnumTable table;
+
+    ASSERT_TRUE(table.empty());
+    ASSERT_EQ(table.size(), 0);
+    ASSERT_FALSE(table.has(name));
+
+    std::string reason;
+    table.addOrUpdate(name, EnumData(), &reason);
+    ASSERT_TRUE(reason.empty());
+    ASSERT_FALSE(table.empty());
+    ASSERT_EQ(table.size(), 1);
+    ASSERT_TRUE(table.has(name));
+
+    const auto* enumDataPtr = table.get(name);
+    ASSERT_NE(enumDataPtr, nullptr);
+    ASSERT_EQ(*enumDataPtr->name, name);
+    ASSERT_TRUE(enumDataPtr->enumeratorMap.empty());
+    ASSERT_EQ(enumDataPtr->enumeratorMap.size(), 0);
 }
 
 TEST(MiscTest, StructTableAddAndCheck)

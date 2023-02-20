@@ -1905,8 +1905,8 @@ TEST(ParserTest, ParseCompilationNodeStructForwardDeclarationStatement)
     const auto& datatype = structFwdDeclPtr->getDatatype();
     ASSERT_EQ(datatype.type, EnumCType::STRUCT);
     ASSERT_EQ(datatype.pointers, 0);
-    ASSERT_TRUE(datatype.optStructName.has_value());
-    ASSERT_EQ(datatype.optStructName.value(), name);
+    ASSERT_TRUE(datatype.optTypeName.has_value());
+    ASSERT_EQ(datatype.optTypeName.value(), name);
 }
 
 TEST(ParserTest, ParseCompilationNodeStructDeclarationStatement)
@@ -1929,8 +1929,8 @@ TEST(ParserTest, ParseCompilationNodeStructDeclarationStatement)
     const auto& datatype = rootDeclarationStatementPtr->getDatatype();
     ASSERT_EQ(datatype.type, EnumCType::STRUCT);
     ASSERT_EQ(datatype.pointers, 0);
-    ASSERT_TRUE(datatype.optStructName.has_value());
-    ASSERT_EQ(datatype.optStructName.value(), structName);
+    ASSERT_TRUE(datatype.optTypeName.has_value());
+    ASSERT_EQ(datatype.optTypeName.value(), structName);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, varName);
@@ -1956,8 +1956,8 @@ TEST(ParserTest, ParseCompilationNodeDoublePointerToStructDeclarationStatement)
     const auto& datatype = rootDeclarationStatementPtr->getDatatype();
     ASSERT_EQ(datatype.type, EnumCType::STRUCT);
     ASSERT_EQ(datatype.pointers, 2);
-    ASSERT_TRUE(datatype.optStructName.has_value());
-    ASSERT_EQ(datatype.optStructName.value(), structName);
+    ASSERT_TRUE(datatype.optTypeName.has_value());
+    ASSERT_EQ(datatype.optTypeName.value(), structName);
 
     const auto& outName = rootDeclarationStatementPtr->getName();
     ASSERT_EQ(outName, varName);
@@ -3799,6 +3799,170 @@ TEST(ParserTest, ParseCompilationNodeFieldAccessNodeViaArrowThenDot)
 
     auto* variableNodePtr = static_cast<VariableNode*>(fieldAccessNodePtr2->getExpression());
     ASSERT_EQ(variableNodePtr->getName(), "x");
+}
+
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeEmpty)
+{
+    const std::string input = "enum A {};";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::ENUM_DEFINITION);
+
+    auto* enumDefStatePtr = static_cast<EnumDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_NE(enumDefStatePtr, nullptr);
+    ASSERT_EQ(enumDefStatePtr->getName(), "A");
+    ASSERT_TRUE(enumDefStatePtr->empty());
+    ASSERT_EQ(enumDefStatePtr->size(), 0);
+}
+
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeSingle)
+{
+    const std::string input = "enum A { X };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::ENUM_DEFINITION);
+
+    auto* enumDefStatePtr = static_cast<EnumDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_NE(enumDefStatePtr, nullptr);
+    ASSERT_EQ(enumDefStatePtr->getName(), "A");
+    ASSERT_FALSE(enumDefStatePtr->empty());
+    ASSERT_EQ(enumDefStatePtr->size(), 1);
+
+    const auto& enumeratorMap = enumDefStatePtr->getEnumData()->enumeratorMap;
+    const auto endIter = enumeratorMap.cend();
+    auto findResult = enumeratorMap.find("X");
+
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 0);
+}
+
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeMulti)
+{
+    const std::string input = "enum A { X, Y, Z, };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::ENUM_DEFINITION);
+
+    auto* enumDefStatePtr = static_cast<EnumDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_NE(enumDefStatePtr, nullptr);
+    ASSERT_EQ(enumDefStatePtr->getName(), "A");
+    ASSERT_FALSE(enumDefStatePtr->empty());
+    ASSERT_EQ(enumDefStatePtr->size(), 3);
+
+    const auto& enumeratorMap = enumDefStatePtr->getEnumData()->enumeratorMap;
+    const auto endIter = enumeratorMap.cend();
+    auto findResult = enumeratorMap.find("X");
+
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 0);
+
+    findResult = enumeratorMap.find("Y");
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 1);
+
+    findResult = enumeratorMap.find("Z");
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 2);
+}
+
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeDuplicateEnumeratorError)
+{
+    const std::string input = "enum A { X, Y, X };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_EQ(compUnitPtr, nullptr);
+}
+
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeWithAssigment)
+{
+    const std::string input = "enum A { X = 42 };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::ENUM_DEFINITION);
+
+    auto* enumDefStatePtr = static_cast<EnumDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_NE(enumDefStatePtr, nullptr);
+    ASSERT_EQ(enumDefStatePtr->getName(), "A");
+    ASSERT_FALSE(enumDefStatePtr->empty());
+    ASSERT_EQ(enumDefStatePtr->size(), 1);
+
+    const auto& enumeratorMap = enumDefStatePtr->getEnumData()->enumeratorMap;
+    const auto endIter = enumeratorMap.cend();
+    auto findResult = enumeratorMap.find("X");
+
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 0);
+    ASSERT_EQ(findResult->second.getValue(), 42);
+}
+
+TEST(ParserTest, ParseCompilationNodeEnumDefinitionStatementNodeWithMultiAssignment)
+{
+    const std::string input = "enum A { X = 10, Y, Z = 32, };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    auto& translationUnit = compUnitPtr->getRoot();
+    auto& firstStatement = *translationUnit.begin();
+    ASSERT_EQ(firstStatement->getType(), EnumNodeType::ENUM_DEFINITION);
+
+    auto* enumDefStatePtr = static_cast<EnumDefinitionStatementNode*>(firstStatement.get());
+    ASSERT_NE(enumDefStatePtr, nullptr);
+    ASSERT_EQ(enumDefStatePtr->getName(), "A");
+    ASSERT_FALSE(enumDefStatePtr->empty());
+    ASSERT_EQ(enumDefStatePtr->size(), 3);
+
+    const auto& enumeratorMap = enumDefStatePtr->getEnumData()->enumeratorMap;
+    const auto endIter = enumeratorMap.cend();
+    auto findResult = enumeratorMap.find("X");
+
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 0);
+    ASSERT_EQ(findResult->second.getValue(), 10);
+
+    findResult = enumeratorMap.find("Y");
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 1);
+    ASSERT_EQ(findResult->second.getValue(), 1);
+
+    findResult = enumeratorMap.find("Z");
+    ASSERT_NE(findResult, endIter);
+    ASSERT_EQ(findResult->second.getIndex(), 2);
+    ASSERT_EQ(findResult->second.getValue(), 32);
 }
 
 s32 main(s32 argc, char* argv[])

@@ -32,6 +32,12 @@ namespace cmm
     {
     }
 
+    LitteralNode::LitteralNode(const Location& location, const EnumEnum value) CMM_NOEXCEPT :
+        ExpressionNode(EnumNodeType::LITTERAL, location, CType(EnumCType::ENUM)),
+        value(value)
+    {
+    }
+
     LitteralNode::LitteralNode(const Location& location, const s8 value) CMM_NOEXCEPT :
         ExpressionNode(EnumNodeType::LITTERAL, location, CType(EnumCType::INT8)),
         value(value)

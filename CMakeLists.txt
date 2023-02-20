@@ -29,10 +29,12 @@ include_directories(include)
 # All cmmcore source files
 set(SOURCE_FILES src/ArgNode.cpp src/BinOpNode.cpp src/BlockNode.cpp
     src/CastNode.cpp src/CompilationUnitNode.cpp src/DerefNode.cpp
-    src/EnumNodeType.cpp src/ExpressionNode.cpp src/ExpressionStatementNode.cpp src/FunctionDeclarationStatementNode.cpp
-    src/Field.cpp src/FieldAccessNode.cpp src/Frame.cpp src/FunctionCallNode.cpp src/FunctionDefinitionStatementNode.cpp src/IfElseStatementNode.cpp
-    src/Keyword.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp src/ParameterNode.cpp src/ParenExpressionNode.cpp
-    src/Parser.cpp src/ParserPredictor.cpp
+    src/EnumNodeType.cpp src/EnumDefinitionStatementNode.cpp src/Enumerator.cpp src/EnumTable.cpp src/EnumUsageNode.cpp
+    src/ExpressionNode.cpp src/ExpressionStatementNode.cpp
+    src/FunctionDeclarationStatementNode.cpp src/Field.cpp src/FieldAccessNode.cpp src/Frame.cpp src/FunctionCallNode.cpp src/FunctionDefinitionStatementNode.cpp
+    src/IfElseStatementNode.cpp
+    src/Keyword.cpp src/Lexer.cpp src/LitteralNode.cpp src/Location.cpp src/Node.cpp
+    src/ParameterNode.cpp src/ParenExpressionNode.cpp src/Parser.cpp src/ParserPredictor.cpp
     src/Reporter.cpp src/ReturnStatementNode.cpp src/Snapshot.cpp src/StatementNode.cpp src/StringView.cpp
     src/ScopeManager.cpp src/StructDefinitionStatementNode.cpp src/StructFwdDeclarationStatementNode.cpp src/StructOrUnionContext.cpp src/StructTable.cpp src/Token.cpp
     src/TranslationUnitNode.cpp src/Types.cpp src/TypeNode.cpp src/UnaryOpNode.cpp

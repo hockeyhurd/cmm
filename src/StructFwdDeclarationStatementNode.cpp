@@ -36,12 +36,12 @@ namespace cmm
 
     std::string& StructFwdDeclarationStatementNode::getName() CMM_NOEXCEPT
     {
-        return *type.getDatatype().optStructName;
+        return *type.getDatatype().optTypeName;
     }
 
     const std::string& StructFwdDeclarationStatementNode::getName() const CMM_NOEXCEPT
     {
-        return *type.getDatatype().optStructName;
+        return *type.getDatatype().optTypeName;
     }
 
     VisitorResult StructFwdDeclarationStatementNode::accept(Visitor* visitor) /* override */

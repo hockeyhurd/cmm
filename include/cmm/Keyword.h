@@ -127,6 +127,7 @@ namespace cmm
         static const Keyword CHAR;
         static const Keyword DOUBLE;
         static const Keyword ELSE;
+        static const Keyword ENUM;
         static const Keyword FLOAT;
         static const Keyword IF;
         static const Keyword INT;

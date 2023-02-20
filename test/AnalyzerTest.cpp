@@ -784,6 +784,186 @@ TEST(AnalyzerTest, AnalyzerFieldAccessUsingAMissingFieldError)
     ASSERT_GT(reporter.getErrorCount(), 0);
 }
 
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeEnumeratorNameConflictionWithVariableError)
+{
+    reporter.reset();
+
+    const std::string input = "int X; enum A { Y, X };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeVariableNameConflictionWithEnumeratorError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; int X;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeThenAssignToIntVarValid)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; int Z; Z = (int) X;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeThenAssignToVarValid)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum A Z; Z = Y;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentCharWarning)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X = 'a', Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 1);
+    ASSERT_EQ(reporter.getErrorCount(), 0);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentDoubleError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X = -2.5, Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeWithAssignmentStringError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X = \"Hello, world!\", Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeRedefinitionError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum A { X, Y };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerEnumDefinitionStatementNodeEnumeratorNameConflictionError)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum B { X, Z };";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_FALSE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
+TEST(AnalyzerTest, AnalyzerAssignEnumVariableToAnotherWarning)
+{
+    reporter.reset();
+
+    const std::string input = "enum A { X, Y }; enum B { Z, W }; enum A e; e = Z;";
+    Parser parser(input);
+    std::string errorMessage;
+    auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);
+
+    ASSERT_TRUE(errorMessage.empty());
+    ASSERT_NE(compUnitPtr, nullptr);
+
+    Analyzer analyzer;
+    analyzer.visit(*compUnitPtr);
+    ASSERT_EQ(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getErrorCount(), 1);
+}
+
 s32 main(s32 argc, char* argv[])
 {
     reporter.setEnablePrint(false);
