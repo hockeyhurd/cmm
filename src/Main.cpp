@@ -24,7 +24,8 @@ int main()
     // std::string input = "struct Vec2 { int x; int y; }; int main() { struct Vec2 v2; v2.x = 10; v2.y = 32; int result; result = v2.x + v2.y; return result; }";
     // std::string input = "struct Vec2 { int x; int y; }; struct Vec3 { struct Vec2 v2; int z; }; int main() { struct Vec3 v3; v3.v2.x = 10; v3.v2.y = 12; v3.z = 20; int result; result = v3.v2.x + v3.v2.y + v3.z; return result; }";
     // std::string input = "enum A { X, Y }; int main() { int z; z = (int) Y; return z; }";
-    std::string input = "enum A { X, Y }; int main() { enum A a; a = Y; return (int) a; }";
+    // std::string input = "enum A { X, Y }; int main() { enum A a; a = Y; return (int) a; }";
+    std::string input = "int main() { int z; z = (int) 5; return z; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

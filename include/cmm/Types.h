@@ -340,6 +340,13 @@ namespace cmm
 
     std::optional<EnumBinOpNodeType> isEnumBinOpType(const Token& token) CMM_NOEXCEPT;
 
+    enum class EnumCastType
+    {
+        NOP = 0, NARROWING, WIDENING
+    };
+
+    const char* toString(const EnumCastType type) CMM_NOEXCEPT;
+
     enum class EnumFieldAccessType
     {
         DOT = 0, ARROW

@@ -335,6 +335,24 @@ namespace cmm
         return std::nullopt;
     }
 
+    const char* toString(const EnumCastType type) CMM_NOEXCEPT
+    {
+        switch (type)
+        {
+        case EnumCastType::NOP:
+            return "NOP";
+        case EnumCastType::NARROWING:
+            return "NARROWING";
+        case EnumCastType::WIDENING:
+            return "WIDENING";
+        default:
+            return nullptr;
+        }
+
+        // Should be unreachable.
+        return nullptr;
+    }
+
     std::optional<EnumFieldAccessType> isEnumFieldAccessType(const Token& token) CMM_NOEXCEPT
     {
         if (token.isCharSymbol() && token.asCharSymbol() == CHAR_PERIOD)

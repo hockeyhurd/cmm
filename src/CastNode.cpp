@@ -43,6 +43,16 @@ namespace cmm
         expression = std::make_unique<DerefNode>(location, std::move(temp));
     }
 
+    EnumCastType CastNode::getCastType() const CMM_NOEXCEPT
+    {
+        return castType;
+    }
+
+    void CastNode::setCastType(const EnumCastType castType) CMM_NOEXCEPT
+    {
+        this->castType = castType;
+    }
+
     VisitorResult CastNode::accept(Visitor* visitor) /* override */
     {
         return visitor->visit(*this);

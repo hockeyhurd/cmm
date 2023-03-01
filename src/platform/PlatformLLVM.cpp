@@ -280,6 +280,8 @@ namespace cmm
         const auto& fromCType = node.getExpression()->getDatatype();
         const auto& toCType = node.getDatatype();
 
+        // TODO (Nick): Rewrite this section to see if we actually need to cast,
+        // zext, ztrunc (and float variants) here instead of blindly casting...
         if ((fromCType.isInt() && toCType.type == EnumCType::ENUM) ||
             (fromCType.type == EnumCType::ENUM && toCType.isInt()))
         {

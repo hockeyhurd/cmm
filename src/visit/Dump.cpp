@@ -104,6 +104,9 @@ namespace cmm
         printNewLine();
 
         increaseIntentation();
+        printIndentation();
+        std::cout << "EnumCastType: " << toString(node.getCastType());
+        printNewLine();
 
         if (node.hasExpression())
         {

@@ -6,6 +6,7 @@
  */
 
 // Our includes
+#include <cmm/Types.h>
 #include <cmm/visit/Analyzer.h>
 #include <cmm/EnumTable.h>
 #include <cmm/NodeList.h>
@@ -305,11 +306,13 @@ namespace cmm
         {
             if (canPromote(from, to))
             {
-                // Note: Intentionally do nothing (no need to warn).
+                node.setCastType(EnumCastType::WIDENING);
             }
 
             else if (canTruncate(from, to))
             {
+                node.setCastType(EnumCastType::NARROWING);
+
                 // TODO: Consider conditionally reporting this, such as if the user
                 // passes a '-Wall' like flag.
                 std::ostringstream builder;
@@ -325,6 +328,8 @@ namespace cmm
 
         else if (from.pointers == to.pointers)
         {
+            node.setCastType(EnumCastType::NOP);
+
             // TODO: Consider conditionally reporting this, such as if the user
             // passes a '-Wall' like flag.
             std::ostringstream builder;
