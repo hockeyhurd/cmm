@@ -82,6 +82,18 @@ namespace cmm
          */
         const std::string& getName() const CMM_NOEXCEPT;
 
+        /**
+         * Gets the EnumLocality of this variable.
+         *
+         * @return EnumLocality.
+         */
+        EnumLocality getLocality() const CMM_NOEXCEPT;
+
+        /**
+         * Set the EnumLocality of this variable.
+         */
+        void setLocality(const EnumLocality locality) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -89,6 +101,9 @@ namespace cmm
 
         // The name of the variable.
         std::string name;
+
+        // The locality of the variable.
+        EnumLocality locality;
     };
 }
 

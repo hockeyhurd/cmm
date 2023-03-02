@@ -221,6 +221,7 @@ namespace cmm
         return promoOrTruncateLookup(from, to, promoMap);
     }
 
+    [[deprecated("OBE")]]
     std::optional<CType> canTruncate(const CType& from, const CType& to)
     {
         static bool init = false;
