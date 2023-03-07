@@ -282,11 +282,9 @@ namespace cmm
         const auto& fromCType = node.getExpression()->getDatatype();
         const auto& toCType = node.getDatatype();
 
-        // TODO (Nick): Rewrite this section to see if we actually need to cast,
-        // zext, ztrunc (and float variants) here instead of blindly casting...
-        if (node.getCastType() == EnumCastType::NOP ||
-           (fromCType.isInt() && toCType.type == EnumCType::ENUM) ||
-           (fromCType.type == EnumCType::ENUM && toCType.isInt()))
+        // If the cast gets NOP'd, do nothing but return the same expression we
+        // were given as the actual result.
+        if (node.getCastType() == EnumCastType::NOP)
         {
             return std::move(expr);
         }

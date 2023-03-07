@@ -5,7 +5,6 @@
  * @version 2022-06-25
  */
 
-#include "cmm/Types.h"
 #include <cmm/VariableNode.h>
 
 namespace cmm
