@@ -6,6 +6,7 @@
  */
 
 // Our includes
+#include <cmm/Types.h>
 #include <cmm/visit/Analyzer.h>
 #include <cmm/EnumTable.h>
 #include <cmm/NodeList.h>
@@ -292,24 +293,38 @@ namespace cmm
         // If it is a VariableNode, we need to add a DerefNode in front of it.
         if (expression->getType() == EnumNodeType::VARIABLE)
         {
-            node.derefNode();
+            const auto* varExprPtr = static_cast<VariableNode*>(expression);
 
-            // Update our expression pointer for next use below.
-            expression = node.getExpression();
+            // Don't DerefNode a parameter
+            if (varExprPtr->getLocality() != EnumLocality::PARAMETER)
+            {
+                node.derefNode();
+
+                // Update our expression pointer for next use below.
+                expression = node.getExpression();
+            }
         }
 
-        const auto& from = node.getDatatype();
-        const auto& to = expression->getDatatype();
+        const auto& from = expression->getDatatype();
+        const auto& to = node.getDatatype();
 
-        if (from.pointers == 0 && from.pointers == to.pointers)
+        // Types are already the same. No-op the redundant cast.
+        if (from == to)
+        {
+            node.setCastType(EnumCastType::NOP);
+        }
+
+        else if (from.pointers == 0 && from.pointers == to.pointers)
         {
             if (canPromote(from, to))
             {
-                // Note: Intentionally do nothing (no need to warn).
+                node.setCastType(EnumCastType::WIDENING);
             }
 
-            else if (canTruncate(from, to))
+            else
             {
+                node.setCastType(EnumCastType::NARROWING);
+
                 // TODO: Consider conditionally reporting this, such as if the user
                 // passes a '-Wall' like flag.
                 std::ostringstream builder;
@@ -325,6 +340,8 @@ namespace cmm
 
         else if (from.pointers == to.pointers)
         {
+            node.setCastType(EnumCastType::NOP);
+
             // TODO: Consider conditionally reporting this, such as if the user
             // passes a '-Wall' like flag.
             std::ostringstream builder;
@@ -955,8 +972,7 @@ namespace cmm
         if (optionalVariableNode.has_value())
         {
             const auto& name = optionalVariableNode->getName();
-            const auto currentLocality = localityStack.top();
-            VariableContext context(typeNode.getDatatype(), currentLocality, EnumModifier::NO_MOD);
+            VariableContext context(typeNode.getDatatype(), EnumLocality::PARAMETER, EnumModifier::NO_MOD);
             auto* findVariable = scope.findVariable(name);
 
             if (findVariable != nullptr)
@@ -1160,6 +1176,7 @@ namespace cmm
         }
 
         node.setDatatype(varContext->getCType());
+        node.setLocality(varContext->getLocality());
 
         // Check if the variable is a const value that we could inline the value
         // from (if known, such as an enum). For now, only support for enums...

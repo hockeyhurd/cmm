@@ -20,11 +20,6 @@
 
 namespace cmm
 {
-    enum class EnumCastType
-    {
-        NOP = 0, NARROWING, WIDENING
-    };
-
     class CastNode : public ExpressionNode
     {
     public:
@@ -101,6 +96,20 @@ namespace cmm
          */
         void derefNode();
 
+        /**
+         * Gets the EnumCastType of this CastNode.
+         *
+         * @return EnumCastType.
+         */
+        EnumCastType getCastType() const CMM_NOEXCEPT;
+
+        /**
+         * Sets the EnumCastType for this CastNode.
+         *
+         * @param castType the EnumCastType to set.
+         */
+        void setCastType(const EnumCastType castType) CMM_NOEXCEPT;
+
         VisitorResult accept(Visitor* visitor) override;
         std::string toString() const override;
 
@@ -108,6 +117,9 @@ namespace cmm
 
         // The expression we are casting.
         std::unique_ptr<ExpressionNode> expression;
+
+        // The type of cast.
+        EnumCastType castType;
     };
 }
 

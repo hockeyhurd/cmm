@@ -221,6 +221,7 @@ namespace cmm
         return promoOrTruncateLookup(from, to, promoMap);
     }
 
+    [[deprecated("OBE")]]
     std::optional<CType> canTruncate(const CType& from, const CType& to)
     {
         static bool init = false;
@@ -333,6 +334,24 @@ namespace cmm
 
         // Should be unreachable.
         return std::nullopt;
+    }
+
+    const char* toString(const EnumCastType type) CMM_NOEXCEPT
+    {
+        switch (type)
+        {
+        case EnumCastType::NOP:
+            return "NOP";
+        case EnumCastType::NARROWING:
+            return "NARROWING";
+        case EnumCastType::WIDENING:
+            return "WIDENING";
+        default:
+            return nullptr;
+        }
+
+        // Should be unreachable.
+        return nullptr;
     }
 
     std::optional<EnumFieldAccessType> isEnumFieldAccessType(const Token& token) CMM_NOEXCEPT

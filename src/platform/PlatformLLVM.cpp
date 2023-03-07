@@ -6,6 +6,8 @@
  */
 
 // Our includes
+#include <cmm/Types.h>
+#include <cmm/visit/Visitor.h>
 #include <cmm/platform/PlatformLLVM.h>
 #include <cmm/NodeList.h>
 #include <cmm/Reporter.h>
@@ -280,17 +282,28 @@ namespace cmm
         const auto& fromCType = node.getExpression()->getDatatype();
         const auto& toCType = node.getDatatype();
 
-        if ((fromCType.isInt() && toCType.type == EnumCType::ENUM) ||
-            (fromCType.type == EnumCType::ENUM && toCType.isInt()))
+        // If the cast gets NOP'd, do nothing but return the same expression we
+        // were given as the actual result.
+        if (node.getCastType() == EnumCastType::NOP)
         {
             return std::move(expr);
         }
 
         static auto& reporter = Reporter::instance();
+
+        /**
+         * This function facilitates the prefix or suffic to an LLVM cast.
+         *
+         * @param datatype the type to interpret.
+         * @return std::string.
+         */
         static auto datatypeToStr = [](const CType& datatype) -> std::string
         {
             if (datatype.isFloatingPoint())
+            {
                 return "fp";
+            }
+
             else if (datatype.isInt())
             {
                 // TODO: When we support unsigned types, make this dynamic:
@@ -301,14 +314,45 @@ namespace cmm
             std::ostringstream os;
             os << "unexpected CType (see compiler source code at " << __FILE__ << ": " << __LINE__ << ")";
             reporter.bug(os.str(), Location(0, 0), true);
-            return "\0";
+            return "";
         };
 
-        encoder->printIndent();
         auto& os = encoder->getOStream();
         auto temp = encoder->getTemp();
-        os << temp << " = " << datatypeToStr(fromCType) << "to" << datatypeToStr(toCType)
-           << " " << resolveDatatype(fromCType) << " " << *expr.result.str << " to " << resolveDatatype(toCType);
+
+        if (!fromCType.isPointerType() && !toCType.isPointerType() &&
+            (fromCType.isFloatingPoint() ^ toCType.isFloatingPoint()))
+        {
+            encoder->printIndent();
+            auto temp = encoder->getTemp();
+            os << temp << " = " << datatypeToStr(fromCType) << "to" << datatypeToStr(toCType)
+               << ' ' << resolveDatatype(fromCType) << ' ' << *expr.result.str << " to " << resolveDatatype(toCType);
+            encoder->emitNewline();
+
+            return VisitorResult(new std::string(std::move(temp)), true);
+        }
+
+        encoder->printIndent();
+        os << temp << " = " << (toCType.isFloatingPoint() ? "fp" : "z");
+
+        switch (node.getCastType())
+        {
+        case EnumCastType::NARROWING:
+            os << "trunc";
+            break;
+        case EnumCastType::WIDENING:
+            os << "ext";
+            break;
+        default:
+        {
+            std::ostringstream os;
+            os << "unexpected EnumCastType::NOP (see compiler source code at " << __FILE__ << ": " << __LINE__ << ")";
+            reporter.bug(os.str(), node.getLocation(), true);
+            return VisitorResult();
+        }
+        }
+
+        os << ' ' << resolveDatatype(fromCType) << ' ' << *expr.result.str << " to " << resolveDatatype(toCType);
         encoder->emitNewline();
 
         return VisitorResult(new std::string(std::move(temp)), true);
