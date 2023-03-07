@@ -347,8 +347,7 @@ TEST(AnalyzerTest, AnalyzerExplicitDowncastLongToIntWarning)
 
     Analyzer analyzer;
     analyzer.visit(*compUnitPtr);
-    // ASSERT_EQ(reporter.getWarningCount(), 1);
-    ASSERT_GT(reporter.getWarningCount(), 0);
+    ASSERT_EQ(reporter.getWarningCount(), 2);
     ASSERT_EQ(reporter.getErrorCount(), 0);
 }
 
@@ -356,7 +355,6 @@ TEST(AnalyzerTest, AnalyzerExplicitDowncastIntToLongNoWarning)
 {
     reporter.reset();
 
-    // Weird code, but perfectly valid.
     const std::string input = "int x; x = 42; long y; y = (long) x;";
     Parser parser(input);
     std::string errorMessage;

@@ -308,7 +308,13 @@ namespace cmm
         const auto& from = expression->getDatatype();
         const auto& to = node.getDatatype();
 
-        if (from.pointers == 0 && from.pointers == to.pointers)
+        // Types are already the same. No-op the redundant cast.
+        if (from == to)
+        {
+            node.setCastType(EnumCastType::NOP);
+        }
+
+        else if (from.pointers == 0 && from.pointers == to.pointers)
         {
             if (canPromote(from, to))
             {
