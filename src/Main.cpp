@@ -3,11 +3,10 @@
 #include <cmm/Parser.h>
 #include <cmm/platform/PlatformLLVM.h>
 #include <cmm/visit/Analyzer.h>
-// #include <cmm/visit/Dump.h>
 #include <cmm/visit/Encode.h>
+// #include <cmm/visit/Dump.h>
 
 // std includes
-// #include <fstream>
 #include <iostream>
 #include <sstream>
 

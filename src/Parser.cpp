@@ -66,8 +66,8 @@ namespace cmm
         return Token('\0', false);
     }
 
-    static bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch);
-    static bool expectSemicolon(Lexer& lexer, std::string* errorMessage);
+    static bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch, Location* location = nullptr);
+    static bool expectSemicolon(Lexer& lexer, std::string* errorMessage, Location* location = nullptr);
 
     [[maybe_unused]]
     static bool testExpectChar(Lexer& lexer, std::string* errorMessage, const char ch);
@@ -148,19 +148,19 @@ namespace cmm
     }
 
     /* static */
-    bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch)
+    bool expectChar(Lexer& lexer, std::string* errorMessage, const char ch, Location* location)
     {
         auto token = newToken();
-        const bool lexResult = lexer.nextToken(token, errorMessage);
+        const bool lexResult = lexer.nextToken(token, errorMessage, location);
 
         return lexResult && token.getType() == TokenType::CHAR_SYMBOL &&
                token.asCharSymbol() == ch;
     }
 
     /* static */
-    bool expectSemicolon(Lexer& lexer, std::string* errorMessage)
+    bool expectSemicolon(Lexer& lexer, std::string* errorMessage, Location* location)
     {
-        return expectChar(lexer, errorMessage, CHAR_SEMI_COLON);
+        return expectChar(lexer, errorMessage, CHAR_SEMI_COLON, location);
     }
 
     /* static */
@@ -1203,9 +1203,14 @@ namespace cmm
                         if (wasStructType)
                         {
                             auto blockNode = parseStructBlockStatement(lexer, errorMessage);
-                            return expectSemicolon(lexer, errorMessage) ?
-                                std::make_unique<StructDefinitionStatementNode>(startLoc, std::move(*type->getDatatype().optTypeName), std::move(*blockNode)) :
-                                nullptr;
+
+                            if (expectSemicolon(lexer, errorMessage))
+                            {
+                                return std::make_unique<StructDefinitionStatementNode>(startLoc, std::move(*type->getDatatype().optTypeName), std::move(*blockNode));
+                            }
+
+                            reporter.error("Expected a closing semi-colon", startLoc);
+                            return nullptr;
                         }
 
                         else if (wasEnumType)
@@ -1272,7 +1277,7 @@ namespace cmm
 
                         else
                         {
-                            reporter.bug("Un-expected condition why parsing struct or enum definition", startLoc, true);
+                            reporter.bug("Un-expected condition while parsing struct or enum definition", startLoc, true);
                             return nullptr;
                         }
                     }
@@ -1317,18 +1322,27 @@ namespace cmm
                         optVariableName->getName(), std::move(*optionalBlockStatement), std::move(*optionalFunctionArgs));
             }
 
+            Location errLocation;
+
             // Function declaration
-            else
+            if (expectSemicolon(lexer, errorMessage, &errLocation))
             {
-                return expectSemicolon(lexer, errorMessage) ?
-                    std::make_unique<FunctionDeclarationStatementNode>(type->getLocation(), *type, optVariableName->getName(), std::move(*optionalFunctionArgs)) :
-                    nullptr;
+                return std::make_unique<FunctionDeclarationStatementNode>(type->getLocation(), *type, optVariableName->getName(), std::move(*optionalFunctionArgs));
             }
+
+            reporter.error("Expected a closing semi-colon", errLocation);
+            return nullptr;
         }
 
-        return expectSemicolon(lexer, errorMessage) ?
-               std::make_unique<VariableDeclarationStatementNode>(type->getLocation(), *type, std::move(*optVariableName)) :
-               nullptr;
+        Location errLocation;
+
+        if (expectSemicolon(lexer, errorMessage, &errLocation))
+        {
+            return std::make_unique<VariableDeclarationStatementNode>(type->getLocation(), *type, std::move(*optVariableName));
+        }
+
+        reporter.error("Expected a closing semi-colon", errLocation);
+        return nullptr;
     }
 
     /* static */
