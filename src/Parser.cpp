@@ -186,6 +186,7 @@ namespace cmm
     /* static */
     std::optional<BlockNode> parseBlockStatement(Lexer& lexer, std::string* errorMessage, const std::optional<std::unordered_set<EnumNodeType>>& validNodeTypes)
     {
+        static Reporter& reporter = Reporter::instance();
         auto snapshot = lexer.snap();
         auto token = newToken();
         bool result = lexer.peekNextToken(token);
@@ -234,8 +235,26 @@ namespace cmm
         //}
 
         result = lexer.peekNextToken(token);
+
         if (!result || !token.isCharSymbol() || token.asCharSymbol() != CHAR_RCURLY_BRACKET)
         {
+            std::ostringstream builder;
+            builder << "Expected a closing '}' bracket";
+
+            // If it was a valid lex, we can also include the token...
+            if (result)
+            {
+                builder << ", but found '" << token.toString() << "'";
+            }
+
+            std::string err = builder.str();
+            reporter.error(err, lexer.getLocation());
+
+            if (canWriteErrorMessage(errorMessage))
+            {
+                *errorMessage = std::move(err);
+            }
+
             lexer.restore(snapshot);
             return std::nullopt;
         }
