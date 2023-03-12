@@ -484,6 +484,40 @@ namespace cmm
         return !(*this == other);
     }
 
+    std::string Token::toString() const
+    {
+        switch (type)
+        {
+        case TokenType::BOOL:
+        {
+            static const char* lookup[2] = { "false", "true" };
+            return lookup[value.b];
+        }
+        case TokenType::CHAR_SYMBOL:
+        case TokenType::CHAR:
+            return std::string(1, value.ch);
+        case TokenType::DOUBLE:
+            return std::to_string(value.doubleValue);
+        case TokenType::FLOAT:
+            return std::to_string(value.floatValue);
+        case TokenType::INT16:
+            return std::to_string(value.int16Value);
+        case TokenType::INT32:
+            return std::to_string(value.int32Value);
+        case TokenType::INT64:
+            return std::to_string(value.int64Value);
+        case TokenType::NULL_T:
+            return "NULL";
+        case TokenType::SYMBOL:
+        case TokenType::STRING:
+            return *value.str;
+        default:
+            throw std::runtime_error("Unexpected token type");
+        }
+
+        return "Token::toString() failure";
+    }
+
     void Token::conditionallyCleanString() CMM_NOEXCEPT
     {
         if (isCStringOrStringSymbol() && value.str != nullptr)

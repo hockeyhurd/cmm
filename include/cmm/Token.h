@@ -462,6 +462,13 @@ namespace cmm
          */
         bool operator!= (const Token& other) const;
 
+        /**
+         * Attempts to stringify the token.
+         *
+         * @return std::string.
+         */
+        std::string toString() const;
+
     private:
 
         /**
