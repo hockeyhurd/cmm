@@ -109,22 +109,6 @@ namespace cmm
         const EnumTable& getEnumTable() const CMM_NOEXCEPT;
 
         /**
-         * Gets the EnumTable.
-         * Note: This pointer shall always be valid.
-         *
-         * @return pointer to the EnumTable.
-         */
-        EnumTable* getEnumTablePtr() CMM_NOEXCEPT;
-
-        /**
-         * Gets the EnumTable.
-         * Note: This const pointer shall always be valid.
-         *
-         * @return const pointer to the EnumTable.
-         */
-        const EnumTable* getEnumTablePtr() const CMM_NOEXCEPT;
-
-        /**
          * Gets the StructTable.
          *
          * @return reference to the StructTable.
@@ -139,34 +123,18 @@ namespace cmm
         const StructTable& getStructTable() const CMM_NOEXCEPT;
 
         /**
-         * Gets the StructTable.
-         * Note: This pointer shall always be valid.
+         * Gets the CStringTable.
          *
-         * @return pointer to the StructTable.
+         * @return reference to the CStringTable.
          */
-        StructTable* getStructTablePtr() CMM_NOEXCEPT;
+        CStringTable& getCStringTable() CMM_NOEXCEPT;
 
         /**
-         * Gets the StructTable.
-         * Note: This const pointer shall always be valid.
+         * Gets the CStringTable.
          *
-         * @return const pointer to the StructTable.
+         * @return const reference to the CStringTable.
          */
-        const StructTable* getStructTablePtr() const CMM_NOEXCEPT;
-
-        // Note: This is a hack and don't merge this. Using this as a proof of
-        // concept for now.
-        inline CStringTable* getCStringTable() CMM_NOEXCEPT
-        {
-            return &cstringTable;
-        }
-
-        // Note: This is a hack and don't merge this. Using this as a proof of
-        // concept for now.
-        inline const CStringTable* getCStringTable() const CMM_NOEXCEPT
-        {
-            return &cstringTable;
-        }
+        const CStringTable& getCStringTable() const CMM_NOEXCEPT;
 
         /**
          * Adds the c-string to the CStringTable.

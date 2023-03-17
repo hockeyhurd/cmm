@@ -41,16 +41,6 @@ namespace cmm
         return enumTable;
     }
 
-    EnumTable* TranslationUnitNode::getEnumTablePtr() CMM_NOEXCEPT
-    {
-        return &enumTable;
-    }
-
-    const EnumTable* TranslationUnitNode::getEnumTablePtr() const CMM_NOEXCEPT
-    {
-        return &enumTable;
-    }
-
     StructTable& TranslationUnitNode::getStructTable() CMM_NOEXCEPT
     {
         return structTable;
@@ -61,14 +51,16 @@ namespace cmm
         return structTable;
     }
 
-    StructTable* TranslationUnitNode::getStructTablePtr() CMM_NOEXCEPT
+    TranslationUnitNode::CStringTable& TranslationUnitNode::getCStringTable() CMM_NOEXCEPT
     {
-        return &structTable;
+        return cstringTable;
     }
 
-    const StructTable* TranslationUnitNode::getStructTablePtr() const CMM_NOEXCEPT
+    // Note: This is a hack and don't merge this. Using this as a proof of
+    // concept for now.
+    const TranslationUnitNode::CStringTable& TranslationUnitNode::getCStringTable() const CMM_NOEXCEPT
     {
-        return &structTable;
+        return cstringTable;
     }
 
     void TranslationUnitNode::addCString(const std::string& str)

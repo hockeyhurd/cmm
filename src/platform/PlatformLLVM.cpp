@@ -620,15 +620,15 @@ namespace cmm
         // Capture the current transation unit
         // TODO: Figure out how to avoid having a dangling pointer...
         currentTranslationUnit = std::addressof(node);
-        TranslationUnitNode::CStringTable* stringLitteralTable = node.getCStringTable();
+        TranslationUnitNode::CStringTable& stringLitteralTable = node.getCStringTable();
 
         // Note: this check is actually important so we don't just blankly emit
         // new lines before exitting this function.
-        if (!stringLitteralTable->empty())
+        if (!stringLitteralTable.empty())
         {
             auto& os = encoder->getOStream();
 
-            for (auto& [key, value] : *stringLitteralTable)
+            for (auto& [key, value] : stringLitteralTable)
             {
                 // Override the name for future LitteralNode lookups
                 value = genStringName();
