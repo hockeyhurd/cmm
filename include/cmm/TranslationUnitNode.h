@@ -18,6 +18,7 @@
 
 // std includes
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace cmm
@@ -32,6 +33,7 @@ namespace cmm
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
         using StatementListIter = StatementList::iterator;
         using StatementListConstIter = StatementList::const_iterator;
+        using CStringTable = std::unordered_map<std::string, std::string>;
 
     public:
 
@@ -152,6 +154,50 @@ namespace cmm
          */
         const StructTable* getStructTablePtr() const CMM_NOEXCEPT;
 
+        // Note: This is a hack and don't merge this. Using this as a proof of
+        // concept for now.
+        inline CStringTable* getCStringTable() CMM_NOEXCEPT
+        {
+            return &cstringTable;
+        }
+
+        // Note: This is a hack and don't merge this. Using this as a proof of
+        // concept for now.
+        inline const CStringTable* getCStringTable() const CMM_NOEXCEPT
+        {
+            return &cstringTable;
+        }
+
+        /**
+         * Adds the c-string to the CStringTable.
+         *
+         * @param str the c-string to add.
+         */
+        void addCString(const std::string& str);
+
+        /**
+         * Adds the c-string to the CStringTable.
+         *
+         * @param str the c-string to add.
+         */
+        void addCString(std::string&& str);
+
+        /**
+         * Attempts to find if a c-string is in the table or not.
+         *
+         * @param str the c-string to lookup.
+         * @return iterator to the std::string value.
+         */
+        CStringTable::iterator findCString(const std::string& str);
+
+        /**
+         * Attempts to find if a c-string is in the table or not.
+         *
+         * @param str the c-string to lookup.
+         * @return const iterator to the std::string value.
+         */
+        CStringTable::const_iterator findCString(const std::string& str) const;
+
         /**
          * The beginning iterator to the statement list.
          *
@@ -194,6 +240,9 @@ namespace cmm
 
         // The struct table containing all structs for this translation unit.
         StructTable structTable;
+
+        // A table for RValue c-strings.
+        CStringTable cstringTable;
     };
 }
 

@@ -71,6 +71,40 @@ namespace cmm
         return &structTable;
     }
 
+    void TranslationUnitNode::addCString(const std::string& str)
+    {
+        const auto findResult = cstringTable.find(str);
+
+        if (findResult == cstringTable.cend())
+        {
+            // Note: Actual values will get resolved at the time of codegen.
+            cstringTable.emplace(str, "");
+        }
+    }
+
+    void TranslationUnitNode::addCString(std::string&& str)
+    {
+        const auto findResult = cstringTable.find(str);
+
+        if (findResult == cstringTable.cend())
+        {
+            // Note: Actual values will get resolved at the time of codegen.
+            cstringTable.emplace(std::move(str), "");
+        }
+    }
+
+    TranslationUnitNode::CStringTable::iterator TranslationUnitNode::findCString(const std::string& str)
+    {
+         const auto findResult = cstringTable.find(str);
+         return findResult;
+    }
+
+    TranslationUnitNode::CStringTable::const_iterator TranslationUnitNode::findCString(const std::string& str) const
+    {
+         const auto findResult = cstringTable.find(str);
+         return findResult;
+    }
+
     TranslationUnitNode::StatementListIter TranslationUnitNode::begin() CMM_NOEXCEPT
     {
         return statements.begin();

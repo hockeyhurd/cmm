@@ -20,7 +20,6 @@
 // std includes
 #include <stack>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -123,6 +122,9 @@ namespace cmm
         // Note: This pointer shall only be valid while a TranslationUnitNode and
         // it's child AST nodes are being analyzed.
         StructTable* structTable;
+
+        // Note this is just a hack for now.
+        std::unordered_map<std::string, std::string>* cstringTable;
 
         // For tracking current locality.
         std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;

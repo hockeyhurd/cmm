@@ -3,10 +3,11 @@
 #include <cmm/Parser.h>
 #include <cmm/platform/PlatformLLVM.h>
 #include <cmm/visit/Analyzer.h>
-#include <cmm/visit/Encode.h>
 // #include <cmm/visit/Dump.h>
+#include <cmm/visit/Encode.h>
 
 // std includes
+// #include <fstream>
 #include <iostream>
 #include <sstream>
 
@@ -24,8 +25,7 @@ int main()
     // std::string input = "struct Vec2 { int x; int y; }; struct Vec3 { struct Vec2 v2; int z; }; int main() { struct Vec3 v3; v3.v2.x = 10; v3.v2.y = 12; v3.z = 20; int result; result = v3.v2.x + v3.v2.y + v3.z; return result; }";
     // std::string input = "enum A { X, Y }; int main() { int z; z = (int) Y; return z; }";
     // std::string input = "enum A { X, Y }; int main() { enum A a; a = Y; return (int) a; }";
-    // std::string input = "int main() { int a; int b; b = 42; a = b;";
-    std::string input = "int main() { int a;";
+    std::string input = "int puts(char* str); int main() { puts(\"Hello, world!\"); return 0; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

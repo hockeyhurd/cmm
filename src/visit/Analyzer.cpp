@@ -873,6 +873,10 @@ namespace cmm
         case EnumCType::VOID_PTR:
             break;
         case EnumCType::STRING:
+        {
+            std::string value = node.getValue().valueString;
+            cstringTable->emplace(std::move(value), "");
+        }
             break;
         case EnumCType::BOOL:
             break;
@@ -1094,6 +1098,7 @@ namespace cmm
     {
         enumTable = node.getEnumTablePtr();
         structTable = node.getStructTablePtr();
+        cstringTable = node.getCStringTable();
 
         for (auto& statement : node)
         {

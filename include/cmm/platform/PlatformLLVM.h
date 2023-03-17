@@ -84,6 +84,7 @@ namespace cmm
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructDefinitionStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructFwdDeclarationStatementNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, TypeNode& node) override;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, TranslationUnitNode& node) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, UnaryOpNode& node, VisitorResult&& expr) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableNode& node, const bool defer) override;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableDeclarationStatementNode& node) override;
@@ -95,6 +96,9 @@ namespace cmm
         // The prefix to each struct name (ex. "%struct." used to make "%struct.A",
         // where 'A' is the name of the struct).
         static const std::string structNamePrefix;
+
+        // For keeping track of the current TranslationUnitNode.
+        TranslationUnitNode* currentTranslationUnit;
     };
 }
 
