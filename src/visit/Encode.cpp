@@ -70,7 +70,7 @@ namespace cmm
         auto visitorResult = expression->accept(this);
         auto optVisitorResult = platform->emit(this, node, visitorResult);
 
-        return std::move(*optVisitorResult);
+        return optVisitorResult.has_value() ? std::move(*optVisitorResult) : VisitorResult();
     }
 
     VisitorResult Encode::visit(BinOpNode& node)
