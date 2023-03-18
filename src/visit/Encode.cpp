@@ -360,6 +360,10 @@ namespace cmm
 
     VisitorResult Encode::visit(TranslationUnitNode& node)
     {
+        // Give the platform the chance to include any global type information
+        // ex. const char*
+        platform->emit(this, node);
+
         for (auto& statement : node)
         {
             statement->accept(this);

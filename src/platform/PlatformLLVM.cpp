@@ -14,14 +14,17 @@
 #include <cmm/visit/Encode.h>
 
 // std includes
+#include <memory>
+#include <optional>
 #include <sstream>
+#include <string>
 
 namespace cmm
 {
     /* static */
     const std::string PlatformLLVM::structNamePrefix = "%struct.";
 
-    PlatformLLVM::PlatformLLVM() : PlatformBase("LLVM")
+    PlatformLLVM::PlatformLLVM() : PlatformBase("LLVM"), currentTranslationUnit(nullptr)
     {
     }
 
@@ -429,6 +432,18 @@ namespace cmm
     {
         static auto& reporter = Reporter::instance();
 
+        static auto assembleCString = [](const std::string& key, const std::string& value) -> std::string
+        {
+            const std::size_t keySize = key.size() + 1;
+            std::ostringstream builder;
+            builder << "noundef getelementptr inbounds (["
+                    << keySize << " x i8], ["
+                    << keySize << " x i8]* @"
+                    << value << ", i64 0, i64 0)";
+
+            return builder.str();
+        };
+
         const auto& datatype = node.getDatatype();
         std::string outputStr;
 
@@ -442,7 +457,14 @@ namespace cmm
         // case EnumCType::VOID_PTR:
         //     break;
         case EnumCType::STRING:
-            outputStr = node.getValue().valueString;
+        {
+            // Note: we can't just pass the "raw" string as an argument in LLVM.
+            // Instead, we use our CStringTable to lookup this pre-computed value.
+            // See PlatformLLVM::emit(..., TranslationUnitNode&) for this pre-computation.
+            // outputStr = node.getValue().valueString;
+            const auto valueIter = currentTranslationUnit->findCString(node.getValue().valueString);
+            outputStr = assembleCString(valueIter->first, valueIter->second);
+        }
             break;
         case EnumCType::BOOL:
             outputStr = node.getValue().valueBool ? "true" : "false";
@@ -576,6 +598,53 @@ namespace cmm
         os << str;
 
         return VisitorResult(new std::string(std::move(str)), true);
+    }
+
+    /* virtual */
+    std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, TranslationUnitNode& node) /* override */
+    {
+        static auto genStringName = []() -> std::string
+        {
+            static std::size_t count = 0;
+
+            // Note: should not need to worry about multiple allocations
+            // since nominally this should all fit within the capacity
+            // of 'small string optimization'.
+            std::string baseName = ".str.";
+            baseName += std::to_string(count++);
+
+            return baseName;
+        };
+
+        // Capture the current transation unit
+        // TODO: Figure out how to avoid having a dangling pointer...
+        currentTranslationUnit = std::addressof(node);
+        TranslationUnitNode::CStringTable& stringLitteralTable = node.getCStringTable();
+
+        // Note: this check is actually important so we don't just blankly emit
+        // new lines before exitting this function.
+        if (!stringLitteralTable.empty())
+        {
+            auto& os = encoder->getOStream();
+
+            for (auto& [key, value] : stringLitteralTable)
+            {
+                // Override the name for future LitteralNode lookups
+                value = genStringName();
+
+                // +1 for null termination character
+                const std::size_t strSize = key.size() + 1;
+                os << "@" << value << " = private unnamed_addr constant [" << strSize << " x i8] c\""
+                   << key << "\\00\", align 1";
+
+                encoder->emitNewline();
+            }
+
+            encoder->emitNewline();
+        }
+
+        // Nothing to ever return, but we'll keep it for consistency.
+        return std::nullopt;
     }
 
     /* virtual */

@@ -20,7 +20,6 @@
 // std includes
 #include <stack>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -114,15 +113,9 @@ namespace cmm
         // A map for keeping track of functions available.
         std::unordered_map<std::string, std::pair<EnumSymState, CType>> functionTable;
 
-        // The pointer to the table for tracking enums for the current translation unit.
-        // Note: This pointer shall only be valid while a TranslationUnitNode and
-        // it's child AST nodes are being analyzed.
-        EnumTable* enumTable;
-
-        // The pointer to the table for tracking structs for the current translation unit.
-        // Note: This pointer shall only be valid while a TranslationUnitNode and
-        // it's child AST nodes are being analyzed.
-        StructTable* structTable;
+        // For caching the current translation unit such that we can
+        // access some of its tables such as the EnumTable, StructTable, and more.
+        TranslationUnitNode* currentTranslationUnitNodePtr;
 
         // For tracking current locality.
         std::stack<EnumLocality, std::vector<EnumLocality>> localityStack;

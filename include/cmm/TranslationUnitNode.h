@@ -18,6 +18,7 @@
 
 // std includes
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace cmm
@@ -32,6 +33,7 @@ namespace cmm
         using StatementList = std::vector<std::unique_ptr<StatementNode>>;
         using StatementListIter = StatementList::iterator;
         using StatementListConstIter = StatementList::const_iterator;
+        using CStringTable = std::unordered_map<std::string, std::string>;
 
     public:
 
@@ -107,22 +109,6 @@ namespace cmm
         const EnumTable& getEnumTable() const CMM_NOEXCEPT;
 
         /**
-         * Gets the EnumTable.
-         * Note: This pointer shall always be valid.
-         *
-         * @return pointer to the EnumTable.
-         */
-        EnumTable* getEnumTablePtr() CMM_NOEXCEPT;
-
-        /**
-         * Gets the EnumTable.
-         * Note: This const pointer shall always be valid.
-         *
-         * @return const pointer to the EnumTable.
-         */
-        const EnumTable* getEnumTablePtr() const CMM_NOEXCEPT;
-
-        /**
          * Gets the StructTable.
          *
          * @return reference to the StructTable.
@@ -137,20 +123,48 @@ namespace cmm
         const StructTable& getStructTable() const CMM_NOEXCEPT;
 
         /**
-         * Gets the StructTable.
-         * Note: This pointer shall always be valid.
+         * Gets the CStringTable.
          *
-         * @return pointer to the StructTable.
+         * @return reference to the CStringTable.
          */
-        StructTable* getStructTablePtr() CMM_NOEXCEPT;
+        CStringTable& getCStringTable() CMM_NOEXCEPT;
 
         /**
-         * Gets the StructTable.
-         * Note: This const pointer shall always be valid.
+         * Gets the CStringTable.
          *
-         * @return const pointer to the StructTable.
+         * @return const reference to the CStringTable.
          */
-        const StructTable* getStructTablePtr() const CMM_NOEXCEPT;
+        const CStringTable& getCStringTable() const CMM_NOEXCEPT;
+
+        /**
+         * Adds the c-string to the CStringTable.
+         *
+         * @param str the c-string to add.
+         */
+        void addCString(const std::string& str);
+
+        /**
+         * Adds the c-string to the CStringTable.
+         *
+         * @param str the c-string to add.
+         */
+        void addCString(std::string&& str);
+
+        /**
+         * Attempts to find if a c-string is in the table or not.
+         *
+         * @param str the c-string to lookup.
+         * @return iterator to the std::string value.
+         */
+        CStringTable::iterator findCString(const std::string& str);
+
+        /**
+         * Attempts to find if a c-string is in the table or not.
+         *
+         * @param str the c-string to lookup.
+         * @return const iterator to the std::string value.
+         */
+        CStringTable::const_iterator findCString(const std::string& str) const;
 
         /**
          * The beginning iterator to the statement list.
@@ -194,6 +208,9 @@ namespace cmm
 
         // The struct table containing all structs for this translation unit.
         StructTable structTable;
+
+        // A table for RValue c-strings.
+        CStringTable cstringTable;
     };
 }
 

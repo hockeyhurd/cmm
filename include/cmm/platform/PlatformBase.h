@@ -134,6 +134,7 @@ namespace cmm
             const std::optional<VisitorResult>& expr) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructDefinitionStatementNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, StructFwdDeclarationStatementNode& node) = 0;
+        virtual std::optional<VisitorResult> emit(Encode* encoder, TranslationUnitNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, TypeNode& node) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, UnaryOpNode& node, VisitorResult&& expr) = 0;
         virtual std::optional<VisitorResult> emit(Encode* encoder, VariableNode& node, const bool defer) = 0;

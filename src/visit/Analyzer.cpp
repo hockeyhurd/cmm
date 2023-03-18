@@ -28,7 +28,7 @@ namespace cmm
         return std::numeric_limits<T>::lowest() <= value && value <= std::numeric_limits<T>::max();
     }
 
-    Analyzer::Analyzer() CMM_NOEXCEPT : enumTable(nullptr), structTable(nullptr)
+    Analyzer::Analyzer() CMM_NOEXCEPT : currentTranslationUnitNodePtr(nullptr)
     {
         localityStack.push(EnumLocality::GLOBAL);
     }
@@ -372,11 +372,16 @@ namespace cmm
     VisitorResult Analyzer::visit(CompilationUnitNode& node)
     {
         // TODO: Someday support multiple TranslationUnitNodes.
-        auto result = node.getRoot().accept(this);
+        TranslationUnitNode& rootTranslationUnit = node.getRoot();
 
-        // NULL the enumTable and structTable pointers to invalidate it.
-        enumTable = nullptr;
-        structTable = nullptr;
+        // Cache the pointer to this translation unit.
+        currentTranslationUnitNodePtr = std::addressof(rootTranslationUnit);
+
+        // Visitit each node in the AST starting from the root translation unit node.
+        auto result = rootTranslationUnit.accept(this);
+
+        // NULL the currentTranslationUnitNodePtr pointer to invalidate it.
+        currentTranslationUnitNodePtr = nullptr;
 
         return result;
     }
@@ -455,7 +460,8 @@ namespace cmm
         // Check that the field to be used is a part of the struct.
         // Note: We already checked that optTypeName has a value, so this is safe to access.
         const auto& structName = *datatype.optTypeName;
-        const StructData* structData = structTable->get(structName);
+        const auto& structTable = currentTranslationUnitNodePtr->getStructTable();
+        const StructData* structData = structTable.get(structName);
 
         // Check to see that we found the struct and we have access to the definition so that
         // we can then verify the field is inside of the struct.
@@ -759,7 +765,8 @@ namespace cmm
     {
         static auto& reporter = Reporter::instance();
         const auto& enumeratorName = node.getName();
-        EnumData* enumDataPtr = enumTable->findEnumFromEnumeratorName(enumeratorName);
+        auto& enumTable = currentTranslationUnitNodePtr->getEnumTable();
+        EnumData* enumDataPtr = enumTable.findEnumFromEnumeratorName(enumeratorName);
 
         if (enumDataPtr == nullptr)
         {
@@ -873,6 +880,10 @@ namespace cmm
         case EnumCType::VOID_PTR:
             break;
         case EnumCType::STRING:
+        {
+            std::string value = node.getValue().valueString;
+            currentTranslationUnitNodePtr->addCString(std::move(value));
+        }
             break;
         case EnumCType::BOOL:
             break;
@@ -1033,7 +1044,8 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto* structDataPtr = structTable->get(structName);
+        auto& structTable = currentTranslationUnitNodePtr->getStructTable();
+        const auto* structDataPtr = structTable.get(structName);
 
         if (structDataPtr != nullptr && structDataPtr->symState == EnumSymState::DEFINED)
         {
@@ -1057,7 +1069,7 @@ namespace cmm
                 reporter.error(builder.str(), node.getLocation());
             }
 
-            auto* addedStructDataPtr = structTable->addOrUpdate(structName, std::move(structData));
+            auto* addedStructDataPtr = structTable.addOrUpdate(structName, std::move(structData));
             node.setStructData(addedStructDataPtr);
         }
 
@@ -1071,7 +1083,8 @@ namespace cmm
         const auto modifier = EnumModifier::NO_MOD;
         const StructOrUnionContext context(currentLocality, modifier);
         const auto& structName = node.getName();
-        const auto* structDataPtr = structTable->get(structName);
+        auto& structTable = currentTranslationUnitNodePtr->getStructTable();
+        const auto* structDataPtr = structTable.get(structName);
 
         if (structDataPtr != nullptr)
         {
@@ -1083,7 +1096,7 @@ namespace cmm
         else
         {
             StructData structData(EnumSymState::DECLARED);
-            structTable->addOrUpdate(structName, std::move(structData));
+            structTable.addOrUpdate(structName, std::move(structData));
             scope.add(structName, context);
         }
 
@@ -1092,9 +1105,6 @@ namespace cmm
 
     VisitorResult Analyzer::visit(TranslationUnitNode& node)
     {
-        enumTable = node.getEnumTablePtr();
-        structTable = node.getStructTablePtr();
-
         for (auto& statement : node)
         {
             if (statement != nullptr)
