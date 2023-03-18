@@ -434,7 +434,6 @@ namespace cmm
 
         static auto assembleCString = [](const std::string& key, const std::string& value) -> std::string
         {
-            // For reference: noundef getelementptr inbounds ([14 x i8], [14 x i8]* @.str
             const std::size_t keySize = key.size() + 1;
             std::ostringstream builder;
             builder << "noundef getelementptr inbounds (["
@@ -636,7 +635,7 @@ namespace cmm
                 // +1 for null termination character
                 const std::size_t strSize = key.size() + 1;
                 os << "@" << value << " = private unnamed_addr constant [" << strSize << " x i8] c\""
-                    << key << "\\00\", align 1";
+                   << key << "\\00\", align 1";
 
                 encoder->emitNewline();
             }
