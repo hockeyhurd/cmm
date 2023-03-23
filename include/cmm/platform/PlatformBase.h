@@ -16,6 +16,7 @@
 #include <cmm/visit/Visitor.h>
 
 // std includes
+#include <iosfwd>
 #include <optional>
 #include <string>
 #include <vector>
@@ -112,8 +113,8 @@ namespace cmm
             const std::string& endLabel, const std::string* elseLabel) = 0;
         virtual void emitFunctionStart(Encode* encoder, const std::string& name) = 0;
         virtual void emitFunctionEnd(Encode* encoder) = 0;
-        virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) = 0;
-        virtual void emitFunctionCallEnd(Encode* encoder) = 0;
+        virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, std::ostream& os, const CType& datatype, const std::string& name) = 0;
+        virtual void emitFunctionCallEnd(Encode* encoder, std::ostream& os) = 0;
         virtual void emitBranch(Encode* encoder, const std::string& label) = 0;
         virtual void emitLabel(Encode* encoder, const std::string& label) = 0;
 

@@ -21,7 +21,7 @@ namespace cmm
     {
         if (platform == nullptr)
         {
-            throw std::runtime_error("'platform' is a nullptr. Please specify a target platform.");
+            throw std::invalid_argument("'platform' is a nullptr. Please specify a target platform.");
         }
     }
 
@@ -129,18 +129,18 @@ namespace cmm
     VisitorResult Encode::visit(FunctionCallNode& node)
     {
         const auto& datatype = node.getDatatype();
-        auto optLabelStr = platform->emitFunctionCallStart(this, datatype, node.getName());
-
-        std::vector<VisitorResult> results;
-        results.reserve(node.size());
+        std::ostringstream builder;
+        auto optLabelStr = platform->emitFunctionCallStart(this, builder, datatype, node.getName());
 
         for (auto& arg : node)
         {
             auto result = arg.accept(this);
-            results.emplace_back(std::move(result));
+            builder << *result.result.str;
         }
 
-        platform->emitFunctionCallEnd(this);
+        platform->emitFunctionCallEnd(this, builder);
+        printIndent();
+        os << builder.str();
         emitNewline();
 
         // Note: this std::move will make this non-portable. Leave for now to support LLVM.

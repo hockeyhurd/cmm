@@ -518,6 +518,13 @@ namespace cmm
         for (auto& arg : node)
         {
             arg.accept(this);
+
+            ExpressionNode* expression = arg.getExpression();
+
+            if (expression != nullptr && isValidNonLitteralRHSNodeType(expression->getType()))
+            {
+                arg.derefNode();
+            }
         }
 
         return VisitorResult();

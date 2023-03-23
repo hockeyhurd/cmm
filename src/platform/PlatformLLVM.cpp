@@ -84,9 +84,8 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) /* override */
+    std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, std::ostream& os, const CType& datatype, const std::string& name) /* override */
     {
-        auto& os = encoder->getOStream();
         encoder->printIndent();
 
         if (datatype.type == EnumCType::VOID && !datatype.isPointerType())
@@ -103,9 +102,8 @@ namespace cmm
     }
 
     /* virtual */
-    void PlatformLLVM::emitFunctionCallEnd(Encode* encoder) /* override */
+    void PlatformLLVM::emitFunctionCallEnd(Encode* encoder, std::ostream& os) /* override */
     {
-        auto& os = encoder->getOStream();
         os << ")";
     }
 
@@ -142,9 +140,17 @@ namespace cmm
         case EnumCType::VOID_PTR:
             str = "i8*";
             break;
-        case EnumCType::BOOL:
-        // fallthrough
         case EnumCType::CHAR:
+        {
+            if (datatype.pointers == 1)
+            {
+                str = "i8*";
+                break;
+            }
+
+            // fallthrough
+        }
+        case EnumCType::BOOL:
         // fallthrough
         case EnumCType::INT8:
             str = "i8";
@@ -182,10 +188,11 @@ namespace cmm
     {
         const auto& datatype = node.getDatatype();
         const std::string typeStr = resolveDatatype(datatype);
-        auto& os = encoder->getOStream();
+
+        std::ostringstream os;
         os << typeStr << " " << *expr.result.str;
 
-        return std::nullopt;
+        return std::make_optional<VisitorResult>(new std::string(os.str()), true);
     }
 
     /* virtual */
@@ -433,7 +440,7 @@ namespace cmm
         {
             const std::size_t keySize = key.size() + 1;
             std::ostringstream builder;
-            builder << "noundef getelementptr inbounds (["
+            builder << "getelementptr inbounds (["
                     << keySize << " x i8], ["
                     << keySize << " x i8]* @"
                     << value << ", i64 0, i64 0)";
