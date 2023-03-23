@@ -134,6 +134,11 @@ namespace cmm
         return pointers > 0;
     }
 
+    bool CType::isString() const CMM_NOEXCEPT
+    {
+        return type == EnumCType::CHAR && pointers == 1;
+    }
+
     bool CType::operator== (const CType& other) const CMM_NOEXCEPT
     {
         return type == other.type && pointers == other.pointers && optTypeName == other.optTypeName;

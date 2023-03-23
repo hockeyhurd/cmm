@@ -76,14 +76,14 @@ namespace cmm
 
     // NOTE: Safe const_cast because this is a litteral and CTypeValue doesn't care what kind of char* it actually is.
     LitteralNode::LitteralNode(const Location& location, const char* value) CMM_NOEXCEPT :
-        ExpressionNode(EnumNodeType::LITTERAL, location, CType(EnumCType::STRING)),
+        ExpressionNode(EnumNodeType::LITTERAL, location, CType(EnumCType::CHAR, 1)),
         value(const_cast<char*>(value))
     {
     }
 
     LitteralNode::~LitteralNode()
     {
-        if (datatype.type == EnumCType::STRING && value.valueString != nullptr)
+        if (datatype.isString() && value.valueString != nullptr)
         {
             delete[] value.valueString;
             value.valueString = nullptr;
@@ -128,8 +128,6 @@ namespace cmm
             return LitteralNode(location, 0.0F);
         case EnumCType::DOUBLE:
             return LitteralNode(location, 0.0);
-        case EnumCType::STRING:
-            return LitteralNode(location, "null");
         case EnumCType::STRUCT:
             // fallthrough
         case EnumCType::VOID:

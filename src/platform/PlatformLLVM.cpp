@@ -166,9 +166,6 @@ namespace cmm
         case EnumCType::DOUBLE:
             str = "double";
             break;
-        case EnumCType::STRING:
-            str = "i8*";
-            break;
         case EnumCType::STRUCT:
             str = "%struct." + *datatype.optTypeName;
             break;
@@ -456,21 +453,23 @@ namespace cmm
         //     break;
         // case EnumCType::VOID_PTR:
         //     break;
-        case EnumCType::STRING:
-        {
-            // Note: we can't just pass the "raw" string as an argument in LLVM.
-            // Instead, we use our CStringTable to lookup this pre-computed value.
-            // See PlatformLLVM::emit(..., TranslationUnitNode&) for this pre-computation.
-            // outputStr = node.getValue().valueString;
-            const auto valueIter = currentTranslationUnit->findCString(node.getValue().valueString);
-            outputStr = assembleCString(valueIter->first, valueIter->second);
-        }
-            break;
         case EnumCType::BOOL:
             outputStr = node.getValue().valueBool ? "true" : "false";
             break;
         case EnumCType::CHAR:
-            outputStr = std::to_string(node.getValue().valueChar);
+        {
+            // Special case where this is a c-style string.
+            if (datatype.pointers == 1)
+            {
+                const auto valueIter = currentTranslationUnit->findCString(node.getValue().valueString);
+                outputStr = assembleCString(valueIter->first, valueIter->second);
+            }
+
+            else
+            {
+                outputStr = std::to_string(node.getValue().valueChar);
+            }
+        }
             break;
         case EnumCType::ENUM:
             outputStr = std::to_string(node.getValue().valueEnum);

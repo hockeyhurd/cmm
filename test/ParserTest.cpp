@@ -1093,7 +1093,7 @@ TEST(ParserTest, ParseCompilationNodeDoubleAssignAndSumViaFunctionCallWithASingl
     ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
+    ASSERT_TRUE(litteralNodePtr->getDatatype().isString());
     ASSERT_EQ(std::string(litteralNodePtr->getValue().valueString), "Hello, world!");
 
     ++iter;
@@ -2867,7 +2867,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithASingleStringArg)
     ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
     const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-    ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
+    ASSERT_TRUE(litteralNodePtr->getDatatype().isString());
     ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "Hello, world!", 16), 0);
 
     ++argListIter;
@@ -3208,7 +3208,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
         ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
+        ASSERT_TRUE(litteralNodePtr->getDatatype().isString());
         ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "Hello, world!", 16), 0);
     }
 
@@ -3221,7 +3221,7 @@ TEST(ParserTest, ParseCompilationNodeFunctionCallStatementWithTwoStringArgs)
         ASSERT_EQ(expressionNodePtr->getType(), EnumNodeType::LITTERAL);
 
         const auto* litteralNodePtr = static_cast<const LitteralNode*>(expressionNodePtr);
-        ASSERT_EQ(litteralNodePtr->getDatatype().type, EnumCType::STRING);
+        ASSERT_TRUE(litteralNodePtr->getDatatype().isString());
         ASSERT_EQ(strncmp(litteralNodePtr->getValue().valueString, "My name is... the REAL SLIM SHADY!!", 48), 0);
     }
 
