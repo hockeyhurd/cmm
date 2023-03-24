@@ -26,7 +26,7 @@ int main()
     // std::string input = "enum A { X, Y }; int main() { int z; z = (int) Y; return z; }";
     // std::string input = "enum A { X, Y }; int main() { enum A a; a = Y; return (int) a; }";
     // std::string input = "int puts(char* str); int main() { puts(\"Hello, world!\"); return 0; }";
-    std::string input = "int puts(char* str); int main() { char* mystr; mystr = \"Hello, world!\"; puts(mystr); return 0; }";
+    std::string input = "int puts(char* str); int main() { int x; x = 42; int y; y = x; char* mystr; mystr = \"Hello, world!\"; puts(mystr); return 0; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

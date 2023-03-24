@@ -86,8 +86,6 @@ namespace cmm
     /* virtual */
     std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, std::ostream& os, const CType& datatype, const std::string& name) /* override */
     {
-        encoder->printIndent();
-
         if (datatype.type == EnumCType::VOID && !datatype.isPointerType())
         {
             os << "call void @" << name << "(";
