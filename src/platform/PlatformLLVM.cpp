@@ -123,6 +123,13 @@ namespace cmm
     }
 
     /* virtual */
+    void PlatformLLVM::emitParameterSeperator(Encode* encoder) /* override */
+    {
+        auto& os = encoder->getOStream();
+        os << ", ";
+    }
+
+    /* virtual */
     std::string PlatformLLVM::resolveDatatype(const CType& datatype) /* override */
     {
         std::string str;

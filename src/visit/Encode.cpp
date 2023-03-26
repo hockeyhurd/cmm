@@ -132,10 +132,18 @@ namespace cmm
         std::ostringstream builder;
         auto optLabelStr = platform->emitFunctionCallStart(this, builder, datatype, node.getName());
 
+        const auto len = node.size();
+        std::size_t count = 0;
+
         for (auto& arg : node)
         {
             auto result = arg.accept(this);
             builder << *result.result.str;
+
+            if (++count < len)
+            {
+                builder << ", ";
+            }
         }
 
         platform->emitFunctionCallEnd(this, builder);
@@ -170,10 +178,18 @@ namespace cmm
         std::vector<VisitorResult> paramResults;
         paramResults.reserve(node.paramCount());
 
+        const auto len = node.paramCount();
+        std::size_t count = 0;
+
         for (auto& paramNode : node)
         {
             auto result = paramNode.accept(this);
             paramResults.emplace_back(std::move(result));
+
+            if (++count < len)
+            {
+                platform->emitParameterSeperator(this);
+            }
         }
 
         platform->emitFunctionEnd(this);
@@ -211,7 +227,7 @@ namespace cmm
 
             if (iter + 1 != endParamIter)
             {
-                os << ", ";
+                platform->emitParameterSeperator(this);
             }
         }
 

@@ -117,6 +117,7 @@ namespace cmm
         virtual void emitFunctionCallEnd(Encode* encoder, std::ostream& os) = 0;
         virtual void emitBranch(Encode* encoder, const std::string& label) = 0;
         virtual void emitLabel(Encode* encoder, const std::string& label) = 0;
+        virtual void emitParameterSeperator(Encode* encoder) = 0;
 
         virtual std::string resolveDatatype(const CType& datatype) = 0;
 
