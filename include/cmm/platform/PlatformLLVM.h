@@ -61,10 +61,11 @@ namespace cmm
             const std::string& endLabel, const std::string* elseLabel) override;
         virtual void emitFunctionStart(Encode* encoder, const std::string& name) override;
         virtual void emitFunctionEnd(Encode* encoder) override;
-        virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) override;
-        virtual void emitFunctionCallEnd(Encode* encoder) override;
+        virtual std::optional<std::string> emitFunctionCallStart(Encode* encoder, std::ostream& os, const CType& datatype, const std::string& name) override;
+        virtual void emitFunctionCallEnd(Encode* encoder, std::ostream& os) override;
         virtual void emitBranch(Encode* encoder, const std::string& label) override;
         virtual void emitLabel(Encode* encoder, const std::string& label) override;
+        virtual void emitParameterSeperator(Encode* encoder) override;
 
         virtual std::string resolveDatatype(const CType& datatype) override;
 

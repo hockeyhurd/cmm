@@ -84,11 +84,8 @@ namespace cmm
     }
 
     /* virtual */
-    std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, const CType& datatype, const std::string& name) /* override */
+    std::optional<std::string> PlatformLLVM::emitFunctionCallStart(Encode* encoder, std::ostream& os, const CType& datatype, const std::string& name) /* override */
     {
-        auto& os = encoder->getOStream();
-        encoder->printIndent();
-
         if (datatype.type == EnumCType::VOID && !datatype.isPointerType())
         {
             os << "call void @" << name << "(";
@@ -103,9 +100,8 @@ namespace cmm
     }
 
     /* virtual */
-    void PlatformLLVM::emitFunctionCallEnd(Encode* encoder) /* override */
+    void PlatformLLVM::emitFunctionCallEnd(Encode* encoder, std::ostream& os) /* override */
     {
-        auto& os = encoder->getOStream();
         os << ")";
     }
 
@@ -127,6 +123,13 @@ namespace cmm
     }
 
     /* virtual */
+    void PlatformLLVM::emitParameterSeperator(Encode* encoder) /* override */
+    {
+        auto& os = encoder->getOStream();
+        os << ", ";
+    }
+
+    /* virtual */
     std::string PlatformLLVM::resolveDatatype(const CType& datatype) /* override */
     {
         std::string str;
@@ -142,9 +145,17 @@ namespace cmm
         case EnumCType::VOID_PTR:
             str = "i8*";
             break;
-        case EnumCType::BOOL:
-        // fallthrough
         case EnumCType::CHAR:
+        {
+            if (datatype.pointers == 1)
+            {
+                str = "i8*";
+                break;
+            }
+
+            // fallthrough
+        }
+        case EnumCType::BOOL:
         // fallthrough
         case EnumCType::INT8:
             str = "i8";
@@ -166,9 +177,6 @@ namespace cmm
         case EnumCType::DOUBLE:
             str = "double";
             break;
-        case EnumCType::STRING:
-            str = "i8*";
-            break;
         case EnumCType::STRUCT:
             str = "%struct." + *datatype.optTypeName;
             break;
@@ -185,10 +193,11 @@ namespace cmm
     {
         const auto& datatype = node.getDatatype();
         const std::string typeStr = resolveDatatype(datatype);
-        auto& os = encoder->getOStream();
+
+        std::ostringstream os;
         os << typeStr << " " << *expr.result.str;
 
-        return std::nullopt;
+        return std::make_optional<VisitorResult>(new std::string(os.str()), true);
     }
 
     /* virtual */
@@ -436,7 +445,7 @@ namespace cmm
         {
             const std::size_t keySize = key.size() + 1;
             std::ostringstream builder;
-            builder << "noundef getelementptr inbounds (["
+            builder << "getelementptr inbounds (["
                     << keySize << " x i8], ["
                     << keySize << " x i8]* @"
                     << value << ", i64 0, i64 0)";
@@ -456,21 +465,23 @@ namespace cmm
         //     break;
         // case EnumCType::VOID_PTR:
         //     break;
-        case EnumCType::STRING:
-        {
-            // Note: we can't just pass the "raw" string as an argument in LLVM.
-            // Instead, we use our CStringTable to lookup this pre-computed value.
-            // See PlatformLLVM::emit(..., TranslationUnitNode&) for this pre-computation.
-            // outputStr = node.getValue().valueString;
-            const auto valueIter = currentTranslationUnit->findCString(node.getValue().valueString);
-            outputStr = assembleCString(valueIter->first, valueIter->second);
-        }
-            break;
         case EnumCType::BOOL:
             outputStr = node.getValue().valueBool ? "true" : "false";
             break;
         case EnumCType::CHAR:
-            outputStr = std::to_string(node.getValue().valueChar);
+        {
+            // Special case where this is a c-style string.
+            if (datatype.pointers == 1)
+            {
+                const auto valueIter = currentTranslationUnit->findCString(node.getValue().valueString);
+                outputStr = assembleCString(valueIter->first, valueIter->second);
+            }
+
+            else
+            {
+                outputStr = std::to_string(node.getValue().valueChar);
+            }
+        }
             break;
         case EnumCType::ENUM:
             outputStr = std::to_string(node.getValue().valueEnum);

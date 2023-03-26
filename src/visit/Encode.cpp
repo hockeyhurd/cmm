@@ -21,7 +21,7 @@ namespace cmm
     {
         if (platform == nullptr)
         {
-            throw std::runtime_error("'platform' is a nullptr. Please specify a target platform.");
+            throw std::invalid_argument("'platform' is a nullptr. Please specify a target platform.");
         }
     }
 
@@ -129,18 +129,26 @@ namespace cmm
     VisitorResult Encode::visit(FunctionCallNode& node)
     {
         const auto& datatype = node.getDatatype();
-        auto optLabelStr = platform->emitFunctionCallStart(this, datatype, node.getName());
+        std::ostringstream builder;
+        auto optLabelStr = platform->emitFunctionCallStart(this, builder, datatype, node.getName());
 
-        std::vector<VisitorResult> results;
-        results.reserve(node.size());
+        const auto len = node.size();
+        std::size_t count = 0;
 
         for (auto& arg : node)
         {
             auto result = arg.accept(this);
-            results.emplace_back(std::move(result));
+            builder << *result.result.str;
+
+            if (++count < len)
+            {
+                builder << ", ";
+            }
         }
 
-        platform->emitFunctionCallEnd(this);
+        platform->emitFunctionCallEnd(this, builder);
+        printIndent();
+        os << builder.str();
         emitNewline();
 
         // Note: this std::move will make this non-portable. Leave for now to support LLVM.
@@ -170,10 +178,18 @@ namespace cmm
         std::vector<VisitorResult> paramResults;
         paramResults.reserve(node.paramCount());
 
+        const auto len = node.paramCount();
+        std::size_t count = 0;
+
         for (auto& paramNode : node)
         {
             auto result = paramNode.accept(this);
             paramResults.emplace_back(std::move(result));
+
+            if (++count < len)
+            {
+                platform->emitParameterSeperator(this);
+            }
         }
 
         platform->emitFunctionEnd(this);
@@ -211,7 +227,7 @@ namespace cmm
 
             if (iter + 1 != endParamIter)
             {
-                os << ", ";
+                platform->emitParameterSeperator(this);
             }
         }
 

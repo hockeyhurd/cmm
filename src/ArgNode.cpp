@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/ArgNode.h>
+#include <cmm/DerefNode.h>
 #include <cmm/ExpressionNode.h>
 
 namespace cmm
@@ -39,6 +40,13 @@ namespace cmm
     void ArgNode::setDatatype(const CType& datatype) CMM_NOEXCEPT /* override */
     {
         value->setDatatype(datatype);
+    }
+
+    void ArgNode::derefNode()
+    {
+        const auto location = value->getLocation();
+        auto temp = std::move(value);
+        value = std::make_unique<DerefNode>(location, std::move(temp));
     }
 
     VisitorResult ArgNode::accept(Visitor* visitor) /* override */

@@ -25,7 +25,9 @@ int main()
     // std::string input = "struct Vec2 { int x; int y; }; struct Vec3 { struct Vec2 v2; int z; }; int main() { struct Vec3 v3; v3.v2.x = 10; v3.v2.y = 12; v3.z = 20; int result; result = v3.v2.x + v3.v2.y + v3.z; return result; }";
     // std::string input = "enum A { X, Y }; int main() { int z; z = (int) Y; return z; }";
     // std::string input = "enum A { X, Y }; int main() { enum A a; a = Y; return (int) a; }";
-    std::string input = "int puts(char* str); int main() { puts(\"Hello, world!\"); return 0; }";
+    // std::string input = "int puts(char* str); int main() { puts(\"Hello, world!\"); return 0; }";
+    // std::string input = "int puts(char* str); int main() { int x; x = 42; int y; y = x; char* mystr; mystr = \"Hello, world!\"; puts(mystr); return 0; }";
+    std::string input = "struct FILE* fopen(char* filename, char* mode); int fclose(struct FILE*); int fputs(char* str, struct FILE*); int main() { struct FILE* file; file = fopen(\"test.txt\", \"r\"); fputs(\"Hello, world!\", file); fclose(file); return 0; }";
     std::string errorMessage;
     Parser parser(input);
     auto compUnitPtr = parser.parseCompilationUnit(&errorMessage);

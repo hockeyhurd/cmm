@@ -219,7 +219,7 @@ namespace cmm
     enum class EnumCType : u16
     {
         NULL_T = 0, VOID, VOID_PTR, BOOL, CHAR, ENUM, INT8, INT16, INT32, INT64,
-        FLOAT, DOUBLE, STRING, STRUCT
+        FLOAT, DOUBLE, STRUCT
     };
 
     enum EnumEnum
@@ -250,6 +250,7 @@ namespace cmm
         bool isFloatingPoint() const CMM_NOEXCEPT;
         bool isInt() const CMM_NOEXCEPT;
         bool isPointerType() const CMM_NOEXCEPT;
+        bool isString() const CMM_NOEXCEPT;
 
         bool operator== (const CType& other) const CMM_NOEXCEPT;
         bool operator!= (const CType& other) const CMM_NOEXCEPT;
@@ -321,8 +322,6 @@ namespace cmm
             return "float";
         case EnumCType::DOUBLE:
             return "double";
-        case EnumCType::STRING:
-            return "string";
         case EnumCType::STRUCT:
             return "struct";
         default:

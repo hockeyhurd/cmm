@@ -422,9 +422,6 @@ namespace cmm
         case EnumCType::DOUBLE:
             std::cout << node.getValue().valueF64;
             break;
-        case EnumCType::STRING:
-            std::cout << node.getValue().valueString;
-            break;
         case EnumCType::STRUCT:
             std::cout << "struct";
             break;

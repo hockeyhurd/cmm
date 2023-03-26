@@ -518,6 +518,13 @@ namespace cmm
         for (auto& arg : node)
         {
             arg.accept(this);
+
+            ExpressionNode* expression = arg.getExpression();
+
+            if (expression != nullptr && isValidNonLitteralRHSNodeType(expression->getType()))
+            {
+                arg.derefNode();
+            }
         }
 
         return VisitorResult();
@@ -871,7 +878,9 @@ namespace cmm
 
     VisitorResult Analyzer::visit(LitteralNode& node)
     {
-        switch (node.getDatatype().type)
+        CType& datatype = node.getDatatype();
+
+        switch (datatype.type)
         {
         case EnumCType::NULL_T:
             break;
@@ -879,17 +888,18 @@ namespace cmm
             break;
         case EnumCType::VOID_PTR:
             break;
-        case EnumCType::STRING:
-        {
-            std::string value = node.getValue().valueString;
-            currentTranslationUnitNodePtr->addCString(std::move(value));
-        }
-            break;
         case EnumCType::BOOL:
             break;
         case EnumCType::CHAR:
         {
-            if (!inRange(node.getValue().valueChar))
+            // Handle special case where this a c-style string.
+            if (datatype.pointers == 1)
+            {
+                std::string value = node.getValue().valueString;
+                currentTranslationUnitNodePtr->addCString(std::move(value));
+            }
+
+            else if (!inRange(node.getValue().valueChar))
             {
                 std::ostringstream os;
                 os << "value '" << static_cast<int>(node.getValue().valueChar)
