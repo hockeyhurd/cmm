@@ -145,18 +145,10 @@ namespace cmm
         case EnumCType::VOID_PTR:
             str = "i8*";
             break;
-        case EnumCType::CHAR:
-        {
-            if (datatype.pointers == 1)
-            {
-                str = "i8*";
-                break;
-            }
-
-            // fallthrough
-        }
         case EnumCType::BOOL:
-        // fallthrough
+            // fallthrough
+        case EnumCType::CHAR:
+            // fallthrough
         case EnumCType::INT8:
             str = "i8";
             break;
@@ -183,6 +175,15 @@ namespace cmm
         default:
             str = "Unknown type";
             break;
+        }
+
+        // Note: Normally we want to use something like std::ostringstream. However,
+        // since the datatype's name + number of pointers will almost always fit within
+        // the "small string optimization" and thus would actually be introducing
+        // more overhead using std::ostringstream.
+        for (std::size_t i = 0; i < datatype.pointers; ++i)
+        {
+            str += '*';
         }
 
         return str;
