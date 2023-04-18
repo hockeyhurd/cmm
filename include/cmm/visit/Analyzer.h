@@ -94,6 +94,15 @@ namespace cmm
     private:
 
         /**
+         * Checks to see if the ExpressionNode is a VariableNode with a EnumLocality
+         * of EnumLocality::PARAMETER.  This is a special case primarily for LLVM.
+         *
+         * @param node pointer to an ExpressionNode.
+         * @return bool.
+         */
+        bool isExpressionNodeAParameterVariable(const ExpressionNode* node);
+
+        /**
          * Validates that function already exists or does not requiring updating the internal map.
          *
          * @param name the name of the function.

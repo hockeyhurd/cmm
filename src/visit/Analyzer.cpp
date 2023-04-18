@@ -44,7 +44,6 @@ namespace cmm
     VisitorResult Analyzer::visit(BinOpNode& node)
     {
         auto* rightNode = node.getRight();
-
         auto rightNodeResult = rightNode->accept(this);
 
         if (rightNodeResult.resultType == EnumVisitorResultType::NODE)
@@ -59,19 +58,23 @@ namespace cmm
             rightNode = node.getRight();
         }
 
+        const EnumNodeType rightNodeType = rightNode->getType();
         const auto& rightType = rightNode->getDatatype();
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
         // we need to add a (potentially second) DerefNode to wrap it.
-        if (isValidNonLitteralRHSNodeType(rightNode->getType()))
+        if (isValidNonLitteralRHSNodeType(rightNodeType))
         {
-            // Add DerefNode
-            node.derefNodeRight();
+            if (!isExpressionNodeAParameterVariable(rightNode))
+            {
+                // Add DerefNode
+                node.derefNodeRight();
 
-            // Update our pointer to this new pointer.
-            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
-            //       in the future.
-            // rightNode = node.getRight();
+                // Update our pointer to this new pointer.
+                // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+                //       in the future.
+                // rightNode = node.getRight();
+            }
         }
 
         auto* leftNode = node.getLeft();
@@ -96,59 +99,66 @@ namespace cmm
 
         VariableNode* varNode = nullptr;
 
-        if (isAssignment && isLeftVariable)
+        // if (isAssignment && isLeftVariable)
+        if (isAssignment)
         {
-            varNode = static_cast<VariableNode*>(leftNode);
-            auto* varContext = scope.findAnyVariable(varNode->getName());
-            varContext->setDirtyBit(true);
-
-            const EnumModifier modifiers = varContext->getModifiers();
-
-            u16 asU16;
-
-            if (varContext->getCType().isPointerType())
+            if (isLeftVariable)
             {
-                asU16 = static_cast<u16>(EnumModifier::CONST_POINTER);
+                varNode = static_cast<VariableNode*>(leftNode);
+                auto* varContext = scope.findAnyVariable(varNode->getName());
+                varContext->setDirtyBit(true);
+
+                const EnumModifier modifiers = varContext->getModifiers();
+
+                u16 asU16;
+
+                if (varContext->getCType().isPointerType())
+                {
+                    asU16 = static_cast<u16>(EnumModifier::CONST_POINTER);
+                }
+
+                else
+                {
+                    asU16 = static_cast<u16>(EnumModifier::CONST_VALUE);
+                }
+
+                // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
+                asU16 = ~asU16;
+                varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
             }
 
-            else
+            else if (isLeftDerefNode)
             {
-                asU16 = static_cast<u16>(EnumModifier::CONST_VALUE);
+                // Pop off 1-level of a DerefNode??
+                node.popDerefNodeLeft();
+
+                // Update our pointer to this new pointer.
+                // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+                //       in the future.
+                // leftNode = node.getLeft();
             }
 
-            // Mask out EnumModifier::CONST_POINTER or EnumModifier::CONST_VALUE
-            asU16 = ~asU16;
-            varContext->setModifiers(static_cast<EnumModifier>(modifiers & asU16));
-        }
-
-        else if (isAssignment && isLeftDerefNode)
-        {
-            // Pop off 1-level of a DerefNode??
-            node.popDerefNodeLeft();
-
-            // Update our pointer to this new pointer.
-            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
-            //       in the future.
-            // leftNode = node.getLeft();
-        }
-
-        else if (isAssignment && isLeftFieldAccess)
-        {
-            // For now, NOOP?
-            ;
+            else if (isLeftFieldAccess)
+            {
+                // For now, NOOP?
+                ;
+            }
         }
 
         // If the left node is a variable and this is NOT an assignment operation,
         // we need to add a DerefNode to wrap it.
-        else if (!isAssignment && (isLeftVariable || isLeftFieldAccess))
+        else if (isLeftVariable || isLeftFieldAccess)
         {
-            // Add DerefNode
-            node.derefNodeLeft();
+            if (isLeftVariable && !isExpressionNodeAParameterVariable(leftNode))
+            {
+                // Add DerefNode
+                node.derefNodeLeft();
 
-            // Update our pointer to this new pointer.
-            // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
-            //       in the future.
-            // leftNode = node.getLeft();
+                // Update our pointer to this new pointer.
+                // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
+                //       in the future.
+                // leftNode = node.getLeft();
+            }
         }
 
         if (leftType != rightType)
@@ -1283,6 +1293,19 @@ namespace cmm
         statement->accept(this);
 
         return VisitorResult();
+    }
+
+    bool Analyzer::isExpressionNodeAParameterVariable(const ExpressionNode* node)
+    {
+        if (node == nullptr || node->getType() != EnumNodeType::VARIABLE)
+        {
+            return false;
+        }
+
+        const VariableNode* varNode = static_cast<const VariableNode*>(node);
+        const VariableContext* context = scope.findAnyVariable(varNode->getName());
+
+        return context != nullptr && context->getLocality() == EnumLocality::PARAMETER;
     }
 
     bool Analyzer::validateFunction(const std::string& name, const EnumSymState state)
