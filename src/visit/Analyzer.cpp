@@ -1299,7 +1299,7 @@ namespace cmm
 
     bool Analyzer::isExpressionNodeAParameterVariable(const ExpressionNode* node)
     {
-        const EnumNodeType& nodeType = node->getType();
+        EnumNodeType nodeType = node->getType();
 
         if (node == nullptr || (nodeType != EnumNodeType::VARIABLE && nodeType != EnumNodeType::DEREF))
         {
@@ -1308,21 +1308,18 @@ namespace cmm
 
         const ExpressionNode* nodeToTest = node;
 
-        if (nodeType == EnumNodeType::DEREF)
+        while (nodeType == EnumNodeType::DEREF)
         {
-            const DerefNode* derefNode = static_cast<const DerefNode*>(node);
-
-            // TODO @@@: Need to consider multiple DerefNode and needing to 'dig' to the bottom VariableNode.
-            if (derefNode->getExpression()->getType() != EnumNodeType::VARIABLE)
-            {
-                return false;
-            }
-
-            // Must be VariableNode!
+            const DerefNode* derefNode = static_cast<const DerefNode*>(nodeToTest);
             nodeToTest = derefNode->getExpression();
+            nodeType = nodeToTest->getType();
         }
 
-        // const VariableNode* varNode = static_cast<const VariableNode*>(node);
+        if (nodeType != EnumNodeType::VARIABLE)
+        {
+            return false;
+        }
+
         const VariableNode* varNode = static_cast<const VariableNode*>(nodeToTest);
         const VariableContext* context = scope.findAnyVariable(varNode->getName());
 
