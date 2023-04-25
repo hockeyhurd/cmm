@@ -59,7 +59,7 @@ namespace cmm
         }
 
         const EnumNodeType rightNodeType = rightNode->getType();
-        const auto& rightType = rightNode->getDatatype();
+        auto& rightType = rightNode->getDatatype();
 
         // If the right node is a variable or a variable being dereferenced (i.e. a DerefNode),
         // we need to add a (potentially second) DerefNode to wrap it.
@@ -71,9 +71,9 @@ namespace cmm
                 node.derefNodeRight();
 
                 // Update our pointer to this new pointer.
-                // Note: Commenting out so cppcheck doesn't complain, however we may want this as a reminder
-                //       in the future.
-                // rightNode = node.getRight();
+                rightNode = node.getRight();
+                rightNode->accept(this);
+                rightType = rightNode->getDatatype();
             }
         }
 
@@ -147,10 +147,12 @@ namespace cmm
 
         // If the left node is a variable and this is NOT an assignment operation,
         // we need to add a DerefNode to wrap it.
-        else if (isLeftVariable || isLeftFieldAccess)
+        // else if (isLeftVariable || isLeftFieldAccess)
+        else if (isLeftVariable || isLeftFieldAccess || isLeftDerefNode) // @@@ testing
         {
-            if (isLeftVariable && !isExpressionNodeAParameterVariable(leftNode))
+            if (!isExpressionNodeAParameterVariable(leftNode))
             {
+                // if (isLeftVariable)
                 // Add DerefNode
                 node.derefNodeLeft();
 
@@ -1297,12 +1299,31 @@ namespace cmm
 
     bool Analyzer::isExpressionNodeAParameterVariable(const ExpressionNode* node)
     {
-        if (node == nullptr || node->getType() != EnumNodeType::VARIABLE)
+        const EnumNodeType& nodeType = node->getType();
+
+        if (node == nullptr || (nodeType != EnumNodeType::VARIABLE && nodeType != EnumNodeType::DEREF))
         {
             return false;
         }
 
-        const VariableNode* varNode = static_cast<const VariableNode*>(node);
+        const ExpressionNode* nodeToTest = node;
+
+        if (nodeType == EnumNodeType::DEREF)
+        {
+            const DerefNode* derefNode = static_cast<const DerefNode*>(node);
+
+            // TODO @@@: Need to consider multiple DerefNode and needing to 'dig' to the bottom VariableNode.
+            if (derefNode->getExpression()->getType() != EnumNodeType::VARIABLE)
+            {
+                return false;
+            }
+
+            // Must be VariableNode!
+            nodeToTest = derefNode->getExpression();
+        }
+
+        // const VariableNode* varNode = static_cast<const VariableNode*>(node);
+        const VariableNode* varNode = static_cast<const VariableNode*>(nodeToTest);
         const VariableContext* context = scope.findAnyVariable(varNode->getName());
 
         return context != nullptr && context->getLocality() == EnumLocality::PARAMETER;

@@ -374,7 +374,7 @@ namespace cmm
     /* virtual */
     std::optional<VisitorResult> PlatformLLVM::emit(Encode* encoder, DerefNode& node, const VisitorResult& varResult) /* override */
     {
-        const auto& datatype = node.getDatatype();
+        const auto& datatype = node.getExpression()->getDatatype();
         const auto strType = resolveDatatype(datatype);
         auto temp = encoder->getTemp();
         encoder->printIndent();
