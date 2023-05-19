@@ -390,5 +390,23 @@ namespace cmm
         // Should be unreachable.
         return "UNKNOWN EnumFieldAccessType";
     }
+
+    const char* toString(const EnumBuildType buildType) CMM_NOEXCEPT
+    {
+        switch (buildType)
+        {
+        case EnumBuildType::BINARY:
+            return "EnumBuildType::BINARY";
+        case EnumBuildType::SHARED_LIB:
+            return "EnumBuildType::SHARED_LIB";
+        case EnumBuildType::STATIC_LIB:
+            return "EnumBuildType::STATIC_LIB";
+        default:
+            return "UNKNOWN EnumBuildType";
+        }
+
+        // Should be unreachable.
+        return "UNKNOWN EnumBuildType";
+    }
 }
 

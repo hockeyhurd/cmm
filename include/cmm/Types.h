@@ -354,6 +354,13 @@ namespace cmm
     std::optional<EnumFieldAccessType> isEnumFieldAccessType(const Token& token) CMM_NOEXCEPT;
     const char* toString(const EnumFieldAccessType accessType) CMM_NOEXCEPT;
 
+    enum class EnumBuildType
+    {
+        BINARY = 0, SHARED_LIB, STATIC_LIB
+    };
+
+    const char* toString(const EnumBuildType buildType) CMM_NOEXCEPT;
+
     template<class Stream, class T, class N>
     void printRepeat(Stream& stream, const T& value, const N count)
     {
