@@ -28,6 +28,9 @@ namespace cmm
     public:
         friend struct OptData;
 
+        /**
+         * Constructor.
+         */
         CLIargs(const s32 argc, char* argv[]);
         CLIargs(const CLIargs&) = delete;
         CLIargs(CLIargs&&) CMM_NOEXCEPT = delete;

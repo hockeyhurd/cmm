@@ -34,6 +34,71 @@ TEST(CLITest, InvalidArgCausesFailure)
     ASSERT_FALSE(reason.empty());
 }
 
+TEST(CLITest, InvalidEmptyArgCausesFailure)
+{
+    std::array<const char*, 2> args = { "cliTest", "" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_FALSE(cliArgs.parse(&reason));
+    ASSERT_FALSE(reason.empty());
+}
+
+TEST(CLITest, InvalidWhitespace1CausesFailure)
+{
+    std::array<const char*, 3> args = { "cliTest", "-o", " " };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_FALSE(cliArgs.parse(&reason));
+    ASSERT_FALSE(reason.empty());
+}
+
+TEST(CLITest, InvalidWhitespace2CausesFailure)
+{
+    std::array<const char*, 3> args = { "cliTest", "-o", "\t" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_FALSE(cliArgs.parse(&reason));
+    ASSERT_FALSE(reason.empty());
+}
+
+TEST(CLITest, InvalidWhitespace3CausesFailure)
+{
+    std::array<const char*, 3> args = { "cliTest", "-o", "\n" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_FALSE(cliArgs.parse(&reason));
+    ASSERT_FALSE(reason.empty());
+}
+
+TEST(CLITest, InvalidWhitespace4CausesFailure)
+{
+    std::array<const char*, 3> args = { "cliTest", "-o", "\r\n" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_FALSE(cliArgs.parse(&reason));
+    ASSERT_FALSE(reason.empty());
+}
+
 TEST(CLITest, SimpleDebugOption)
 {
     std::array<const char*, 2> args = { "cliTest", "-g" };

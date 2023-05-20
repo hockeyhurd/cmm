@@ -7,6 +7,7 @@
 
 // Our includes
 #include <cmm/config/CLIargs.h>
+#include <cmm/utils/StringUtils.h>
 
 // std includes
 #include <cassert>
@@ -115,17 +116,30 @@ namespace cmm
 
                 next = std::make_optional(args[i++]);
 
-                if (!next->empty() && next->front() == '-')
+                if (!next->empty())
                 {
-                    if (reason != nullptr)
+                    if (startsWith(*next, '-'))
                     {
-                        std::ostringstream builder;
-                        builder << "The next argument ('" << *next
+                        if (reason != nullptr)
+                        {
+                            std::ostringstream builder;
+                            builder << "The next argument ('" << *next
                                 << "') looks like another option";
-                        *reason = builder.str();
+                            *reason = builder.str();
+                        }
+
+                        return false;
                     }
 
-                    return false;
+                    else if (isWhitespace(*next))
+                    {
+                        if (reason != nullptr)
+                        {
+                            *reason = "Argument is just whitepsace";
+                        }
+
+                        return false;
+                    }
                 }
             }
 
