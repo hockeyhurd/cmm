@@ -124,7 +124,7 @@ TEST(CLITest, ExpectNameAfterOption)
     ASSERT_TRUE(cliArgs.parse(&reason));
     ASSERT_TRUE(reason.empty());
 
-    ASSERT_EQ(cliArgs.getOutputName(), args[2]);
+    ASSERT_STREQ(cliArgs.getOutputName().c_str(), args[2]);
 }
 
 TEST(CLITest, ExpectNameAfterOptionIsMissingFailure)
@@ -152,7 +152,7 @@ TEST(CLITest, ExpectNameAfterOptionIsEmptyFailure)
     ASSERT_FALSE(cliArgs.parse(&reason));
     ASSERT_FALSE(reason.empty());
 
-    ASSERT_NE(cliArgs.getOutputName(), args[2]);
+    ASSERT_STRNE(cliArgs.getOutputName().c_str(), args[2]);
 }
 
 TEST(CLITest, ExpectNameAfterOptionLooksLikeAnOptionFailure)
@@ -167,7 +167,27 @@ TEST(CLITest, ExpectNameAfterOptionLooksLikeAnOptionFailure)
     ASSERT_FALSE(cliArgs.parse(&reason));
     ASSERT_FALSE(reason.empty());
 
-    ASSERT_NE(cliArgs.getOutputName(), args[2]);
+    ASSERT_STRNE(cliArgs.getOutputName().c_str(), args[2]);
+}
+
+TEST(CLITest, ExpectFile)
+{
+    std::array<const char*, 2> args = { "cliTest", "hello.cpp" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+#if 1
+    std::string reason;
+    ASSERT_TRUE(cliArgs.parse(&reason));
+    ASSERT_TRUE(reason.empty());
+
+    for (std::size_t i = 0; i < args.size(); ++i)
+    {
+        ASSERT_STREQ(cliArgs.getInputFiles()[i].data(), args[i]);
+    }
+#endif
 }
 
 s32 main(s32 argc, char* argv[])

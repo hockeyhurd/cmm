@@ -41,6 +41,7 @@ set(SOURCE_FILES src/ArgNode.cpp src/BinOpNode.cpp src/BlockNode.cpp
     src/VariableContext.cpp src/VariableNode.cpp src/VariableDeclarationStatementNode.cpp src/WhileStatementNode.cpp
     src/config/CLIargs.cpp
     src/platform/PlatformBase.cpp src/platform/PlatformLLVM.cpp
+    src/system/ChildProcess.cpp
     src/visit/Analyzer.cpp src/visit/Dump.cpp src/visit/Encode.cpp src/visit/Visitor.cpp)
 
 # Set the path for our cmake modules.

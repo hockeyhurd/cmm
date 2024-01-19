@@ -70,6 +70,11 @@ namespace cmm
         return outName;
     }
 
+    std::vector<std::string_view> CLIargs::getInputFiles() const
+    {
+        return inputFiles;
+    }
+
     bool CLIargs::parse(std::string* reason) CMM_NOEXCEPT
     {
         static const std::unordered_map<std::string_view, OptData> optTable =
@@ -81,6 +86,12 @@ namespace cmm
         for (std::size_t i = 0; i < args.size(); ++i)
         {
             std::string_view arg = args[i];
+
+            if (isArgACppFile(arg))
+            {
+                inputFiles.emplace_back(arg);
+            }
+
             const auto findResult = optTable.find(arg);
 
             if (findResult == optTable.cend())
@@ -179,6 +190,38 @@ namespace cmm
 
         args.outName = *value;
 
+        return true;
+    }
+
+    /* static */
+    bool CLIargs::isArgACppFile(const std::string_view value)
+    {
+        return false;
+    }
+
+    bool CLIargs::collectFileName(CLIargs& args, std::string* reason, const std::optional<std::string_view>& value)
+    {
+        if (!value.has_value())
+        {
+            if (reason != nullptr)
+            {
+                *reason = "Expected a value but something went wrong. This is likely a compiler bug...";
+            }
+
+            return false;
+        }
+
+        else if (value->empty())
+        {
+            if (reason != nullptr)
+            {
+                *reason = "Expected a value but found an empty string. This is likely a compiler bug...";
+            }
+
+            return false;
+        }
+
+        inputFiles.emplace_back(*value);
         return true;
     }
 }

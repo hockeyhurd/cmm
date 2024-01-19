@@ -46,16 +46,22 @@ namespace cmm
         std::string& getOutputName() CMM_NOEXCEPT;
         const std::string& getOutputName() const CMM_NOEXCEPT;
 
+        std::vector<std::string_view> getInputFiles() const;
+
         bool parse(std::string* reason) CMM_NOEXCEPT;
 
     private:
 
         inline static bool defaultCallback(CLIargs&, std::string*, const std::optional<std::string_view>&) { return true; }
         static bool collectOutputName(CLIargs& args, std::string* reason, const std::optional<std::string_view>& value);
+        static bool isArgACppFile(const std::string_view str);
+        bool collectFileName(CLIargs& args, std::string* reason, const std::optional<std::string_view>& value);
 
     private:
 
         std::vector<std::string_view> args;
+
+        std::vector<std::string_view> inputFiles;
 
         [[maybe_unused]]
         EnumBuildType buildType;
