@@ -172,22 +172,22 @@ TEST(CLITest, ExpectNameAfterOptionLooksLikeAnOptionFailure)
 
 TEST(CLITest, ExpectFile)
 {
-    std::array<const char*, 2> args = { "cliTest", "hello.cpp" };
+    std::array<const char*, 4> args = { "cliTest", "hello.cpp", "asdf.cc", "sda2.cxx" };
     CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
 
     ASSERT_FALSE(cliArgs.empty());
     ASSERT_EQ(cliArgs.count(), args.size() - 1);
 
-#if 1
     std::string reason;
     ASSERT_TRUE(cliArgs.parse(&reason));
     ASSERT_TRUE(reason.empty());
 
-    for (std::size_t i = 0; i < args.size(); ++i)
+    const auto& inputFiles = cliArgs.getInputFiles();
+
+    for (std::size_t i = 0; i < args.size() - 1; ++i)
     {
-        ASSERT_STREQ(cliArgs.getInputFiles()[i].data(), args[i]);
+        ASSERT_STREQ(inputFiles[i].data(), args[i + 1]);
     }
-#endif
 }
 
 s32 main(s32 argc, char* argv[])

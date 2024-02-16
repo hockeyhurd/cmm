@@ -10,6 +10,7 @@
 #include <cmm/utils/StringUtils.h>
 
 // std includes
+#include <array>
 #include <cassert>
 #include <optional>
 #include <sstream>
@@ -85,11 +86,12 @@ namespace cmm
 
         for (std::size_t i = 0; i < args.size(); ++i)
         {
-            std::string_view arg = args[i];
+            const std::string_view arg = args[i];
 
             if (isArgACppFile(arg))
             {
                 inputFiles.emplace_back(arg);
+                continue;
             }
 
             const auto findResult = optTable.find(arg);
@@ -196,6 +198,26 @@ namespace cmm
     /* static */
     bool CLIargs::isArgACppFile(const std::string_view value)
     {
+        CMM_CONSTEXPR std::array<std::string_view, 3> extensions = { ".cpp", ".cxx", ".cc" };
+        const auto begIter = value.crbegin();
+
+        for (const std::string_view ext : extensions)
+        {
+            auto iter = begIter;
+            auto extIter = ext.crbegin();
+
+            while (*iter == *extIter)
+            {
+                ++iter;
+                ++extIter;
+
+                if (extIter == ext.crend())
+                {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
