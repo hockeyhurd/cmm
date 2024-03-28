@@ -26,7 +26,7 @@ s32 main(s32 argc, char* argv[])
 
     if (argc <= 1)
     {
-        reporter.error("Expected at least one argument (./cmm <file>.c)", Location(0, 0));
+        reporter.error("Expected at least one argument (./cmm <file>.c)", Location());
 
         return EXIT_FAILURE;
     }
@@ -36,7 +36,7 @@ s32 main(s32 argc, char* argv[])
 
     if (!cliArgs.parse(&errorMessage))
     {
-        reporter.error(errorMessage, Location(0, 0));
+        reporter.error(errorMessage, Location());
         return EXIT_FAILURE;
     }
 
@@ -44,7 +44,7 @@ s32 main(s32 argc, char* argv[])
 
     if (inputFiles.empty())
     {
-        reporter.error("Expected at least one file to process", Location(0, 0));
+        reporter.error("Expected at least one file to process", Location());
         return EXIT_FAILURE;
     }
 
@@ -53,7 +53,7 @@ s32 main(s32 argc, char* argv[])
 
     if (optFileContents == std::nullopt)
     {
-        reporter.error(errorMessage, Location(0, 0));
+        reporter.error(errorMessage, Location());
         return EXIT_FAILURE;
     }
 
@@ -71,8 +71,9 @@ s32 main(s32 argc, char* argv[])
         encoder.visit(*compUnitPtr);
         ofs.close();
 
-        // TODO: Remove these hardcoded paths...
-        const std::string clangPath = "/usr/bin/clang";
+        // TODO: Until we create our own little filesystem library (because std::filesystem is crap...),
+        // we will rely on clang being in the user's path.
+        const std::string clangPath = "clang";
         std::vector<std::string> clangArgs = { clangPath, cliArgs.getOutputName() };
 
         cmm::system::ChildProcess childProc(clangPath, std::move(clangArgs));
@@ -82,7 +83,7 @@ s32 main(s32 argc, char* argv[])
 
     else
     {
-        reporter.error(errorMessage, Location(0, 0));
+        reporter.error(errorMessage, Location());
         return EXIT_FAILURE;
     }
 

@@ -96,7 +96,15 @@ namespace cmm
         {
             if (canPrint)
             {
-                std::cout << "bug: " << msg << " at " << location << std::endl;
+                if (location.isNull())
+                {
+                    std::cout << "bug: " << msg << std::endl;
+                }
+
+                else
+                {
+                    std::cout << "bug: " << msg << " at " << location << std::endl;
+                }
             }
 
             if (fatal)
@@ -116,7 +124,15 @@ namespace cmm
         {
             if (canPrint)
             {
-                std::cout << "error: " << msg << " at " << location << std::endl;
+                if (location.isNull())
+                {
+                    std::cout << "error: " << msg << std::endl;
+                }
+
+                else
+                {
+                    std::cout << "error: " << msg << " at " << location << std::endl;
+                }
             }
 
             ++errors;
@@ -133,7 +149,15 @@ namespace cmm
         {
             if (canPrint)
             {
-                std::cout << "warning: " << msg << " at " << location << std::endl;
+                if (location.isNull())
+                {
+                    std::cout << "warning: " << msg << std::endl;
+                }
+
+                else
+                {
+                    std::cout << "warning: " << msg << " at " << location << std::endl;
+                }
             }
 
             ++warnings;

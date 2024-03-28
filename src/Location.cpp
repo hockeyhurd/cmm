@@ -17,12 +17,27 @@ namespace cmm
 {
     // Location class starts here:
 
-    Location::Location() CMM_NOEXCEPT : line(0), pos(0)
+    Location::Location() CMM_NOEXCEPT : line(0), pos(0), valid(false)
     {
     }
 
-    Location::Location(const std::size_t line, const std::size_t pos) CMM_NOEXCEPT : line(line), pos(pos)
+    Location::Location(const std::size_t line, const std::size_t pos) CMM_NOEXCEPT : line(line), pos(pos), valid(true)
     {
+    }
+
+    std::size_t Location::getLine() const CMM_NOEXCEPT
+    {
+        return line;
+    }
+
+    std::size_t Location::getPosition() const CMM_NOEXCEPT
+    {
+        return pos;
+    }
+
+    bool Location::isNull() const CMM_NOEXCEPT
+    {
+        return !valid;
     }
 
     std::string Location::toString() const

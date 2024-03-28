@@ -72,24 +72,32 @@ namespace cmm
         Location& operator= (Location&&) CMM_NOEXCEPT = default;
 
         /**
+         * Creates a null location.
+         *
+         * @return Location.
+         */
+        Location nullLocation() const CMM_NOEXCEPT;
+
+        /**
          * Gets the line in the file.
          *
          * @return std::size_t line.
          */
-        inline std::size_t getLine() const CMM_NOEXCEPT
-        {
-            return line;
-        }
+        std::size_t getLine() const CMM_NOEXCEPT;
 
         /**
          * Gets the position in the file.
          *
          * @return std::size_t position.
          */
-        inline std::size_t getPosition() const CMM_NOEXCEPT
-        {
-            return pos;
-        }
+        std::size_t getPosition() const CMM_NOEXCEPT;
+
+        /**
+         * Gets whether this is a valid location or not.
+         *
+         * @return bool.
+         */
+        bool isNull() const CMM_NOEXCEPT;
 
         /**
          * Converts this object to a std::string format.
@@ -101,6 +109,7 @@ namespace cmm
     private:
         std::size_t line;
         std::size_t pos;
+        bool valid;
     };
 
     struct LocationPair
