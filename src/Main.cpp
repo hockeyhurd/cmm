@@ -1,38 +1,59 @@
 // Our includes
 #include <cmm/NodeList.h>
 #include <cmm/Parser.h>
+#include <cmm/Reporter.h>
 #include <cmm/config/CLIargs.h>
 #include <cmm/platform/PlatformLLVM.h>
+#include <cmm/system/ChildProcess.h>
 #include <cmm/visit/Analyzer.h>
 #include <cmm/visit/Encode.h>
 
 // std includes
 #include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <vector>
 
 using namespace cmm;
 
-static void decomposeArgs(s32 argc, char* argv[], std::vector<std::string>& filesToCompile);
 static std::optional<std::string> readFile(const char* filename, std::string& errorMessage);
 
-int main(s32 argc, char* argv[])
+s32 main(s32 argc, char* argv[])
 {
+    auto& reporter = Reporter::instance();
+
     if (argc <= 1)
     {
-        std::cout << "Expected at least one argument (./cmm <file>.c)\n";
+        reporter.error("Expected at least one argument (./cmm <file>.c)", Location(0, 0));
+
         return EXIT_FAILURE;
     }
 
-    std::vector<std::string> filesToCompile;
-    decomposeArgs(argc, argv, filesToCompile);
     std::string errorMessage;
-    const auto optFileContents = readFile(argv[1], errorMessage);
+    CLIargs cliArgs(argc, argv);
+
+    if (!cliArgs.parse(&errorMessage))
+    {
+        reporter.error(errorMessage, Location(0, 0));
+        return EXIT_FAILURE;
+    }
+
+    const std::vector<std::string_view>& inputFiles = cliArgs.getInputFiles();
+
+    if (inputFiles.empty())
+    {
+        reporter.error("Expected at least one file to process", Location(0, 0));
+        return EXIT_FAILURE;
+    }
+
+    // TODO: Support more than one file.
+    const auto optFileContents = readFile(inputFiles[0].data(), errorMessage);
 
     if (optFileContents == std::nullopt)
     {
-        std::cout << errorMessage << std::endl;
+        reporter.error(errorMessage, Location(0, 0));
         return EXIT_FAILURE;
     }
 
@@ -41,33 +62,31 @@ int main(s32 argc, char* argv[])
 
     if (compUnitPtr != nullptr)
     {
-        // Dump dump;
-        // dump.visit(*compUnitPtr);
-
         Analyzer analyzer;
         analyzer.visit(*compUnitPtr);
 
         PlatformLLVM platform;
-        std::ostringstream os;
-        Encode encoder(&platform, os);
+        std::ofstream ofs(cliArgs.getOutputName(), std::ios_base::out);
+        Encode encoder(&platform, ofs);
         encoder.visit(*compUnitPtr);
+        ofs.close();
 
-        std::cout << os.str() << std::endl;
+        // TODO: Remove these hardcoded paths...
+        const std::string clangPath = "/usr/bin/clang";
+        std::vector<std::string> clangArgs = { clangPath, cliArgs.getOutputName() };
+
+        cmm::system::ChildProcess childProc(clangPath, std::move(clangArgs));
+        childProc.start();
+        childProc.wait();
     }
 
     else
     {
-        std::cout << errorMessage << std::endl;
+        reporter.error(errorMessage, Location(0, 0));
         return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
-}
-
-/* static */
-void decomposeArgs(s32 argc, char* argv[], std::vector<std::string>& filesToCompile)
-{
-    CLIargs cliArgs(argc, argv);
 }
 
 /* static */

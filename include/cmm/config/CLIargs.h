@@ -42,6 +42,7 @@ namespace cmm
         std::size_t count() const CMM_NOEXCEPT;
         bool empty() const CMM_NOEXCEPT;
 
+        bool isDebug() const CMM_NOEXCEPT;
         EnumBuildType getBuildType() const CMM_NOEXCEPT;
         std::string& getOutputName() CMM_NOEXCEPT;
         const std::string& getOutputName() const CMM_NOEXCEPT;
@@ -52,21 +53,19 @@ namespace cmm
 
     private:
 
-        inline static bool defaultCallback(CLIargs&, std::string*, const std::optional<std::string_view>&) { return true; }
-        static bool collectOutputName(CLIargs& args, std::string* reason, const std::optional<std::string_view>& value);
-        static bool isArgACppFile(const std::string_view str);
+        inline bool defaultCallback(std::string*, const std::optional<std::string_view>&) { return true; }
+        bool collectDebugMode(std::string* reason, const std::optional<std::string_view>& value);
+        bool collectOutputName(std::string* reason, const std::optional<std::string_view>& value);
+        bool isArgCFile(const std::string_view str);
         bool collectFileName(CLIargs& args, std::string* reason, const std::optional<std::string_view>& value);
 
     private:
 
         std::vector<std::string_view> args;
-
         std::vector<std::string_view> inputFiles;
 
-        [[maybe_unused]]
         EnumBuildType buildType;
-
-        [[maybe_unused]]
+        bool debugMode;
         std::string outName;
 
     };

@@ -172,7 +172,7 @@ TEST(CLITest, ExpectNameAfterOptionLooksLikeAnOptionFailure)
 
 TEST(CLITest, ExpectFile)
 {
-    std::array<const char*, 4> args = { "cliTest", "hello.cpp", "asdf.cc", "sda2.cxx" };
+    std::array<const char*, 3> args = { "cliTest", "hello.c", "sda2.h" };
     CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
 
     ASSERT_FALSE(cliArgs.empty());
@@ -188,6 +188,46 @@ TEST(CLITest, ExpectFile)
     {
         ASSERT_STREQ(inputFiles[i].data(), args[i + 1]);
     }
+}
+
+TEST(CLITest, ExpectFileAndOutputNameValid)
+{
+    std::array<const char*, 4> args = { "cliTest", "hello.c", "-o", "test" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_TRUE(cliArgs.parse(&reason));
+    ASSERT_TRUE(reason.empty());
+
+    const auto& inputFiles = cliArgs.getInputFiles();
+    ASSERT_EQ(inputFiles.size(), 1);
+    ASSERT_STREQ(inputFiles[0].data(), "hello.c");
+
+    ASSERT_FALSE(cliArgs.getOutputName().empty());
+    ASSERT_STREQ(cliArgs.getOutputName().data(), "test");
+}
+
+TEST(CLITest, ExpectFileAndOutputNameWithOrderFlippedValid)
+{
+    std::array<const char*, 4> args = { "cliTest", "-o", "test", "hello.c" };
+    CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
+
+    ASSERT_FALSE(cliArgs.empty());
+    ASSERT_EQ(cliArgs.count(), args.size() - 1);
+
+    std::string reason;
+    ASSERT_TRUE(cliArgs.parse(&reason));
+    ASSERT_TRUE(reason.empty());
+
+    const auto& inputFiles = cliArgs.getInputFiles();
+    ASSERT_EQ(inputFiles.size(), 1);
+    ASSERT_STREQ(inputFiles[0].data(), "hello.c");
+
+    ASSERT_FALSE(cliArgs.getOutputName().empty());
+    ASSERT_STREQ(cliArgs.getOutputName().data(), "test");
 }
 
 s32 main(s32 argc, char* argv[])

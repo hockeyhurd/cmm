@@ -12,13 +12,14 @@
 // std includes
 #include <array>
 #include <cassert>
+#include <functional>
 #include <optional>
 #include <sstream>
 #include <unordered_map>
 
 namespace cmm
 {
-    typedef bool (*OptCallback)(CLIargs&, std::string*, const std::optional<std::string_view>&);
+    using OptCallback = std::function<bool(CLIargs*, std::string*, const std::optional<std::string_view>&)>;
 
     struct OptData
     {
@@ -26,12 +27,12 @@ namespace cmm
         bool hasNext;
         OptCallback callback;
 
-        OptData(std::string_view prefix, bool hasNext, OptCallback callback = CLIargs::defaultCallback) CMM_NOEXCEPT :
+        OptData(std::string_view prefix, bool hasNext, OptCallback callback = &CLIargs::defaultCallback) CMM_NOEXCEPT :
             prefix(prefix), hasNext(hasNext), callback(callback) {}
     };
 
     CLIargs::CLIargs(const s32 argc, char* argv[]) : args(), buildType(EnumBuildType::BINARY),
-        outName("a.out")
+        debugMode(false), outName("a.out")
     {
         if (argc <= 1)
         {
@@ -54,6 +55,11 @@ namespace cmm
     bool CLIargs::empty() const CMM_NOEXCEPT
     {
         return args.empty();
+    }
+
+    bool CLIargs::isDebug() const CMM_NOEXCEPT
+    {
+        return false;
     }
 
     EnumBuildType CLIargs::getBuildType() const CMM_NOEXCEPT
@@ -80,15 +86,16 @@ namespace cmm
     {
         static const std::unordered_map<std::string_view, OptData> optTable =
         {
-            { "-o", { "", true, collectOutputName } },
-            { "-g", { "", false } },
+            { "-o", { "", true, &CLIargs::collectOutputName } },
+            { "-g", { "", false, &CLIargs::collectDebugMode } },
+            // { "-w", { "", false, collectWarningLevel } },
         };
 
         for (std::size_t i = 0; i < args.size(); ++i)
         {
             const std::string_view arg = args[i];
 
-            if (isArgACppFile(arg))
+            if (isArgCFile(arg))
             {
                 inputFiles.emplace_back(arg);
                 continue;
@@ -127,7 +134,7 @@ namespace cmm
                     return false;
                 }
 
-                next = std::make_optional(args[i++]);
+                next = std::make_optional(args[i]);
 
                 if (!next->empty())
                 {
@@ -156,7 +163,7 @@ namespace cmm
                 }
             }
 
-            const bool result = optData.callback(*this, reason, next);
+            const bool result = optData.callback(this, reason, next);
 
             if (!result)
             {
@@ -167,8 +174,13 @@ namespace cmm
         return true;
     }
 
-    /* static */
-    bool CLIargs::collectOutputName(CLIargs& args, std::string* reason, const std::optional<std::string_view>& value)
+    bool CLIargs::collectDebugMode(std::string* reason, const std::optional<std::string_view>& value)
+    {
+        debugMode = true;
+        return true;
+    }
+
+    bool CLIargs::collectOutputName(std::string* reason, const std::optional<std::string_view>& value)
     {
         if (!value.has_value())
         {
@@ -190,15 +202,14 @@ namespace cmm
             return false;
         }
 
-        args.outName = *value;
+        outName = *value;
 
         return true;
     }
 
-    /* static */
-    bool CLIargs::isArgACppFile(const std::string_view value)
+    bool CLIargs::isArgCFile(const std::string_view value)
     {
-        CMM_CONSTEXPR std::array<std::string_view, 3> extensions = { ".cpp", ".cxx", ".cc" };
+        CMM_CONSTEXPR std::array<std::string_view, 2> extensions = { ".c", ".h" };
         const auto begIter = value.crbegin();
 
         for (const std::string_view ext : extensions)
