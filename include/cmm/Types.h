@@ -356,7 +356,7 @@ namespace cmm
 
     enum class EnumBuildType
     {
-        BINARY = 0, SHARED_LIB, STATIC_LIB
+        ASSEMBLE = 0, BINARY, OBJ, SHARED_LIB, STATIC_LIB
     };
 
     const char* toString(const EnumBuildType buildType) CMM_NOEXCEPT;

@@ -32,7 +32,7 @@ namespace cmm
     };
 
     CLIargs::CLIargs(const s32 argc, char* argv[]) : args(), buildType(EnumBuildType::BINARY),
-        debugMode(false), outName("a.out")
+        debugMode(false), outName()
     {
         if (argc <= 1)
         {
@@ -86,8 +86,10 @@ namespace cmm
     {
         static const std::unordered_map<std::string_view, OptData> optTable =
         {
-            { "-o", { "", true, &CLIargs::collectOutputName } },
+            { "-S", { "", false, &CLIargs::collectAssembleOnly } },
+            { "-c", { "", false, &CLIargs::collectCompileOnly } },
             { "-g", { "", false, &CLIargs::collectDebugMode } },
+            { "-o", { "", true, &CLIargs::collectOutputName } },
             // { "-w", { "", false, collectWarningLevel } },
         };
 
@@ -138,7 +140,7 @@ namespace cmm
 
                 if (!next->empty())
                 {
-                    if (startsWith(*next, '-'))
+                    if (StringUtils::startsWith(*next, '-'))
                     {
                         if (reason != nullptr)
                         {
@@ -151,7 +153,7 @@ namespace cmm
                         return false;
                     }
 
-                    else if (isWhitespace(*next))
+                    else if (StringUtils::isWhitespace(*next))
                     {
                         if (reason != nullptr)
                         {
@@ -171,6 +173,18 @@ namespace cmm
             }
         }
 
+        return true;
+    }
+
+    bool CLIargs::collectAssembleOnly(std::string* reason, const std::optional<std::string_view>& value)
+    {
+        buildType = EnumBuildType::ASSEMBLE;
+        return true;
+    }
+
+    bool CLIargs::collectCompileOnly(std::string* reason, const std::optional<std::string_view>& value)
+    {
+        buildType = EnumBuildType::OBJ;
         return true;
     }
 

@@ -395,8 +395,12 @@ namespace cmm
     {
         switch (buildType)
         {
+        case EnumBuildType::ASSEMBLE:
+            return "EnumBuildType::ASSEMLE";
         case EnumBuildType::BINARY:
             return "EnumBuildType::BINARY";
+        case EnumBuildType::OBJ:
+            return "EnumBuildType::OBJ";
         case EnumBuildType::SHARED_LIB:
             return "EnumBuildType::SHARED_LIB";
         case EnumBuildType::STATIC_LIB:

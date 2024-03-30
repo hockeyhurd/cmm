@@ -54,6 +54,8 @@ namespace cmm
     private:
 
         inline bool defaultCallback(std::string*, const std::optional<std::string_view>&) { return true; }
+        bool collectAssembleOnly(std::string* reason, const std::optional<std::string_view>& value);
+        bool collectCompileOnly(std::string* reason, const std::optional<std::string_view>& value);
         bool collectDebugMode(std::string* reason, const std::optional<std::string_view>& value);
         bool collectOutputName(std::string* reason, const std::optional<std::string_view>& value);
         bool isArgCFile(const std::string_view str);

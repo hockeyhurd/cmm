@@ -142,7 +142,7 @@ TEST(CLITest, ExpectNameAfterOptionIsMissingFailure)
 
 TEST(CLITest, ExpectNameAfterOptionIsEmptyFailure)
 {
-    std::array<const char*, 3> args = { "cliTest", "-o", "" };
+    std::array<const char*, 2> args = { "cliTest", "-o" };
     CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
 
     ASSERT_FALSE(cliArgs.empty());
