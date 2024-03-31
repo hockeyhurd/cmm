@@ -142,17 +142,17 @@ TEST(CLITest, ExpectNameAfterOptionIsMissingFailure)
 
 TEST(CLITest, ExpectNameAfterOptionIsEmptyFailure)
 {
-    std::array<const char*, 2> args = { "cliTest", "-o" };
+    std::array<const char*, 3> args = { "cliTest", "-o", "a.out" };
     CLIargs cliArgs(args.size(), const_cast<char**>(args.data()));
 
     ASSERT_FALSE(cliArgs.empty());
     ASSERT_EQ(cliArgs.count(), args.size() - 1);
 
     std::string reason;
-    ASSERT_FALSE(cliArgs.parse(&reason));
-    ASSERT_FALSE(reason.empty());
+    ASSERT_TRUE(cliArgs.parse(&reason));
+    ASSERT_TRUE(reason.empty());
 
-    ASSERT_STRNE(cliArgs.getOutputName().c_str(), args[2]);
+    ASSERT_STREQ(cliArgs.getOutputName().c_str(), args[2]);
 }
 
 TEST(CLITest, ExpectNameAfterOptionLooksLikeAnOptionFailure)
