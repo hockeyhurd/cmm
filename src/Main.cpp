@@ -157,9 +157,46 @@ void clangify(const CLIargs& cliArgs, std::queue<std::string>& intermediateFiles
         std::cout << str << std::endl;
     }
 
-    cmm::system::ChildProcess childProc(clangPath, std::move(clangArgs));
+    // Create a temp file so we can capture clang's output.
+    std::FILE* tmpFile = std::tmpfile();
+
+    if (tmpFile)
+    {
+        reporter.error("Unable to create a temporary file. Aborting...", Location::nullLocation());
+        std::exit(EXIT_FAILURE);
+    }
+
+    // Obtain a file descriptor from a FILE*
+    const s32 pipeFD = static_cast<s32>(fileno(tmpFile));
+
+    if (pipeFD == -1)
+    {
+        reporter.error("Unable to get file descriptor from temporary file. Aborting...", Location::nullLocation());
+        std::exit(EXIT_FAILURE);
+    }
+
+    cmm::system::ChildProcess childProc(clangPath, std::move(clangArgs), pipeFD);
     childProc.start();
     childProc.wait();
+
+    // Check if clang dumped anything and handle accordingly.
+    std::rewind(tmpFile);
+    std::ostringstream os;
+    char temp;
+
+    while ((temp = std::fgetc(tmpFile)) != EOF)
+    {
+        os << temp;
+    }
+
+    const auto stringifiedOutput = os.str();
+
+    if (!stringifiedOutput.empty())
+    {
+        reporter.error(stringifiedOutput, Location::nullLocation());
+    }
+
+    std::fclose(tmpFile);
 }
 
 /* static */

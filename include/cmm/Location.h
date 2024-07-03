@@ -76,7 +76,7 @@ namespace cmm
          *
          * @return Location.
          */
-        Location nullLocation() const CMM_NOEXCEPT;
+        static Location nullLocation() CMM_NOEXCEPT;
 
         /**
          * Gets the line in the file.

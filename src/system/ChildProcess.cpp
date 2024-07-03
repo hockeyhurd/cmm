@@ -28,8 +28,8 @@ namespace cmm
 {
 namespace system
 {
-    ChildProcess::ChildProcess(const std::string& path, std::vector<std::string>&& args) :
-        path(path), args(std::move(args)), pid(-1)
+    ChildProcess::ChildProcess(const std::string& path, std::vector<std::string>&& args, const s32 pipeFD) :
+        path(path), args(std::move(args)), pipeFD(pipeFD), pid(-1)
     {
     }
 
@@ -95,6 +95,11 @@ namespace system
         // Success: We are running as the child process.
         case 0:
         {
+            if (pipeFD >= 0)
+            {
+                setupPipeOutput();
+            }
+
             const auto argv = std::make_unique<char*[]>(args.size() + 1);
             argv[args.size()] = nullptr;
 
@@ -157,6 +162,17 @@ namespace system
         }
 
         return waitStatus;
+    }
+
+    void ChildProcess::setupPipeOutput()
+    {
+        const auto errorCode = dup2(pipeFD, STDOUT_FILENO);
+
+        if (errorCode < 0)
+        {
+            std::cerr << "Failed to pipe STDOUT_FILENO to pipeFD (error code: " << errorCode << ")\n";
+            std::exit(-1);
+        }
     }
 }
 }

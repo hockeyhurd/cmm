@@ -25,6 +25,12 @@ namespace cmm
     {
     }
 
+    /* static */
+    Location Location::nullLocation() CMM_NOEXCEPT
+    {
+        return Location();
+    }
+
     std::size_t Location::getLine() const CMM_NOEXCEPT
     {
         return line;

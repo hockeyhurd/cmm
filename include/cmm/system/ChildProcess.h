@@ -33,7 +33,7 @@ namespace system
         /**
          * Constructor.
          */
-        ChildProcess(const std::string& path, std::vector<std::string>&& args);
+        ChildProcess(const std::string& path, std::vector<std::string>&& args, const s32 pipeFD = -1);
         ChildProcess(const ChildProcess&) = delete;
         ChildProcess(ChildProcess&&) CMM_NOEXCEPT = default;
         ~ChildProcess() = default;
@@ -52,8 +52,13 @@ namespace system
 
     private:
 
+        void setupPipeOutput();
+
+    private:
+
         std::string path;
         std::vector<std::string> args;
+        s32 pipeFD;
         s32 pid;
     };
 }
