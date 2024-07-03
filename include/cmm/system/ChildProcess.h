@@ -15,6 +15,7 @@
 
 // std includes
 #include <initializer_list>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -33,7 +34,7 @@ namespace system
         /**
          * Constructor.
          */
-        ChildProcess(const std::string& path, std::vector<std::string>&& args, const s32 pipeFD = -1);
+        ChildProcess(const std::string& path, std::vector<std::string>&& args, const std::optional<s32> optPipeFD = std::nullopt);
         ChildProcess(const ChildProcess&) = delete;
         ChildProcess(ChildProcess&&) CMM_NOEXCEPT = default;
         ~ChildProcess() = default;
@@ -58,7 +59,7 @@ namespace system
 
         std::string path;
         std::vector<std::string> args;
-        s32 pipeFD;
+        std::optional<s32> optPipeFD;
         s32 pid;
     };
 }

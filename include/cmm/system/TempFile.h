@@ -41,7 +41,7 @@ namespace system
         TempFile& operator= (TempFile&&) CMM_NOEXCEPT;
 
         static std::optional<TempFile> createTemp();
-        s32 getFD() const CMM_NOEXCEPT;
+        std::optional<s32> getFD() const CMM_NOEXCEPT;
 
         std::string readAll() const;
         void rewind();
@@ -49,7 +49,7 @@ namespace system
     private:
 
         // See documentation here: https://man7.org/linux/man-pages/man3/fileno.3.html
-        static CMM_CONSTEXPR s32 badFD = -1;
+        static CMM_CONSTEXPR s32 BAD_FD = -1;
         std::FILE* file;
     };
 }

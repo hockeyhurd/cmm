@@ -166,23 +166,25 @@ void clangify(const CLIargs& cliArgs, std::queue<std::string>& intermediateFiles
         std::exit(EXIT_FAILURE);
     }
 
-    const s32 pipeFD = optTempFile->getFD();
+    const auto optPipeFD = optTempFile->getFD();
 
-    if (pipeFD == -1)
+    if (!optPipeFD.has_value())
     {
         std::exit(EXIT_FAILURE);
     }
 
-    cmm::system::ChildProcess childProc(clangPath, std::move(clangArgs), pipeFD);
+    cmm::system::ChildProcess childProc(clangPath, std::move(clangArgs), optPipeFD);
     childProc.start();
     childProc.wait();
 
     // Check if clang dumped anything and handle accordingly.
+    // NOTE: We must rewind first in order to read from the beginning of the std::FILE.
     optTempFile->rewind();
     const auto stringifiedOutput = optTempFile->readAll();
 
     if (!stringifiedOutput.empty())
     {
+        // For now, we treat any/all output as errors??
         reporter.error(stringifiedOutput, Location::nullLocation());
     }
 }

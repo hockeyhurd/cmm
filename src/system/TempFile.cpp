@@ -62,22 +62,27 @@ namespace system
         return std::make_optional(std::move(file));
     }
 
-    s32 TempFile::getFD() const CMM_NOEXCEPT
+    std::optional<s32> TempFile::getFD() const CMM_NOEXCEPT
     {
-        s32 fd = TempFile::badFD;
+        std::optional<s32> result(std::nullopt);
 
-        if (file != nullptr)
+        if (file == nullptr)
         {
-            fd = fileno(file);
-
-            if (fd == TempFile::badFD)
-            {
-                auto& reporter = Reporter::instance();
-                reporter.error("Unable to get file descriptor from temporary file. Aborting...", Location::nullLocation());
-            }
+            return result;
         }
 
-        return fd;
+        const s32 fd = fileno(file);
+
+        if (fd == TempFile::BAD_FD)
+        {
+            auto& reporter = Reporter::instance();
+            reporter.error("Unable to get file descriptor from temporary file. Aborting...", Location::nullLocation());
+            return result;
+        }
+
+        result = std::make_optional(fd);
+
+        return result;
     }
 
     std::string TempFile::readAll() const
