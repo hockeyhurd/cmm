@@ -5,6 +5,7 @@
 #include <cmm/config/CLIargs.h>
 #include <cmm/platform/PlatformLLVM.h>
 #include <cmm/system/ChildProcess.h>
+#include <cmm/system/TempFile.h>
 #include <cmm/utils/StringUtils.h>
 #include <cmm/visit/Analyzer.h>
 #include <cmm/visit/Encode.h>
@@ -158,20 +159,17 @@ void clangify(const CLIargs& cliArgs, std::queue<std::string>& intermediateFiles
     }
 
     // Create a temp file so we can capture clang's output.
-    std::FILE* tmpFile = std::tmpfile();
+    auto optTempFile = cmm::system::TempFile::createTemp();
 
-    if (tmpFile)
+    if (!optTempFile.has_value())
     {
-        reporter.error("Unable to create a temporary file. Aborting...", Location::nullLocation());
         std::exit(EXIT_FAILURE);
     }
 
-    // Obtain a file descriptor from a FILE*
-    const s32 pipeFD = static_cast<s32>(fileno(tmpFile));
+    const s32 pipeFD = optTempFile->getFD();
 
     if (pipeFD == -1)
     {
-        reporter.error("Unable to get file descriptor from temporary file. Aborting...", Location::nullLocation());
         std::exit(EXIT_FAILURE);
     }
 
@@ -180,23 +178,13 @@ void clangify(const CLIargs& cliArgs, std::queue<std::string>& intermediateFiles
     childProc.wait();
 
     // Check if clang dumped anything and handle accordingly.
-    std::rewind(tmpFile);
-    std::ostringstream os;
-    char temp;
-
-    while ((temp = std::fgetc(tmpFile)) != EOF)
-    {
-        os << temp;
-    }
-
-    const auto stringifiedOutput = os.str();
+    optTempFile->rewind();
+    const auto stringifiedOutput = optTempFile->readAll();
 
     if (!stringifiedOutput.empty())
     {
         reporter.error(stringifiedOutput, Location::nullLocation());
     }
-
-    std::fclose(tmpFile);
 }
 
 /* static */
